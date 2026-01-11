@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ page_title }} | Abuja Rentals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .property-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-available {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-sold {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-draft {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+    
+    .image-preview {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+    }
+    /* Polished card styles (no hover elevation/transform) */
+    .property-card {
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        transition: box-shadow .2s ease, background-color .2s ease;
+        border-radius: 0.75rem;
+    }
+    .price-badge {
+        background: linear-gradient(90deg,#0ea5a4,#2563eb);
+        color: white;
+        padding: 0.45rem 0.85rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        box-shadow: 0 6px 18px rgba(37,99,235,0.08);
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .property-title { color: #0f172a; font-weight: 600; }
+    .property-desc { color: #4b5563; }
+
+    /* Primary full-width view button */
+    .btn-view {
+        display: inline-block;
+        width: 100%;
+        padding: 0.6rem 0.9rem;
+        background: linear-gradient(90deg,#2563eb,#1e40af);
+        color: #ffffff;
+        border-radius: 0.6rem;
+        font-weight: 600;
+        text-align: center;
+        border: none;
+        text-decoration: none;
+    }
+    .btn-view:hover { background: linear-gradient(90deg,#1e40af,#1b3a9b); }
+
+    /* Small circular report button */
+    .btn-flag {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        border: 1px solid rgba(220,38,38,0.12);
+        background: #fff5f5;
+        color: #dc2626;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-flag:hover { background: #fee2e2; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Sidebar Filters (Left) -->
+        <aside class="lg:col-span-3 order-2 lg:order-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 sticky top-20">
+                <h2 class="text-lg font-semibold mb-4">Filters</h2>
+                <form method="GET" class="space-y-4" id="filterFormSidebar">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                        {{ search_form.property_type }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
+                        {{ search_form.purpose }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        {{ search_form.city }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        {{ search_form.search }}
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-accent text-white rounded-lg">Apply</button>
+                        <a href="{% url 'owner_properties' %}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-center">Reset</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden lg:block">
+                <h3 class="text-sm text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
+                <ul class="text-sm text-gray-600 space-y-2">
+                    <li>Use filters to narrow results quickly.</li>
+                    <li>Click a card to view full details.</li>
+                    <li>Owners can manage their listings from the dashboard.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main content (Right) -->
+        <main class="lg:col-span-9 order-1 lg:order-2">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-primary">{{ page_title }}</h1>
+                    <p class="text-gray-600 mt-1">{% if is_owner_view %}Manage your property listings{% else %}Browse available properties in Abuja{% endif %}</p>
+                </div>
+                <div class="flex items-center space-x-3 mt-4 md:mt-0 w-full md:w-auto">
+                    <div class="text-sm text-gray-500">Showing <strong>{{ properties|length }}</strong></div>
+                    <select name="sort" onchange="document.getElementById('filterFormSidebar').submit()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">Sort: Recommended</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                        <option value="newest">Newest</option>
+                    </select>
+                    {% if user.is_authenticated and user.userprofile.user_type == 'owner' %}
+                    <a href="{% url 'add_property' %}" class="btn-gradient text-white font-medium px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Add Property
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if properties %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for property in properties %}
+                <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
+                    <div class="relative h-56 overflow-hidden">
+                        {% if property.main_image %}
+                        <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover transition duration-300">
+                        {% else %}
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-home text-gray-400 text-4xl"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="absolute top-3 left-3">
+                            <span class="property-status status-{{ property.status }}">{{ property.get_status_display }}</span>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <span class="price-badge">₦{{ property.price|floatformat:0|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <h3 class="property-title text-lg mb-1">{{ property.title }}</h3>
+                        <p class="property-desc text-sm mb-2 flex items-center"><i class="fas fa-map-marker-alt mr-2"></i>{{ property.city|capfirst }}</p>
+
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="text-sm text-gray-600">
+                                {% if property.bedrooms %}<span class="mr-3"><i class="fas fa-bed mr-1"></i>{{ property.bedrooms }}</span>{% endif %}
+                                {% if property.bathrooms %}<span class="mr-3"><i class="fas fa-bath mr-1"></i>{{ property.bathrooms }}</span>{% endif %}
+                                {% if property.area_sqft %}<span><i class="fas fa-ruler-combined mr-1"></i>{{ property.area_sqft|floatformat:0 }} sqft</span>{% endif %}
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4 line-clamp-2">{{ property.description|truncatechars:140 }}</p>
+
+                        <div class="flex items-center">
+                            <a href="{% url 'property_detail' property.id %}" class="btn-view">View Details</a>
+                            <div class="ml-3 flex items-center space-x-2">
+                                {% if user.is_authenticated and property.owner == user %}
+                                <a href="{% url 'edit_property' property.id %}" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Property">
+                                    <i class="fas fa-edit text-sm"></i>
+                                </a>
+                                <button onclick="openDeleteModal('{{ property.id }}', '{{ property.title }}')" class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 transition" title="Delete Property">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                                {% endif %}
+
+                                {% if user.is_authenticated and user.userprofile.user_type == 'tenant' %}
+                                <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')" class="btn-flag" title="Report Owner">
+                                    <i class="fas fa-flag"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-home text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No Properties Found</h3>
+                <p class="text-gray-600 mb-6">{% if is_owner_view %}You haven't listed any properties yet. Start by adding your first property.{% else %}No properties match your search criteria. Try adjusting your filters.{% endif %}</p>
+                {% if is_owner_view and user.is_authenticated and user.userprofile.user_type == 'owner' %}
+                <a href="{% url 'add_property' %}" class="btn-gradient text-white font-medium px-6 py-3 rounded-lg inline-flex items-center"><i class="fas fa-plus mr-2"></i> Add Your First Property</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Pagination -->
+            {% if properties.has_other_pages %}
+            <div class="mt-8 flex justify-center">
+                <nav class="flex items-center space-x-2">
+                    {% if properties.has_previous %}
+                    <a href="?page={{ properties.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><i class="fas fa-chevron-left"></i></a>
+                    {% endif %}
+                    {% for num in properties.paginator.page_range %}
+                        {% if properties.number == num %}
+                        <span class="px-4 py-2 bg-accent text-white rounded-lg">{{ num }}</span>
+                        {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
+                        <a href="?page={{ num }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if properties.has_next %}
+                    <a href="?page={{ properties.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><i class="fas fa-chevron-right"></i></a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<!-- Delete Modal - Only shown to property owners -->
+{% if user.is_authenticated %}
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Property</h3>
+            <p class="text-gray-600">Are you sure you want to delete <span id="propertyName" class="font-semibold"></span>? This action cannot be undone.</p>
+        </div>
+        
+        <form id="deleteForm" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    Delete Property
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if user.is_authenticated %}
+<!-- Report Modal for properties list -->
+<div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
+        <div class="text-center mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Report Property Owner</h3>
+            <p class="text-gray-600 text-sm">Describe the issue and our admin team will review and act accordingly.</p>
+        </div>
+
+        <form id="reportForm" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    <option value="payment_issue">Payment / Refund Issue</option>
+                    <option value="fake_listing">Fake / Misleading Listing</option>
+                    <option value="harassment">Harassment / Abusive Behavior</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
+                <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Describe the issue"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeReportModal()" class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% include 'auto_reload.html' %}
+<script>
+    function openDeleteModal(propertyId, propertyTitle) {
+        document.getElementById('propertyName').textContent = propertyTitle;
+        document.getElementById('deleteForm').action = `/owner/properties/delete/${propertyId}/`;
+        document.getElementById('deleteModal').classList.remove('hidden');
+        document.getElementById('deleteModal').classList.add('flex');
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+        document.getElementById('deleteModal').classList.remove('flex');
+    }
+    
+    // Close modal when clicking outside
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+    }
+</script>
+<script>
+    function openReportModal(propertyId, propertyTitle) {
+        const form = document.getElementById('reportForm') || document.getElementById('reportFormDetail');
+        if (form) {
+            form.action = `/property/${propertyId}/report/`;
+        } else {
+            console.warn('Report form not found in DOM.');
+        }
+
+        const modal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        } else {
+            console.warn('Report modal not found in DOM.');
+        }
+    }
+
+    function closeReportModal() {
+        const modal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    // Close report modal when clicking outside
+    const reportModal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+    if (reportModal) {
+        reportModal.addEventListener('click', function(e) {
+            if (e.target === this) closeReportModal();
+        });
+    }
+</script>
+{% endblock %}

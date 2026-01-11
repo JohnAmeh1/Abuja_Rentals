@@ -1,0 +1,457 @@
+<!-- templates/student/properties.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ page_title }} | Student Properties{% endblock %}
+
+{% block extra_css %}
+<style>
+    .property-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-available {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-draft {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+    
+    .status-rented {
+        background-color: #f3e8ff;
+        color: #6b21a8;
+    }
+    
+    .price-badge {
+        background: linear-gradient(90deg,#0ea5a4,#2563eb);
+        color: white;
+        padding: 0.45rem 0.85rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        box-shadow: 0 6px 18px rgba(37,99,235,0.08);
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    
+    .property-card {
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+        transition: box-shadow .2s ease, background-color .2s ease;
+        border-radius: 0.75rem;
+    }
+    
+    .property-title {
+        color: #0f172a;
+        font-weight: 600;
+    }
+    
+    .property-desc {
+        color: #4b5563;
+    }
+    
+    .btn-view {
+        display: inline-block;
+        width: 100%;
+        padding: 0.6rem 0.9rem;
+        background: linear-gradient(90deg,#2563eb,#1e40af);
+        color: #ffffff;
+        border-radius: 0.6rem;
+        font-weight: 600;
+        text-align: center;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .btn-view:hover {
+        background: linear-gradient(90deg,#1e40af,#1b3a9b);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Sidebar Filters (Left) -->
+        <aside class="lg:col-span-3 order-2 lg:order-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 sticky top-20">
+                <h2 class="text-lg font-semibold mb-4">Filters</h2>
+                <form method="GET" class="space-y-4" id="filterFormSidebar">
+                    <!-- University Filter -->
+                    <div>
+                        <label for="university" class="block text-sm font-medium text-gray-700 mb-2">University</label>
+                        <select id="university" name="university" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Universities</option>
+                            {% for code, name in university_choices %}
+                                <option value="{{ code }}" {% if filter_values.university == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Property Type Filter -->
+                    <div>
+                        <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                        <select id="property_type" name="property_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Types</option>
+                            {% for code, name in property_type_choices %}
+                                <option value="{{ code }}" {% if filter_values.property_type == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Purpose Filter -->
+                    <div>
+                        <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
+                        <select id="purpose" name="purpose" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Purposes</option>
+                            {% for code, name in purpose_choices %}
+                                <option value="{{ code }}" {% if filter_values.purpose == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- City Filter -->
+                    <div>
+                        <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                        <select id="city" name="city" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Cities</option>
+                            {% for code, name in city_choices %}
+                                <option value="{{ code }}" {% if filter_values.city == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Search -->
+                    <div>
+                        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <input type="text" id="search" name="search" 
+                            value="{{ filter_values.search }}"
+                            placeholder="Search by title, location, or university..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex space-x-2">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Apply Filters</button>
+                        <a href="{% url 'student_properties' %}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50">Reset</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Agent Note for Sidebar -->
+            {% if is_agent %}
+            <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-sm text-blue-800">
+                            <strong>Agent Note:</strong> Your properties will be submitted for admin review.
+                            They will only appear to students once approved and set to "Available" status.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden lg:block">
+                <h3 class="text-sm text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
+                <ul class="text-sm text-gray-600 space-y-2">
+                    <li>Filter by university to find properties near your campus.</li>
+                    <li>Check property status before contacting agents.</li>
+                    <li>Always verify property details before making payments.</li>
+                    {% if is_agent or is_admin %}
+                    <li>Create properties with detailed descriptions and clear photos.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main content (Right) -->
+        <main class="lg:col-span-9 order-1 lg:order-2">
+            <!-- Header with Create Button -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+                    <p class="text-gray-600 mt-1">Manage your student properties here.</p>
+                </div>
+                
+                <div class="flex items-center space-x-3 mt-4 md:mt-0 w-full md:w-auto">
+                    <div class="text-sm text-gray-500">
+                        Showing <strong>{{ properties.object_list|length }}</strong> of {{ properties.paginator.count }} properties
+                    </div>
+                    
+                    <!-- Sort dropdown (optional) -->
+                    <select name="sort" onchange="updateSort(this.value)" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">Sort: Recommended</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                        <option value="newest">Newest</option>
+                        <option value="most_viewed">Most Viewed</option>
+                    </select>
+                    
+                    {% if is_agent or is_admin %}
+                    <a href="{% url 'create_property' %}" 
+                       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center font-medium">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create Property
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Properties Grid -->
+            {% if properties.object_list %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for property in properties.object_list %}
+                <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
+                    <!-- Property Image -->
+                    <div class="relative h-56 overflow-hidden">
+                        {% if property.main_image %}
+                        <img src="{{ property.main_image.url }}" alt="{{ property.title }}" 
+                             class="w-full h-full object-cover transition duration-300">
+                        {% else %}
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        {% endif %}
+
+                        <!-- Status Badge -->
+                        <div class="absolute top-3 left-3">
+                            {% if property.status == 'draft' %}
+                            <span class="property-status status-draft">Draft</span>
+                            {% elif property.status == 'pending' %}
+                            <span class="property-status status-pending">Pending Review</span>
+                            {% elif property.status == 'available' %}
+                            <span class="property-status status-available">Available</span>
+                            {% elif property.status == 'rented' %}
+                            <span class="property-status status-rented">Rented</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Price Badge -->
+                        <div class="absolute top-3 right-3">
+                            <span class="price-badge">₦{{ property.price|floatformat:0|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Property Details -->
+                    <div class="p-4">
+                        <h3 class="property-title text-lg mb-1">
+                            <a href="{% url 'student_property_detail' property.pk %}" class="hover:text-blue-600">
+                                {{ property.title|truncatechars:40 }}
+                            </a>
+                        </h3>
+                        
+                        <p class="property-desc text-sm mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            {{ property.city }}, {{ property.state }}
+                        </p>
+                        
+                        {% if property.university %}
+                        <p class="text-sm text-blue-600 mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                                <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
+                            </svg>
+                            Near {{ property.get_university_display }}
+                        </p>
+                        {% endif %}
+
+                        <!-- Property Features -->
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="text-sm text-gray-600">
+                                {% if property.bedrooms %}
+                                <span class="mr-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                    {{ property.bedrooms }}
+                                </span>
+                                {% endif %}
+                                {% if property.bathrooms %}
+                                <span class="mr-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    {{ property.bathrooms }}
+                                </span>
+                                {% endif %}
+                                {% if property.area_sqft %}
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"></path>
+                                    </svg>
+                                    {{ property.area_sqft|floatformat:0 }} sqft
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Rent Duration (if applicable) -->
+                        {% if property.purpose == 'rent' and property.rent_duration_months %}
+                        <p class="text-xs text-gray-500 mb-4">
+                            {{ property.get_rent_duration_months_display }}
+                        </p>
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center">
+                            <a href="{% url 'student_property_detail' property.pk %}" class="btn-view">
+                                {% if is_agent or is_admin or property.created_by == user %}
+                                Manage Property
+                                {% else %}
+                                View Details
+                                {% endif %}
+                            </a>
+                            
+                            {% comment %} <!-- Edit button for agents/admins/owners -->
+                            {% if is_admin or property.created_by == user %}
+                            <div class="ml-3 flex items-center">
+                                <a href="{% url 'edit_student_property' property.pk %}" 
+                                   class="w-10 h-10 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center hover:bg-gray-200 transition"
+                                   title="Edit Property">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </a>
+                                <a href="{% url 'delete_student_property' property.pk %}" 
+                                   class="w-10 h-10 bg-red-200 text-red-700 rounded-full flex items-center justify-center hover:bg-red-300 transition"
+                                   title="delete Property">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </a>
+                            </div>
+                            {% endif %} {% endcomment %}
+                        </div>
+                        
+                        <!-- Created Date Info -->
+                        <div class="mt-3 pt-3 border-t border-gray-100">
+                            <p class="text-xs text-gray-400">
+                                {% if is_agent or is_admin %}
+                                Created: {{ property.created_at|date:"M d, Y" }}
+                                {% if property.created_by != user %}
+                                <br>By: {{ property.created_by.username }}
+                                {% endif %}
+                                {% else %}
+                                Posted: {{ property.created_at|date:"M d, Y" }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if properties.has_other_pages %}
+            <div class="mt-8 flex justify-center">
+                <nav class="flex items-center space-x-2">
+                    {% if properties.has_previous %}
+                    <a href="?page={{ properties.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in properties.paginator.page_range %}
+                    {% if properties.number == num %}
+                    <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">{{ num }}</span>
+                    {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if properties.has_next %}
+                    <a href="?page={{ properties.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No Properties Found</h3>
+                <p class="text-gray-600 mb-6">
+                    {% if search_form.university.value or search_form.property_type.value or search_form.purpose.value or search_form.search.value %}
+                    Try adjusting your filters or 
+                    {% endif %}
+                    {% if is_agent or is_admin %}
+                    <a href="{% url 'create_student_property' %}" class="text-blue-600 hover:text-blue-500">
+                        create your first property
+                    </a>
+                    {% else %}
+                    check back later for available properties
+                    {% endif %}
+                </p>
+                {% if search_form.university.value or search_form.property_type.value or search_form.purpose.value or search_form.search.value %}
+                <a href="{% url 'student_properties' %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    Clear Filters
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% include 'auto_reload.html' %}
+<script>
+    function updateSort(sortValue) {
+        const url = new URL(window.location.href);
+        if (sortValue) {
+            url.searchParams.set('sort', sortValue);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        // Go to page 1 when sorting changes
+        url.searchParams.set('page', '1');
+        window.location.href = url.toString();
+    }
+    
+    // Initialize sort dropdown with current value
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort');
+        const sortSelect = document.querySelector('select[name="sort"]');
+        if (currentSort && sortSelect) {
+            sortSelect.value = currentSort;
+        }
+    });
+</script>
+{% endblock %}

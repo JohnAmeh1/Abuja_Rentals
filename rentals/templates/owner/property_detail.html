@@ -1,0 +1,1642 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ property.title }} | Abuja Rentals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .property-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-available {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-sold {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-draft {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .main-image-container {
+        grid-column: span 4;
+        height: 500px;
+        overflow: hidden;
+        border-radius: 1rem;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .main-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+
+    .main-image-container:hover img {
+        transform: scale(1.05);
+    }
+
+    .thumbnail {
+        height: 120px;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .thumbnail:hover {
+        border-color: #3b82f6;
+    }
+
+    .thumbnail.active {
+        border-color: #3b82f6;
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .amenity-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: #f3f4f6;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        color: #374151;
+    }
+
+    .amenity-badge i {
+        margin-right: 0.5rem;
+        color: #3b82f6;
+    }
+
+    .booking-card {
+        position: sticky;
+        top: 100px;
+    }
+
+    .lightbox {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+    }
+
+    .lightbox-content {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 90%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* --- Polished page styles (ecommerce-like, no elevation on hover) --- */
+    .main-image-container {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+    }
+    .main-image-container img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-gallery .thumbnail {
+        height: 110px;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 2px solid transparent;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    .image-gallery .thumbnail.active {
+        border-color: rgba(59,130,246,0.15);
+        box-shadow: 0 8px 24px rgba(59,130,246,0.06);
+    }
+
+    .property-status {
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        font-size: 0.75rem;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+    }
+
+    .bg-white.rounded-xl {
+        border-radius: 0.9rem;
+    }
+
+    .booking-card {
+        position: sticky;
+        top: 90px;
+        border-radius: 0.9rem;
+        box-shadow: 0 14px 40px rgba(2,6,23,0.06);
+        padding: 1.25rem;
+        background: linear-gradient(180deg, #ffffff, #fbfbff);
+    }
+
+    /* Buttons */
+    .btn-gradient {
+        background: linear-gradient(90deg,#7c3aed,#4f46e5);
+        color: #fff;
+        padding: .65rem 1rem;
+        border-radius: .75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-weight: 600;
+        border: none;
+    }
+    .btn-gradient:hover { opacity: .95; }
+
+    .btn-outline {
+        background: transparent;
+        border: 1.5px solid rgba(15,23,42,0.06);
+        color: #0f172a;
+        padding: .6rem .9rem;
+        border-radius: .7rem;
+        font-weight: 600;
+    }
+    .btn-outline:hover { background: rgba(15,23,42,0.02); }
+
+    .btn-primary {
+        background: linear-gradient(90deg,#2563eb,#1e40af);
+        color: #fff;
+        padding: .6rem .9rem;
+        border-radius: .7rem;
+        font-weight: 700;
+        border: none;
+    }
+
+    .meta-badge {
+        display: inline-block;
+        padding: .35rem .7rem;
+        border-radius: .6rem;
+        background: #f8fafc;
+        color: #374151;
+        font-weight: 600;
+        font-size: .825rem;
+        border: 1px solid rgba(2,6,23,0.03);
+    }
+
+    /* Contact button (booking sidebar) refinement */
+    .booking-card button[onclick^="openContactModal"], .booking-card a#savePropertyBtn {
+        border: 1.5px solid rgba(15,23,42,0.06);
+        background: #ffffff;
+        color: #0f172a;
+        padding: .65rem .9rem;
+        border-radius: .75rem;
+        font-weight: 600;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Make the wallet/add-funds link subtle */
+    .booking-card .text-accent { color: #5b21b6; font-weight: 700; }
+
+    /* Responsive tweaks */
+    @media (max-width: 1024px) {
+        .main-image-container { height: 420px; }
+        .image-gallery .thumbnail { height: 90px; }
+    }
+    @media (max-width: 640px) {
+        .main-image-container { height: 320px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600">
+            <li><a href="{% url 'home' %}" class="hover:text-accent">Home</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'owner_properties' %}" class="hover:text-accent">Properties</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">{{ property.title|truncatewords:5 }}</li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Image Gallery -->
+            <div class="image-gallery mb-8">
+                <div class="main-image-container" onclick="openLightbox('{{ property.main_image.url }}')">
+                    <img id="mainImage" src="{{ property.main_image.url }}" alt="{{ property.title }}">
+                    <div class="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-images mr-2"></i>
+                        View All {{ all_images|length }} Photos
+                    </div>
+                </div>
+
+                {% for image in additional_images %}
+                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="changeMainImage('{{ image.url }}', this)">
+                    <img src="{{ image.url }}" alt="Property Image {{ forloop.counter }}">
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Property Header -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <div class="flex items-center mb-3">
+                            <span class="property-status status-{{ property.status }}">
+                                {{ property.get_status_display }}
+                            </span>
+                            <span class="ml-3 bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                                {{ property.get_property_type_display }}
+                            </span>
+                            <span class="ml-3 bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full">
+                                {{ property.get_purpose_display }}
+                            </span>
+                        </div>
+                        <h1 class="text-3xl font-bold text-primary mb-2">{{ property.title }}</h1>
+                        <p class="text-gray-600 flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-accent"></i>
+                            {{ property.city|capfirst }}, {{ property.state }}
+                        </p>
+                    </div>
+                    
+                    {% if is_owner %}
+                    <div class="flex space-x-2">
+                        <a href="{% url 'edit_property' property.id %}" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Property">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <button onclick="openDeleteModal()" class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 transition" title="Delete Property">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+                    {% if property.bedrooms %}
+                    <div class="text-center">
+                        <div class="text-3xl text-accent mb-1">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="font-semibold text-gray-900">{{ property.bedrooms }}</div>
+                        <div class="text-sm text-gray-600">Bedrooms</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if property.bathrooms %}
+                    <div class="text-center">
+                        <div class="text-3xl text-accent mb-1">
+                            <i class="fas fa-bath"></i>
+                        </div>
+                        <div class="font-semibold text-gray-900">{{ property.bathrooms }}</div>
+                        <div class="text-sm text-gray-600">Bathrooms</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if property.area_sqft %}
+                    <div class="text-center">
+                        <div class="text-3xl text-accent mb-1">
+                            <i class="fas fa-ruler-combined"></i>
+                        </div>
+                        <div class="font-semibold text-gray-900">{{ property.area_sqft|floatformat:0 }}</div>
+                        <div class="text-sm text-gray-600">Sq Ft</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-center">
+                        <div class="text-3xl text-accent mb-1">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="font-semibold text-gray-900">{{ property.created_at|date:"Y" }}</div>
+                        <div class="text-sm text-gray-600">Listed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-2xl font-bold text-primary mb-4">
+                    <i class="fas fa-info-circle mr-2 text-accent"></i>Description
+                </h2>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ property.description }}</p>
+            </div>
+
+            <!-- Amenities -->
+            {% if property.get_amenities_list %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-2xl font-bold text-primary mb-4">
+                    <i class="fas fa-star mr-2 text-accent"></i>Amenities & Features
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {% for amenity in property.get_amenities_list %}
+                    <div class="amenity-badge">
+                        <i class="fas fa-check-circle"></i>
+                        {{ amenity|title }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Owner Information (Only visible to non-owners) -->
+            {% if not is_owner %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-2xl font-bold text-primary mb-4">
+                    <i class="fas fa-user-circle mr-2 text-accent"></i>Property Owner
+                </h2>
+                <div class="flex items-center">
+                    {% if property.owner.userprofile.profile_picture %}
+                    <img src="{{ property.owner.userprofile.profile_picture.url }}" alt="{{ property.owner.get_full_name }}" class="w-16 h-16 rounded-full object-cover mr-4">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center text-2xl font-bold mr-4">
+                        {{ property.owner.first_name.0|default:property.owner.username.0|upper }}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-900">
+                            {{ property.owner.get_full_name|default:property.owner.username }}
+                        </h3>
+                        <p class="text-gray-600">Property Owner</p>
+                        {% if property.owner.userprofile.phone_number %}
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="fas fa-phone mr-1"></i>{{ property.owner.userprofile.phone_number }}
+                        </p>
+                        {% endif %}
+                        {% if property.owner.userprofile.whatsapp_link %}
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="fab fa-whatsapp mr-1"></i>
+                            <a href="{{ property.owner.userprofile.whatsapp_link }}" target="_blank" class="text-accent hover:underline">Open WhatsApp</a>
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Location Map (Placeholder) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-2xl font-bold text-primary mb-4">
+                    <i class="fas fa-map-marked-alt mr-2 text-accent"></i>Location
+                </h2>
+                <div class="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                        <div class="text-center text-gray-600">
+                        <i class="fas fa-map-marker-alt text-4xl mb-2"></i>
+                        <p class="font-medium">{{ property.city|capfirst }}</p>
+                        <p class="text-sm">{{ property.state }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking/Action Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="booking-card bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <!-- Price -->
+                <div class="mb-6">
+                    <div class="text-4xl font-bold text-primary mb-2">
+                        ₦{{ property.price|floatformat:2|intcomma }}
+                    </div>
+                    <div class="text-gray-600">
+                        {% if property.purpose == 'rent' %}
+                            {% if property.rent_duration_months == 1 %}
+                                <i class="fas fa-calendar-alt mr-1"></i>Per Month
+                            {% elif property.rent_duration_months == 12 %}
+                                <i class="fas fa-calendar-alt mr-1"></i>Per Year
+                            {% elif property.rent_duration_months %}
+                                <i class="fas fa-calendar-alt mr-1"></i>{{ property.rent_duration_months }} Months
+                            {% else %}
+                                <i class="fas fa-calendar-alt mr-1"></i>Duration: N/A
+                            {% endif %}
+                        {% else %}
+                            <i class="fas fa-tag mr-1"></i>Total Price
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if is_owner %}
+                <!-- Owner Sidebar: stats & quick actions -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                            <div class="text-sm text-gray-600">Views</div>
+                            <div class="text-xl font-bold text-blue-600">{{ property.views }}</div>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg text-center">
+                            <div class="text-sm text-gray-600">Inquiries</div>
+                            <div class="text-xl font-bold text-green-600">{{ property.inquiries.count }}</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="openPropertyBookingsModal()" class="w-full px-4 py-3 bg-accent text-white rounded-lg hover:shadow-md">View Bookings</button>
+                        <a href="{% url 'owner_properties' %}?my_properties=true" class="w-full inline-block px-4 py-3 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50">Manage Listings</a>
+                        <a href="{% url 'edit_property' property.id %}" class="w-full inline-block px-4 py-3 bg-blue-600 text-white rounded-lg text-center hover:bg-blue-700">Edit Listing</a>
+                    </div>
+
+                    <div class="pt-4 border-t">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Share</h4>
+                        <div class="flex gap-2">
+                            <button onclick="shareProperty()" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">Share</button>
+                            <button onclick="copyPropertyLink()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">Copy Link</button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Visitor/Tenant Actions -->
+                {% if user.is_authenticated %}
+                <div class="space-y-3">
+                    {% if property.status == 'available' %}
+                    <!-- Book Visit Button -->
+                    <button onclick="openBookingModal()" class="btn-gradient text-white font-medium px-6 py-3 rounded-lg w-full">
+                        <i class="fas fa-calendar-check mr-2"></i>Book a Visit
+                    </button>
+
+                    <!-- Make Payment Button -->
+                    {% if user_wallet_balance >= property.price %}
+                    <button onclick="openPaymentModal()" class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium">
+                        <i class="fas fa-money-bill-wave mr-2"></i>
+                        {% if property.purpose == 'rent' %}Rent Now{% else %}Buy Now{% endif %}
+                    </button>
+                    {% else %}
+                    <div class="relative group">
+                        <button class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg opacity-75 cursor-not-allowed font-medium" disabled>
+                            <i class="fas fa-money-bill-wave mr-2"></i>
+                            {% if property.purpose == 'rent' %}Rent Now{% else %}Buy Now{% endif %}
+                        </button>
+                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            Insufficient balance
+                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
+                        </div>
+                    </div>
+                    <a href="{% url 'wallet' %}" class="block mt-2 w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-center text-sm">
+                        <i class="fas fa-wallet mr-2"></i>Add Funds to Wallet
+                    </a>
+                    {% endif %}
+
+                    <!-- Contact Owner -->
+                    {% comment %} <button onclick="openContactModal()" class="w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        <i class="fas fa-envelope mr-2"></i>Contact Owner
+                    </button> {% endcomment %}
+
+                    <!-- Share / Call / WhatsApp -->
+                    <div class="grid grid-cols-4 gap-2 mt-2">
+                        <button onclick="shareProperty()" class="px-3 py-2 bg-gray-100 rounded-lg text-sm"><i class="fas fa-share-alt"></i></button>
+                        <button onclick="callOwner()" class="px-3 py-2 bg-gray-100 rounded-lg text-sm" {% if not property.owner.userprofile.phone_number %}disabled{% endif %}><i class="fas fa-phone"></i></button>
+                        <button onclick="openWhatsApp()" class="px-3 py-2 bg-green-500 text-white rounded-lg text-sm" {% if not property.owner.userprofile.whatsapp_link and not property.owner.userprofile.phone_number %}disabled{% endif %}><i class="fab fa-whatsapp"></i></button>
+                        {% if user.is_authenticated and user.userprofile.user_type == 'tenant' or user.userprofile.user_type == 'student' %}
+                        <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')" class="px-3 py-2 bg-red-100 rounded-lg text-sm" title="Report Owner"><i class="fas fa-flag text-red-600"></i></button>
+                        {% endif %}
+                    </div>
+
+                    {% else %}
+                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 text-center">
+                        <i class="fas fa-exclamation-circle text-yellow-600 text-3xl mb-2"></i>
+                        <p class="font-semibold text-yellow-900">Property Not Available</p>
+                        <p class="text-sm text-yellow-700 mt-1">This property is currently {{ property.get_status_display|lower }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Save Property -->
+                    <a href="{% url 'save_property' property.id %}" class="w-full px-6 py-3 border-2 border-accent text-accent rounded-lg hover:bg-accent hover:text-white transition font-medium text-center block" id="savePropertyBtn">
+                        <i class="far fa-heart mr-2"></i>
+                        <span id="savePropertyText">
+                            {% if is_saved %}Unsave Property{% else %}Save Property{% endif %}
+                        </span>
+                    </a>
+                </div>
+                {% else %}
+                <!-- Not Logged In -->
+                <div class="space-y-3">
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center mb-4">
+                        <i class="fas fa-user-lock text-blue-600 text-3xl mb-2"></i>
+                        <p class="font-semibold text-blue-900">Sign In Required</p>
+                        <p class="text-sm text-blue-700 mt-1">Please log in to book or purchase this property</p>
+                    </div>
+
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn-gradient text-white font-medium px-6 py-3 rounded-lg w-full text-center block">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                    </a>
+
+                    <a href="{% url 'signup' %}" class="w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-center block">
+                        <i class="fas fa-user-plus mr-2"></i>Create Account
+                    </a>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <!-- Wallet Balance (For non-owners) -->
+                {% if user.is_authenticated and not is_owner %}
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="font-semibold text-gray-900 mb-3">Your Wallet</h4>
+                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-700">Available Balance:</span>
+                            <span class="text-xl font-bold {% if user_wallet_balance >= property.price %}text-green-600{% else %}text-red-600{% endif %}">
+                                ₦{{ user_wallet_balance|floatformat:2|intcomma }}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            {% if user_wallet_balance >= property.price %}
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            Sufficient balance for purchase
+                            {% else %}
+                            <i class="fas fa-exclamation-circle text-red-500 mr-1"></i>
+                            Need ₦{{ insufficient_amount|floatformat:2|intcomma }} more
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'wallet' %}" class="block mt-3 text-center text-accent hover:text-accent-dark font-medium text-sm">
+                            <i class="fas fa-arrow-right mr-1"></i>Manage Wallet
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary">Book a Visit</h3>
+            <button onclick="closeBookingModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="{% url 'book_property_visit' property.id %}" class="space-y-4" id="bookingForm">
+            {% csrf_token %}    
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Date</label>
+                <input type="date" name="visit_date" required min="{{ today }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time</label>
+                <select name="visit_time" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option value="">Select time</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Notes (Optional)</label>
+                <textarea name="notes" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="Any specific requirements or questions..."></textarea>
+            </div>
+
+            <div class="flex space-x-4 pt-4">
+                <button type="button" onclick="closeBookingModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 btn-gradient text-white px-6 py-3 rounded-lg">
+                    Confirm Booking
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payment Modal - UPDATED -->
+<div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary">
+                {% if property.purpose == 'rent' %}Rent Property{% else %}Buy Property{% endif %}
+            </h3>
+            <button onclick="closePaymentModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Wallet Balance Check -->
+        <div class="mb-6 p-4 rounded-lg {% if user_wallet_balance >= property.price %}bg-green-50 border border-green-200{% else %}bg-red-50 border border-red-200{% endif %}">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-700 font-medium">Your Wallet Balance:</span>
+                <span class="text-xl font-bold {% if user_wallet_balance >= property.price %}text-green-600{% else %}text-red-600{% endif %}">
+                    ₦{{ user_wallet_balance|floatformat:2|intcomma|default:"0.00" }}
+                </span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-700 font-medium">Property Price:</span>
+                <span class="text-xl font-bold text-primary">₦{{ property.price|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="border-t border-gray-300 pt-2 mt-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700 font-medium">Balance After Purchase:</span>
+                    <span class="text-lg font-bold {% if user_wallet_balance >= property.price %}text-green-600{% else %}text-red-600{% endif %}">
+                        ₦{{ user_wallet_balance_after|floatformat:2|intcomma|default:"0.00" }}
+                    </span>
+                </div>
+            </div>
+            
+            {% if user_wallet_balance < property.price %}
+            <div class="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                    <div>
+                        <p class="text-red-800 font-medium">Insufficient Balance</p>
+                        <p class="text-red-700 text-sm mt-1">
+                            You need ₦{{ insufficient_amount|floatformat:2|intcomma }} more in your wallet
+                        </p>
+                    </div>
+                </div>
+                <a href="{% url 'wallet' %}" class="block mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-center">
+                    <i class="fas fa-wallet mr-2"></i>Deposit Funds
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Fee Breakdown -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6">
+            <h4 class="font-semibold text-gray-900 mb-3">Payment Breakdown</h4>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Property Price:</span>
+                    <span class="font-medium">₦{{ property.price|floatformat:2|intcomma }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Platform Fee (5%):</span>
+                    <span class="font-medium">₦{{ platform_fee|floatformat:2|intcomma }}</span>
+                </div>
+                {% if property.purpose == 'rent' %}
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Rental Duration:</span>
+                    <span class="font-medium">{{ property.rent_duration_months }} Months</span>
+                </div>
+                {% endif %}
+                <div class="border-t border-gray-300 pt-2 mt-2">
+                    <div class="flex justify-between font-semibold text-gray-900">
+                        <span>Total Amount:</span>
+                        <span>₦{{ property.price|floatformat:2|intcomma }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Confirmation -->
+        <form method="POST" action="{% url 'process_property_payment' property.id %}" id="paymentForm">
+            {% csrf_token %}
+            
+            <div class="mb-6">
+                <label class="flex items-center">
+                    <input type="checkbox" name="terms" required class="rounded border-gray-300 text-accent focus:ring-accent mr-2">
+                    <span class="text-sm text-gray-700">
+                        I agree to the 
+                        <a href="#" class="text-accent hover:underline">Terms & Conditions</a>
+                    </span>
+                </label>
+            </div>
+
+            {% if user_wallet_balance >= property.price %}
+            <div class="space-y-3">
+                <button type="submit" class="w-full btn-gradient text-white font-medium px-6 py-3 rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-lock mr-2"></i>
+                    {% if property.purpose == 'rent' %}
+                    Confirm Rental Payment
+                    {% else %}
+                    Confirm Purchase
+                    {% endif %}
+                </button>
+                
+                <div class="text-center text-sm text-gray-600">
+                    <i class="fas fa-shield-alt mr-1"></i>
+                    Secure payment using your wallet balance
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                <i class="fas fa-wallet text-3xl text-gray-400 mb-2"></i>
+                <p class="text-gray-700 mb-3">Add funds to your wallet to complete this purchase</p>
+                <a href="{% url 'wallet' %}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-medium rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-plus-circle mr-2"></i>Deposit Funds
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+
+<!-- Property Bookings Modal (Owner Only) -->
+{% if is_owner %}
+<div id="propertyBookingsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary">Property Bookings</h3>
+            <button onclick="closePropertyBookingsModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Booking Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600" id="totalBookings">0</div>
+                <div class="text-sm text-blue-700">Total Bookings</div>
+            </div>
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600" id="pendingBookings">0</div>
+                <div class="text-sm text-yellow-700">Pending</div>
+            </div>
+            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-green-600" id="confirmedBookings">0</div>
+                <div class="text-sm text-green-700">Confirmed</div>
+            </div>
+            <div class="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-red-600" id="declinedBookings">0</div>
+                <div class="text-sm text-red-700">Declined</div>
+            </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full" id="bookingsTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visitor</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" id="bookingsTableBody">
+                    <!-- Bookings will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Bookings Message -->
+        <div id="noBookingsMessage" class="hidden text-center py-8">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="far fa-calendar-check text-gray-400 text-3xl"></i>
+            </div>
+            <h4 class="text-xl font-bold text-gray-700 mb-2">No Bookings Yet</h4>
+            <p class="text-gray-600">No one has booked a visit for this property yet.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Response Modal -->
+<div id="responseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary" id="responseModalTitle">Respond to Booking</h3>
+            <button onclick="closeResponseModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <form id="responseForm" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" id="responseBookingId" name="booking_id">
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Your Response</label>
+                <textarea id="responseMessage" name="response_message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="Enter your response to the visitor..."></textarea>
+            </div>
+
+            <div class="flex space-x-4 pt-4">
+                <button type="button" onclick="closeResponseModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <div class="flex space-x-2">
+                    <button type="submit" name="action" value="confirm" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-check mr-2"></i>Confirm
+                    </button>
+                    <button type="submit" name="action" value="decline" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                        <i class="fas fa-times mr-2"></i>Decline
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div id="bookingDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary">Booking Details</h3>
+            <button onclick="closeBookingDetailModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div id="bookingDetailContent">
+            <!-- Details will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# extra_js moved to bottom of template to avoid duplicate block issues #}
+
+<!-- Contact Modal -->
+<div id="contactModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary">Contact Owner</h3>
+            <button onclick="closeContactModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="#" class="space-y-4" id="contactForm">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                <input type="text" name="name" value="{{ user.get_full_name }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
+                <input type="email" name="email" value="{{ user.email }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Your Phone</label>
+                <input type="tel" name="phone" value="{{ user.userprofile.phone_number }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <textarea name="message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="I'm interested in this property..."></textarea>
+            </div>
+
+            <div class="flex space-x-4 pt-4">
+                <button type="button" onclick="closeContactModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 btn-gradient text-white px-6 py-3 rounded-lg">
+                    Send Message
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal (Owner Only) -->
+{% if is_owner %}
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Property</h3>
+            <p class="text-gray-600">Are you sure you want to delete this property? This action cannot be undone.</p>
+        </div>
+        
+        <form method="POST" action="{% url 'delete_property' property.id %}" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    Delete Property
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Image Lightbox -->
+<div id="lightbox" class="lightbox">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <img class="lightbox-content" id="lightboxImage">
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ============================================
+    // ENHANCED HELPER FUNCTIONS
+    // ============================================
+    
+    // Robust CSRF token getter
+    function getCsrfToken() {
+        // Try multiple ways to get CSRF token
+        const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (tokenInput) return tokenInput.value;
+        
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) return metaToken.getAttribute('content');
+        
+        const csrfCookie = document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken='));
+        if (csrfCookie) return csrfCookie.split('=')[1];
+        
+        console.warn('CSRF token not found');
+        return '';
+    }
+    
+    // Safe JSON parser for AJAX responses with better error handling
+    function parseJsonResponse(response) {
+        return response.text().then(text => {
+            // Check if response looks like HTML
+            if (text.trim().startsWith('<!DOCTYPE') || 
+                text.trim().startsWith('<html') ||
+                text.includes('<head>') ||
+                text.includes('<body>')) {
+                
+                console.warn('Server returned HTML instead of JSON. This usually means:');
+                console.warn('1. The API endpoint does not exist');
+                console.warn('2. User is not authenticated');
+                console.warn('3. Server returned an error page');
+                
+                // Try to extract error message from HTML
+                let errorMessage = 'Server error';
+                const match = text.match(/<title>(.*?)<\/title>/i);
+                if (match) {
+                    errorMessage = match[1];
+                }
+                
+                throw new Error(errorMessage);
+            }
+            
+            try {
+                // Try to parse as JSON
+                const data = JSON.parse(text);
+                return data;
+            } catch (e) {
+                console.error('Invalid JSON response:', text.substring(0, 200));
+                throw new Error('Invalid server response format');
+            }
+        });
+    }
+    
+    // Show notification helper
+    function showNotification(message, type = 'success') {
+        // Remove any existing notifications
+        const existingNotifications = document.querySelectorAll('.custom-notification');
+        existingNotifications.forEach(n => n.remove());
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `custom-notification fixed top-4 right-4 z-[99999] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        notification.textContent = message;
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    // ============================================
+    // IMAGE GALLERY FUNCTIONS
+    // ============================================
+    
+    function changeMainImage(imageUrl, thumbnail) {
+        document.getElementById('mainImage').src = imageUrl;
+        
+        // Update active thumbnail
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumbnail.classList.add('active');
+    }
+    
+    function openLightbox(imageUrl) {
+        document.getElementById('lightbox').style.display = 'block';
+        document.getElementById('lightboxImage').src = imageUrl;
+    }
+    
+    function closeLightbox() {
+        document.getElementById('lightbox').style.display = 'none';
+    }
+    
+    // Close lightbox on click outside image
+    document.getElementById('lightbox')?.addEventListener('click', function(e) {
+        if (e.target === this || e.target.classList.contains('lightbox-close')) {
+            closeLightbox();
+        }
+    });
+    
+    // ============================================
+    // MODAL FUNCTIONS
+    // ============================================
+    
+    // Generic modal functions
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+    }
+    
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+    }
+    
+    // Specific modal functions
+    function openBookingModal() { openModal('bookingModal'); }
+    function closeBookingModal() { closeModal('bookingModal'); }
+    
+    function openPaymentModal() { openModal('paymentModal'); }
+    function closePaymentModal() { closeModal('paymentModal'); }
+    
+    function openContactModal() { openModal('contactModal'); }
+    function closeContactModal() { closeModal('contactModal'); }
+    
+    function openDeleteModal() { openModal('deleteModal'); }
+    function closeDeleteModal() { closeModal('deleteModal'); }
+    
+    // For owner-only modals
+    {% if is_owner %}
+    function openPropertyBookingsModal() { 
+        loadPropertyBookings();
+        openModal('propertyBookingsModal'); 
+    }
+    function closePropertyBookingsModal() { closeModal('propertyBookingsModal'); }
+    
+    function openResponseModal(bookingId) {
+        document.getElementById('responseBookingId').value = bookingId;
+        document.getElementById('responseModalTitle').textContent = 'Respond to Booking';
+        document.getElementById('responseMessage').value = '';
+        openModal('responseModal');
+    }
+    function closeResponseModal() { closeModal('responseModal'); }
+    
+    function closeBookingDetailModal() { closeModal('bookingDetailModal'); }
+    {% endif %}
+    
+    // Close modals when clicking outside
+    ['bookingModal', 'paymentModal', 'contactModal', 'deleteModal', 
+     'propertyBookingsModal', 'responseModal', 'bookingDetailModal'].forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(modalId);
+                }
+            });
+        }
+    });
+    
+    // ============================================
+    // BOOKING FUNCTIONS
+    // ============================================
+    
+    // Handle booking form submission - SUPER SIMPLE VERSION
+    document.getElementById('bookingForm')?.addEventListener('submit', function(e) {
+        // DON'T prevent default - let Django handle the form submission normally
+        // e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+            submitBtn.disabled = true;
+            
+            // Re-enable after 5 seconds in case submission fails
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        }
+        
+        // Let the form submit normally - Django will handle redirects and messages
+    });
+    
+    // ============================================
+    // PAYMENT FUNCTIONS
+    // ============================================
+    
+    // Handle payment form submission
+    document.getElementById('paymentForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            submitBtn.disabled = true;
+            
+            // Revert after 10 seconds if something goes wrong
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 10000);
+        }
+        
+        // Submit the form
+        form.submit();
+    });
+    
+    // Check wallet balance before opening payment modal
+    function checkWalletBalanceBeforePayment() {
+        const userBalance = parseFloat('{{ user_wallet_balance|default:0 }}');
+        const propertyPrice = parseFloat('{{ property.price }}');
+        
+        if (userBalance < propertyPrice) {
+            // Show insufficient balance modal
+            const modalHTML = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="insufficientBalanceModal">
+                    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Insufficient Balance</h3>
+                            <p class="text-gray-600 mb-4">
+                                You need ₦${(propertyPrice - userBalance).toLocaleString('en-US', {minimumFractionDigits: 2})} 
+                                more in your wallet to purchase this property.
+                            </p>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-gray-700">Your Balance:</span>
+                                    <span class="font-bold text-red-600">₦${userBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-700">Property Price:</span>
+                                    <span class="font-bold text-primary">₦${propertyPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <a href="{% url 'wallet' %}" class="block w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition text-center font-medium">
+                                <i class="fas fa-wallet mr-2"></i>Go to Wallet
+                            </a>
+                            <button onclick="closeInsufficientBalanceModal()" class="block w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function closeInsufficientBalanceModal() {
+        const modal = document.getElementById('insufficientBalanceModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+    
+    // Update the Buy Now button to check balance first
+    document.addEventListener('DOMContentLoaded', function() {
+        const buyNowBtn = document.querySelector('button[onclick="openPaymentModal()"]');
+        if (buyNowBtn) {
+            buyNowBtn.setAttribute('onclick', 'if(checkWalletBalanceBeforePayment()) openPaymentModal()');
+        }
+    });
+    
+    // ============================================
+    // OWNER-ONLY FUNCTIONS (Property Bookings)
+    // ============================================
+    
+    {% if is_owner %}
+    
+    // Status class helper
+    function getStatusClass(status) {
+        switch(status) {
+            case 'pending': return 'bg-yellow-100 text-yellow-800';
+            case 'confirmed': return 'bg-green-100 text-green-800';
+            case 'declined': return 'bg-red-100 text-red-800';
+            case 'completed': return 'bg-blue-100 text-blue-800';
+            case 'cancelled': return 'bg-gray-100 text-gray-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    }
+    
+    // SIMPLIFIED: Load property bookings with mock data for now
+    function loadPropertyBookings() {
+        console.log('Loading property bookings...');
+        
+        // For now, show a message that API is not available
+        const tableBody = document.getElementById('bookingsTableBody');
+        const noBookingsMessage = document.getElementById('noBookingsMessage');
+        
+        tableBody.innerHTML = '';
+        document.getElementById('bookingsTable').classList.add('hidden');
+        noBookingsMessage.classList.remove('hidden');
+        noBookingsMessage.innerHTML = `
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="far fa-calendar-check text-gray-400 text-3xl"></i>
+            </div>
+            <h4 class="text-xl font-bold text-gray-700 mb-2">Booking Management</h4>
+            <p class="text-gray-600 mb-4">Booking management API is not available yet.</p>
+            <p class="text-sm text-gray-500">Check Django admin for booking requests.</p>
+        `;
+        
+        updateBookingStats(0, 0, 0, 0);
+        
+        // Optional: You can implement AJAX later when API is ready
+        // Uncomment this when you have the API endpoint working:
+        /*
+        fetch(`/api/property/{{ property.id }}/bookings/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('API not available');
+        })
+        .then(data => {
+            // Process data here
+        })
+        .catch(error => {
+            console.warn('Bookings API not available:', error);
+            showNotification('Booking management is temporarily unavailable', 'error');
+        });
+        */
+    }
+    
+    function updateBookingStats(total, pending, confirmed, declined) {
+        document.getElementById('totalBookings').textContent = total;
+        document.getElementById('pendingBookings').textContent = pending;
+        document.getElementById('confirmedBookings').textContent = confirmed;
+        document.getElementById('declinedBookings').textContent = declined;
+    }
+    
+    // View booking details - simplified
+    function viewBookingDetail(bookingId) {
+        showNotification('Booking details feature is not available yet', 'error');
+        
+        // Optional: Implement when API is ready
+        /*
+        fetch(`/api/bookings/${bookingId}/details/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Show booking details
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Failed to load booking details', 'error');
+        });
+        */
+    }
+    
+    // Mark booking as complete - simplified
+    function markBookingComplete(bookingId) {
+        showNotification('Please update bookings in Django admin for now', 'error');
+    }
+    
+    // Handle response form submission - simplified
+    document.getElementById('responseForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const bookingId = document.getElementById('responseBookingId').value;
+        const responseMessage = document.getElementById('responseMessage').value;
+        const action = e.submitter.value;
+        
+        if (!responseMessage.trim()) {
+            showNotification('Please enter a response message', 'error');
+            return;
+        }
+        
+        // For now, show a message
+        showNotification(`Booking response saved locally. Update booking ${bookingId} in Django admin.`, 'success');
+        closeResponseModal();
+        
+        // Optional: Implement AJAX when API is ready
+        /*
+        fetch(`/api/bookings/${bookingId}/respond/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                action: action,
+                response_message: responseMessage
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`Booking ${action}ed successfully`, 'success');
+                closeResponseModal();
+                loadPropertyBookings();
+            } else {
+                showNotification('Failed to update booking', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Failed to update booking', 'error');
+        });
+        */
+    });
+    
+    {% endif %}
+    
+    // ============================================
+    // SAVE PROPERTY FUNCTION
+    // ============================================
+    
+    document.getElementById('savePropertyBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Create a simple form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = this.href;
+        form.style.display = 'none';
+        
+        const csrfToken = getCsrfToken();
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Show loading indicator
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+        btn.disabled = true;
+        
+        // Reset button after a moment (page will refresh anyway)
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 2000);
+    });
+    
+    // ============================================
+    // SHARE FUNCTIONS
+    // ============================================
+    
+    function shareOnFacebook() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent("Check out this property: {{ property.title }}");
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+    }
+    
+    function shareOnTwitter() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent("Check out this property: {{ property.title }}");
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    }
+    
+    function shareOnWhatsApp() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent("Check out this property: {{ property.title }}");
+        window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+    }
+    
+    function copyLink() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            showNotification('Link copied to clipboard!', 'success');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            showNotification('Failed to copy link', 'error');
+        });
+    }
+
+    // Enhanced share and contact helpers
+    function shareProperty() {
+        const url = window.location.href;
+        const title = "{{ property.title|escapejs }}";
+        if (navigator.share) {
+            navigator.share({ title: title, url: url }).catch(err => {
+                console.warn('Web Share failed:', err);
+                showNotification('Unable to share on this device', 'error');
+            });
+        } else {
+            // Fallback: copy link and notify
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('Share link copied to clipboard!', 'success');
+            }).catch(() => {
+                showNotification('Unable to copy share link', 'error');
+            });
+        }
+    }
+
+    function copyPropertyLink() {
+        copyLink();
+    }
+
+    function callOwner(number) {
+        const phone = (number || "{{ property.owner.userprofile.phone_number|default:''|escapejs }}").trim();
+        if (!phone) {
+            showNotification('Phone number not available', 'error');
+            return;
+        }
+        // Normalize phone (remove spaces)
+        const tel = phone.replace(/[^+0-9]/g, '');
+        window.location.href = `tel:${tel}`;
+    }
+
+    function openWhatsApp(waLink) {
+        const profileLink = (waLink || "{{ property.owner.userprofile.whatsapp_link|default:''|escapejs }}").trim();
+        const phone = "{{ property.owner.userprofile.phone_number|default:''|escapejs }}".trim();
+
+        if (profileLink) {
+            // If user provided a full wa.me or whatsapp:// link, open it
+            window.open(profileLink, '_blank');
+            return;
+        }
+
+        if (!phone) {
+            showNotification('WhatsApp contact not available', 'error');
+            return;
+        }
+
+        // Strip non-digits for wa.me link
+        const normalized = phone.replace(/[^0-9]/g, '');
+        if (!normalized) {
+            showNotification('Invalid phone number for WhatsApp', 'error');
+            return;
+        }
+
+        const text = encodeURIComponent('Hello, I saw your property on Abuja Rentals: ' + window.location.href);
+        const waUrl = `https://wa.me/${normalized}?text=${text}`;
+        window.open(waUrl, '_blank');
+    }
+    
+    // ============================================
+    // ESCAPE KEY HANDLER
+    // ============================================
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeBookingModal();
+            closePaymentModal();
+            closeContactModal();
+            closeDeleteModal();
+            closeLightbox();
+            {% if is_owner %}
+            closePropertyBookingsModal();
+            closeResponseModal();
+            closeBookingDetailModal();
+            {% endif %}
+        }
+    });
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    // Debug info
+    console.log('Property Detail Page Loaded');
+    console.log('Property ID:', '{{ property.id }}');
+    console.log('Is Owner:', '{{ is_owner }}');
+    console.log('CSRF Token Available:', !!getCsrfToken());
+    
+</script>
+<!-- Report Modal for property detail -->
+{% if user.is_authenticated %}
+<div id="reportModalDetail" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
+        <div class="text-center mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Report Property Owner</h3>
+            <p class="text-gray-600 text-sm">Describe the issue and our admin team will review and act accordingly.</p>
+        </div>
+
+        <form id="reportFormDetail" method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    <option value="payment_issue">Payment / Refund Issue</option>
+                    <option value="fake_listing">Fake / Misleading Listing</option>
+                    <option value="harassment">Harassment / Abusive Behavior</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
+                <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Describe the issue"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeReportModalDetail()" class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function openReportModal(id, title) {
+        const form = document.getElementById('reportFormDetail') || document.getElementById('reportForm');
+        if (form) {
+            form.action = `/property/${id}/report/`;
+        }
+        const modal = document.getElementById('reportModalDetail') || document.getElementById('reportModal');
+        if (modal) {
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+        }
+    }
+    function closeReportModalDetail() {
+        const modal = document.getElementById('reportModalDetail') || document.getElementById('reportModal');
+        if (modal) {
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+        }
+    }
+
+    // Close when clicking outside
+    const modalDetail = document.getElementById('reportModalDetail');
+    if (modalDetail) {
+        modalDetail.addEventListener('click', function(e) { if (e.target === this) closeReportModalDetail(); });
+    }
+</script>
+{% endif %}
+{% endblock %}

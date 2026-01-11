@@ -1,0 +1,275 @@
+<!-- Manual Reload Button Component - Include this in base.html -->
+<!-- This adds a floating reload button that users can click to manually reload the page -->
+
+<style>
+    /* Reload Button Styles */
+    .reload-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        cursor: pointer;
+        z-index: 9998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        color: white;
+    }
+    
+    .reload-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    }
+    
+    .reload-button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+    
+    .reload-button svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
+    }
+    
+    .reload-button.reloading svg {
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Tooltip */
+    .reload-button-tooltip {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    
+    .reload-button:hover .reload-button-tooltip {
+        opacity: 1;
+    }
+    
+    /* Ripple effect */
+    .reload-button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .reload-button:active::after {
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .reload-button {
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+        }
+        
+        .reload-button svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+    
+    /* Hide button on print */
+    @media print {
+        .reload-button {
+            display: none !important;
+        }
+    }
+    
+    /* Success feedback animation */
+    @keyframes successPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .reload-button.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        animation: successPulse 0.4s ease;
+    }
+</style>
+
+<!-- Reload Button HTML -->
+<button id="manualReloadBtn" class="reload-button" title="Reload Page" aria-label="Reload Page">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+    </svg>
+    <span class="reload-button-tooltip">Reload Page</span>
+</button>
+
+<script>
+(function() {
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const reloadBtn = document.getElementById('manualReloadBtn');
+        
+        if (!reloadBtn) return;
+        
+        // Handle reload button click
+        reloadBtn.addEventListener('click', function() {
+            // Prevent double-clicks
+            if (reloadBtn.classList.contains('reloading')) {
+                return;
+            }
+            
+            // Add reloading state
+            reloadBtn.classList.add('reloading');
+            reloadBtn.setAttribute('disabled', 'true');
+            
+            // Store scroll position
+            sessionStorage.setItem('scrollPosition', window.scrollY);
+            
+            // Optional: Add haptic feedback on mobile
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+            
+            // Optional: Show loading message
+            showReloadMessage('Refreshing page...');
+            
+            // Reload after short delay for visual feedback
+            setTimeout(function() {
+                window.location.reload();
+            }, 300);
+        });
+        
+        // Restore scroll position after reload
+        const scrollPos = sessionStorage.getItem('scrollPosition');
+        if (scrollPos) {
+            window.scrollTo(0, parseInt(scrollPos));
+            sessionStorage.removeItem('scrollPosition');
+            
+            // Show success feedback
+            reloadBtn.classList.add('success');
+            showReloadMessage('✓ Page refreshed', 'success');
+            
+            setTimeout(function() {
+                reloadBtn.classList.remove('success');
+            }, 2000);
+        }
+        
+        // Keyboard shortcut: Ctrl/Cmd + R (optional enhancement)
+        document.addEventListener('keydown', function(e) {
+            // Check for Ctrl+R or Cmd+R (but don't override browser's native reload)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                // You can add custom behavior here if needed
+                console.log('🔄 Reload triggered via keyboard shortcut');
+            }
+        });
+        
+        // Optional: Add a "last updated" timestamp
+        updateLastRefreshTime();
+    });
+    
+    // Function to show reload message
+    function showReloadMessage(message, type = 'info') {
+        // Remove existing message if any
+        const existingMsg = document.getElementById('reload-message');
+        if (existingMsg) {
+            existingMsg.remove();
+        }
+        
+        // Create message element
+        const messageDiv = document.createElement('div');
+        messageDiv.id = 'reload-message';
+        
+        const bgColor = type === 'success' ? '#10b981' : '#3b82f6';
+        
+        messageDiv.innerHTML = `
+            <div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: ${bgColor}; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; font-family: system-ui, sans-serif; font-size: 14px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.3s ease-out;">
+                <svg style="width: 18px; height: 18px; ${type === 'info' ? 'animation: spin 0.8s linear infinite;' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'}" />
+                </svg>
+                <span>${message}</span>
+            </div>
+            <style>
+                @keyframes slideDown {
+                    from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            </style>
+        `;
+        
+        document.body.appendChild(messageDiv);
+        
+        // Auto remove after 2 seconds
+        setTimeout(function() {
+            if (messageDiv.parentElement) {
+                messageDiv.style.transition = 'opacity 0.3s ease';
+                messageDiv.style.opacity = '0';
+                setTimeout(function() {
+                    messageDiv.remove();
+                }, 300);
+            }
+        }, 2000);
+    }
+    
+    // Function to update last refresh time
+    function updateLastRefreshTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit'
+        });
+        
+        console.log(`🕐 Last refreshed: ${timeString}`);
+        
+        // Store in sessionStorage
+        sessionStorage.setItem('lastRefreshTime', now.toISOString());
+    }
+    
+    // Optional: Show time since last refresh on hover
+    const reloadBtn = document.getElementById('manualReloadBtn');
+    if (reloadBtn) {
+        reloadBtn.addEventListener('mouseenter', function() {
+            const lastRefresh = sessionStorage.getItem('lastRefreshTime');
+            if (lastRefresh) {
+                const elapsed = Math.floor((new Date() - new Date(lastRefresh)) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                
+                let timeText = 'Just now';
+                if (minutes > 0) {
+                    timeText = `${minutes}m ${seconds}s ago`;
+                } else if (seconds > 0) {
+                    timeText = `${seconds}s ago`;
+                }
+                
+                console.log(`⏱️ Time since last refresh: ${timeText}`);
+            }
+        });
+    }
+})();
+</script>

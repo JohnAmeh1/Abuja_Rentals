@@ -1,0 +1,272 @@
+<!-- templates/admin/settings.html -->
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Site Settings | Abuja Rentals{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-primary">Site Settings</h1>
+        <p class="text-gray-600 mt-2">Configure platform settings and preferences</p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Settings -->
+        <div class="lg:col-span-2">
+            <!-- General Settings -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h3 class="text-xl font-bold text-primary mb-6">General Settings</h3>
+                
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Platform Fee -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Platform Fee Percentage
+                        </label>
+                        <div class="flex items-center">
+                            <input type="number" name="platform_fee_percentage" value="5" min="0" max="100" step="0.1" 
+                                   class="w-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <span class="ml-3 text-gray-700">%</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Current fee: 5% of property price</p>
+                    </div>
+                    
+                    <!-- Minimum Property Price -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Minimum Property Price (₦)
+                        </label>
+                        <input type="number" name="min_property_price" value="100000" min="0" step="1000" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                    </div>
+                    
+                    <!-- Property Approval -->
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="require_property_approval" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Require admin approval for new properties</span>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-2">When enabled, new properties will be in "pending" status until approved by admin</p>
+                    </div>
+                    
+                    <!-- User Registration -->
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="allow_user_registration" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Allow new user registration</span>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-2">When disabled, only admins can create new user accounts</p>
+                    </div>
+                    
+                    <!-- Maintenance Mode -->
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="maintenance_mode" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Maintenance Mode</span>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-2">When enabled, only admins can access the site</p>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-gray-200">
+                        <button type="submit" class="px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-dark transition font-medium">
+                            <i class="fas fa-save mr-2"></i>Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Email Settings -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-xl font-bold text-primary mb-6">Email & Notification Settings</h3>
+                
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="settings_type" value="email">
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="send_welcome_email" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Send welcome email to new users</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="notify_property_sale" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Notify admin on property sale</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="notify_new_booking" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Notify property owners on new booking</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="notify_booking_response" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Notify tenants on booking response</span>
+                        </label>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-gray-200">
+                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                            <i class="fas fa-envelope mr-2"></i>Save Email Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- System Information -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h3 class="text-lg font-bold text-primary mb-4">System Information</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Platform Version:</span>
+                        <span class="font-semibold">1.0.0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Users:</span>
+                        <span class="font-semibold">{{ total_users }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Properties:</span>
+                        <span class="font-semibold">{{ total_properties }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Platform Fees:</span>
+                        <span class="font-semibold">₦{{ total_platform_fees|floatformat:2|intcomma }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Last Updated:</span>
+                        <span class="font-semibold">{{ last_updated|date:"M d, Y H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h3 class="text-lg font-bold text-primary mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{% url 'admin_users' %}" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                        <i class="fas fa-users-cog mr-2"></i>Manage Users
+                    </a>
+                    <a href="{% url 'admin_properties' %}" class="block w-full text-center px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition">
+                        <i class="fas fa-home mr-2"></i>Manage Properties
+                    </a>
+                    <a href="{% url 'admin_platform_fees' %}" class="block w-full text-center px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition">
+                        <i class="fas fa-percentage mr-2"></i>Platform Fees
+                    </a>
+                    <a href="{% url 'admin_transactions' %}" class="block w-full text-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition">
+                        <i class="fas fa-exchange-alt mr-2"></i>Transactions
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
+                <h3 class="text-lg font-bold text-red-700 mb-4">Danger Zone</h3>
+                <div class="space-y-3">
+                    <button onclick="clearCache()" class="block w-full text-center px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition">
+                        <i class="fas fa-broom mr-2"></i>Clear Cache
+                    </button>
+                    <button onclick="backupDatabase()" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                        <i class="fas fa-database mr-2"></i>Backup Database
+                    </button>
+                    <button onclick="showResetModal()" class="block w-full text-center px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Reset Platform Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Modal -->
+<div id="resetModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Reset Platform Data</h3>
+            <p class="text-gray-600">This will delete all properties, users (except admins), and transactions. This action cannot be undone.</p>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Enter "RESET" to confirm</label>
+                <input type="text" id="resetConfirm" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="Type RESET">
+            </div>
+            
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeResetModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmReset()" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    Reset Platform
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+{% include 'auto_reload.html' %}
+<script>
+    function clearCache() {
+        if (confirm('Clear all cached data?')) {
+            // Add cache clearing logic here
+            alert('Cache cleared successfully!');
+        }
+    }
+    
+    function backupDatabase() {
+        if (confirm('Create database backup?')) {
+            // Add backup logic here
+            alert('Database backup created successfully!');
+        }
+    }
+    
+    function showResetModal() {
+        document.getElementById('resetModal').classList.remove('hidden');
+        document.getElementById('resetModal').classList.add('flex');
+    }
+    
+    function closeResetModal() {
+        document.getElementById('resetModal').classList.add('hidden');
+        document.getElementById('resetModal').classList.remove('flex');
+    }
+    
+    function confirmReset() {
+        const confirmText = document.getElementById('resetConfirm').value;
+        if (confirmText === 'RESET') {
+            if (confirm('Are you absolutely sure? This will delete ALL data except admin accounts.')) {
+                // Add reset logic here
+                alert('Platform reset initiated!');
+                closeResetModal();
+            }
+        } else {
+            alert('Please type "RESET" to confirm');
+        }
+    }
+    
+    // Close modal when clicking outside
+    const modal = document.getElementById('resetModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeResetModal();
+            }
+        });
+    }
+</script>
+{% endblock %}

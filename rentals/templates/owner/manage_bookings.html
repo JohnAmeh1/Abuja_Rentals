@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Manage Bookings | Abuja Rentals{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-primary">Manage Bookings</h1>
+        <p class="text-gray-600 mt-2">Review and manage property visit requests</p>
+        
+        {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Booking Stats -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-primary mb-4">Booking Stats</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-2xl font-bold text-blue-600">{{ total_count|default:0 }}</div>
+                        <div class="text-sm text-gray-600">Total Bookings</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-yellow-600">{{ pending_count|default:0 }}</div>
+                        <div class="text-sm text-gray-600">Pending</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-green-600">{{ confirmed_count|default:0 }}</div>
+                        <div class="text-sm text-gray-600">Confirmed</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-red-600">{{ declined_count|default:0 }}</div>
+                        <div class="text-sm text-gray-600">Declined</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bookings List -->
+        <div class="lg:col-span-3">
+            {% if bookings %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visitor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for booking in bookings %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if booking.property %}
+                                    <a href="{% url 'property_detail' booking.property.id %}" class="flex items-center hover:text-accent">
+                                        {% if booking.property.main_image %}
+                                        <img src="{{ booking.property.main_image.url }}" alt="{{ booking.property.title }}" class="w-10 h-10 rounded-lg object-cover mr-3">
+                                        {% endif %}
+                                        <span class="font-medium">{{ booking.property.title|truncatechars:20|default:"Unknown Property" }}</span>
+                                    </a>
+                                    {% else %}
+                                    <span class="text-gray-500">Property deleted</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ booking.visitor.get_full_name|default:booking.visitor.username }}</div>
+                                    <div class="text-sm text-gray-500">{{ booking.visitor.email }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ booking.visit_date|date:"M d, Y" }}</div>
+                                    <div class="text-sm text-gray-500">{{ booking.visit_time|time:"g:i A" }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                        {% if booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                        {% elif booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                        {% elif booking.status == 'declined' %}bg-red-100 text-red-800
+                                        {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+                                        {% elif booking.status == 'cancelled' %}bg-gray-100 text-gray-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if booking.get_status_display %}
+                                            {{ booking.get_status_display }}
+                                        {% else %}
+                                            {{ booking.status|title }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {% if booking.status == 'pending' %}
+                                    <div class="flex space-x-2">
+                                        <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="confirm">
+                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition">Confirm</button>
+                                        </form>
+                                        <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="decline">
+                                            <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition">Decline</button>
+                                        </form>
+                                    </div>
+                                    {% elif booking.status == 'confirmed' %}
+                                    <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="complete">
+                                        <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Mark Complete</button>
+                                    </form>
+                                    {% endif %}
+                                    {% comment %} <button onclick="viewBookingDetails('{{ booking.id }}')" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition">Details</button> {% endcomment %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="far fa-calendar-check text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No Booking Requests</h3>
+                <p class="text-gray-600 mb-6">
+                    You don't have any booking requests for your properties yet.
+                </p>
+                <a href="{% url 'dashboard' %}" class="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
+                    Return to Dashboard
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div id="bookingDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-primary">Booking Details</h3>
+            <button onclick="closeBookingDetailsModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div id="bookingDetailsContent">
+            <!-- Details will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% include 'auto_reload.html' %}
+<script>
+    function viewBookingDetails(bookingId) {
+        fetch(`/api/bookings/${bookingId}/details/`)
+            .then(response => response.json())
+            .then(data => {
+                const content = `
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700">Visitor Information</h4>
+                            <p class="text-gray-600">Name: ${data.visitor_name || 'Not available'}</p>
+                            <p class="text-gray-600">Email: ${data.visitor_email || 'Not available'}</p>
+                            <p class="text-gray-600">Phone: ${data.visitor_phone || 'Not provided'}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700">Visit Details</h4>
+                            <p class="text-gray-600">Date: ${data.visit_date || 'Not specified'}</p>
+                            <p class="text-gray-600">Time: ${data.visit_time || 'Not specified'}</p>
+                            <p class="text-gray-600">Status: <span class="px-2 py-1 rounded-full ${data.status_class || 'bg-gray-100 text-gray-800'}">${data.status || 'Unknown'}</span></p>
+                        </div>
+                        ${data.notes ? `<div>
+                            <h4 class="font-semibold text-gray-700">Visitor Notes</h4>
+                            <p class="text-gray-600">${data.notes}</p>
+                        </div>` : ''}
+                        ${data.owner_response ? `<div>
+                            <h4 class="font-semibold text-gray-700">Your Response</h4>
+                            <p class="text-gray-600">${data.owner_response}</p>
+                        </div>` : ''}
+                        <div>
+                            <h4 class="font-semibold text-gray-700">Property</h4>
+                            <p class="text-gray-600">${data.property_title || 'Unknown property'}</p>
+                            <p class="text-gray-600">${data.property_address || 'Address not available'}</p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('bookingDetailsContent').innerHTML = content;
+                document.getElementById('bookingDetailsModal').classList.remove('hidden');
+                document.getElementById('bookingDetailsModal').classList.add('flex');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load booking details.');
+            });
+    }
+    
+    function closeBookingDetailsModal() {
+        document.getElementById('bookingDetailsModal').classList.add('hidden');
+        document.getElementById('bookingDetailsModal').classList.remove('flex');
+    }
+</script>
+{% endblock %}

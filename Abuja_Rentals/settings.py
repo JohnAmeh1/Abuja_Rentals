@@ -12,6 +12,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,8 +61,12 @@ ROOT_URLCONF = 'Abuja_Rentals.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        # 'DIRS': [],
+        # 'APP_DIRS': True,
+        'DIRS': [
+            BASE_DIR / 'rentals' / 'templates',  # Look here for templates
+        ],
+        'APP_DIRS': True,  # Also look in app templates folders
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -125,8 +131,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
+# STATIC_URL = '/static/'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'  # For production
+
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'rentals' / 'static',  # Your static files here
+# ]
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR / 'rentals' / 'static'),
+]
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Authentication
 LOGIN_REDIRECT_URL = '/'
@@ -144,11 +165,53 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For developm
 # EMAIL_HOST_PASSWORD = 'your-password'
 
 # Media files
-import os
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Static files (update)
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# PWA Settings - Add these at the bottom
+PWA_APP_NAME = 'Abuja Rentals'
+PWA_APP_DESCRIPTION = "Premium Property Marketplace"
+PWA_APP_THEME_COLOR = '#0f172a'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_START_URL = '/'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/pwa/icons/icon-72x72.png',
+        'sizes': '72x72'
+    },
+    {
+        'src': '/static/pwa/icons/icon-96x96.png',
+        'sizes': '96x96'
+    },
+    {
+        'src': '/static/pwa/icons/icon-128x128.png',
+        'sizes': '128x128'
+    },
+    {
+        'src': '/static/pwa/icons/icon-144x144.png',
+        'sizes': '144x144'
+    },
+    {
+        'src': '/static/pwa/icons/icon-152x152.png',
+        'sizes': '152x152'
+    },
+    {
+        'src': '/static/pwa/icons/icon-192x192.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/pwa/icons/icon-384x384.png',
+        'sizes': '384x384'
+    },
+    {
+        'src': '/static/pwa/icons/icon-512x512.png',
+        'sizes': '512x512'
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': '/static/pwa/icons/icon-512x512.png',
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+    }
+]
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'pwa', 'sw.js')

@@ -1,0 +1,268 @@
+<!-- Preloader Component - Include in base.html -->
+<!-- Add this right after the opening <body> tag -->
+
+<style>
+    /* Preloader Styles */
+    #preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    #preloader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+    
+    .preloader-logo {
+        width: 100px;
+        height: 100px;
+        background: #3b82f6;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+        animation: pulse-logo 2s ease-in-out infinite;
+        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+    }
+    
+    .preloader-logo i {
+        font-size: 50px;
+        color: white;
+        animation: rotate-icon 3s linear infinite;
+    }
+    
+    .preloader-text {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+    }
+    
+    .preloader-text .brand-name {
+        color: #3b82f6;
+    }
+    
+    .preloader-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+    }
+    
+    .preloader-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(59, 130, 246, 0.2);
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    .preloader-progress {
+        width: 200px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    
+    .preloader-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+        border-radius: 2px;
+        animation: progress 5s ease-out forwards;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+    
+    @keyframes pulse-logo {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(59, 130, 246, 0.6);
+        }
+    }
+    
+    @keyframes rotate-icon {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes progress {
+        0% {
+            width: 0%;
+        }
+        100% {
+            width: 100%;
+        }
+    }
+    
+    /* Loading dots animation */
+    .loading-dots {
+        display: inline-flex;
+        gap: 4px;
+        margin-top: 10px;
+    }
+    
+    .loading-dots span {
+        width: 8px;
+        height: 8px;
+        background: #3b82f6;
+        border-radius: 50%;
+        animation: bounce 1.4s ease-in-out infinite;
+    }
+    
+    .loading-dots span:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .loading-dots span:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    @keyframes bounce {
+        0%, 80%, 100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .preloader-logo {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .preloader-logo i {
+            font-size: 40px;
+        }
+        
+        .preloader-text {
+            font-size: 24px;
+        }
+        
+        .preloader-subtitle {
+            font-size: 12px;
+        }
+    }
+</style>
+
+<!-- Preloader HTML -->
+<div id="preloader">
+    <div class="preloader-logo">
+        <i class="fas fa-building"></i>
+    </div>
+    
+    <div class="preloader-text">
+        <span>Abuja</span>
+        <span class="brand-name">Rentals</span>
+    </div>
+    
+    <div class="preloader-subtitle">Premium Properties</div>
+    
+    <div class="preloader-spinner"></div>
+    
+    <div class="preloader-progress">
+        <div class="preloader-progress-bar"></div>
+    </div>
+    
+    <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+
+<script>
+    // Preloader functionality
+    (function() {
+        const preloader = document.getElementById('preloader');
+        const maxLoadTime = 5000; // 5 seconds maximum
+        let loaded = false;
+        
+        // Function to hide preloader
+        function hidePreloader() {
+            if (!loaded) {
+                loaded = true;
+                preloader.classList.add('fade-out');
+                
+                // Remove from DOM after animation
+                setTimeout(() => {
+                    if (preloader && preloader.parentNode) {
+                        preloader.parentNode.removeChild(preloader);
+                    }
+                    // Re-enable scrolling
+                    document.body.style.overflow = 'auto';
+                }, 500);
+            }
+        }
+        
+        // Disable scrolling while preloader is active
+        document.body.style.overflow = 'hidden';
+        
+        // Hide preloader when page is fully loaded
+        window.addEventListener('load', function() {
+            // Small delay for better UX
+            setTimeout(hidePreloader, 500);
+        });
+        
+        // Force hide after maximum time (5 seconds)
+        setTimeout(function() {
+            if (!loaded) {
+                console.log('Preloader timeout - forcing hide');
+                hidePreloader();
+            }
+        }, maxLoadTime);
+        
+        // Also hide on DOMContentLoaded as fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit to show the animation
+            setTimeout(function() {
+                // Only hide if window is already loaded
+                if (document.readyState === 'complete') {
+                    hidePreloader();
+                }
+            }, 1000);
+        });
+        
+        // Hide immediately if user navigates away
+        window.addEventListener('beforeunload', function() {
+            hidePreloader();
+        });
+        
+    })();
+</script>

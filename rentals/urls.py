@@ -1,5 +1,8 @@
 from django.urls import path, include
 from . import views
+import os
+from django.views.generic import TemplateView
+from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -80,8 +83,8 @@ urlpatterns = [
     path('student/property/<int:pk>/', views.student_property_detail, name='student_property_detail'),
     path('student/properties/<int:pk>/edit/', views.edit_student_property, name='edit_student_property'),
     path('student/properties/<int:pk>/delete/', views.delete_student_property, name='delete_student_property'),
-    
-    # NEW: Student property payment and rental URLs
+
+    # Student property payment and rental URLs
     path('student/property/<int:property_id>/process-payment/', views.student_process_property_payment, name='student_process_property_payment'),
     path('student/rental/<int:rental_id>/renew/', views.renew_student_rental, name='renew_student_rental'),
 
@@ -98,6 +101,17 @@ urlpatterns = [
     
     # AJAX endpoints
     path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
+    
+    # PWA URLs
+    # path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    # path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
+    # path('static/pwa/<path:path>', serve, {'document_root': os.path.join(settings.STATIC_ROOT, 'pwa')}),
+    
+    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
+    path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),
+
+
 ]
 
 if settings.DEBUG:

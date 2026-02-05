@@ -24,7 +24,7 @@
         <!-- Property Images -->
         <div class="relative h-64 overflow-hidden">
             {% if property.main_image %}
-            <img src="{{ property.main_image.url }}" alt="{{ property.title }}" 
+            <img src="{{ property.main_image}}" alt="{{ property.title }}" 
                  class="w-full h-full object-cover">
             {% else %}
             <div class="w-full h-full bg-gray-200 flex items-center justify-center">

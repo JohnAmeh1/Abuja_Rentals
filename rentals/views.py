@@ -1262,9 +1262,11 @@ def owner_properties_view(request):
         else:
             # Non-owners see only available regular properties
             properties = Property.objects.filter(status='available')
-    
+            
+            
     # Apply search filters
     if search_form.is_valid():
+    
         if search_form.cleaned_data.get('property_type'):
             properties = properties.filter(property_type=search_form.cleaned_data['property_type'])
         if search_form.cleaned_data.get('purpose'):
@@ -1280,17 +1282,36 @@ def owner_properties_view(request):
                 Q(city__icontains=search_term) |
                 Q(description__icontains=search_term)
             )
+        
+    
+    # properties = properties.order_by('-created_at')
+
+    # context = {
+    #     'properties': properties,
+    #     'search_form': search_form,
+    #     'page_title': 'My Properties' if is_owner_view else 'Available Properties',
+    #     'is_owner_view': is_owner_view,
+    # }
+
+    # return render(request, 'owner/properties.html', context)
     
     properties = properties.order_by('-created_at')
-    
+
+    paginator = Paginator(properties, 21)   
+
+    page_number = request.GET.get('page')
+    properties = paginator.get_page(page_number)
+
     context = {
-        'properties': properties,
+        'properties': properties,  
         'search_form': search_form,
         'page_title': 'My Properties' if is_owner_view else 'Available Properties',
         'is_owner_view': is_owner_view,
     }
-    
+
     return render(request, 'owner/properties.html', context)
+
+
 
 
 def owner_can_publish_more(user):

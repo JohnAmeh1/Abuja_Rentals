@@ -7,25 +7,25 @@
     <!-- Hero Section with Background Image -->
     <section class="hero-background relative overflow-hidden min-h-[90vh] flex items-center">
         <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/70 to-transparent"></div>
-        <div class="container mx-auto px-4 lg:px-8 py-20 relative z-10">
+        <div class="container mx-auto px-4 lg:px-8 py-10 pb-20 md:py-20 relative z-10">
             <div class="max-w-5xl mx-auto">
                 <div class="mb-12 animate-fade-in">
-                    <span class="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full mb-6">
+                    <span class="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full mb-6 text-sm md:text-base">
                         <i class="fas fa-star mr-2"></i>PREMIUM PROPERTIES IN ABUJA
                     </span>
                     
-                    <h1 class="text-4xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight hero-text-shadow">
+                    <h1 class="text-3xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight hero-text-shadow">
                         Discover <span class="text-accent">Extraordinary</span> Properties Across <span class="italic">Abuja</span>
                     </h1>
                     
-                    <p class="text-xl text-gray-200 mb-10 max-w-2xl hero-text-shadow">
+                    <p class="text-base md:text-xl font-extralight text-gray-200 mb-10 max-w-2xl md:hero-text-shadow">
                         From luxury apartments in Maitama and Asokoro to family homes in Wuse and Gwarinpa,
                         find your ideal property across Abuja's most desirable neighbourhoods.
                     </p>
                 </div>
                 
                 <!-- Advanced Search Card -->
-                <div class="glass-card rounded-2xl p-6 lg:p-8 shadow-2xl max-w-4xl animate-slide-up">
+                <div class="glass-card rounded-lg md:rounded-2xl p-6 lg:p-8 shadow-2xl max-w-4xl animate-slide-up max-md:mt-20">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-accent rounded-xl flex items-center justify-center mr-4">
                             <i class="fas fa-search text-white text-xl"></i>
@@ -132,7 +132,7 @@
                 <div class="property-card bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
                     <div class="relative">
                         {% if prop.main_image %}
-                        <img src="{{ prop.main_image.url }}" alt="{{ prop.title }}" class="w-full h-64 object-cover">
+                        <img src="{{ prop.main_image}}" alt="{{ prop.title }}" class="w-full h-64 object-cover">
                         {% else %}
                         <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
                             <i class="fas fa-home text-gray-400 text-4xl"></i>
@@ -219,7 +219,7 @@
                     {% for cat in categories %}
                     <a href="{% url 'owner_properties' %}?property_type={{ cat.code }}" class="group transform hover:-translate-y-2 transition-transform duration-300">
                         <div class="bg-white rounded-xl p-6 text-center shadow-lg transition-all duration-200 border border-gray-100">
-                            <div class="w-20 h-20 bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <div class="md:w-20 md:h-20 md:bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <i class="fas fa-building text-3xl text-accent"></i>
                             </div>
                             <h3 class="font-bold text-xl text-primary mb-2">{{ cat.label }}</h3>

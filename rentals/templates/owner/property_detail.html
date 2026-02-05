@@ -273,20 +273,60 @@
         <div class="lg:col-span-2">
             <!-- Image Gallery -->
             <div class="image-gallery mb-8">
-                <div class="main-image-container" onclick="openLightbox('{{ property.main_image.url }}')">
-                    <img id="mainImage" src="{{ property.main_image.url }}" alt="{{ property.title }}">
-                    <div class="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-images mr-2"></i>
-                        View All {{ all_images|length }} Photos
-                    </div>
+                <div class="main-image-container">
+                    <img id="mainImage" src="{{ property.main_image}}" alt="{{ property.title }}">
+                    
+                </div>
+             {% for image in additional_images %}
+
+                {% if forloop.counter <= 3 %}
+                <div class="thumbnail">
+                    <img src="{{ image }}" alt="Property Image {{ forloop.counter }}">
                 </div>
 
-                {% for image in additional_images %}
-                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="changeMainImage('{{ image.url }}', this)">
-                    <img src="{{ image.url }}" alt="Property Image {{ forloop.counter }}">
+                {% elif forloop.counter == 4 %}
+                <div class="thumbnail relative group"
+                    onclick="openImageModal({{ all_images }})"
+
+                    >
+
+                    <div class="bg-gradient-to-r from-white/70 to-white absolute inset-0"></div>
+
+                    <h1 class="hidden md:block absolute top-1/2 -translate-y-1/2 text-sm right-2 z-
+                            group-hover:text-blue-500 duration-200
+                            group-hover:-translate-x-1 group-hover:scale-110">
+                        Show more <span class="opacity-0 group-hover:opacity-100">›</span>
+                    </h1>
+                    <span class="md:hidden  absolute inset-0 flex justify-end pr-7 items-center text-3xl">›</span>
+
+                    <img src="{{ image }}"/>
                 </div>
+                {% endif %}
+
                 {% endfor %}
+
             </div>
+
+    <div id="image_modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+
+    <!-- Modal Content -->
+    <div class="bg-white/70 w-full max-w-6xl p-5 mx-4 md:mx-auto rounded-lg shadow-2xl relative overflow-hidden">
+
+        <!-- Close Button -->
+        <button onclick="closeImageModal()"
+            class="absolute right-3 top-3 text-gray-600 hover:text-gray-900 text-2xl font-bold transition z-50">
+            ✕
+        </button>
+
+        <!-- Images Container -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 justify-center overflow-y-scroll max-h-[90vh]" id="modalGrid" >
+            <!-- images injected dynamically -->
+        </div>
+
+    </div>
+</div>
+
+
 
             <!-- Property Header -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
@@ -322,7 +362,7 @@
                     {% endif %}
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+                <div class="grid grid-cols-4 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
                     {% if property.bedrooms %}
                     <div class="text-center">
                         <div class="text-3xl text-accent mb-1">
@@ -377,9 +417,9 @@
                 <h2 class="text-2xl font-bold text-primary mb-4">
                     <i class="fas fa-star mr-2 text-accent"></i>Amenities & Features
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-3">
                     {% for amenity in property.get_amenities_list %}
-                    <div class="amenity-badge">
+                    <div class="amenity-badge p-2">
                         <i class="fas fa-check-circle"></i>
                         {{ amenity|title }}
                     </div>
@@ -396,7 +436,7 @@
                 </h2>
                 <div class="flex items-center">
                     {% if property.owner.userprofile.profile_picture %}
-                    <img src="{{ property.owner.userprofile.profile_picture.url }}" alt="{{ property.owner.get_full_name }}" class="w-16 h-16 rounded-full object-cover mr-4">
+                    <img src="{{ property.owner.userprofile.profile_picture}}" alt="{{ property.owner.get_full_name }}" class="w-16 h-16 rounded-full object-cover mr-4">
                     {% else %}
                     <div class="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center text-2xl font-bold mr-4">
                         {{ property.owner.first_name.0|default:property.owner.username.0|upper }}
@@ -428,13 +468,13 @@
                 <h2 class="text-2xl font-bold text-primary mb-4">
                     <i class="fas fa-map-marked-alt mr-2 text-accent"></i>Location
                 </h2>
-                <div class="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-                        <div class="text-center text-gray-600">
-                        <i class="fas fa-map-marker-alt text-4xl mb-2"></i>
-                        <p class="font-medium">{{ property.city|capfirst }}</p>
-                        <p class="text-sm">{{ property.state }}</p>
-                    </div>
-                </div>
+                <iframe
+                    class="w-full lg:min-h-[500px] rounded-lg overflow-hidden border-0"
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy='no-referrer-when-downgrade'
+                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q={{property.city}}+{{property.state}}"
+            ></iframe>
             </div>
         </div>
 
@@ -934,6 +974,9 @@
     </div>
 </div>
 
+
+
+
 <!-- Delete Confirmation Modal (Owner Only) -->
 {% if is_owner %}
 <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
@@ -974,6 +1017,38 @@
     // ============================================
     // ENHANCED HELPER FUNCTIONS
     // ============================================
+
+
+const allImages = JSON.parse(document.getElementById("imgs").textContent)
+
+function openImageModal(images) {
+    const modal = document.getElementById("image_modal")
+    const grid = document.getElementById("modalGrid")
+
+    grid.innerHTML = ""   // reset
+
+    images.forEach(src => {
+        if (!src) return
+
+        grid.innerHTML += `
+            <img src="${src}"
+                 class="w-full md:h-64 object-cover rounded cursor-pointer
+                        hover:scale-105 transition-transform duration-200" onclick="openLightbox('${src}')">
+        `
+    })
+
+    modal.classList.remove("hidden")
+}
+
+function closeImageModal() {
+    document.getElementById("image_modal").classList.add("hidden")
+}
+
+// close modal when clicking outside content
+document.getElementById("image_modal")?.addEventListener("click", e => {
+    if (e.target.id === "image_modal") closeImageModal()
+})
+
     
     // Robust CSRF token getter
     function getCsrfToken() {
@@ -1078,7 +1153,18 @@
         document.getElementById('lightbox').style.display = 'block';
         document.getElementById('lightboxImage').src = imageUrl;
     }
-    
+
+
+document.getElementById("image_modal")?.addEventListener("click", e => {
+    if (e.target.id === "image_modal") closeImageModal()
+})
+
+function closeImageModal() {
+    document.getElementById("image_modal")
+        .classList.add("hidden")
+}
+
+
     function closeLightbox() {
         document.getElementById('lightbox').style.display = 'none';
     }

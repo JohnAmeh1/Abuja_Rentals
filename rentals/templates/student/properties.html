@@ -9,12 +9,12 @@
 <style>
     .property-status {
         display: inline-block;
-        padding: 0.25rem 0.75rem;
+        padding: 0.35rem 0.85rem;
         border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 0.7rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
     }
     
     .status-available {
@@ -38,62 +38,186 @@
     }
     
     .price-badge {
-        background: linear-gradient(90deg,#0ea5a4,#2563eb);
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
         color: white;
-        padding: 0.45rem 0.85rem;
-        border-radius: 9999px;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         font-weight: 700;
-        font-size: 0.9rem;
-        box-shadow: 0 6px 18px rgba(37,99,235,0.08);
-        border: 1px solid rgba(255,255,255,0.06);
+        font-size: 0.95rem;
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
     .property-card {
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-        transition: box-shadow .2s ease, background-color .2s ease;
-        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .property-card:hover {
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+        transform: translateY(-4px);
     }
     
     .property-title {
         color: #0f172a;
-        font-weight: 600;
+        font-weight: 700;
+        line-height: 1.4;
     }
     
     .property-desc {
-        color: #4b5563;
+        color: #64748b;
+        font-size: 0.95rem;
     }
     
     .btn-view {
         display: inline-block;
         width: 100%;
-        padding: 0.6rem 0.9rem;
-        background: linear-gradient(90deg,#2563eb,#1e40af);
+        padding: 0.7rem 1rem;
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
         color: #ffffff;
-        border-radius: 0.6rem;
-        font-weight: 600;
+        border-radius: 8px;
+        font-weight: 700;
         text-align: center;
         border: none;
         text-decoration: none;
+        transition: all 0.3s ease;
     }
     
     .btn-view:hover {
-        background: linear-gradient(90deg,#1e40af,#1b3a9b);
+        background: linear-gradient(135deg,#2563eb,#1d4ed8);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+    }
+
+    /* Side Pagination Indicator */
+    .pagination-indicator {
+        position: fixed;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 40;
+        background: white;
+        padding: 12px 8px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-indicator {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .page-indicator:hover {
+        background-color: #f1f5f9;
+        color: #3b82f6;
+    }
+
+    .page-indicator.active {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .load-more-btn {
+        display: inline-block;
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg,#f3f4f6,#e5e7eb);
+        color: #374151;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-top: 2rem;
+    }
+
+    .load-more-btn:hover {
+        background: linear-gradient(135deg,#e5e7eb,#d1d5db);
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+
+    .load-more-btn.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+        border-top-color: #3b82f6;
+        animation: spin 0.6s linear infinite;
+        margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1024px) {
+        .pagination-indicator {
+            display: none;
+        }
+    }
+
+    .properties-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .properties-container {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
+<!-- Side Pagination Indicator -->
+<div class="pagination-indicator" id="paginationIndicator"></div>
+
+<div class="container mx-auto px-4 lg:px-12 py-12">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Sidebar Filters (Left) -->
         <aside class="lg:col-span-3 order-1 lg:order-1">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 lg:sticky lg:top-20">
-                <h2 class="text-lg font-semibold mb-4">Filters</h2>
-                <form method="GET" class="space-y-4" id="filterFormSidebar">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6 lg:sticky lg:top-24 space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center">
+                        <svg class="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        Filters
+                    </h2>
+                </div>
+                <form method="GET" class="space-y-5" id="filterFormSidebar">
                     <!-- University Filter -->
                     <div>
-                        <label for="university" class="block text-sm font-medium text-gray-700 mb-2">University</label>
-                        <select id="university" name="university" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <label for="university" class="block text-sm font-semibold text-gray-800 mb-3">University</label>
+                        <select id="university" name="university" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                             <option value="">All Universities</option>
                             {% for code, name in university_choices %}
                                 <option value="{{ code }}" {% if filter_values.university == code %}selected{% endif %}>{{ name }}</option>
@@ -103,8 +227,8 @@
 
                     <!-- Property Type Filter -->
                     <div>
-                        <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
-                        <select id="property_type" name="property_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <label for="property_type" class="block text-sm font-semibold text-gray-800 mb-3">Property Type</label>
+                        <select id="property_type" name="property_type" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                             <option value="">All Types</option>
                             {% for code, name in property_type_choices %}
                                 <option value="{{ code }}" {% if filter_values.property_type == code %}selected{% endif %}>{{ name }}</option>
@@ -114,8 +238,8 @@
 
                     <!-- Purpose Filter -->
                     <div>
-                        <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
-                        <select id="purpose" name="purpose" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <label for="purpose" class="block text-sm font-semibold text-gray-800 mb-3">Purpose</label>
+                        <select id="purpose" name="purpose" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                             <option value="">All Purposes</option>
                             {% for code, name in purpose_choices %}
                                 <option value="{{ code }}" {% if filter_values.purpose == code %}selected{% endif %}>{{ name }}</option>
@@ -125,8 +249,8 @@
 
                     <!-- City Filter -->
                     <div>
-                        <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                        <select id="city" name="city" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <label for="city" class="block text-sm font-semibold text-gray-800 mb-3">City</label>
+                        <select id="city" name="city" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                             <option value="">All Cities</option>
                             {% for code, name in city_choices %}
                                 <option value="{{ code }}" {% if filter_values.city == code %}selected{% endif %}>{{ name }}</option>
@@ -136,15 +260,19 @@
 
                     <!-- Search -->
                     <div>
-                        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <label for="search" class="block text-sm font-semibold text-gray-800 mb-3">Search</label>
                         <input type="text" id="search" name="search" 
                             value="{{ filter_values.search }}"
                             placeholder="Search by title, location, or university..."
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                     </div>
-                    <div class="flex space-x-2">
-                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Apply Filters</button>
-                        <a href="{% url 'student_properties' %}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50">Reset</a>
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg font-semibold transition">
+                            <i class="fas fa-search mr-2"></i> Apply
+                        </button>
+                        <a href="{% url 'student_properties' %}" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50 font-semibold transition">
+                            <i class="fas fa-redo mr-2"></i> Reset
+                        </a>
                     </div>
                 </form>
             </div>
@@ -182,33 +310,24 @@
         <!-- Main content (Right) -->
         <main class="lg:col-span-9 order-2 lg:order-2">
             <!-- Header with Create Button -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-200">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-                    <p class="text-gray-600 mt-1">Manage your student properties here.</p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ page_title }}</h1>
+                    <p class="text-gray-600">Browse and manage student accommodations</p>
                 </div>
                 
-                <div class="flex items-center space-x-3 mt-4 md:mt-0 w-full md:w-auto">
-                    <div class="text-sm text-gray-500">
-                        Showing <strong>{{ properties.object_list|length }}</strong> of {{ properties.paginator.count }} properties
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mt-4 md:mt-0 w-full md:w-auto">
+                    <div class="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
+                        <span class="font-semibold text-gray-900">{{ properties.paginator.count }}</span> total properties
                     </div>
-                    
-                    <!-- Sort dropdown (optional) -->
-                    <select name="sort" onchange="updateSort(this.value)" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                        <option value="">Sort: Recommended</option>
-                        <option value="price_asc">Price: Low to High</option>
-                        <option value="price_desc">Price: High to Low</option>
-                        <option value="newest">Newest</option>
-                        <option value="most_viewed">Most Viewed</option>
-                    </select>
                     
                     {% if is_agent or is_admin %}
                     <a href="{% url 'create_property' %}" 
-                       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center font-medium">
+                       class="w-full md:w-auto px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg font-semibold flex items-center justify-center md:justify-start transition">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        Create Property
+                        Add Property
                     </a>
                     {% endif %}
                 </div>
@@ -216,11 +335,11 @@
 
             <!-- Properties Grid -->
             {% if properties.object_list %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="properties-container" id="propertiesContainer">
                 {% for property in properties.object_list %}
-                <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
+                <article class="bg-white rounded-lg border border-gray-100 overflow-hidden property-card">
                     <!-- Property Image -->
-                    <div class="relative h-56 overflow-hidden">
+                    <div class="relative h-56 overflow-hidden bg-gray-100">
                         {% if property.main_image %}
                         <img src="{{ property.main_image}}" alt="{{ property.title }}" 
                              class="w-full h-full object-cover transition duration-300">
@@ -252,19 +371,19 @@
                     </div>
 
                     <!-- Property Details -->
-                    <div class="p-4">
-                        <h3 class="property-title text-lg mb-1">
-                            <a href="{% url 'student_property_detail' property.pk %}" class="hover:text-blue-600">
-                                {{ property.title|truncatechars:40 }}
+                    <div class="p-5">
+                        <h3 class="property-title text-lg mb-3">
+                            <a href="{% url 'student_property_detail' property.pk %}" class="hover:text-blue-600 transition">
+                                {{ property.title|truncatechars:45 }}
                             </a>
                         </h3>
                         
-                        <p class="property-desc text-sm mb-2 flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <p class="property-desc text-sm mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            {{ property.city }}, {{ property.state }}
+                            <span>{{ property.city }}, {{ property.state }}</span>
                         </p>
                         
                         {% if property.university %}
@@ -361,37 +480,20 @@
                 {% endfor %}
             </div>
 
-            <!-- Pagination -->
-            {% if properties.has_other_pages %}
-            <div class="mt-8 flex justify-center">
-                <nav class="flex items-center space-x-2">
-                    {% if properties.has_previous %}
-                    <a href="?page={{ properties.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                    </a>
-                    {% endif %}
-                    
-                    {% for num in properties.paginator.page_range %}
-                    {% if properties.number == num %}
-                    <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">{{ num }}</span>
-                    {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
-                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
-                    {% endif %}
-                    {% endfor %}
-                    
-                    {% if properties.has_next %}
-                    <a href="?page={{ properties.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                    {% endif %}
-                </nav>
+            <!-- Load More Button -->
+            {% if properties.has_next %}
+            <div class="flex justify-center mt-12">
+                <button class="load-more-btn" id="loadMoreBtn" data-next-page="{{ properties.next_page_number }}">
+                    <span class="spinner hidden"></span>
+                    <span class="load-more-text">Load More Properties</span>
+                </button>
+            </div>
+            <div id="loadMoreSpinner" class="hidden flex justify-center mt-8">
+                <div class="spinner-dots">
+                    <div class="w-3 h-3 bg-blue-600 rounded-full inline-block mx-1 animate-bounce" style="animation-delay: 0s;"></div>
+                    <div class="w-3 h-3 bg-blue-600 rounded-full inline-block mx-1 animate-bounce" style="animation-delay: 0.2s;"></div>
+                    <div class="w-3 h-3 bg-blue-600 rounded-full inline-block mx-1 animate-bounce" style="animation-delay: 0.4s;"></div>
+                </div>
             </div>
             {% endif %}
             
@@ -429,28 +531,91 @@
 {% endblock %}
 
 {% block extra_js %}
-{% include 'auto_reload.html' %}
+<!--{% include 'auto_reload.html' %} -->
 <script>
-    function updateSort(sortValue) {
-        const url = new URL(window.location.href);
-        if (sortValue) {
-            url.searchParams.set('sort', sortValue);
-        } else {
-            url.searchParams.delete('sort');
-        }
-        // Go to page 1 when sorting changes
-        url.searchParams.set('page', '1');
-        window.location.href = url.toString();
-    }
-    
-    // Initialize sort dropdown with current value
     document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentSort = urlParams.get('sort');
-        const sortSelect = document.querySelector('select[name="sort"]');
-        if (currentSort && sortSelect) {
-            sortSelect.value = currentSort;
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const propertiesContainer = document.getElementById('propertiesContainer');
+        const paginationIndicator = document.getElementById('paginationIndicator');
+        const currentPage = {{ properties.number }};
+        const totalPages = {{ properties.paginator.num_pages }};
+        let isLoading = false;
+
+        // Initialize pagination indicator
+        function updatePaginationIndicator() {
+            paginationIndicator.innerHTML = '';
+            const startPage = Math.max(1, currentPage - 5);
+            const endPage = Math.min(totalPages, currentPage + 5);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'page-indicator' + (i === currentPage ? ' active' : '');
+                indicator.textContent = i;
+                indicator.addEventListener('click', () => goToPage(i));
+                paginationIndicator.appendChild(indicator);
+            }
         }
+
+        // Go to specific page
+        function goToPage(pageNum) {
+            const url = new URL(window.location);
+            url.searchParams.set('page', pageNum);
+            window.location.href = url.toString();
+        }
+
+        // Load more properties
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', async function() {
+                if (isLoading) return;
+                isLoading = true;
+                loadMoreBtn.classList.add('loading');
+                const spinner = loadMoreBtn.querySelector('.spinner');
+                const text = loadMoreBtn.querySelector('.load-more-text');
+                
+                spinner.classList.remove('hidden');
+                text.textContent = 'Loading...';
+
+                try {
+                    const nextPage = loadMoreBtn.dataset.nextPage;
+                    const url = new URL(window.location);
+                    url.searchParams.set('page', nextPage);
+                    
+                    const response = await fetch(url.toString(), {
+                        headers: {'X-Requested-With': 'XMLHttpRequest'}
+                    });
+                    
+                    if (response.ok) {
+                        const html = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newProperties = doc.querySelectorAll('.properties-container article');
+                        
+                        newProperties.forEach(prop => {
+                            propertiesContainer.appendChild(prop.cloneNode(true));
+                        });
+
+                        const newLoadMoreBtn = doc.getElementById('loadMoreBtn');
+                        if (newLoadMoreBtn) {
+                            loadMoreBtn.dataset.nextPage = newLoadMoreBtn.dataset.nextPage;
+                            loadMoreBtn.classList.remove('loading', 'hidden');
+                        } else {
+                            loadMoreBtn.classList.add('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.error('[v0] Load more error:', error);
+                    text.textContent = 'Try Again';
+                } finally {
+                    spinner.classList.add('hidden');
+                    text.textContent = 'Load More Properties';
+                    isLoading = false;
+                    loadMoreBtn.classList.remove('loading');
+                }
+            });
+        }
+
+        // Initialize
+        updatePaginationIndicator();
     });
 </script>
 {% endblock %}

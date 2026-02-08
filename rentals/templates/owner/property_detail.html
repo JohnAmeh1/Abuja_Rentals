@@ -241,7 +241,6 @@
         text-align: center;
     }
 
-    /* Make the wallet/add-funds link subtle */
     .booking-card .text-accent { color: #5b21b6; font-weight: 700; }
 
     /* Responsive tweaks */
@@ -290,7 +289,7 @@
 
                     >
 
-                    <div class="bg-gradient-to-r from-white/70 to-white absolute inset-0"></div>
+                    <div class="bg-gradient-to-r from-white/70 to-[#f7f8f9] border-[#f7f8f9] absolute inset-0"></div>
 
                     <h1 class="hidden md:block absolute top-1/2 -translate-y-1/2 text-sm right-2 z-
                             group-hover:text-blue-500 duration-200
@@ -542,27 +541,10 @@
                     </button>
 
                     <!-- Make Payment Button -->
-                    {% if user_wallet_balance >= property.price %}
                     <button onclick="openPaymentModal()" class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium">
                         <i class="fas fa-money-bill-wave mr-2"></i>
                         {% if property.purpose == 'rent' %}Rent Now{% else %}Buy Now{% endif %}
                     </button>
-                    {% else %}
-                    <div class="relative group">
-                        <button class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg opacity-75 cursor-not-allowed font-medium" disabled>
-                            <i class="fas fa-money-bill-wave mr-2"></i>
-                            {% if property.purpose == 'rent' %}Rent Now{% else %}Buy Now{% endif %}
-                        </button>
-                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            Insufficient balance
-                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-                        </div>
-                    </div>
-                    <a href="{% url 'wallet' %}" class="block mt-2 w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-center text-sm">
-                        <i class="fas fa-wallet mr-2"></i>Add Funds to Wallet
-                    </a>
-                    {% endif %}
 
                     <!-- Contact Owner -->
                     {% comment %} <button onclick="openContactModal()" class="w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
@@ -615,32 +597,7 @@
                 {% endif %}
                 {% endif %}
 
-                <!-- Wallet Balance (For non-owners) -->
-                {% if user.is_authenticated and not is_owner %}
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <h4 class="font-semibold text-gray-900 mb-3">Your Wallet</h4>
-                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-700">Available Balance:</span>
-                            <span class="text-xl font-bold {% if user_wallet_balance >= property.price %}text-green-600{% else %}text-red-600{% endif %}">
-                                ₦{{ user_wallet_balance|floatformat:2|intcomma }}
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            {% if user_wallet_balance >= property.price %}
-                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
-                            Sufficient balance for purchase
-                            {% else %}
-                            <i class="fas fa-exclamation-circle text-red-500 mr-1"></i>
-                            Need ₦{{ insufficient_amount|floatformat:2|intcomma }} more
-                            {% endif %}
-                        </div>
-                        <a href="{% url 'wallet' %}" class="block mt-3 text-center text-accent hover:text-accent-dark font-medium text-sm">
-                            <i class="fas fa-arrow-right mr-1"></i>Manage Wallet
-                        </a>
-                    </div>
-                </div>
-                {% endif %}
+
             </div>
         </div>
 
@@ -706,43 +663,21 @@
             </button>
         </div>
 
-        <!-- Wallet Balance Check -->
-        <div class="mb-6 p-4 rounded-lg {% if user_wallet_balance >= property.price %}bg-green-50 border border-green-200{% else %}bg-red-50 border border-red-200{% endif %}">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-gray-700 font-medium">Your Wallet Balance:</span>
-                <span class="text-xl font-bold {% if user_wallet_balance >= property.price %}text-green-600{% else %}text-red-600{% endif %}">
-                    ₦{{ user_wallet_balance|floatformat:2|intcomma|default:"0.00" }}
-                </span>
-            </div>
+        <!-- Payment Summary -->
+        <div class="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-gray-700 font-medium">Property Price:</span>
                 <span class="text-xl font-bold text-primary">₦{{ property.price|floatformat:2|intcomma }}</span>
             </div>
             <div class="border-t border-gray-300 pt-2 mt-2">
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-700 font-medium">Balance After Purchase:</span>
-                    <span class="text-lg font-bold {% if user_wallet_balance >= property.price %}text-green-600{% else %}text-red-600{% endif %}">
-                        ₦{{ user_wallet_balance_after|floatformat:2|intcomma|default:"0.00" }}
-                    </span>
+                    <span class="text-gray-700 font-medium">Duration:</span>
+                    <span class="text-lg font-bold text-primary">
+                        {{ property.get_rent_duration_months_display }}
                 </div>
             </div>
             
-            {% if user_wallet_balance < property.price %}
-            <div class="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                    <div>
-                        <p class="text-red-800 font-medium">Insufficient Balance</p>
-                        <p class="text-red-700 text-sm mt-1">
-                            You need ₦{{ insufficient_amount|floatformat:2|intcomma }} more in your wallet
-                        </p>
-                    </div>
-                </div>
-                <a href="{% url 'wallet' %}" class="block mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-center">
-                    <i class="fas fa-wallet mr-2"></i>Deposit Funds
-                </a>
-            </div>
-            {% endif %}
+           
         </div>
 
         <!-- Fee Breakdown -->
@@ -786,7 +721,6 @@
                 </label>
             </div>
 
-            {% if user_wallet_balance >= property.price %}
             <div class="space-y-3">
                 <button type="submit" class="w-full btn-gradient text-white font-medium px-6 py-3 rounded-lg hover:shadow-lg transition">
                     <i class="fas fa-lock mr-2"></i>
@@ -799,18 +733,10 @@
                 
                 <div class="text-center text-sm text-gray-600">
                     <i class="fas fa-shield-alt mr-1"></i>
-                    Secure payment using your wallet balance
+                    Secure payment using stripe
                 </div>
             </div>
-            {% else %}
-            <div class="text-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
-                <i class="fas fa-wallet text-3xl text-gray-400 mb-2"></i>
-                <p class="text-gray-700 mb-3">Add funds to your wallet to complete this purchase</p>
-                <a href="{% url 'wallet' %}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-medium rounded-lg hover:shadow-lg transition">
-                    <i class="fas fa-plus-circle mr-2"></i>Deposit Funds
-                </a>
-            </div>
-            {% endif %}
+          
         </form>
     </div>
 </div>
@@ -1295,70 +1221,8 @@ function closeImageModal() {
         form.submit();
     });
     
-    // Check wallet balance before opening payment modal
-    function checkWalletBalanceBeforePayment() {
-        const userBalance = parseFloat('{{ user_wallet_balance|default:0 }}');
-        const propertyPrice = parseFloat('{{ property.price }}');
-        
-        if (userBalance < propertyPrice) {
-            // Show insufficient balance modal
-            const modalHTML = `
-                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="insufficientBalanceModal">
-                    <div class="bg-white rounded-xl p-6 max-w-md w-full">
-                        <div class="text-center mb-6">
-                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Insufficient Balance</h3>
-                            <p class="text-gray-600 mb-4">
-                                You need ₦${(propertyPrice - userBalance).toLocaleString('en-US', {minimumFractionDigits: 2})} 
-                                more in your wallet to purchase this property.
-                            </p>
-                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                <div class="flex justify-between mb-2">
-                                    <span class="text-gray-700">Your Balance:</span>
-                                    <span class="font-bold text-red-600">₦${userBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-700">Property Price:</span>
-                                    <span class="font-bold text-primary">₦${propertyPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-3">
-                            <a href="{% url 'wallet' %}" class="block w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition text-center font-medium">
-                                <i class="fas fa-wallet mr-2"></i>Go to Wallet
-                            </a>
-                            <button onclick="closeInsufficientBalanceModal()" class="block w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            return false;
-        }
-        
-        return true;
-    }
-    
-    function closeInsufficientBalanceModal() {
-        const modal = document.getElementById('insufficientBalanceModal');
-        if (modal) {
-            modal.remove();
-        }
-    }
-    
-    // Update the Buy Now button to check balance first
-    document.addEventListener('DOMContentLoaded', function() {
-        const buyNowBtn = document.querySelector('button[onclick="openPaymentModal()"]');
-        if (buyNowBtn) {
-            buyNowBtn.setAttribute('onclick', 'if(checkWalletBalanceBeforePayment()) openPaymentModal()');
-        }
-    });
-    
+
+
     // ============================================
     // OWNER-ONLY FUNCTIONS (Property Bookings)
     // ============================================

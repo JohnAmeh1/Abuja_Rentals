@@ -1,5 +1,6 @@
 from django.urls import path, include
 from . import views
+from . import payment_views
 import os
 from django.views.generic import TemplateView
 from django.views.static import serve
@@ -74,7 +75,6 @@ urlpatterns = [
     path('admin/reports/<int:report_id>/action/', views.admin_report_action, name='admin_report_action'),
     
     # send money
-    path('admin/send-money/', views.admin_send_money, name='admin_send_money'),
     path('api/check-username/', views.check_username_api, name='check_username_api'),
     
     # Student-specific URLs - Student Properties (separate from regular properties)
@@ -94,13 +94,23 @@ urlpatterns = [
     path('api/bookings/<int:booking_id>/respond/', views.booking_respond_api, name='booking_respond_api'),
     path('api/bookings/<int:booking_id>/complete/', views.booking_complete_api, name='booking_complete_api'),
     
-    # Wallet routes
-    path('wallet/', views.wallet_view, name='wallet'),
     # Rental actions
     path('rental/<int:rental_id>/renew/', views.renew_rental, name='renew_rental'),
     
     # AJAX endpoints
     path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
+    
+    # Payment endpoints - New Payment API
+    path('payment/student-property/<int:property_id>/initiate/', payment_views.initiate_student_property_payment, name='initiate_student_property_payment'),
+    path('payment/<int:payment_id>/confirmation/', payment_views.payment_confirmation, name='payment_confirmation'),
+    path('payment/<int:payment_id>/success/', payment_views.payment_success, name='payment_success'),
+    path('payment/<int:payment_id>/failed/', payment_views.payment_failed, name='payment_failed'),
+    path('payment/<int:payment_id>/receipt/', payment_views.payment_receipt, name='payment_receipt'),
+    path('payment/history/', payment_views.payment_history, name='payment_history'),
+    path('payment/<int:payment_id>/refund/', payment_views.request_refund, name='request_refund'),
+    
+    # Stripe webhook endpoint
+    path('webhook/stripe/', payment_views.stripe_webhook, name='stripe_webhook'),
     
     # PWA URLs
     # path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),

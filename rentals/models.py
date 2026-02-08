@@ -31,39 +31,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
-class Wallet(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return f"{self.user.username}'s Wallet - ₦{self.balance}"
-    
-    def deposit(self, amount):
-        self.balance += amount
-        self.save()
-        Transaction.objects.create(
-            wallet=self,
-            transaction_type='deposit',
-            amount=amount,
-            description='Deposit to wallet'
-        )
-    
-    def withdraw(self, amount):
-        if self.balance >= amount:
-            self.balance -= amount
-            self.save()
-            Transaction.objects.create(
-                wallet=self,
-                transaction_type='withdrawal',
-                amount=amount,
-                description='Withdrawal from wallet'
-            )
-            return True
-        return False
-
-
 class Property(models.Model):
     PROPERTY_TYPE_CHOICES = [
         ('apartment', 'Apartment'),
@@ -221,27 +188,59 @@ class Property(models.Model):
         return f"{self.title} - {self.get_property_type_display()} ({self.get_purpose_display()})"
 
 
-class Transaction(models.Model):
-    TRANSACTION_TYPES = [
-        ('deposit', 'Deposit'),
-        ('withdrawal', 'Withdrawal'),
-        ('property_sale', 'Property Sale'),
-        ('property_purchase', 'Property Purchase'),
-        ('rental_payment', 'Rental Payment'),
-        ('platform_fee', 'Platform Fee'),
-        ('refund', 'Refund'),
+class Payment(models.Model):
+    """Payment records for external payment providers (Stripe, PayPal, etc.)"""
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
     ]
     
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    payment_provider = models.CharField(max_length=50, blank=True)  # e.g., 'stripe', 'paypal'
+    external_payment_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='NGN')
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=50, blank=True)  # e.g., 'card', 'bank_transfer'
+    description = models.TextField(blank=True)
+    related_property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+    related_rental = models.ForeignKey('PropertyRental', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+    metadata = models.JSONField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} {self.currency} - {self.get_status_display()}"
+
+
+class Transaction(models.Model):
+    """Transaction history for user records and auditing"""
+    TRANSACTION_TYPES = [
+        ('payment', 'Payment'),
+        ('refund', 'Refund'),
+        ('property_rental', 'Property Rental'),
+        ('platform_fee', 'Platform Fee'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    description = models.TextField(max_length=500, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default='completed')
     reference = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    
-    # Optional property reference for tracking property-related transactions
-    related_property_id = models.IntegerField(null=True, blank=True)
+    related_property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
     related_property_title = models.CharField(max_length=200, blank=True)
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def save(self, *args, **kwargs):
         if not self.reference:
@@ -250,7 +249,7 @@ class Transaction(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.wallet.user.username} - {self.transaction_type} - ₦{self.amount}"
+        return f"{self.user.username} - {self.transaction_type} - ₦{self.amount}"
 
         
 @receiver(post_save, sender=User)
@@ -261,8 +260,6 @@ def create_user_related_models(sender, instance, created, **kwargs):
             user=instance,
             defaults={'user_type': 'tenant'}  # Default only if creating new
         )
-        # If profile already exists (created by form), don't overwrite it
-        Wallet.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
@@ -270,11 +267,6 @@ def save_user_profile(sender, instance, **kwargs):
         UserProfile.objects.create(user=instance)
     else:
         instance.userprofile.save()
-    
-    if not hasattr(instance, 'wallet'):
-        Wallet.objects.create(user=instance)
-    else:
-        instance.wallet.save()
 
 
 class PropertyVisit(models.Model):

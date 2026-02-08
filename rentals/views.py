@@ -11,9 +11,9 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
 import json
-from .models import (UserProfile, Property, Wallet, Transaction, SavedProperty, 
+from .models import (UserProfile, Property, Transaction, SavedProperty, 
                     PropertyVisit, PropertyInquiry, PropertyOwnership, PropertyRental,
-                    AdminMessage, Report, StudentProperty, StudentPropertyRental) 
+                    AdminMessage, Report, StudentProperty, StudentPropertyRental, Payment)
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, 
                    PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm, StudentPropertySearchForm)
 from dateutil.relativedelta import relativedelta
@@ -340,23 +340,8 @@ def student_property_detail(request, pk):
     # Check if user is the creator
     is_owner = request.user == property.created_by
     
-    # Get wallet information for payment
-    user_wallet_balance = Decimal('0.00')
-    insufficient_amount = Decimal('0.00')
-    platform_fee = Decimal('0.00')
-    
-    if request.user.is_authenticated and not is_owner:
-        wallet, created = Wallet.objects.get_or_create(
-            user=request.user,
-            defaults={'balance': Decimal('0.00')}
-        )
-        user_wallet_balance = wallet.balance
-        
-        # Calculate platform fee (2% for student properties)
-        platform_fee = property.price * Decimal('0.02')
-        
-        # Calculate insufficient amount
-        insufficient_amount = max(Decimal('0.00'), property.price - user_wallet_balance)
+    # Calculate platform fee (2% for student properties)
+    platform_fee = property.price * Decimal('0.02')
     
     context = {
         'property': property,
@@ -364,8 +349,6 @@ def student_property_detail(request, pk):
         'additional_images': additional_images,
         'is_owner': is_owner,
         'is_admin': is_admin,
-        'user_wallet_balance': user_wallet_balance,
-        'insufficient_amount': insufficient_amount,
         'platform_fee': platform_fee,
         'page_title': property.title,
     }
@@ -562,7 +545,7 @@ def mark_rented(request, pk):
 @login_required
 def student_process_property_payment(request, property_id):
     """
-    Process student property rental payment using wallet balance.
+    Process student property rental payment.
     Platform fee (2%) goes entirely to admin, not the agent/owner.
     """
     if request.method != 'POST':
@@ -582,18 +565,9 @@ def student_process_property_payment(request, property_id):
         messages.error(request, 'You cannot rent your own property.')
         return redirect('student_property_detail', pk=property_id)
     
-    # Get user's wallet
-    wallet, created = Wallet.objects.get_or_create(
-        user=user,
-        defaults={'balance': Decimal('0.00')}
-    )
-    
+
     # Check if user has sufficient balance
-    if wallet.balance < property_obj.price:
-        insufficient = property_obj.price - wallet.balance
-        messages.error(request, f'Insufficient balance. You need ₦{insufficient:,.2f} more in your wallet.')
-        return redirect('wallet')
-    
+
     try:
         # Use database transaction to ensure atomicity
         from django.db import transaction as db_transaction
@@ -605,13 +579,11 @@ def student_process_property_payment(request, property_id):
             # This means the entire payment goes to admin, not the agent
             admin_amount = property_obj.price  # Admin gets full payment
             
-            # 1. Deduct from student's wallet
-            wallet.balance -= property_obj.price
-            wallet.save()
+  
             
             # 2. Create transaction for student (debit)
             student_transaction = Transaction.objects.create(
-                wallet=wallet,
+               
                 transaction_type='rental_payment',
                 amount=-property_obj.price,
                 description=f'Rental payment for {property_obj.title}',
@@ -619,42 +591,12 @@ def student_process_property_payment(request, property_id):
                 related_property_id=property_obj.id,
                 related_property_title=property_obj.title
             )
-            
-            # 3. Get admin user and wallet
-            admin_profile = UserProfile.objects.filter(user_type='admin').first()
-            if not admin_profile:
-                raise Exception('Admin user not found. Cannot process payment.')
-            
-            admin_wallet, created = Wallet.objects.get_or_create(
-                user=admin_profile.user,
-                defaults={'balance': Decimal('0.00')}
-            )
-            
-            # 4. Add full payment to admin wallet (platform fee + net amount)
-            admin_wallet.balance += admin_amount
-            admin_wallet.save()
-            
-            # 5. Create transaction for admin (credit) - showing it as platform fee
-            admin_transaction = Transaction.objects.create(
-                wallet=admin_wallet,
-                transaction_type='platform_fee',
-                amount=admin_amount,
-                description=f'Student property rental: {property_obj.title} (Full payment - 2% platform fee)',
-                reference=f'ADMIN-STUDENT-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
-                related_property_id=property_obj.id,
-                related_property_title=property_obj.title
-            )
-            
-            # Note: Agent/creator receives NOTHING for student properties
-            # The full payment goes to admin as platform revenue
-            
-            # 6. Update property status to rented
+        
             property_obj.status = 'rented'
             property_obj.sold_at = timezone.now()
             property_obj.rented_to = user
             property_obj.save()
             
-            # 7. Create student rental record
             from dateutil.relativedelta import relativedelta
             
             start_date = timezone.now().date()
@@ -723,21 +665,14 @@ def renew_student_rental(request, rental_id):
     # Determine amount to charge: use rental.total_amount as the renewal amount
     amount = rental.total_amount or Decimal('0.00')
 
-    # Get student wallet
-    student_wallet, _ = Wallet.objects.get_or_create(user=user, defaults={'balance': Decimal('0.00')})
-    if student_wallet.balance < amount:
-        messages.error(request, 'Insufficient wallet balance to renew rental. Please top up your wallet.')
-        return redirect('wallet')
+  
 
     try:
         from django.db import transaction as db_transaction
         with db_transaction.atomic():
-            # Deduct amount from student
-            student_wallet.balance -= amount
-            student_wallet.save()
+
 
             Transaction.objects.create(
-                wallet=student_wallet,
                 transaction_type='rental_payment',
                 amount=-amount,
                 description=f'Renewal payment for {rental.property.title}',
@@ -748,27 +683,6 @@ def renew_student_rental(request, rental_id):
             # For student properties: Platform gets entire payment
             platform_fee = amount * Decimal('0.02')
             admin_amount = amount  # Admin gets full payment
-
-            # Credit admin wallet (entire payment)
-            admin_profile = UserProfile.objects.filter(user_type='admin').first()
-            if not admin_profile:
-                raise Exception('Admin user not found. Cannot process renewal.')
-                
-            admin_wallet, _ = Wallet.objects.get_or_create(
-                user=admin_profile.user, 
-                defaults={'balance': Decimal('0.00')}
-            )
-            admin_wallet.balance += admin_amount
-            admin_wallet.save()
-
-            Transaction.objects.create(
-                wallet=admin_wallet,
-                transaction_type='platform_fee',
-                amount=admin_amount,
-                description=f'Student property renewal: {rental.property.title} (Full payment)',
-                related_property_id=rental.property.id,
-                related_property_title=rental.property.title
-            )
 
             # Note: Agent/creator receives NOTHING for renewals
             # The full payment goes to admin as platform revenue
@@ -889,30 +803,17 @@ from django.db.models import Q
 
 @login_required
 def dashboard_view(request):
+    print("hi")
     user = request.user
     user_profile = get_object_or_404(UserProfile, user=user)
-    
     check_expired_rentals()
-    
-    # Get wallet if exists, otherwise create one
-    wallet, created = Wallet.objects.get_or_create(
-        user=user,
-        defaults={'balance': 0.00}
-    )
-    
+
     if user_profile.user_type == 'admin':
         # Admin dashboard logic
         # Get platform fees from transactions
-        admin_wallet = Wallet.objects.filter(user=user).first()
         total_platform_fees = 0
         
-        if admin_wallet:
-            # Calculate total platform fees from admin's wallet transactions
-            total_platform_fees = Transaction.objects.filter(
-                wallet=admin_wallet,
-                transaction_type='platform_fee'
-            ).aggregate(total=Sum('amount'))['total'] or 0
-        
+
         # Add pending properties count
         pending_student_properties = StudentProperty.objects.filter(status='pending').count()
         
@@ -921,7 +822,6 @@ def dashboard_view(request):
             'total_users': UserProfile.objects.count(),
             'total_properties': Property.objects.count(),
             'total_platform_fees': total_platform_fees,
-            'wallet': admin_wallet,
             'pending_student_properties': pending_student_properties,
         }
         
@@ -954,7 +854,6 @@ def dashboard_view(request):
             'total_value': total_value,
             'potential_earnings': potential_earnings,
             'recent_properties': recent_properties,
-            'wallet': wallet,
         }
     
     elif user_profile.user_type == 'tenant':
@@ -996,8 +895,6 @@ def dashboard_view(request):
             'page_title': 'Tenant Dashboard',
             'saved_properties_count': saved_properties_count,
             'booking_count': booking_count,
-            'wallet_balance': wallet.balance,
-            'wallet': wallet,
             'active_rentals': active_rentals,
         }
         
@@ -1071,8 +968,6 @@ def dashboard_view(request):
             'page_title': 'Student Dashboard',
             'saved_properties_count': saved_properties_count,
             'booking_count': booking_count,
-            'wallet_balance': wallet.balance,
-            'wallet': wallet,
             'active_rentals': active_rentals,  # This now includes both types
             'student_friendly_properties': student_friendly_properties,
             'available_student_properties': available_student_properties,
@@ -1115,13 +1010,11 @@ def dashboard_view(request):
             'potential_earnings': potential_earnings,
             'recent_properties': recent_properties,
             'student_friendly_properties': student_friendly_properties,
-            'wallet': wallet,
         }
     
     else:  # agent or other user types
         context = {
             'page_title': 'Dashboard',
-            'wallet': wallet,
         }
     
     return render(request, 'auth/dashboard.html', context)
@@ -1415,37 +1308,6 @@ def delete_property_view(request, property_id):
     
     return redirect('owner_properties')
 
-@login_required
-def wallet_view(request):
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
-    transactions = Transaction.objects.filter(wallet=wallet).order_by('-created_at')[:20]
-    
-    # Calculate statistics
-    total_deposits = Transaction.objects.filter(
-        wallet=wallet, 
-        transaction_type='deposit'
-    ).aggregate(total=Sum('amount'))['total'] or 0
-    
-    total_withdrawals = Transaction.objects.filter(
-        wallet=wallet, 
-        transaction_type='withdrawal'
-    ).aggregate(total=Sum('amount'))['total'] or 0
-    
-    platform_fees = Transaction.objects.filter(
-        wallet=wallet, 
-        transaction_type='platform_fee'
-    ).aggregate(total=Sum('amount'))['total'] or 0
-    
-    context = {
-        'wallet': wallet,
-        'transactions': transactions,
-        'total_deposits': total_deposits,
-        'total_withdrawals': total_withdrawals,
-        'platform_fees': platform_fees,
-        'page_title': 'My Wallet'
-    }
-    
-    return render(request, 'wallet/wallet.html', context)
 
 @login_required
 def calculate_platform_fee(request):
@@ -1792,19 +1654,11 @@ def admin_report_action(request, report_id):
 
         # Refund action: credit reporter and debit owner where possible
         if action == 'refund':
-            tenant_wallet, _ = Wallet.objects.get_or_create(user=report.reporter)
-            owner_wallet, _ = Wallet.objects.get_or_create(user=report.reported_user)
             amount = report.property.price if report.property and report.property.price else Decimal('0.00')
 
             if amount > 0:
-                tenant_wallet.balance += amount
-                tenant_wallet.save()
-                Transaction.objects.create(wallet=tenant_wallet, transaction_type='refund', amount=amount, description=f'Refund for property {report.property.title if report.property else "N/A"}', related_property_id=(report.property.id if report.property else None), related_property_title=(report.property.title if report.property else ''))
+                Transaction.objects.create( transaction_type='refund', amount=amount, description=f'Refund for property {report.property.title if report.property else "N/A"}', related_property_id=(report.property.id if report.property else None), related_property_title=(report.property.title if report.property else ''))
 
-                if owner_wallet.balance >= amount:
-                    owner_wallet.balance -= amount
-                    owner_wallet.save()
-                    Transaction.objects.create(wallet=owner_wallet, transaction_type='withdrawal', amount=amount, description=f'Refunded to tenant for report #{report.id}')
 
             report.status = 'resolved'
             report.admin_action = f'Refund of ₦{amount} processed. {note}'
@@ -1853,17 +1707,9 @@ def mark_property_as_sold(property_id, sale_price):
     platform_fee_percentage = Decimal('0.05')
     platform_fee_amount = sale_price * platform_fee_percentage
     
-    # Get admin user
-    admin_user = User.objects.get(user_type='admin')
-    admin_wallet = Wallet.objects.get(user=admin_user)
-    
-    # Add platform fee to admin wallet
-    admin_wallet.balance += platform_fee_amount
-    admin_wallet.save()
-    
+
     # Create transaction record for admin
     Transaction.objects.create(
-        wallet=admin_wallet,  # Use wallet instead of user
         transaction_type='platform_fee',
         amount=platform_fee_amount,
         description=f'Platform fee from sale of {property.title}',
@@ -1871,13 +1717,9 @@ def mark_property_as_sold(property_id, sale_price):
         reference=f'PF-{property.id}-{timezone.now().strftime("%Y%m%d")}'
     )
     
-    # Also create transaction for seller
-    seller_wallet = Wallet.objects.get(user=property.owner)
-    seller_wallet.balance += (sale_price - platform_fee_amount)
-    seller_wallet.save()
+
     
     Transaction.objects.create(
-        wallet=seller_wallet,  # Use wallet instead of user
         transaction_type='property_sale',
         amount=sale_price - platform_fee_amount,
         description=f'Sale of {property.title} (after platform fee)',
@@ -2046,7 +1888,7 @@ from decimal import Decimal
 import json
 
 # Import your models
-from .models import UserProfile, Property, Wallet, Transaction, SavedProperty, PropertyVisit
+from .models import UserProfile, Property,  Transaction, SavedProperty, PropertyVisit
 from .forms import CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm
 
 
@@ -2058,18 +1900,10 @@ def admin_dashboard_view(request):
     if user_profile.user_type != 'admin':
         # Redirect non-admin users
         return redirect('dashboard')
-    
-    # Get admin wallet
-    admin_wallet = Wallet.objects.filter(user=user).first()
-    
+
     # Calculate total platform fees from all admin transactions
     total_platform_fees = 0
-    if admin_wallet:
-        total_platform_fees = Transaction.objects.filter(
-            wallet=admin_wallet,
-            transaction_type='platform_fee'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-    
+  
     # Get platform fees from sold properties
     sold_properties = Property.objects.filter(status='sold')
     completed_sales_count = sold_properties.count()
@@ -2085,7 +1919,6 @@ def admin_dashboard_view(request):
         'total_platform_fees': total_platform_fees,
         'calculated_platform_fees': calculated_platform_fees,
         'completed_sales_count': completed_sales_count,
-        'wallet': admin_wallet,
     }
     
     return render(request, 'admin/dashboard.html', context)
@@ -2166,113 +1999,6 @@ def update_student_property_status_admin(request, property_id):
     return redirect('admin_properties')
 
 
-@login_required
-@user_passes_test(is_admin)
-def admin_send_money(request):
-    """Admin sends money to a user"""
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method.')
-        return redirect('wallet')
-    
-    # Get form data
-    recipient_username = request.POST.get('recipient_username', '').strip()
-    amount_str = request.POST.get('amount', '0')
-    description = request.POST.get('description', '').strip()
-    transaction_type = request.POST.get('transaction_type', 'deposit')
-    confirm = request.POST.get('confirm_transfer')
-    
-    # Validate confirmation
-    if not confirm:
-        messages.error(request, 'You must confirm the transfer.')
-        return redirect('wallet')
-    
-    # Validate amount
-    try:
-        amount = Decimal(amount_str)
-        if amount <= 0:
-            messages.error(request, 'Amount must be greater than zero.')
-            return redirect('wallet')
-    except (ValueError, InvalidOperation):
-        messages.error(request, 'Invalid amount.')
-        return redirect('wallet')
-    
-    # Get admin wallet
-    admin_wallet = get_object_or_404(Wallet, user=request.user)
-    
-    # Check if admin has sufficient balance
-    if admin_wallet.balance < amount:
-        messages.error(request, f'Insufficient balance. You have ₦{admin_wallet.balance:,.2f}')
-        return redirect('wallet')
-    
-    # Find recipient user
-    try:
-        recipient = User.objects.get(username=recipient_username)
-    except User.DoesNotExist:
-        messages.error(request, f'User "{recipient_username}" not found.')
-        return redirect('wallet')
-    
-    # Prevent sending money to self
-    if recipient == request.user:
-        messages.error(request, 'You cannot send money to yourself.')
-        return redirect('wallet')
-    
-    try:
-        from django.db import transaction as db_transaction
-        
-        with db_transaction.atomic():
-            # Get or create recipient wallet
-            recipient_wallet, created = Wallet.objects.get_or_create(
-                user=recipient,
-                defaults={'balance': Decimal('0.00')}
-            )
-            
-            # Deduct from admin wallet
-            admin_wallet.balance -= amount
-            admin_wallet.save()
-            
-            # Create admin transaction (debit)
-            Transaction.objects.create(
-                wallet=admin_wallet,
-                transaction_type='withdrawal',
-                amount=-amount,
-                description=f'Transfer to {recipient.username}: {description or "Admin transfer"}',
-                reference=f'ADMIN-SEND-{recipient.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}'
-            )
-            
-            # Add to recipient wallet
-            recipient_wallet.balance += amount
-            recipient_wallet.save()
-            
-            # Create recipient transaction (credit)
-            Transaction.objects.create(
-                wallet=recipient_wallet,
-                transaction_type=transaction_type,
-                amount=amount,
-                description=f'Transfer from Admin: {description or "Administrative transfer"}',
-                reference=f'ADMIN-RECV-{request.user.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}'
-            )
-            
-            # Success message
-            messages.success(
-                request, 
-                f'✅ Successfully sent ₦{amount:,.2f} to {recipient.username} '
-                f'({recipient.get_full_name() or "No name"})'
-            )
-            messages.info(
-                request,
-                f'Your new balance: ₦{admin_wallet.balance:,.2f}'
-            )
-            
-            return redirect('wallet')
-            
-    except Exception as e:
-        import traceback
-        print(f"Send money error: {str(e)}")
-        print(traceback.format_exc())
-        
-        messages.error(request, f'Transfer failed: {str(e)}. Please try again.')
-        return redirect('wallet')
-
 
 @login_required
 def check_username_api(request):
@@ -2325,7 +2051,7 @@ def admin_properties_view(request):
 @user_passes_test(is_admin)
 def admin_transactions_view(request):
     """Admin view to see all transactions"""
-    transactions = Transaction.objects.all().select_related('wallet__user').order_by('-created_at')
+    transactions = Transaction.objects.all().order_by('-created_at')
     
     # Filter by transaction type
     transaction_type = request.GET.get('transaction_type', '')
@@ -2529,85 +2255,8 @@ def update_property_status_admin(request, property_id):
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
-from .models import Wallet, Transaction, Property, UserProfile
+from .models import  Transaction, Property, UserProfile
 
-@login_required
-def wallet_view(request):
-    user = request.user
-    wallet = get_object_or_404(Wallet, user=user)
-    
-    # Get user profile to check user_type
-    user_profile = get_object_or_404(UserProfile, user=user)
-    
-    # Get all transactions for the user through wallet
-    transactions = Transaction.objects.filter(wallet=wallet).order_by('-created_at')
-    
-    if user_profile.user_type == 'admin':
-        # For admin: only show platform fees from sold properties
-        platform_fee_transactions = transactions.filter(
-            transaction_type='platform_fee'
-        )
-        
-        # Calculate total platform fees
-        platform_fees = platform_fee_transactions.aggregate(total=Sum('amount'))['total'] or 0
-        
-        # Get property sales statistics
-        sold_properties = Property.objects.filter(status='sold')
-        completed_sales_count = sold_properties.count()
-        
-        # Calculate pending sales
-        pending_sales = Property.objects.filter(
-            status__in=['pending_sale', 'under_contract']
-        )
-        pending_sales_count = pending_sales.count()
-        
-        # Calculate total withdrawals for admin
-        total_withdrawals = transactions.filter(
-            transaction_type='withdrawal'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-        
-        context = {
-            'page_title': 'Admin Wallet',
-            'wallet': wallet,
-            'transactions': platform_fee_transactions[:20],  # Show recent 20 platform fees
-            'platform_fees': platform_fees,
-            'completed_sales_count': completed_sales_count,
-            'pending_sales_count': pending_sales_count,
-            'total_deposits': 0,
-            'total_withdrawals': total_withdrawals,
-            'is_admin': True,
-        }
-    else:
-        # For regular users: show all transactions
-        total_deposits = transactions.filter(
-            transaction_type='deposit'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-        
-        total_withdrawals = transactions.filter(
-            transaction_type='withdrawal'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-        
-        platform_fees = transactions.filter(
-            transaction_type='platform_fee'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-        
-        # Calculate property sales for owners
-        property_sales = transactions.filter(
-            transaction_type='property_sale'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-        
-        context = {
-            'page_title': 'My Wallet',
-            'wallet': wallet,
-            'transactions': transactions[:20],  # Show recent 20 all transactions
-            'total_deposits': total_deposits,
-            'total_withdrawals': total_withdrawals,
-            'platform_fees': platform_fees,
-            'property_sales': property_sales,
-            'is_admin': False,
-        }
-    
-    return render(request, 'wallet/wallet.html', context)
 
 # In your property views.py or wherever you handle property sales
 from django.db.models import Q
@@ -2634,19 +2283,9 @@ def complete_property_sale(property_id, sale_price):
         # You might want to adjust this based on your admin identification logic
         admin_profile = UserProfile.objects.filter(user_type='admin').first()
         if admin_profile:
-            admin_user = admin_profile.user
-            admin_wallet, created = Wallet.objects.get_or_create(
-                user=admin_user,
-                defaults={'balance': 0.00}
-            )
-            
-            # Add platform fee to admin wallet
-            admin_wallet.balance += platform_fee_amount
-            admin_wallet.save()
-            
+        
             # Create platform fee transaction for admin
             Transaction.objects.create(
-                wallet=admin_wallet,
                 transaction_type='platform_fee',
                 amount=platform_fee_amount,
                 description=f'Platform fee from sale of {property.title}',
@@ -2654,19 +2293,10 @@ def complete_property_sale(property_id, sale_price):
                 reference=f'PF-{property.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}'
             )
         
-        # Get seller wallet
-        seller_wallet, created = Wallet.objects.get_or_create(
-            user=property.owner,
-            defaults={'balance': 0.00}
-        )
-        
-        # Add seller amount to seller wallet
-        seller_wallet.balance += seller_amount
-        seller_wallet.save()
-        
+
+
         # Create property sale transaction for seller
         Transaction.objects.create(
-            wallet=seller_wallet,
             transaction_type='property_sale',
             amount=seller_amount,
             description=f'Sale of {property.title}',
@@ -2676,7 +2306,6 @@ def complete_property_sale(property_id, sale_price):
         
         # Also create a transaction record for the platform fee deduction from seller
         Transaction.objects.create(
-            wallet=seller_wallet,
             transaction_type='platform_fee_payment',
             amount=-platform_fee_amount,
             description=f'Platform fee for sale of {property.title}',
@@ -2697,7 +2326,7 @@ def complete_property_sale(property_id, sale_price):
 @login_required
 def process_property_payment(request, property_id):
     """
-    Process property purchase or rental payment using wallet balance
+    Process property purchase or rental payment
     """
     if request.method != 'POST':
         messages.error(request, 'Invalid request method.')
@@ -2716,86 +2345,46 @@ def process_property_payment(request, property_id):
         messages.error(request, 'You cannot purchase your own property.')
         return redirect('property_detail', property_id=property_id)
     
-    # Get user's wallet
-    wallet, created = Wallet.objects.get_or_create(
-        user=user,
-        defaults={'balance': Decimal('0.00')}
-    )
-    
-    # Check if user has sufficient balance
-    if wallet.balance < property_obj.price:
-        insufficient = property_obj.price - wallet.balance
-        messages.error(request, f'Insufficient balance. You need ₦{insufficient:,.2f} more in your wallet.')
-        return redirect('wallet')
-    
+
+
     try:
         # Use database transaction to ensure atomicity
         from django.db import transaction as db_transaction
         
         with db_transaction.atomic():
-            # Calculate platform fee (5%)
-            platform_fee = property_obj.price * Decimal('0.05')
+            platform_fee = property_obj.platform_fee
             seller_amount = property_obj.price - platform_fee
             
-            # 1. Deduct from buyer's wallet
-            wallet.balance -= property_obj.price
-            wallet.save()
-            
+
             # 2. Create transaction for buyer (debit)
             buyer_transaction = Transaction.objects.create(
-                wallet=wallet,
                 transaction_type='property_purchase' if property_obj.purpose == 'sale' else 'rental_payment',
                 amount=-property_obj.price,
                 description=f'{"Purchase" if property_obj.purpose == "sale" else "Rental payment"} of {property_obj.title}',
                 reference=f'BUYER-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
                 related_property_id=property_obj.id,
-                related_property_title=property_obj.title
+                related_property_title=property_obj.title,
+                # user_id=user.id
+                user=user
+                
             )
             
-            # 3. Get or create seller's wallet
-            seller_wallet, created = Wallet.objects.get_or_create(
-                user=property_obj.owner,
-                defaults={'balance': Decimal('0.00')}
-            )
+
             
-            # 4. Add net amount to seller's wallet (after platform fee)
-            seller_wallet.balance += seller_amount
-            seller_wallet.save()
-            
+
             # 5. Create transaction for seller (credit)
             seller_transaction = Transaction.objects.create(
-                wallet=seller_wallet,
                 transaction_type='property_sale',
                 amount=seller_amount,
                 description=f'{"Sale" if property_obj.purpose == "sale" else "Rental"} of {property_obj.title} (after 5% platform fee)',
                 reference=f'SELLER-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
                 related_property_id=property_obj.id,
-                related_property_title=property_obj.title
+                related_property_title=property_obj.title,
+                # user_id = property.user.id
+                user = property_obj.owner
             )
             
-            # 6. Get admin user and wallet for platform fee
-            admin_profile = UserProfile.objects.filter(user_type='admin').first()
-            if admin_profile:
-                admin_wallet, created = Wallet.objects.get_or_create(
-                    user=admin_profile.user,
-                    defaults={'balance': Decimal('0.00')}
-                )
-                
-                # 7. Add platform fee to admin wallet
-                admin_wallet.balance += platform_fee
-                admin_wallet.save()
-                
-                # 8. Create platform fee transaction for admin
-                admin_transaction = Transaction.objects.create(
-                    wallet=admin_wallet,
-                    transaction_type='platform_fee',
-                    amount=platform_fee,
-                    description=f'Platform fee (5%) from {"sale" if property_obj.purpose == "sale" else "rental"} of {property_obj.title}',
-                    reference=f'PFEE-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
-                    related_property_id=property_obj.id,
-                    related_property_title=property_obj.title
-                )
-            
+    
             # 9. Update property status to sold/rented
             property_obj.status = 'sold'
             property_obj.sold_at = timezone.now()
@@ -2842,9 +2431,8 @@ def process_property_payment(request, property_id):
             # Success messages
             messages.success(request, success_message)
             messages.info(request, f'ðŸ’° Payment Details: ₦{property_obj.price:,.2f} paid. Platform fee of ₦{platform_fee:,.2f} (5%) deducted. Seller receives ₦{seller_amount:,.2f}')
-            
-            # Redirect to wallet to show updated balance
-            return redirect('wallet')
+        return redirect('property_detail', property_id=property_id)
+        
             
     except Exception as e:
         # Log the error for debugging
@@ -2885,23 +2473,13 @@ def property_detail_view(request, property_id):
     if user.is_authenticated:
         is_saved = SavedProperty.objects.filter(user=user, property=property_obj).exists()
     
-    # Calculate wallet information
-    user_wallet_balance = Decimal('0.00')
-    insufficient_amount = Decimal('0.00')
     platform_fee = Decimal('0.00')
     
     if user.is_authenticated and not is_owner:
-        wallet, created = Wallet.objects.get_or_create(
-            user=user,
-            defaults={'balance': Decimal('0.00')}
-        )
-        user_wallet_balance = wallet.balance
+      
         
         # Calculate platform fee (5%)
         platform_fee = property_obj.price * Decimal('0.05')
-        
-        # Calculate insufficient amount
-        insufficient_amount = max(Decimal('0.00'), property_obj.price - user_wallet_balance)
     
     # Get additional images
     additional_images = property_obj.get_additional_images()
@@ -2916,9 +2494,6 @@ def property_detail_view(request, property_id):
         'is_owner': is_owner,
         'is_saved': is_saved,
         'today': today,
-        'user_wallet_balance': user_wallet_balance,
-        'user_wallet_balance_after': user_wallet_balance - property_obj.price,
-        'insufficient_amount': insufficient_amount,
         'platform_fee': platform_fee,
     }
     
@@ -2949,21 +2524,13 @@ def renew_rental(request, rental_id):
     # Determine amount to charge: use rental.total_amount as the renewal amount
     amount = rental.total_amount or Decimal('0.00')
 
-    # Get tenant wallet
-    tenant_wallet, _ = Wallet.objects.get_or_create(user=user, defaults={'balance': Decimal('0.00')})
-    if tenant_wallet.balance < amount:
-        messages.error(request, 'Insufficient wallet balance to renew rental. Please top up your wallet.')
-        return redirect('wallet')
 
     try:
         from django.db import transaction as db_transaction
         with db_transaction.atomic():
             # Deduct amount from tenant
-            tenant_wallet.balance -= amount
-            tenant_wallet.save()
 
             Transaction.objects.create(
-                wallet=tenant_wallet,
                 transaction_type='rental_payment',
                 amount=-amount,
                 description=f'Renewal payment for {rental.property.title}',
@@ -2975,13 +2542,8 @@ def renew_rental(request, rental_id):
             platform_fee = amount * Decimal('0.05')
             seller_amount = amount - platform_fee
 
-            # Credit owner
-            owner_wallet, _ = Wallet.objects.get_or_create(user=rental.property.owner, defaults={'balance': Decimal('0.00')})
-            owner_wallet.balance += seller_amount
-            owner_wallet.save()
 
             Transaction.objects.create(
-                wallet=owner_wallet,
                 transaction_type='property_sale',
                 amount=seller_amount,
                 description=f'Renewal credit for {rental.property.title}',
@@ -2989,21 +2551,7 @@ def renew_rental(request, rental_id):
                 related_property_title=rental.property.title
             )
 
-            # Credit platform/admin wallet
-            admin_profile = UserProfile.objects.filter(user_type='admin').first()
-            if admin_profile:
-                admin_wallet, _ = Wallet.objects.get_or_create(user=admin_profile.user, defaults={'balance': Decimal('0.00')})
-                admin_wallet.balance += platform_fee
-                admin_wallet.save()
-
-                Transaction.objects.create(
-                    wallet=admin_wallet,
-                    transaction_type='platform_fee',
-                    amount=platform_fee,
-                    description=f'Platform fee from renewal of {rental.property.title}',
-                    related_property_id=rental.property.id,
-                    related_property_title=rental.property.title
-                )
+          
 
             # Extend rental period - this will also update property status back to 'sold' if needed
             months = int(rental.property.rent_duration_months or 0)

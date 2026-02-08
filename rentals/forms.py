@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 # from .models import UserProfile, Property
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Property, Wallet
+from .models import UserProfile, Property
 from .models import Report, StudentProperty
 from dateutil.relativedelta import relativedelta
 import json
@@ -63,7 +63,6 @@ class CustomUserCreationForm(UserCreationForm):
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add Tailwind classes to form fields
         for field_name in ['username', 'first_name', 'last_name']:
             self.fields[field_name].widget.attrs.update({
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
@@ -86,19 +85,15 @@ class CustomUserCreationForm(UserCreationForm):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         
-        # Get user_type BEFORE saving
         user_type = self.cleaned_data.get('user_type', 'tenant')
         print(f"DEBUG Form Save: user_type = {user_type}")
         
         if commit:
             user.save()
             
-            # Create UserProfile with all data at once
-            # Delete any existing profile first to avoid conflicts
             UserProfile.objects.filter(user=user).delete()
             
-            # Create new profile with ALL data
-            user_profile = UserProfile.objects.create(
+            _ = UserProfile.objects.create(
                 user=user,
                 user_type=user_type,
                 phone_number=self.cleaned_data.get('phone_number', ''),
@@ -106,8 +101,6 @@ class CustomUserCreationForm(UserCreationForm):
                 bio=self.cleaned_data.get('bio', '')
             )
             
-            # Also create wallet
-            Wallet.objects.get_or_create(user=user, defaults={'balance': 0.00})
             
         return user
 
@@ -195,10 +188,8 @@ class ProfileUpdateForm(forms.ModelForm):
                 pass
     
     def save(self, commit=True):
-        # Save UserProfile data
         profile = super().save(commit=False)
         
-        # Update User model data
         if self.user:
             self.user.first_name = self.cleaned_data['first_name']
             self.user.last_name = self.cleaned_data['last_name']
@@ -450,8 +441,6 @@ class StudentPropertyForm(forms.ModelForm):
         
         return instance
     
-# In forms.py - Make sure StudentProperty is imported at the top
-# from .models import UserProfile, Property, Wallet, Transaction, StudentProperty  
 
 class StudentPropertySearchForm(forms.Form):
     # Universities dropdown - will be populated from StudentProperty.UNIVERSITY_CHOICES

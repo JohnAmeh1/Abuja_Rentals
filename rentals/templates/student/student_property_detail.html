@@ -290,7 +290,7 @@
                 </div>
 
                 <!-- Payment Form -->
-                <form method="POST" action="{% url 'student_process_property_payment' property.id %}" onsubmit="return confirm('Are you sure you want to proceed with this rental?\n\nAmount: ₦{{ property.price|floatformat:0|intcomma }}\nDuration: {{ property.get_rent_duration_months_display }}');">
+                <form method="POST" action="{% url 'initiate_payment' property.id %}" onsubmit="return confirm('Are you sure you want to proceed with this rental?\n\nAmount: ₦{{ property.price|floatformat:0|intcomma }}\nDuration: {{ property.get_rent_duration_months_display }}');">
                     {% csrf_token %}
                     <button type="submit" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold mb-3">
                         <i class="fas fa-check-circle mr-2"></i> Proceed to Payment

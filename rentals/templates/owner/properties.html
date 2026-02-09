@@ -230,21 +230,34 @@
             {% endif %}
 
             <!-- Pagination -->
-            {% if properties.has_other_pages %}
+                 {% if properties.has_other_pages %}
             <div class="mt-8 flex justify-center">
                 <nav class="flex items-center space-x-2">
                     {% if properties.has_previous %}
-                    <a href="?page={{ properties.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><i class="fas fa-chevron-left"></i></a>
+                    <a href="?page={{ properties.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
                     {% endif %}
+                    
                     {% for num in properties.paginator.page_range %}
-                        {% if properties.number == num %}
-                        <span class="px-4 py-2 bg-accent text-white rounded-lg">{{ num }}</span>
-                        {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
-                        <a href="?page={{ num }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
-                        {% endif %}
+                    {% if properties.number == num %}
+                    <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">{{ num }}</span>
+                    {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
+                    {% endif %}
                     {% endfor %}
+                    
                     {% if properties.has_next %}
-                    <a href="?page={{ properties.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"><i class="fas fa-chevron-right"></i></a>
+                    <a href="?page={{ properties.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
                     {% endif %}
                 </nav>
             </div>

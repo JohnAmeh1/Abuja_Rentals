@@ -33,11 +33,7 @@ urlpatterns = [
     path('property/<int:property_id>/book-visit/', views.book_property_visit, name='book_property_visit'),
     path('property/<int:property_id>/report/', views.submit_report, name='submit_report'),
     
-    # Payment processing - Regular Properties
-    path('property/<int:property_id>/process-payment/', views.process_property_payment, name='process_property_payment'),
-    path('property/<int:property_id>/buy/', views.process_property_payment, name='buy_property'),
-    path('property/<int:property_id>/rent/', views.process_property_payment, name='rent_property'),
-    
+
     # Tenant views
     path('saved-properties/', views.saved_properties_view, name='saved_properties'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
@@ -74,7 +70,6 @@ urlpatterns = [
     path('admin/reports/', views.admin_reports_view, name='admin_reports'),
     path('admin/reports/<int:report_id>/action/', views.admin_report_action, name='admin_report_action'),
     
-    # send money
     path('api/check-username/', views.check_username_api, name='check_username_api'),
     
     # Student-specific URLs - Student Properties (separate from regular properties)
@@ -84,10 +79,6 @@ urlpatterns = [
     path('student/properties/<int:pk>/edit/', views.edit_student_property, name='edit_student_property'),
     path('student/properties/<int:pk>/delete/', views.delete_student_property, name='delete_student_property'),
 
-    # Student property payment and rental URLs
-    path('student/property/<int:property_id>/process-payment/', views.student_process_property_payment, name='student_process_property_payment'),
-    path('student/rental/<int:rental_id>/renew/', views.renew_student_rental, name='renew_student_rental'),
-
     # API endpoints
     path('api/property/<int:property_id>/bookings/', views.property_bookings_api, name='property_bookings_api'),
     path('api/bookings/<int:booking_id>/details/', views.booking_details_api, name='booking_details_api'),
@@ -95,23 +86,19 @@ urlpatterns = [
     path('api/bookings/<int:booking_id>/complete/', views.booking_complete_api, name='booking_complete_api'),
     
     # Rental actions
-    path('rental/<int:rental_id>/renew/', views.renew_rental, name='renew_rental'),
     
     # AJAX endpoints
     path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
     
-    # Payment endpoints - New Payment API
-    path('payment/student-property/<int:property_id>/initiate/', payment_views.initiate_student_property_payment, name='initiate_student_property_payment'),
-    path('payment/<int:payment_id>/confirmation/', payment_views.payment_confirmation, name='payment_confirmation'),
-    path('payment/<int:payment_id>/success/', payment_views.payment_success, name='payment_success'),
-    path('payment/<int:payment_id>/failed/', payment_views.payment_failed, name='payment_failed'),
-    path('payment/<int:payment_id>/receipt/', payment_views.payment_receipt, name='payment_receipt'),
-    path('payment/history/', payment_views.payment_history, name='payment_history'),
-    path('payment/<int:payment_id>/refund/', payment_views.request_refund, name='request_refund'),
-    
-    # Stripe webhook endpoint
-    path('webhook/stripe/', payment_views.stripe_webhook, name='stripe_webhook'),
-    
+
+    path("payments/initiate/<int:property_id>/", payment_views.initiate_payment, name="initiate_payment"),
+    path("payments/verify/", payment_views.verify_payment, name="verify_payment"),
+    path("payments/receipt/<int:payment_id>/", payment_views.payment_receipt, name="payment_receipt"),
+    path("payments/property/<int:property_id>/",payment_views.process_property_payment,name="process_property_payment"),
+    path("payments/flutterwave/verify/",payment_views.flutterwave_verify,name="flutterwave_verify"),
+    path("payments/webhook/flutterwave/",payment_views.flutterwave_webhook,name="flutterwave_webhook"),
+
+
     # PWA URLs
     # path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     # path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),

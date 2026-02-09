@@ -423,7 +423,7 @@ class PropertyRental(models.Model):
     def renew(self, months=None, charge_amount=None):
         """Extend the rental by `months` (defaults to property's rent_duration_months).
 
-        This method does NOT charge wallets; it only updates dates and totals.
+        This method does NOT charge  it only updates dates and totals.
         Returns the new end_date.
         """
         if months is None:

@@ -508,198 +508,9 @@ def toggle_featured(request, pk):
     
     return redirect('property_detail', pk=pk)
 
-@login_required
-def mark_sold(request, pk):
-    """Mark a property as sold"""
-    property = get_object_or_404(StudentProperty, pk=pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        sale_price = request.POST.get('sale_price')
-        if sale_price:
-            property.mark_as_sold(sale_price=sale_price)
-        else:
-            property.mark_as_sold()
-        
-        messages.success(request, 'Property marked as sold!')
-    
-    return redirect('property_detail', pk=pk)
-
-@login_required
-def mark_rented(request, pk):
-    """Mark a property as rented to a specific user"""
-    property = get_object_or_404(StudentProperty, pk=pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        try:
-            user = User.objects.get(id=user_id)
-            property.mark_as_rented(user)
-            messages.success(request, f'Property marked as rented to {user.username}!')
-        except User.DoesNotExist:
-            messages.error(request, 'User not found!')
-    
-    return redirect('property_detail', pk=pk)
 
 
 
-@login_required
-def student_process_property_payment(request, property_id):
-    """
-    Process student property rental payment.
-    Platform fee (2%) goes entirely to admin, not the agent/owner.
-    """
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method.')
-        return redirect('student_property_detail', pk=property_id)
-    
-    property_obj = get_object_or_404(StudentProperty, id=property_id)
-    user = request.user
-    
-    # Verify property is available
-    if property_obj.status != 'available':
-        messages.error(request, 'This property is no longer available.')
-        return redirect('student_property_detail', pk=property_id)
-    
-    # Verify user is not the creator
-    if property_obj.created_by == user:
-        messages.error(request, 'You cannot rent your own property.')
-        return redirect('student_property_detail', pk=property_id)
-    
-
-    # Check if user has sufficient balance
-
-    try:
-        # Use database transaction to ensure atomicity
-        from django.db import transaction as db_transaction
-        
-        with db_transaction.atomic():
-            # Calculate platform fee (2% for student properties)
-            platform_fee = property_obj.price * Decimal('0.02')
-            # For student properties, admin gets the platform fee AND the net amount
-            # This means the entire payment goes to admin, not the agent
-            admin_amount = property_obj.price  # Admin gets full payment
-            
-  
-            
-            # 2. Create transaction for student (debit)
-            student_transaction = Transaction.objects.create(
-               
-                transaction_type='rental_payment',
-                amount=-property_obj.price,
-                description=f'Rental payment for {property_obj.title}',
-                reference=f'STUDENT-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
-                related_property_id=property_obj.id,
-                related_property_title=property_obj.title
-            )
-        
-            property_obj.status = 'rented'
-            property_obj.sold_at = timezone.now()
-            property_obj.rented_to = user
-            property_obj.save()
-            
-            from dateutil.relativedelta import relativedelta
-            
-            start_date = timezone.now().date()
-            duration_months = int(property_obj.rent_duration_months or 12)
-            end_date = start_date + relativedelta(months=duration_months)
-            
-            # Import the StudentPropertyRental model
-            from .models import StudentPropertyRental
-            
-            rental = StudentPropertyRental.objects.create(
-                property=property_obj,
-                tenant=user,
-                monthly_rent=(property_obj.price / Decimal(str(duration_months))) if duration_months else property_obj.price,
-                start_date=start_date,
-                end_date=end_date,
-                deposit=Decimal('0.00'),
-                total_amount=property_obj.price,
-                is_active=True
-            )
-            
-            # Success messages
-            success_message = f'🎉 Congratulations! You have successfully rented {property_obj.title} for {duration_months} months at ₦{property_obj.price:,.2f}'
-            messages.success(request, success_message)
-            messages.info(request, f'💰 Payment Details: ₦{property_obj.price:,.2f} paid. Full payment processed by platform.')
-            
-            # Redirect to dashboard
-            return redirect('dashboard')
-            
-    except Exception as e:
-        # Log the error for debugging
-        import traceback
-        print(f"Student payment processing error: {str(e)}")
-        print(traceback.format_exc())
-        
-        messages.error(request, f'Payment failed: {str(e)}. Please try again or contact support.')
-        return redirect('student_property_detail', pk=property_id)
-
-
-@login_required
-def renew_student_rental(request, rental_id):
-    """
-    Handle student rental renewal: charge student, credit admin entirely, and extend end_date.
-    For student properties, the entire renewal payment goes to admin (platform revenue).
-    """
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method for renewal.')
-        return redirect('dashboard')
-
-    # Import the StudentPropertyRental model
-    from .models import StudentPropertyRental
-    
-    rental = get_object_or_404(StudentPropertyRental, id=rental_id)
-    user = request.user
-
-    # Only tenant who owns the rental can renew
-    if rental.tenant != user:
-        messages.error(request, 'You are not authorized to renew this rental.')
-        return redirect('dashboard')
-
-    # Check renewal window using term_info
-    term = rental.term_info()
-    if not term.get('renewal_allowed'):
-        messages.error(request, 'Renewal is only allowed on or after the end date.')
-        return redirect('dashboard')
-
-    # Determine amount to charge: use rental.total_amount as the renewal amount
-    amount = rental.total_amount or Decimal('0.00')
-
-  
-
-    try:
-        from django.db import transaction as db_transaction
-        with db_transaction.atomic():
-
-
-            Transaction.objects.create(
-                transaction_type='rental_payment',
-                amount=-amount,
-                description=f'Renewal payment for {rental.property.title}',
-                related_property_id=rental.property.id,
-                related_property_title=rental.property.title
-            )
-
-            # For student properties: Platform gets entire payment
-            platform_fee = amount * Decimal('0.02')
-            admin_amount = amount  # Admin gets full payment
-
-            # Note: Agent/creator receives NOTHING for renewals
-            # The full payment goes to admin as platform revenue
-
-            # Extend rental period - this will also update property status
-            months = int(rental.property.rent_duration_months or 0)
-            new_end = rental.renew(months=months)
-
-            messages.success(request, f'🎉 Rental renewed successfully! New end date: {new_end}')
-            return redirect('dashboard')
-
-    except Exception as e:
-        import traceback
-        print('Student renewal error:', str(e))
-        print(traceback.format_exc())
-        messages.error(request, f'Could not complete renewal: {str(e)}')
-        return redirect('dashboard')
 
 
 
@@ -826,7 +637,6 @@ def dashboard_view(request):
         }
         
     elif user_profile.user_type == 'owner':
-        # Owner dashboard logic
         total_properties = Property.objects.filter(owner=user).count()
         available_properties = Property.objects.filter(owner=user, status='available').count()
         
@@ -1150,14 +960,11 @@ def owner_properties_view(request):
                 properties = Property.objects.filter(owner=request.user)
                 is_owner_view = True
             else:
-                # Show only available regular properties to everyone
                 properties = Property.objects.filter(status='available')
         else:
-            # Non-owners see only available regular properties
             properties = Property.objects.filter(status='available')
             
             
-    # Apply search filters
     if search_form.is_valid():
     
         if search_form.cleaned_data.get('property_type'):
@@ -1176,19 +983,9 @@ def owner_properties_view(request):
                 Q(description__icontains=search_term)
             )
         
-    
-    # properties = properties.order_by('-created_at')
 
-    # context = {
-    #     'properties': properties,
-    #     'search_form': search_form,
-    #     'page_title': 'My Properties' if is_owner_view else 'Available Properties',
-    #     'is_owner_view': is_owner_view,
-    # }
-
-    # return render(request, 'owner/properties.html', context)
-    
     properties = properties.order_by('-created_at')
+    total = properties.__len__()
 
     paginator = Paginator(properties, 21)   
 
@@ -1200,6 +997,7 @@ def owner_properties_view(request):
         'search_form': search_form,
         'page_title': 'My Properties' if is_owner_view else 'Available Properties',
         'is_owner_view': is_owner_view,
+        'total': total
     }
 
     return render(request, 'owner/properties.html', context)
@@ -1387,37 +1185,6 @@ def contact_property_owner(request, property_id):
     
     return redirect('property_detail', property_id=property_id)
 
-
-@login_required
-def initiate_property_payment(request, property_id):
-    """
-    Handle property payment initiation
-    """
-    if request.method == 'POST':
-        property_obj = get_object_or_404(Property, id=property_id)
-        
-        # Ensure user is not the owner
-        if property_obj.owner == request.user:
-            messages.error(request, 'You cannot purchase your own property.')
-            return redirect('property_detail', property_id=property_id)
-        
-        # Ensure property is available
-        if property_obj.status != 'available':
-            messages.error(request, 'This property is not available for purchase.')
-            return redirect('property_detail', property_id=property_id)
-        
-        payment_method = request.POST.get('payment_method')
-        
-        # Here you would integrate with a payment gateway
-        # For now, redirect to a payment processing page
-        messages.info(request, f'Redirecting to payment gateway for {payment_method}...')
-        
-        # You would typically create a Transaction record here
-        # and redirect to payment gateway
-        
-        return redirect('property_detail', property_id=property_id)
-    
-    return redirect('property_detail', property_id=property_id)
 
 
 @login_required
@@ -2258,190 +2025,9 @@ from django.contrib.auth.decorators import login_required
 from .models import  Transaction, Property, UserProfile
 
 
-# In your property views.py or wherever you handle property sales
-from django.db.models import Q
-from decimal import Decimal
-from django.utils import timezone
-
-def complete_property_sale(property_id, sale_price):
-    """Complete a property sale and distribute funds"""
-    try:
-        property = Property.objects.get(id=property_id)
-        
-        # Update property status to sold
-        property.status = 'sold'
-        property.sold_at = timezone.now()
-        property.sale_price = sale_price
-        property.save()
-        
-        # Calculate platform fee (5%)
-        platform_fee_percentage = Decimal('0.05')
-        platform_fee_amount = sale_price * platform_fee_percentage
-        seller_amount = sale_price - platform_fee_amount
-        
-        # Get admin user (assuming first admin or specific admin)
-        # You might want to adjust this based on your admin identification logic
-        admin_profile = UserProfile.objects.filter(user_type='admin').first()
-        if admin_profile:
-        
-            # Create platform fee transaction for admin
-            Transaction.objects.create(
-                transaction_type='platform_fee',
-                amount=platform_fee_amount,
-                description=f'Platform fee from sale of {property.title}',
-                property=property,
-                reference=f'PF-{property.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}'
-            )
-        
 
 
-        # Create property sale transaction for seller
-        Transaction.objects.create(
-            transaction_type='property_sale',
-            amount=seller_amount,
-            description=f'Sale of {property.title}',
-            property=property,
-            reference=f'SALE-{property.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}'
-        )
-        
-        # Also create a transaction record for the platform fee deduction from seller
-        Transaction.objects.create(
-            transaction_type='platform_fee_payment',
-            amount=-platform_fee_amount,
-            description=f'Platform fee for sale of {property.title}',
-            property=property,
-            reference=f'PFEE-{property.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}'
-        )
-        
-        return True, "Sale completed successfully"
-        
-    except Property.DoesNotExist:
-        return False, "Property not found"
-    except Exception as e:
-        return False, f"Error completing sale: {str(e)}"
-    
-    
 
-
-@login_required
-def process_property_payment(request, property_id):
-    """
-    Process property purchase or rental payment
-    """
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method.')
-        return redirect('property_detail', property_id=property_id)
-    
-    property_obj = get_object_or_404(Property, id=property_id)
-    user = request.user
-    
-    # Verify property is available
-    if property_obj.status != 'available':
-        messages.error(request, 'This property is no longer available.')
-        return redirect('property_detail', property_id=property_id)
-    
-    # Verify user is not the owner
-    if property_obj.owner == user:
-        messages.error(request, 'You cannot purchase your own property.')
-        return redirect('property_detail', property_id=property_id)
-    
-
-
-    try:
-        # Use database transaction to ensure atomicity
-        from django.db import transaction as db_transaction
-        
-        with db_transaction.atomic():
-            platform_fee = property_obj.platform_fee
-            seller_amount = property_obj.price - platform_fee
-            
-
-            # 2. Create transaction for buyer (debit)
-            buyer_transaction = Transaction.objects.create(
-                transaction_type='property_purchase' if property_obj.purpose == 'sale' else 'rental_payment',
-                amount=-property_obj.price,
-                description=f'{"Purchase" if property_obj.purpose == "sale" else "Rental payment"} of {property_obj.title}',
-                reference=f'BUYER-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
-                related_property_id=property_obj.id,
-                related_property_title=property_obj.title,
-                # user_id=user.id
-                user=user
-                
-            )
-            
-
-            
-
-            # 5. Create transaction for seller (credit)
-            seller_transaction = Transaction.objects.create(
-                transaction_type='property_sale',
-                amount=seller_amount,
-                description=f'{"Sale" if property_obj.purpose == "sale" else "Rental"} of {property_obj.title} (after 5% platform fee)',
-                reference=f'SELLER-{property_obj.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
-                related_property_id=property_obj.id,
-                related_property_title=property_obj.title,
-                # user_id = property.user.id
-                user = property_obj.owner
-            )
-            
-    
-            # 9. Update property status to sold/rented
-            property_obj.status = 'sold'
-            property_obj.sold_at = timezone.now()
-            property_obj.sale_price = property_obj.price
-            
-            if property_obj.purpose == 'sale':
-                property_obj.sold_to = user
-            else:
-                property_obj.rented_to = user
-            
-            property_obj.save()
-            
-            # 10. Create ownership or rental record
-            if property_obj.purpose == 'sale':
-                # Create property ownership record
-                ownership = PropertyOwnership.objects.create(
-                    property=property_obj,
-                    owner=user,
-                    purchase_price=property_obj.price,
-                )
-                
-                success_message = f'ðŸŽ‰ Congratulations! You have successfully purchased {property_obj.title} for ₦{property_obj.price:,.2f}'
-            else:
-                # Create rental record using calendar-accurate month arithmetic
-                from dateutil.relativedelta import relativedelta
-
-                start_date = timezone.now().date()
-                duration_months = int(property_obj.rent_duration_months or 12)
-                end_date = start_date + relativedelta(months=duration_months)
-
-                rental = PropertyRental.objects.create(
-                    property=property_obj,
-                    tenant=user,
-                    monthly_rent=(property_obj.price / Decimal(str(duration_months))) if duration_months else property_obj.price,
-                    start_date=start_date,
-                    end_date=end_date,
-                    deposit=Decimal('0.00'),
-                    total_amount=property_obj.price,
-                    is_active=True
-                )
-                
-                success_message = f'ðŸŽ‰ Congratulations! You have successfully rented {property_obj.title} for {duration_months} months at ₦{property_obj.price:,.2f}'
-            
-            # Success messages
-            messages.success(request, success_message)
-            messages.info(request, f'ðŸ’° Payment Details: ₦{property_obj.price:,.2f} paid. Platform fee of ₦{platform_fee:,.2f} (5%) deducted. Seller receives ₦{seller_amount:,.2f}')
-        return redirect('property_detail', property_id=property_id)
-        
-            
-    except Exception as e:
-        # Log the error for debugging
-        import traceback
-        print(f"Payment processing error: {str(e)}")
-        print(traceback.format_exc())
-        
-        messages.error(request, f'Payment failed: {str(e)}. Please try again or contact support.')
-        return redirect('property_detail', property_id=property_id)
 
 
 @login_required
@@ -2499,73 +2085,6 @@ def property_detail_view(request, property_id):
     
     return render(request, 'owner/property_detail.html', context)
 
-
-@login_required
-def renew_rental(request, rental_id):
-    """Handle rental renewal: charge tenant, credit owner, apply platform fee, and extend end_date."""
-    if request.method != 'POST':
-        messages.error(request, 'Invalid request method for renewal.')
-        return redirect('dashboard')
-
-    rental = get_object_or_404(PropertyRental, id=rental_id)
-    user = request.user
-
-    # Only tenant who owns the rental can renew
-    if rental.tenant != user:
-        messages.error(request, 'You are not authorized to renew this rental.')
-        return redirect('dashboard')
-
-    # Check renewal window using term_info
-    term = rental.term_info()
-    if not term.get('renewal_allowed'):
-        messages.error(request, 'Renewal is only allowed on or after the end date.')
-        return redirect('dashboard')
-
-    # Determine amount to charge: use rental.total_amount as the renewal amount
-    amount = rental.total_amount or Decimal('0.00')
-
-
-    try:
-        from django.db import transaction as db_transaction
-        with db_transaction.atomic():
-            # Deduct amount from tenant
-
-            Transaction.objects.create(
-                transaction_type='rental_payment',
-                amount=-amount,
-                description=f'Renewal payment for {rental.property.title}',
-                related_property_id=rental.property.id,
-                related_property_title=rental.property.title
-            )
-
-            # Platform fee and seller payment
-            platform_fee = amount * Decimal('0.05')
-            seller_amount = amount - platform_fee
-
-
-            Transaction.objects.create(
-                transaction_type='property_sale',
-                amount=seller_amount,
-                description=f'Renewal credit for {rental.property.title}',
-                related_property_id=rental.property.id,
-                related_property_title=rental.property.title
-            )
-
-          
-
-            # Extend rental period - this will also update property status back to 'sold' if needed
-            months = int(rental.property.rent_duration_months or 0)
-            new_end = rental.renew(months=months)
-
-            messages.success(request, f'🎉 Rental renewed successfully! New end date: {new_end}')
-            return redirect('dashboard')
-
-    except Exception as e:
-        import traceback
-        print('Renewal error:', str(e))
-        print(traceback.format_exc())
-        messages.error(request, f'Could not complete renewal: {str(e)}')
-        return redirect('dashboard')
 
 
 

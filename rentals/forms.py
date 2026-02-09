@@ -93,7 +93,7 @@ class CustomUserCreationForm(UserCreationForm):
             
             UserProfile.objects.filter(user=user).delete()
             
-            _ = UserProfile.objects.create(
+            user_profile = UserProfile.objects.create(
                 user=user,
                 user_type=user_type,
                 phone_number=self.cleaned_data.get('phone_number', ''),

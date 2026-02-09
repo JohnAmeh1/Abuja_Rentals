@@ -223,3 +223,9 @@ PWA_APP_SPLASH_SCREEN = [
     }
 ]
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'pwa', 'sw.js')
+
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-xxxxx"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-xxxxx"
+
+FLUTTERWAVE_REDIRECT_URL = "http://127.0.0.1:8000/payments/verify/"
+FLUTTERWAVE_WEBHOOK_HASH = "my_super_secret_hash_123"

@@ -264,11 +264,11 @@
     {% include 'preloader.html' %}
 
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+    <nav class="sticky top-0 z-50 bg-white shadow ">
       <div class="container mx-auto px-4 lg:px-8">
-        <div class="flex justify-between items-center py-4">
+        <div class="flex justify-between items-center py-3">
           <!-- Logo -->
-          <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
+          <a href="{% url 'home' %}" class="flex items-center space-x-3 group scale-[0.85]">
             <div
               class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center transform group-hover:rotate-6 transition-transform"
             >
@@ -286,7 +286,7 @@
           </a>
 
           <!-- Desktop Navigation -->
-          <div class="hidden lg:flex items-center space-x-1">
+          <div class="hidden lg:flex items-center space-x-1 text-[15px] ">
             <a
               href="{% url 'home' %}"
               class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
@@ -317,7 +317,7 @@
               class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
               >About</a
             >
-            <button id="installButton" class="dropdown-item w-full text-left bg-gradient-to-r from-blue-50 to-blue-50 hover:from-blue-100 hover:to-blue-100 border-t border-gray-100 mt-1">
+            <button id="installButton" class="dropdown-item w-full text-left bg-gradient-to-r from-blue-50 to-blue-50 hover:from-blue-100 hover:to-blue-100  border-gray-100 flex items-center">
                 <i class="fas fa-download mr-2 text-blue-600"></i>
                 <span class="text-blue-600 font-medium">Install App</span>
             </button>
@@ -346,7 +346,6 @@
         {% endif %}
 
           
-          <!-- Desktop Actions -->
           <div class="hidden lg:flex items-center space-x-4">
             
             {% if user.is_authenticated %}
@@ -501,7 +500,8 @@
     <div class="container mx-auto px-4 lg:px-8 mt-4">
       {% for message in messages %}
       <div
-        class="{% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif message.tags == 'success' %}bg-green-50 border-l-4 border-green-500 text-green-700{% elif message.tags == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-blue-50 border-l-4 border-blue-500 text-blue-700{% endif %} p-4 rounded mb-4 animate-fade-in"
+        class="{% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif message.tags == 'success' %}bg-green-50 border-l-4
+      border-green-500 text-green-700{% elif message.tags == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-blue-50 border-l-4 border-blue-500 text-blue-700{% endif %} p-4 rounded mb-4 animate-fade-in"
       >
         <div class="flex justify-between items-center">
           <div class="flex items-center">
@@ -683,7 +683,7 @@
     <main>{% block content %} {% endblock %}</main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-200 mt-20">
+    <footer class="bg-gray-900 text-gray-200 mt-20 z-[999]">
       <div class="container mx-auto px-4 lg:px-8 py-12">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div class="md:col-span-4">
@@ -1039,7 +1039,7 @@
     {% include 'manual_reload_button.html' %}
     {% block extra_js %}{% endblock %}
 
-        </style>
+        
   </body>
 
 </html>

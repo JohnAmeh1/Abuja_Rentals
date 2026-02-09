@@ -94,11 +94,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
+<div class="container mx-auto px-4 lg:px-10 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Sidebar Filters (Left) -->
         <aside class="lg:col-span-3 order-1 lg:order-1">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 lg:sticky lg:top-20">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 lg:sticky lg:top-28">
                 <h2 class="text-lg font-semibold mb-4">Filters</h2>
                 <form method="GET" class="space-y-4" id="filterFormSidebar">
                     <div>
@@ -123,16 +123,16 @@
                         <a href="{% url 'owner_properties' %}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-center">Reset</a>
                     </div>
                 </form>
+                <div class=" rounded-xl shadow-sm border border-gray-100 p-4 mt-4 hidden lg:block">
+                    <h3 class="text-sm text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>Use filters to narrow results quickly.</li>
+                        <li>Click a card to view full details.</li>
+                        <li>Owners can manage their listings from the dashboard.</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden lg:block">
-                <h3 class="text-sm text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
-                <ul class="text-sm text-gray-600 space-y-2">
-                    <li>Use filters to narrow results quickly.</li>
-                    <li>Click a card to view full details.</li>
-                    <li>Owners can manage their listings from the dashboard.</li>
-                </ul>
-            </div>
         </aside>
 
         <!-- Main content (Right) -->
@@ -143,7 +143,7 @@
                     <p class="text-gray-600 mt-1">{% if is_owner_view %}Manage your property listings{% else %}Browse available properties in Abuja{% endif %}</p>
                 </div>
                 <div class="flex items-center space-x-3 mt-4 md:mt-0 w-full md:w-auto">
-                    <div class="text-sm text-gray-500">Showing <strong>{{ properties|length }}</strong></div>
+                    <div class="text-sm text-gray-500">Showing <strong>{{ properties|length }} / {{total}}</strong></div>
                     <select name="sort" onchange="document.getElementById('filterFormSidebar').submit()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                         <option value="">Sort: Recommended</option>
                         <option value="price_asc">Price: Low to High</option>
@@ -159,9 +159,9 @@
             </div>
 
             {% if properties %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for property in properties %}
-                <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
+                <article class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg duration-200">
                     <div class="relative h-56 overflow-hidden">
                         {% if property.main_image %}
                         <img src="{{ property.main_image}}" alt="{{ property.title }}" class="w-full h-full object-cover transition duration-300">
@@ -171,29 +171,28 @@
                         </div>
                         {% endif %}
 
-                        <div class="absolute top-3 left-3">
+                        <!-- <div class="absolute top-3 left-3">
                             <span class="property-status status-{{ property.status }}">{{ property.get_status_display }}</span>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="price-badge">₦{{ property.price|floatformat:0|intcomma }}</span>
+                        </div> -->
+                        <div class="absolute bottom-3 left-3">
+                            <span class="rounded bg-white/80 backdrop-blur-xs px-3.5 py-1.5 font-bold text-primary">₦{{ property.price|floatformat:0|intcomma }}</span>
                         </div>
                     </div>
 
-                    <div class="p-4">
-                        <h3 class="property-title text-lg mb-1">{{ property.title }}</h3>
-                        <p class="property-desc text-sm mb-2 flex items-center"><i class="fas fa-map-marker-alt mr-2"></i>{{ property.city|capfirst }}</p>
+                    <div class="p-4 flex flex-col gap-2.5">
+                        <h3 class="property-title text-[17px] line-clamp-1">{{ property.title }}</h3>
+                        <div class="flex items-center justify-between">  
+                            <p class="property-desc text-[13px] flex items-center"><i class="fas fa-map-marker-alt mr-1.5"></i>{{ property.city|capfirst }}</p>
 
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="text-sm text-gray-600">
-                                {% if property.bedrooms %}<span class="mr-3"><i class="fas fa-bed mr-1"></i>{{ property.bedrooms }}</span>{% endif %}
-                                {% if property.bathrooms %}<span class="mr-3"><i class="fas fa-bath mr-1"></i>{{ property.bathrooms }}</span>{% endif %}
-                                {% if property.area_sqft %}<span><i class="fas fa-ruler-combined mr-1"></i>{{ property.area_sqft|floatformat:0 }} sqft</span>{% endif %}
+                            <div class="flex items-center text-[13px] gap-5 text-accent">
+                                    {% if property.bedrooms %}<span><i class="fas fa-bed mr-1"></i>{{ property.bedrooms }}</span>{% endif %}
+                                    {% if property.bathrooms %}<span><i class="fas fa-bath mr-1"></i>{{ property.bathrooms }}</span>{% endif %}
+                                    {% if property.area_sqft %}<span><i class="fas fa-ruler-combined mr-1"></i>{{ property.area_sqft|floatformat:0 }} sqft</span>{% endif %}
                             </div>
                         </div>
+                        <p class="text-sm text-gray-600 line-clamp-2">{{ property.description|truncatechars:140 }}</p>
 
-                        <p class="text-sm text-gray-700 mb-4 line-clamp-2">{{ property.description|truncatechars:140 }}</p>
-
-                        <div class="flex items-center">
+                        <div class="flex items-center mt-4">
                             <a href="{% url 'property_detail' property.id %}" class="btn-view">View Details</a>
                             <div class="ml-3 flex items-center space-x-2">
                                 {% if user.is_authenticated and property.owner == user %}

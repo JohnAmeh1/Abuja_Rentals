@@ -1,330 +1,203 @@
-"""
-Payment API views for handling payment processing, confirmations, and webhooks.
-"""
-
-from django.shortcuts import redirect, render, get_object_or_404
+# payment_views.py
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 from django.contrib import messages
-from django.utils import timezone
-from decimal import Decimal
-import json
 
-from .models import Payment, Transaction, StudentProperty
-from .payment_utils import PaymentProcessor, PaymentIntegration
+from .models import Payment, Property
+from .payment_utils import (
+    PaymentProcessor,
+    FlutterwaveService,
+    PropertyAdapter
+)
 
 
 @login_required
 @require_http_methods(["POST"])
-def initiate_student_property_payment(request, property_id):
-    """
-    Initiate payment for a student property rental.
+def process_property_payment(request, property_id):
+
+    property_obj = get_object_or_404(Property, id=property_id)
+
+    if not request.POST.get("terms"):
+        messages.error(request, "Please accept terms")
+        return redirect("property_detail", property_id=property_id)
+
+    # ─── CREATE INTERNAL PAYMENT ───
+    payment = Payment.objects.create(
+        user=request.user,
+        amount=property_obj.price,
+        currency="NGN",
+        description=f"Payment for {property_obj.title}",
+        payment_provider="flutterwave",
+        related_property=property_obj,
+        status="pending",
+        metadata={
+            "purpose": property_obj.purpose
+        }
+    )
+
+    # ─── INIT FLUTTERWAVE ───
+    # init = FlutterwaveService.initialize_payment(
+    #     payment,
+    #     request.user.email,
+    #     request.user.get_full_name() or request.user.username,
+    #     request.build_absolute_uri(
+    #         reverse("flutterwave_verify")
+    #     )
+    # )
     
-    POST data:
-        - duration_months: Number of months to rent (optional, default: 1)
-        - payment_method: Payment method ('stripe', 'paypal', etc.)
-    
-    Returns:
-        JSON with payment details and redirect URL
-    """
-    try:
-        # Get the property
-        student_property = get_object_or_404(StudentProperty, id=property_id)
-        
-        # Get payment parameters
-        duration_months = int(request.POST.get('duration_months', 1))
-        payment_method = request.POST.get('payment_method', 'stripe')
-        
-        # Validate duration
-        if duration_months < 1 or duration_months > 24:
-            return JsonResponse({
-                'success': False,
-                'message': 'Duration must be between 1 and 24 months'
-            }, status=400)
-        
-        # Process the payment
-        result = PaymentProcessor.process_rental_payment(
-            user=request.user,
-            student_property=student_property,
-            duration_months=duration_months
-        )
-        
-        if not result['success']:
-            return JsonResponse({
-                'success': False,
-                'message': result['message']
-            }, status=400)
-        
-        payment = result['payment']
-        
-        print(f"[v0] Payment initiated: {payment.id} for user {request.user.username}")
-        
-        # Redirect to appropriate payment provider
-        if payment_method == 'stripe':
-            # Create Stripe payment intent
-            intent = PaymentIntegration.create_stripe_payment_intent(payment)
-            if intent:
-                return JsonResponse({
-                    'success': True,
-                    'payment_id': payment.id,
-                    'client_secret': intent.client_secret,
-                    'amount': float(payment.amount),
-                    'message': 'Payment ready',
-                    'redirect_url': f'/payment/stripe/{payment.id}/checkout/'
-                })
-        
-        # Default: redirect to payment confirmation
+    init = FlutterwaveService.initialize(payment)
+
+    if not init["success"]:
+        messages.error(request, "Could not start payment")
+        return redirect("property_detail", property_id=property_id)
+
+    # → SEND USER TO FLUTTERWAVE PAGE
+    return redirect(init["link"])
+
+
+
+# ───────────────────────────────────────────────
+#  INITIATE PAYMENT
+# ───────────────────────────────────────────────
+@login_required
+@require_http_methods(["POST"])
+def initiate_payment(request, property_id):
+
+    property_obj, _ = PropertyAdapter.get_any(property_id)
+
+    if not property_obj:
+        return JsonResponse({"error": "Property not found"}, status=404)
+
+    if property_obj.owner == request.user:
+        return JsonResponse({"error": "You cannot pay for your own property"}, status=400)
+
+    # 1. Create internal payment
+    payment = PaymentProcessor.create_payment(
+        user=request.user,
+        amount=property_obj.price,
+        description=f"Payment for {property_obj.title}",
+        property_id=property_obj.id
+    )
+
+    # 2. Initialize Flutterwave
+    fw = FlutterwaveService.initialize(payment)
+
+    if fw.get("status") != "success":
         return JsonResponse({
-            'success': True,
-            'payment_id': payment.id,
-            'amount': float(payment.amount),
-            'message': 'Payment initiated',
-            'redirect_url': f'/payment/{payment.id}/confirmation/'
-        })
-        
-    except StudentProperty.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': 'Property not found'
-        }, status=404)
-    except ValueError as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Invalid parameters: {str(e)}'
+            "error": "Could not initialize payment",
+            "detail": fw
         }, status=400)
-    except Exception as e:
-        print(f"[v0] Error initiating payment: {str(e)}")
-        return JsonResponse({
-            'success': False,
-            'message': f'Error: {str(e)}'
-        }, status=500)
+
+    checkout_url = fw["data"]["link"]
+
+    return JsonResponse({
+        "checkout_url": checkout_url,
+        "payment_id": payment.id
+    })
 
 
+# ───────────────────────────────────────────────
+#  VERIFY PAYMENT RETURN
+# ───────────────────────────────────────────────
 @login_required
-def payment_confirmation(request, payment_id):
-    """
-    Display payment confirmation page.
-    """
-    try:
-        payment = get_object_or_404(Payment, id=payment_id, user=request.user)
-        
-        context = {
-            'payment': payment,
-            'amount': payment.amount,
-            'currency': payment.currency,
-            'description': payment.description,
-            'page_title': 'Payment Confirmation'
-        }
-        
-        return render(request, 'payment/confirmation.html', context)
-    except Exception as e:
-        print(f"[v0] Error loading payment confirmation: {str(e)}")
-        messages.error(request, 'Error loading payment details')
-        return redirect('home')
+def verify_payment(request):
+
+    tx_id = request.GET.get("transaction_id")
+
+    if not tx_id:
+        messages.error(request, "Invalid payment reference")
+        return redirect("home")
+
+    data = FlutterwaveService.verify(tx_id)
+
+    if data.get("status") != "success":
+        messages.error(request, "Payment verification failed")
+        return redirect("home")
+
+    meta = data["data"]["meta"]
+    payment_id = meta.get("payment_id")
+
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    # Mark completed
+    PaymentProcessor.mark_completed(payment, tx_id)
+
+    # Create transactions + rental/ownership
+    PaymentProcessor.create_transactions_and_records(payment)
+
+    messages.success(request, "Payment successful!")
+    return redirect("payment_receipt", payment_id=payment.id)
 
 
+# ───────────────────────────────────────────────
+#  RECEIPT
+# ───────────────────────────────────────────────
 @login_required
-@require_http_methods(["GET", "POST"])
-def payment_success(request, payment_id):
-    """
-    Handle successful payment.
-    """
-    try:
-        payment = get_object_or_404(Payment, id=payment_id, user=request.user)
-        
-        # Mark payment as completed
-        result = PaymentProcessor.mark_payment_completed(
-            payment_id=payment_id,
-            external_payment_id=request.GET.get('external_id'),
-            payment_provider=request.GET.get('provider', 'manual')
-        )
-        
-        if result['success']:
-            messages.success(request, f'Payment of ₦{payment.amount} completed successfully!')
-            print(f"[v0] Payment {payment_id} successful for user {request.user.username}")
-            
-            context = {
-                'payment': result['payment'],
-                'success': True,
-                'page_title': 'Payment Successful'
-            }
-        else:
-            messages.error(request, result['message'])
-            context = {
-                'payment': payment,
-                'success': False,
-                'message': result['message'],
-                'page_title': 'Payment Error'
-            }
-        
-        return render(request, 'payment/success.html', context)
-        
-    except Payment.DoesNotExist:
-        messages.error(request, 'Payment not found')
-        return redirect('home')
-    except Exception as e:
-        print(f"[v0] Error processing payment success: {str(e)}")
-        messages.error(request, f'Error: {str(e)}')
-        return redirect('home')
-
-
-@login_required
-@require_http_methods(["GET"])
-def payment_failed(request, payment_id):
-    """
-    Handle failed payment.
-    """
-    try:
-        payment = get_object_or_404(Payment, id=payment_id, user=request.user)
-        
-        # Mark payment as failed
-        reason = request.GET.get('reason', 'User declined payment')
-        result = PaymentProcessor.mark_payment_failed(
-            payment_id=payment_id,
-            reason=reason
-        )
-        
-        messages.warning(request, f'Payment failed: {reason}')
-        print(f"[v0] Payment {payment_id} failed for user {request.user.username}: {reason}")
-        
-        context = {
-            'payment': result['payment'],
-            'reason': reason,
-            'page_title': 'Payment Failed'
-        }
-        
-        return render(request, 'payment/failed.html', context)
-        
-    except Payment.DoesNotExist:
-        messages.error(request, 'Payment not found')
-        return redirect('home')
-    except Exception as e:
-        print(f"[v0] Error processing payment failure: {str(e)}")
-        messages.error(request, f'Error: {str(e)}')
-        return redirect('home')
-
-
-@login_required
-@require_http_methods(["GET"])
-def payment_history(request):
-    """
-    Display user's payment and transaction history.
-    """
-    try:
-        payments = Payment.objects.filter(user=request.user).order_by('-created_at')[:50]
-        transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')[:50]
-        
-        # Calculate statistics
-        total_paid = sum(p.amount for p in payments.filter(status='completed'))
-        total_pending = sum(p.amount for p in payments.filter(status='pending'))
-        total_failed = sum(p.amount for p in payments.filter(status='failed'))
-        
-        context = {
-            'payments': payments,
-            'transactions': transactions,
-            'total_paid': total_paid,
-            'total_pending': total_pending,
-            'total_failed': total_failed,
-            'page_title': 'Payment History'
-        }
-        
-        return render(request, 'payment/history.html', context)
-        
-    except Exception as e:
-        print(f"[v0] Error loading payment history: {str(e)}")
-        messages.error(request, 'Error loading payment history')
-        return redirect('home')
-
-
-@login_required
-@require_http_methods(["POST"])
-def request_refund(request, payment_id):
-    """
-    Request a refund for a payment.
-    """
-    try:
-        payment = get_object_or_404(Payment, id=payment_id, user=request.user)
-        
-        if payment.status != 'completed':
-            return JsonResponse({
-                'success': False,
-                'message': 'Can only refund completed payments'
-            }, status=400)
-        
-        reason = request.POST.get('reason', '')
-        
-        # Create refund transaction
-        result = PaymentProcessor.create_refund(
-            payment_id=payment_id,
-            refund_amount=payment.amount,
-            reason=reason
-        )
-        
-        if result['success']:
-            messages.success(request, f'Refund of ₦{payment.amount} has been initiated')
-            return JsonResponse({'success': True, 'message': 'Refund initiated'})
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': result['message']
-            }, status=400)
-            
-    except Payment.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Payment not found'}, status=404)
-    except Exception as e:
-        print(f"[v0] Error requesting refund: {str(e)}")
-        return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
-
-@require_http_methods(["POST"])
-@csrf_exempt  # Stripe webhooks don't have CSRF tokens
-def stripe_webhook(request):
-    """
-    Handle Stripe webhook events.
-    Stripe will POST payment events to this endpoint.
-    """
-    try:
-        payload = request.body
-        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
-        
-        # Verify and process webhook
-        result = PaymentIntegration.verify_stripe_webhook(payload, sig_header)
-        
-        if result['success']:
-            print(f"[v0] Stripe webhook processed: {result.get('message')}")
-            return JsonResponse({'status': 'success'})
-        else:
-            print(f"[v0] Stripe webhook error: {result.get('message')}")
-            return JsonResponse({'status': 'error', 'message': result.get('message')}, status=400)
-            
-    except Exception as e:
-        print(f"[v0] Error processing Stripe webhook: {str(e)}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-
-@login_required
-@require_http_methods(["GET"])
 def payment_receipt(request, payment_id):
-    """
-    Display payment receipt/invoice.
-    """
+
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+
+    return render(request, "payment/receipt.html", {
+        "payment": payment
+    })
+
+
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .payment_utils import FlutterwaveWebhook
+
+
+# ───────────────────────────────────────────────
+#  FLUTTERWAVE WEBHOOK ENDPOINT
+# ───────────────────────────────────────────────
+@csrf_exempt
+@require_http_methods(["POST"])
+def flutterwave_webhook(request):
+
+    # 1. Verify signature
+    if not FlutterwaveWebhook.verify_signature(request):
+        return JsonResponse({"error": "invalid signature"}, status=401)
+
     try:
-        payment = get_object_or_404(Payment, id=payment_id, user=request.user)
-        
-        context = {
-            'payment': payment,
-            'user': request.user,
-            'page_title': f'Receipt - {payment.reference}'
-        }
-        
-        return render(request, 'payment/receipt.html', context)
-        
-    except Payment.DoesNotExist:
-        messages.error(request, 'Receipt not found')
-        return redirect('home')
+        payload = json.loads(request.body)
+
+        result = FlutterwaveWebhook.handle_event(payload)
+
+        return JsonResponse(result)
+
     except Exception as e:
-        print(f"[v0] Error loading receipt: {str(e)}")
-        messages.error(request, 'Error loading receipt')
-        return redirect('home')
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def flutterwave_verify(request):
+
+    tx_ref = request.GET.get("tx_ref")
+    transaction_id = request.GET.get("transaction_id")
+
+    if not tx_ref:
+        messages.error(request, "Invalid payment response")
+        return redirect("dashboard")
+
+    result = FlutterwaveService.verify(tx_ref)
+
+    if not result["success"]:
+        messages.error(request, "Payment verification failed")
+        return redirect("dashboard")
+
+    try:
+        payment = Payment.objects.get(id=tx_ref)
+
+        if payment.status != "completed":
+            PaymentProcessor.mark_completed(payment, transaction_id)
+            PaymentProcessor.create_transactions_and_records(payment)
+
+        messages.success(request, "Payment successful!")
+
+    except Payment.DoesNotExist:
+        messages.error(request, "Payment record not found")
+
+    return redirect("dashboard")

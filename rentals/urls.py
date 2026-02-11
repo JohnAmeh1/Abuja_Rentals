@@ -96,6 +96,9 @@ urlpatterns = [
     
     # Wallet routes
     path('wallet/', views.wallet_view, name='wallet'),
+    # Receipts
+    path('receipts/', views.receipts_view, name='receipts'),
+    path('receipt/verify/<str:reference>/', views.receipt_verify, name='receipt_verify'),
     # Rental actions
     path('rental/<int:rental_id>/renew/', views.renew_rental, name='renew_rental'),
     

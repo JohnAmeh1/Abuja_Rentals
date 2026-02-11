@@ -74,7 +74,7 @@
         <div class="p-6 md:p-8">
             <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-6">
                 <div class="flex-1">
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">{{ property.title }}</h1>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3 break-words">{{ property.title }}</h1>
                     <div class="flex flex-wrap items-center gap-3 mb-4">
                         <span class="property-badge badge-{{ property.status }}">{{ property.get_status_display }}</span>
                         {% if property.purpose == 'rent' %}
@@ -186,11 +186,11 @@
                 
                 <!-- Additional Images -->
                 {% if additional_images %}
-                <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 image-gallery">
+                <div class="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 image-gallery">
                     {% for image in additional_images %}
                     <img src="{{ image.url }}" 
                          alt="{{ property.title }}" 
-                         class="w-full h-32 object-cover rounded-lg"
+                         class="w-full h-24 sm:h-28 md:h-32 object-cover rounded-lg shadow-sm hover:shadow-md transition cursor-pointer"
                          onclick="openImageModal(this.src)">
                     {% endfor %}
                 </div>

@@ -12,7 +12,7 @@ from django.db import transaction
 class UserProfile(models.Model):
     USER_TYPE_CHOICES = [
         ('tenant', 'Tenant/Looking to Rent'),
-        ('owner', 'Property Owner/Landlord'),
+        ('agent', 'Real Estate Agent'),
         ('student', 'Student'),
         # ('admin', 'Administrator'),
     ]
@@ -127,6 +127,10 @@ class Property(models.Model):
     image_3 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
     image_4 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
     image_5 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_6 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_7 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_8 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_9 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
     
     # Metadata
     is_featured = models.BooleanField(default=False)
@@ -168,7 +172,7 @@ class Property(models.Model):
     
     def get_additional_images(self):
         images = []
-        for field_name in ['image_1', 'image_2', 'image_3', 'image_4', 'image_5']:
+        for field_name in ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9']:
             image_field = getattr(self, field_name)
             if image_field:
                 images.append(image_field)
@@ -592,6 +596,10 @@ class StudentProperty(models.Model):
     image_3 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
     image_4 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
     image_5 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_6 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_7 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_8 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    image_9 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
     
     # Flags and Counters
     is_featured = models.BooleanField(default=False)
@@ -618,10 +626,10 @@ class StudentProperty(models.Model):
         return f"{self.title}{uni_display} - {self.get_property_type_display()}"
     
     def save(self, *args, **kwargs):
-        # Auto-calculate platform fee (2%) and net amount before saving
+        # Auto-calculate platform fee (5%) and net amount before saving
         if self.price and self.platform_fee == 0:
-            self.platform_fee = self.price * 0.02
-            self.net_amount = self.price * 0.98
+            self.platform_fee = self.price * 0.05
+            self.net_amount = self.price * 0.95
         
         # Set published_at if status changes to active
         if self.status == 'active' and not self.published_at:
@@ -918,7 +926,7 @@ class AdminMessage(models.Model):
         # Check user type permissions
         if hasattr(user, 'userprofile'):
             user_type = user.userprofile.user_type
-            if user_type == 'owner' and not self.show_to_owners:
+            if user_type == 'agent' and not self.show_to_owners:
                 return False
             if user_type == 'tenant' and not self.show_to_tenants:
                 return False

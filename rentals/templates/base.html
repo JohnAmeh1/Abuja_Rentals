@@ -233,6 +233,46 @@
         cursor: pointer;
       }
 
+      /* Global responsive & overflow fixes */
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* Ensure images inside fixed-height containers cover and don't stretch */
+      .relative > img,
+      .object-cover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Prevent card content from overflowing */
+      .property-card {
+        overflow: hidden;
+      }
+
+      /* Break long words / strings to avoid overflow */
+      .break-words {
+        word-break: break-word;
+        overflow-wrap: break-word;
+      }
+
+      /* Line clamp utility (fallback without plugin) */
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Modal inner content should scroll if tall */
+      .fixed.inset-0 > div {
+        max-height: 85vh;
+        overflow: auto;
+      }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -840,7 +880,6 @@
       // Replace the admin messages script in base.html with this updated version
 
       document.addEventListener('DOMContentLoaded', function() {
-      const modal = document.getElementById('adminMessagesModal');
       const messagesContainer = document.getElementById('messagesContainer');
       const closeModalBtn = document.getElementById('closeModalBtn');
       const dismissAllBtn = document.getElementById('dismissAllBtn');

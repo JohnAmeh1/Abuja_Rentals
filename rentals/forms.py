@@ -17,7 +17,7 @@ class CustomUserCreationForm(UserCreationForm):
     
     USER_TYPE_CHOICES = [
         ('tenant', 'Tenant/Looking to Rent'),
-        ('owner', 'Property Owner/Landlord'),
+        ('agent', 'Real Estate Agent'),
         ('student', 'Student'),
         # ('agent', 'Real Estate Agent'),
     ]
@@ -233,6 +233,22 @@ class StudentPropertyForm(forms.ModelForm):
         'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg',
         'accept': 'image/*'
     }))
+    image_6 = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg',
+        'accept': 'image/*'
+    }))
+    image_7 = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg',
+        'accept': 'image/*'
+    }))
+    image_8 = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg',
+        'accept': 'image/*'
+    }))
+    image_9 = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg',
+        'accept': 'image/*'
+    }))
     
     # Amenities as checkboxes - UPDATE THIS
     AMENITY_CHOICES = [
@@ -407,7 +423,7 @@ class StudentPropertyForm(forms.ModelForm):
         elif university == 'other' and not custom_university:
             self.add_error('custom_university', 'Please enter the university name')
         
-        # Calculate platform fee (2%) and net amount
+        # Calculate platform fee (5%) and net amount
         price = cleaned_data.get('price')
         if price:
             from decimal import Decimal
@@ -418,8 +434,8 @@ class StudentPropertyForm(forms.ModelForm):
                     self.add_error('price', 'Please enter a valid price')
                     return cleaned_data
             
-            cleaned_data['platform_fee'] = price * Decimal('0.02')
-            cleaned_data['net_amount'] = price * Decimal('0.98')
+            cleaned_data['platform_fee'] = price * Decimal('0.05')
+            cleaned_data['net_amount'] = price * Decimal('0.95')
         
         # Convert amenities list to comma-separated string
         amenities_list = cleaned_data.get('amenities', [])
@@ -557,7 +573,8 @@ class PropertyForm(forms.ModelForm):
             'bedrooms', 'bathrooms', 'area_sqft', 'price',
             'rent_duration_display',  # Add this field
             'rent_duration_months',
-            'main_image', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5'
+            'main_image', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5',
+            'image_6', 'image_7', 'image_8', 'image_9'
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -661,6 +678,22 @@ class PropertyForm(forms.ModelForm):
                 'accept': 'image/*'
             }),
             'image_5': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
+                'accept': 'image/*'
+            }),
+            'image_6': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
+                'accept': 'image/*'
+            }),
+            'image_7': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
+                'accept': 'image/*'
+            }),
+            'image_8': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
+                'accept': 'image/*'
+            }),
+            'image_9': forms.ClearableFileInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
                 'accept': 'image/*'
             }),

@@ -308,6 +308,57 @@
                                         <label class="block text-xs text-gray-600 mb-1">Image 5</label>
                                         {{ form.image_5 }}
                                     </div>
+                                    <!-- Image 6 -->
+                                    <div>
+                                        {% if property.image_6 %}
+                                        <img src="{{ property.image_6.url }}" alt="Image 6" class="image-preview mb-2">
+                                        {% else %}
+                                        <div class="image-preview bg-gray-100 flex items-center justify-center mb-2">
+                                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                        </div>
+                                        {% endif %}
+                                        <label class="block text-xs text-gray-600 mb-1">Image 6</label>
+                                        {{ form.image_6 }}
+                                    </div>
+
+                                    <!-- Image 7 -->
+                                    <div>
+                                        {% if property.image_7 %}
+                                        <img src="{{ property.image_7.url }}" alt="Image 7" class="image-preview mb-2">
+                                        {% else %}
+                                        <div class="image-preview bg-gray-100 flex items-center justify-center mb-2">
+                                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                        </div>
+                                        {% endif %}
+                                        <label class="block text-xs text-gray-600 mb-1">Image 7</label>
+                                        {{ form.image_7 }}
+                                    </div>
+
+                                    <!-- Image 8 -->
+                                    <div>
+                                        {% if property.image_8 %}
+                                        <img src="{{ property.image_8.url }}" alt="Image 8" class="image-preview mb-2">
+                                        {% else %}
+                                        <div class="image-preview bg-gray-100 flex items-center justify-center mb-2">
+                                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                        </div>
+                                        {% endif %}
+                                        <label class="block text-xs text-gray-600 mb-1">Image 8</label>
+                                        {{ form.image_8 }}
+                                    </div>
+
+                                    <!-- Image 9 -->
+                                    <div>
+                                        {% if property.image_9 %}
+                                        <img src="{{ property.image_9.url }}" alt="Image 9" class="image-preview mb-2">
+                                        {% else %}
+                                        <div class="image-preview bg-gray-100 flex items-center justify-center mb-2">
+                                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                        </div>
+                                        {% endif %}
+                                        <label class="block text-xs text-gray-600 mb-1">Image 9</label>
+                                        {{ form.image_9 }}
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -437,32 +437,7 @@
 {% block extra_js %}
 {% include 'auto_reload.html' %}
 <script>
-    // Tab functionality
-    function showTab(tabName) {
-        // Hide all tab content
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.add('hidden');
-        });
-        
-        // Remove active class from all tabs
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.classList.remove('border-blue-500', 'text-blue-600');
-            button.classList.add('border-transparent', 'text-gray-500');
-        });
-        
-        // Show selected tab content
-        if (tabName === 'regular') {
-            document.getElementById('regular-properties').classList.remove('hidden');
-            document.getElementById('tab-regular').classList.add('border-blue-500', 'text-blue-600');
-            document.getElementById('tab-regular').classList.remove('border-transparent', 'text-gray-500');
-        } else if (tabName === 'student') {
-            document.getElementById('student-properties').classList.remove('hidden');
-            document.getElementById('tab-student').classList.add('border-blue-500', 'text-blue-600');
-            document.getElementById('tab-student').classList.remove('border-transparent', 'text-gray-500');
-        }
-    }
-    
-    // Status modal functionality
+    // Status modal functionality - defined early for onclick handlers
     function openStatusModal(propertyId, propertyTitle, currentStatus, propertyType) {
         document.getElementById('propertyTitle').value = propertyTitle;
         
@@ -504,11 +479,36 @@
         document.getElementById('statusModal').classList.add('hidden');
         document.getElementById('statusModal').classList.remove('flex');
     }
+
+    // Tab functionality
+    function showTab(tabName) {
+        // Hide all tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('border-blue-500', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Show selected tab content
+        if (tabName === 'regular') {
+            document.getElementById('regular-properties').classList.remove('hidden');
+            document.getElementById('tab-regular').classList.add('border-blue-500', 'text-blue-600');
+            document.getElementById('tab-regular').classList.remove('border-transparent', 'text-gray-500');
+        } else if (tabName === 'student') {
+            document.getElementById('student-properties').classList.remove('hidden');
+            document.getElementById('tab-student').classList.add('border-blue-500', 'text-blue-600');
+            document.getElementById('tab-student').classList.remove('border-transparent', 'text-gray-500');
+        }
+    }
     
     // Close modal when clicking outside
-    const modal = document.getElementById('statusModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
+    const statusModalElement = document.getElementById('statusModal');
+    if (statusModalElement) {
+        statusModalElement.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeStatusModal();
             }

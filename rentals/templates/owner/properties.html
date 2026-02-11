@@ -150,7 +150,7 @@
                         <option value="price_desc">Price: High to Low</option>
                         <option value="newest">Newest</option>
                     </select>
-                    {% if user.is_authenticated and user.userprofile.user_type == 'owner' %}
+                    {% if user.is_authenticated and user.userprofile.user_type == 'agent' %}
                     <a href="{% url 'add_property' %}" class="btn-gradient text-white font-medium px-4 py-2 rounded-lg flex items-center">
                         <i class="fas fa-plus mr-2"></i> Add Property
                     </a>
@@ -158,7 +158,7 @@
                 </div>
             </div>
 
-            {% if properties %}
+            {% if properties or student_properties %}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for property in properties %}
                 <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
@@ -180,8 +180,8 @@
                     </div>
 
                     <div class="p-4">
-                        <h3 class="property-title text-lg mb-1">{{ property.title }}</h3>
-                        <p class="property-desc text-sm mb-2 flex items-center"><i class="fas fa-map-marker-alt mr-2"></i>{{ property.city|capfirst }}</p>
+                        <h3 class="property-title text-lg mb-1 break-words">{{ property.title }}</h3>
+                        <p class="property-desc text-sm mb-2 flex items-center break-words"><i class="fas fa-map-marker-alt mr-2"></i>{{ property.city|capfirst }}</p>
 
                         <div class="flex items-center justify-between mb-3">
                             <div class="text-sm text-gray-600">
@@ -217,6 +217,60 @@
                 {% endfor %}
             </div>
 
+            {% endif %}
+
+            {% if student_properties %}
+            <div class="mt-10">
+                <h2 class="text-xl font-semibold mb-4">Student Properties</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for sp in student_properties %}
+                    <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
+                        <div class="relative h-56 overflow-hidden">
+                            {% if sp.main_image %}
+                            <img src="{{ sp.main_image.url }}" alt="{{ sp.title }}" class="w-full h-full object-cover transition duration-300">
+                            {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-home text-gray-400 text-4xl"></i>
+                            </div>
+                            {% endif %}
+
+                            <div class="absolute top-3 left-3">
+                                <span class="property-status status-{{ sp.status }}">{{ sp.get_status_display }}</span>
+                            </div>
+                            <div class="absolute top-3 right-3">
+                                <span class="price-badge">₦{{ sp.price|floatformat:0|intcomma }}</span>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <h3 class="property-title text-lg mb-1">{{ sp.title }}</h3>
+                            <p class="property-desc text-sm mb-2 flex items-center"><i class="fas fa-map-marker-alt mr-2"></i>{{ sp.city|capfirst }}</p>
+
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="text-sm text-gray-600">
+                                    {% if sp.bedrooms %}<span class="mr-3"><i class="fas fa-bed mr-1"></i>{{ sp.bedrooms }}</span>{% endif %}
+                                    {% if sp.bathrooms %}<span class="mr-3"><i class="fas fa-bath mr-1"></i>{{ sp.bathrooms }}</span>{% endif %}
+                                </div>
+                            </div>
+
+                            <p class="text-sm text-gray-700 mb-4 line-clamp-2">{{ sp.description|truncatechars:140 }}</p>
+
+                            <div class="flex items-center">
+                                <a href="{% url 'student_property_detail' sp.id %}" class="btn-view">View Details</a>
+                                <div class="ml-3 flex items-center space-x-2">
+                                    {% if user.is_authenticated and sp.created_by == user %}
+                                    <a href="{% url 'edit_student_property' sp.id %}" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Property">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+
             {% else %}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
                 <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -224,7 +278,7 @@
                 </div>
                 <h3 class="text-xl font-bold text-gray-700 mb-2">No Properties Found</h3>
                 <p class="text-gray-600 mb-6">{% if is_owner_view %}You haven't listed any properties yet. Start by adding your first property.{% else %}No properties match your search criteria. Try adjusting your filters.{% endif %}</p>
-                {% if is_owner_view and user.is_authenticated and user.userprofile.user_type == 'owner' %}
+                {% if is_owner_view and user.is_authenticated and user.userprofile.user_type == 'agent' %}
                 <a href="{% url 'add_property' %}" class="btn-gradient text-white font-medium px-6 py-3 rounded-lg inline-flex items-center"><i class="fas fa-plus mr-2"></i> Add Your First Property</a>
                 {% endif %}
             </div>

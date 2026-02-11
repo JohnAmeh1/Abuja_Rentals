@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 12, 2026 at 01:07 PM
+-- Generation Time: Feb 11, 2026 at 02:57 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -90,54 +90,54 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 (26, 'Can change property', 7, 'change_property'),
 (27, 'Can delete property', 7, 'delete_property'),
 (28, 'Can view property', 7, 'view_property'),
-(29, 'Can add wallet', 8, 'add_wallet'),
-(30, 'Can change wallet', 8, 'change_wallet'),
-(31, 'Can delete wallet', 8, 'delete_wallet'),
-(32, 'Can view wallet', 8, 'view_wallet'),
-(33, 'Can add user profile', 9, 'add_userprofile'),
-(34, 'Can change user profile', 9, 'change_userprofile'),
-(35, 'Can delete user profile', 9, 'delete_userprofile'),
-(36, 'Can view user profile', 9, 'view_userprofile'),
-(37, 'Can add transaction', 10, 'add_transaction'),
-(38, 'Can change transaction', 10, 'change_transaction'),
-(39, 'Can delete transaction', 10, 'delete_transaction'),
-(40, 'Can view transaction', 10, 'view_transaction'),
-(41, 'Can add property visit', 11, 'add_propertyvisit'),
-(42, 'Can change property visit', 11, 'change_propertyvisit'),
-(43, 'Can delete property visit', 11, 'delete_propertyvisit'),
-(44, 'Can view property visit', 11, 'view_propertyvisit'),
-(45, 'Can add property rental', 12, 'add_propertyrental'),
-(46, 'Can change property rental', 12, 'change_propertyrental'),
-(47, 'Can delete property rental', 12, 'delete_propertyrental'),
-(48, 'Can view property rental', 12, 'view_propertyrental'),
-(49, 'Can add property ownership', 13, 'add_propertyownership'),
-(50, 'Can change property ownership', 13, 'change_propertyownership'),
-(51, 'Can delete property ownership', 13, 'delete_propertyownership'),
-(52, 'Can view property ownership', 13, 'view_propertyownership'),
-(53, 'Can add property inquiry', 14, 'add_propertyinquiry'),
-(54, 'Can change property inquiry', 14, 'change_propertyinquiry'),
-(55, 'Can delete property inquiry', 14, 'delete_propertyinquiry'),
-(56, 'Can view property inquiry', 14, 'view_propertyinquiry'),
-(57, 'Can add admin message', 15, 'add_adminmessage'),
-(58, 'Can change admin message', 15, 'change_adminmessage'),
-(59, 'Can delete admin message', 15, 'delete_adminmessage'),
-(60, 'Can view admin message', 15, 'view_adminmessage'),
-(61, 'Can add saved property', 16, 'add_savedproperty'),
-(62, 'Can change saved property', 16, 'change_savedproperty'),
-(63, 'Can delete saved property', 16, 'delete_savedproperty'),
-(64, 'Can view saved property', 16, 'view_savedproperty'),
-(65, 'Can add report', 17, 'add_report'),
-(66, 'Can change report', 17, 'change_report'),
-(67, 'Can delete report', 17, 'delete_report'),
-(68, 'Can view report', 17, 'view_report'),
-(69, 'Can add Student Property', 18, 'add_studentproperty'),
-(70, 'Can change Student Property', 18, 'change_studentproperty'),
-(71, 'Can delete Student Property', 18, 'delete_studentproperty'),
-(72, 'Can view Student Property', 18, 'view_studentproperty'),
-(73, 'Can add Student Property Rental', 19, 'add_studentpropertyrental'),
-(74, 'Can change Student Property Rental', 19, 'change_studentpropertyrental'),
-(75, 'Can delete Student Property Rental', 19, 'delete_studentpropertyrental'),
-(76, 'Can view Student Property Rental', 19, 'view_studentpropertyrental');
+(29, 'Can add Student Property', 8, 'add_studentproperty'),
+(30, 'Can change Student Property', 8, 'change_studentproperty'),
+(31, 'Can delete Student Property', 8, 'delete_studentproperty'),
+(32, 'Can view Student Property', 8, 'view_studentproperty'),
+(33, 'Can add wallet', 9, 'add_wallet'),
+(34, 'Can change wallet', 9, 'change_wallet'),
+(35, 'Can delete wallet', 9, 'delete_wallet'),
+(36, 'Can view wallet', 9, 'view_wallet'),
+(37, 'Can add user profile', 10, 'add_userprofile'),
+(38, 'Can change user profile', 10, 'change_userprofile'),
+(39, 'Can delete user profile', 10, 'delete_userprofile'),
+(40, 'Can view user profile', 10, 'view_userprofile'),
+(41, 'Can add transaction', 11, 'add_transaction'),
+(42, 'Can change transaction', 11, 'change_transaction'),
+(43, 'Can delete transaction', 11, 'delete_transaction'),
+(44, 'Can view transaction', 11, 'view_transaction'),
+(45, 'Can add Student Property Rental', 12, 'add_studentpropertyrental'),
+(46, 'Can change Student Property Rental', 12, 'change_studentpropertyrental'),
+(47, 'Can delete Student Property Rental', 12, 'delete_studentpropertyrental'),
+(48, 'Can view Student Property Rental', 12, 'view_studentpropertyrental'),
+(49, 'Can add report', 13, 'add_report'),
+(50, 'Can change report', 13, 'change_report'),
+(51, 'Can delete report', 13, 'delete_report'),
+(52, 'Can view report', 13, 'view_report'),
+(53, 'Can add property visit', 14, 'add_propertyvisit'),
+(54, 'Can change property visit', 14, 'change_propertyvisit'),
+(55, 'Can delete property visit', 14, 'delete_propertyvisit'),
+(56, 'Can view property visit', 14, 'view_propertyvisit'),
+(57, 'Can add property rental', 15, 'add_propertyrental'),
+(58, 'Can change property rental', 15, 'change_propertyrental'),
+(59, 'Can delete property rental', 15, 'delete_propertyrental'),
+(60, 'Can view property rental', 15, 'view_propertyrental'),
+(61, 'Can add property ownership', 16, 'add_propertyownership'),
+(62, 'Can change property ownership', 16, 'change_propertyownership'),
+(63, 'Can delete property ownership', 16, 'delete_propertyownership'),
+(64, 'Can view property ownership', 16, 'view_propertyownership'),
+(65, 'Can add property inquiry', 17, 'add_propertyinquiry'),
+(66, 'Can change property inquiry', 17, 'change_propertyinquiry'),
+(67, 'Can delete property inquiry', 17, 'delete_propertyinquiry'),
+(68, 'Can view property inquiry', 17, 'view_propertyinquiry'),
+(69, 'Can add admin message', 18, 'add_adminmessage'),
+(70, 'Can change admin message', 18, 'change_adminmessage'),
+(71, 'Can delete admin message', 18, 'delete_adminmessage'),
+(72, 'Can view admin message', 18, 'view_adminmessage'),
+(73, 'Can add saved property', 19, 'add_savedproperty'),
+(74, 'Can change saved property', 19, 'change_savedproperty'),
+(75, 'Can delete saved property', 19, 'delete_savedproperty'),
+(76, 'Can view saved property', 19, 'view_savedproperty');
 
 -- --------------------------------------------------------
 
@@ -164,7 +164,7 @@ CREATE TABLE `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-(1, 'pbkdf2_sha256$600000$BwFpU7O1jAlkGCxEMwG4jh$SJWd5SvXgdZnFk5FO4WC2D0bW5fQncFEwnyuArgOelc=', '2026-01-12 12:06:11.365945', 1, 'JohnAmeh', '', '', 'johnameh29@gmail.com', 1, 1, '2026-01-12 12:04:34.979307');
+(1, 'pbkdf2_sha256$600000$awvbSmS75yryB8iTzSfMV0$ADjOHuVWqJpamCuvF7hHpdJ0RpYdDXKoM2fmGb7q4TI=', NULL, 1, 'Abuja_Rentals', '', '', 'johnameh29@gmail.com', 1, 1, '2026-02-11 01:56:34.177614');
 
 -- --------------------------------------------------------
 
@@ -229,19 +229,19 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 (2, 'auth', 'permission'),
 (4, 'auth', 'user'),
 (5, 'contenttypes', 'contenttype'),
-(15, 'rentals', 'adminmessage'),
+(18, 'rentals', 'adminmessage'),
 (7, 'rentals', 'property'),
-(14, 'rentals', 'propertyinquiry'),
-(13, 'rentals', 'propertyownership'),
-(12, 'rentals', 'propertyrental'),
-(11, 'rentals', 'propertyvisit'),
-(17, 'rentals', 'report'),
-(16, 'rentals', 'savedproperty'),
-(18, 'rentals', 'studentproperty'),
-(19, 'rentals', 'studentpropertyrental'),
-(10, 'rentals', 'transaction'),
-(9, 'rentals', 'userprofile'),
-(8, 'rentals', 'wallet'),
+(17, 'rentals', 'propertyinquiry'),
+(16, 'rentals', 'propertyownership'),
+(15, 'rentals', 'propertyrental'),
+(14, 'rentals', 'propertyvisit'),
+(13, 'rentals', 'report'),
+(19, 'rentals', 'savedproperty'),
+(8, 'rentals', 'studentproperty'),
+(12, 'rentals', 'studentpropertyrental'),
+(11, 'rentals', 'transaction'),
+(10, 'rentals', 'userprofile'),
+(9, 'rentals', 'wallet'),
 (6, 'sessions', 'session');
 
 -- --------------------------------------------------------
@@ -262,33 +262,25 @@ CREATE TABLE `django_migrations` (
 --
 
 INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
-(1, 'contenttypes', '0001_initial', '2026-01-12 12:01:23.491412'),
-(2, 'auth', '0001_initial', '2026-01-12 12:01:23.879600'),
-(3, 'admin', '0001_initial', '2026-01-12 12:01:24.081698'),
-(4, 'admin', '0002_logentry_remove_auto_add', '2026-01-12 12:01:24.090920'),
-(5, 'admin', '0003_logentry_add_action_flag_choices', '2026-01-12 12:01:24.101506'),
-(6, 'contenttypes', '0002_remove_content_type_name', '2026-01-12 12:01:24.159577'),
-(7, 'auth', '0002_alter_permission_name_max_length', '2026-01-12 12:01:24.206240'),
-(8, 'auth', '0003_alter_user_email_max_length', '2026-01-12 12:01:24.225993'),
-(9, 'auth', '0004_alter_user_username_opts', '2026-01-12 12:01:24.236786'),
-(10, 'auth', '0005_alter_user_last_login_null', '2026-01-12 12:01:24.308943'),
-(11, 'auth', '0006_require_contenttypes_0002', '2026-01-12 12:01:24.312306'),
-(12, 'auth', '0007_alter_validators_add_error_messages', '2026-01-12 12:01:24.322306'),
-(13, 'auth', '0008_alter_user_username_max_length', '2026-01-12 12:01:24.344222'),
-(14, 'auth', '0009_alter_user_last_name_max_length', '2026-01-12 12:01:24.410466'),
-(15, 'auth', '0010_alter_group_name_max_length', '2026-01-12 12:01:24.456757'),
-(16, 'auth', '0011_update_proxy_permissions', '2026-01-12 12:01:24.466180'),
-(17, 'auth', '0012_alter_user_first_name_max_length', '2026-01-12 12:01:24.489676'),
-(18, 'rentals', '0001_initial', '2026-01-12 12:01:25.307973'),
-(19, 'rentals', '0002_alter_property_address', '2026-01-12 12:01:25.325999'),
-(20, 'rentals', '0003_userprofile_whatsapp_link', '2026-01-12 12:01:25.363608'),
-(21, 'rentals', '0004_alter_userprofile_user_type', '2026-01-12 12:01:25.381627'),
-(22, 'rentals', '0005_report', '2026-01-12 12:01:25.557823'),
-(23, 'rentals', '0006_alter_userprofile_user_type_studentproperty', '2026-01-12 12:01:25.714281'),
-(24, 'rentals', '0007_studentproperty_university', '2026-01-12 12:01:25.745679'),
-(25, 'rentals', '0008_alter_studentproperty_status', '2026-01-12 12:01:25.774411'),
-(26, 'rentals', '0009_studentpropertyrental', '2026-01-12 12:01:25.894855'),
-(27, 'sessions', '0001_initial', '2026-01-12 12:01:25.920576');
+(1, 'contenttypes', '0001_initial', '2026-02-11 01:55:50.843137'),
+(2, 'auth', '0001_initial', '2026-02-11 01:55:51.261288'),
+(3, 'admin', '0001_initial', '2026-02-11 01:55:51.358820'),
+(4, 'admin', '0002_logentry_remove_auto_add', '2026-02-11 01:55:51.367357'),
+(5, 'admin', '0003_logentry_add_action_flag_choices', '2026-02-11 01:55:51.376392'),
+(6, 'contenttypes', '0002_remove_content_type_name', '2026-02-11 01:55:51.431054'),
+(7, 'auth', '0002_alter_permission_name_max_length', '2026-02-11 01:55:51.501135'),
+(8, 'auth', '0003_alter_user_email_max_length', '2026-02-11 01:55:51.529188'),
+(9, 'auth', '0004_alter_user_username_opts', '2026-02-11 01:55:51.542932'),
+(10, 'auth', '0005_alter_user_last_login_null', '2026-02-11 01:55:51.579999'),
+(11, 'auth', '0006_require_contenttypes_0002', '2026-02-11 01:55:51.586481'),
+(12, 'auth', '0007_alter_validators_add_error_messages', '2026-02-11 01:55:51.598078'),
+(13, 'auth', '0008_alter_user_username_max_length', '2026-02-11 01:55:51.615275'),
+(14, 'auth', '0009_alter_user_last_name_max_length', '2026-02-11 01:55:51.637936'),
+(15, 'auth', '0010_alter_group_name_max_length', '2026-02-11 01:55:51.664644'),
+(16, 'auth', '0011_update_proxy_permissions', '2026-02-11 01:55:51.675137'),
+(17, 'auth', '0012_alter_user_first_name_max_length', '2026-02-11 01:55:51.695352'),
+(18, 'rentals', '0001_initial', '2026-02-11 01:55:53.163272'),
+(19, 'sessions', '0001_initial', '2026-02-11 01:55:53.221174');
 
 -- --------------------------------------------------------
 
@@ -301,13 +293,6 @@ CREATE TABLE `django_session` (
   `session_data` longtext NOT NULL,
   `expire_date` datetime(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `django_session`
---
-
-INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
-('s3ak23b0s491b0ak6t7k9hqwzcqz4oyq', '.eJxVjMsKwjAQAP9lzxKax6a1R-9-Q9hmtzYqiTQtKOK_S6EHvc4M84ZA6zKFtcocEkMPGg6_bKB4k7wJvlK-FBVLXuY0qC1Ru63qXFjup739G0xUJ-gBR3QiXrwwaTaGXCsuku3ENt5Y3fqxbQQ5On9E6ZCQB9GRDGN3tDhu0yq1ppKDPB9pfkHffL6j3D95:1vfGgV:ng0zIkujVuz3BgpxtA0LCLngqiFYyRMRNRv2A8sU6P4', '2026-01-26 12:06:11.376618');
 
 -- --------------------------------------------------------
 
@@ -364,6 +349,10 @@ CREATE TABLE `rentals_property` (
   `image_3` varchar(100) DEFAULT NULL,
   `image_4` varchar(100) DEFAULT NULL,
   `image_5` varchar(100) DEFAULT NULL,
+  `image_6` varchar(100) DEFAULT NULL,
+  `image_7` varchar(100) DEFAULT NULL,
+  `image_8` varchar(100) DEFAULT NULL,
+  `image_9` varchar(100) DEFAULT NULL,
   `is_featured` tinyint(1) NOT NULL,
   `views` int(10) UNSIGNED NOT NULL CHECK (`views` >= 0),
   `created_at` datetime(6) NOT NULL,
@@ -527,22 +516,22 @@ CREATE TABLE `rentals_userprofile` (
   `id` int(11) NOT NULL,
   `user_type` varchar(10) NOT NULL,
   `phone_number` varchar(15) NOT NULL,
+  `whatsapp_link` varchar(255) NOT NULL,
   `profile_picture` varchar(100) DEFAULT NULL,
   `bio` longtext NOT NULL,
   `address` varchar(255) NOT NULL,
   `email_verified` tinyint(1) NOT NULL,
   `created_at` datetime(6) NOT NULL,
   `updated_at` datetime(6) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `whatsapp_link` varchar(255) NOT NULL
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `rentals_userprofile`
 --
 
-INSERT INTO `rentals_userprofile` (`id`, `user_type`, `phone_number`, `profile_picture`, `bio`, `address`, `email_verified`, `created_at`, `updated_at`, `user_id`, `whatsapp_link`) VALUES
-(1, 'admin', '', '', '', '', 0, '2026-01-12 12:04:35.535858', '2026-01-12 12:06:11.370788', 1, '');
+INSERT INTO `rentals_userprofile` (`id`, `user_type`, `phone_number`, `whatsapp_link`, `profile_picture`, `bio`, `address`, `email_verified`, `created_at`, `updated_at`, `user_id`) VALUES
+(1, 'admin', '', '', '', '', '', 0, '2026-02-11 01:56:34.749279', '2026-02-11 01:56:34.757092', 1);
 
 -- --------------------------------------------------------
 
@@ -563,7 +552,7 @@ CREATE TABLE `rentals_wallet` (
 --
 
 INSERT INTO `rentals_wallet` (`id`, `balance`, `created_at`, `updated_at`, `user_id`) VALUES
-(1, 0.00, '2026-01-12 12:04:35.540357', '2026-01-12 12:06:11.374026', 1);
+(1, 0.00, '2026-02-11 01:56:34.754522', '2026-02-11 01:56:34.759144', 1);
 
 -- --------------------------------------------------------
 
@@ -583,6 +572,7 @@ CREATE TABLE `student_property` (
   `zip_code` varchar(10) DEFAULT NULL,
   `latitude` decimal(10,8) DEFAULT NULL,
   `longitude` decimal(11,8) DEFAULT NULL,
+  `university` varchar(50) DEFAULT NULL,
   `bedrooms` int(11) DEFAULT NULL,
   `bathrooms` int(11) DEFAULT NULL,
   `area_sqft` decimal(10,2) DEFAULT NULL,
@@ -598,6 +588,10 @@ CREATE TABLE `student_property` (
   `image_3` varchar(100) DEFAULT NULL,
   `image_4` varchar(100) DEFAULT NULL,
   `image_5` varchar(100) DEFAULT NULL,
+  `image_6` varchar(100) DEFAULT NULL,
+  `image_7` varchar(100) DEFAULT NULL,
+  `image_8` varchar(100) DEFAULT NULL,
+  `image_9` varchar(100) DEFAULT NULL,
   `is_featured` tinyint(1) NOT NULL,
   `views` int(11) NOT NULL,
   `created_at` datetime(6) NOT NULL,
@@ -605,8 +599,7 @@ CREATE TABLE `student_property` (
   `published_at` datetime(6) DEFAULT NULL,
   `sold_at` datetime(6) DEFAULT NULL,
   `created_by_id` int(11) NOT NULL,
-  `rented_to_id` int(11) DEFAULT NULL,
-  `university` varchar(50) DEFAULT NULL
+  `rented_to_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -846,7 +839,7 @@ ALTER TABLE `django_content_type`
 -- AUTO_INCREMENT for table `django_migrations`
 --
 ALTER TABLE `django_migrations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `rentals_adminmessage`

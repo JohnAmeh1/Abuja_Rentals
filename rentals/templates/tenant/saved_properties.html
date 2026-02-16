@@ -4,108 +4,108 @@
 {% block title %}Saved Properties | Abuja Rentals{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary">Saved Properties</h1>
-        <p class="text-gray-600 mt-2">Your favorite properties</p>
-    </div>
-    
-    {% if saved_properties %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for saved_item in saved_properties %}
-        {% with saved_item.property as property %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary">Saved Properties</h1>
+            <p class="text-gray-600 mt-2">Your favorite properties</p>
+        </div>
+
+        {% if saved_properties %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for saved_item in saved_properties %}
+                    {% with saved_item.property as property %}
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
             <!-- Property Image -->
-            <div class="relative h-48 overflow-hidden">
-                {% if property.main_image %}
-                <a href="{% url 'property_detail' property.id %}">
-                    <img src="{{ property.main_image}}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
-                </a>
-                {% else %}
-                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <i class="fas fa-home text-gray-400 text-4xl"></i>
-                </div>
-                {% endif %}
-                
+                            <div class="relative h-48 overflow-hidden">
+                                {% if property.main_image %}
+                                    <a href="{% url 'property_detail' property.id %}">
+                                        <img src="{{ property.main_image}}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                    </a>
+                                {% else %}
+                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-home text-gray-400 text-4xl"></i>
+                                    </div>
+                                {% endif %}
+
                 <!-- Status Badge -->
-                <div class="absolute top-3 left-3">
-                    <span class="property-status status-{{ property.status }}">
-                        {{ property.get_status_display }}
-                    </span>
-                </div>
-                
+                                <div class="absolute top-3 left-3">
+                                    <span class="property-status status-{{ property.status }}">
+                                        {{ property.get_status_display }}
+                                    </span>
+                                </div>
+
                 <!-- Price Badge -->
-                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                    <span class="font-bold text-primary">₦{{ property.price|floatformat:0|intcomma }}</span>
-                </div>
-                
+                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                                    <span class="font-bold text-primary">₦{{ property.price|floatformat:0|intcomma }}</span>
+                                </div>
+
                 <!-- Remove Save Button -->
-                <div class="absolute bottom-3 right-3">
-                    <a href="{% url 'save_property' property.id %}" class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition" title="Remove from Saved">
-                        <i class="fas fa-times"></i>
-                    </a>
-                </div>
-            </div>
-            
+                                <div class="absolute bottom-3 right-3">
+                                    <a href="{% url 'save_property' property.id %}" class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition" title="Remove from Saved">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                            </div>
+
             <!-- Property Details -->
-            <div class="p-5">
-                <div class="mb-2">
-                    <h3 class="text-lg font-bold text-primary mb-1">
-                        <a href="{% url 'property_detail' property.id %}" class="hover:text-accent">
-                            {{ property.title }}
-                        </a>
-                    </h3>
-                    <p class="text-gray-600 text-sm flex items-center">
-                        <i class="fas fa-map-marker-alt text-xs mr-1"></i>
-                        {{ property.city|capfirst }}
-                    </p>
-                </div>
-                
+                            <div class="p-5">
+                                <div class="mb-2">
+                                    <h3 class="text-lg font-bold text-primary mb-1">
+                                        <a href="{% url 'property_detail' property.id %}" class="hover:text-accent">
+                                            {{ property.title }}
+                                        </a>
+                                    </h3>
+                                    <p class="text-gray-600 text-sm flex items-center">
+                                        <i class="fas fa-map-marker-alt text-xs mr-1"></i>
+                                        {{ property.city|capfirst }}
+                                    </p>
+                                </div>
+
                 <!-- Property Features -->
-                <div class="flex items-center text-sm text-gray-500 mb-4">
-                    {% if property.bedrooms %}
-                    <span class="mr-4"><i class="fas fa-bed mr-1"></i> {{ property.bedrooms }} beds</span>
-                    {% endif %}
-                    {% if property.bathrooms %}
-                    <span class="mr-4"><i class="fas fa-bath mr-1"></i> {{ property.bathrooms }} baths</span>
-                    {% endif %}
-                    {% if property.area_sqft %}
-                    <span><i class="fas fa-ruler-combined mr-1"></i> {{ property.area_sqft|floatformat:0 }} sqft</span>
-                    {% endif %}
-                </div>
-                
+                                <div class="flex items-center text-sm text-gray-500 mb-4">
+                                    {% if property.bedrooms %}
+                                        <span class="mr-4"><i class="fas fa-bed mr-1"></i> {{ property.bedrooms }} beds</span>
+                                    {% endif %}
+                                    {% if property.bathrooms %}
+                                        <span class="mr-4"><i class="fas fa-bath mr-1"></i> {{ property.bathrooms }} baths</span>
+                                    {% endif %}
+                                    {% if property.area_sqft %}
+                                        <span><i class="fas fa-ruler-combined mr-1"></i> {{ property.area_sqft|floatformat:0 }} sqft</span>
+                                    {% endif %}
+                                </div>
+
                 <!-- Actions -->
-                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-                    <div class="text-sm text-gray-600">
-                        <i class="far fa-clock mr-1"></i>
-                        Saved {{ saved_item.created_at|timesince }} ago
-                    </div>
-                    
-                    <div class="flex space-x-2">
-                        <a href="{% url 'property_detail' property.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
-                            View Details
-                        </a>
-                    </div>
-                </div>
+                                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                                    <div class="text-sm text-gray-600">
+                                        <i class="far fa-clock mr-1"></i>
+                                        Saved {{ saved_item.created_at|timesince }} ago
+                                    </div>
+
+                                    <div class="flex space-x-2">
+                                        <a href="{% url 'property_detail' property.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
             </div>
-        </div>
-        {% endwith %}
-        {% endfor %}
+        {% else %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="far fa-heart text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No Saved Properties</h3>
+                <p class="text-gray-600 mb-6">
+                    You haven't saved any properties yet. Browse properties and click the heart icon to save them.
+                </p>
+                <a href="{% url 'owner_properties' %}" class="btn-gradient text-white font-medium px-6 py-3 rounded-lg inline-flex items-center">
+                    <i class="fas fa-search mr-2"></i> Browse Properties
+                </a>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="far fa-heart text-gray-400 text-3xl"></i>
-        </div>
-        <h3 class="text-xl font-bold text-gray-700 mb-2">No Saved Properties</h3>
-        <p class="text-gray-600 mb-6">
-            You haven't saved any properties yet. Browse properties and click the heart icon to save them.
-        </p>
-        <a href="{% url 'owner_properties' %}" class="btn-gradient text-white font-medium px-6 py-3 rounded-lg inline-flex items-center">
-            <i class="fas fa-search mr-2"></i> Browse Properties
-        </a>
-    </div>
-    {% endif %}
-</div>
 <!--{% include 'auto_reload.html' %} -->
 {% endblock %}

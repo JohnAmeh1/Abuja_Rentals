@@ -3,131 +3,131 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
-            <p class="mt-2 text-gray-600">
-                Manage student properties. 
-                {% if pending_count %}
-                <span class="font-semibold text-yellow-600">{{ pending_count }} pending</span> properties awaiting review.
-                {% endif %}
-            </p>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+                <p class="mt-2 text-gray-600">
+                    Manage student properties.
+                    {% if pending_count %}
+                        <span class="font-semibold text-yellow-600">{{ pending_count }} pending</span> properties awaiting review.
+                    {% endif %}
+                </p>
+            </div>
         </div>
-    </div>
 
     <!-- Status Filter -->
-    <div class="mb-6">
-        <div class="flex space-x-2">
-            <a href="?status=" 
-               class="px-4 py-2 {% if not status_filter %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
-                All ({{ properties.count }})
-            </a>
-            <a href="?status=pending" 
-               class="px-4 py-2 {% if status_filter == 'pending' %}bg-yellow-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
-                Pending ({{ pending_count }})
-            </a>
-            <a href="?status=available" 
-               class="px-4 py-2 {% if status_filter == 'available' %}bg-green-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
-                Available
-            </a>
-            <a href="?status=draft" 
-               class="px-4 py-2 {% if status_filter == 'draft' %}bg-gray-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
-                Draft
-            </a>
+        <div class="mb-6">
+            <div class="flex space-x-2">
+                <a href="?status="
+                   class="px-4 py-2 {% if not status_filter %}bg-blue-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
+                    All ({{ properties.count }})
+                </a>
+                <a href="?status=pending"
+                   class="px-4 py-2 {% if status_filter == 'pending' %}bg-yellow-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
+                    Pending ({{ pending_count }})
+                </a>
+                <a href="?status=available"
+                   class="px-4 py-2 {% if status_filter == 'available' %}bg-green-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
+                    Available
+                </a>
+                <a href="?status=draft"
+                   class="px-4 py-2 {% if status_filter == 'draft' %}bg-gray-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %} rounded-lg">
+                    Draft
+                </a>
+            </div>
         </div>
-    </div>
 
     <!-- Properties Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Property
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Owner
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Created
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for property in properties %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
-                                {% if property.main_image %}
-                                <img class="h-10 w-10 rounded-full object-cover" 
-                                     src="{{ property.main_image}}" 
-                                     alt="{{ property.title }}">
-                                {% else %}
-                                <div class="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                    <span class="text-gray-400 text-xs">No img</span>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Property
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Owner
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Price
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Created
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for property in properties %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        {% if property.main_image %}
+                                            <img class="h-10 w-10 rounded-full object-cover"
+                                                 src="{{ property.main_image}}"
+                                                 alt="{{ property.title }}">
+                                        {% else %}
+                                            <div class="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                                <span class="text-gray-400 text-xs">No img</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ property.title|truncatechars:30 }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ property.city }}, {{ property.state }}
+                                        </div>
+                                    </div>
                                 </div>
-                                {% endif %}
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ property.title|truncatechars:30 }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ property.city }}, {{ property.state }}
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ property.created_by.username }}</div>
-                        <div class="text-sm text-gray-500">{{ property.created_by.email }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {% if property.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif property.status == 'available' %}bg-green-100 text-green-800
-                            {% elif property.status == 'draft' %}bg-gray-100 text-gray-800
-                            {% else %}bg-blue-100 text-blue-800{% endif %}">
-                            {{ property.get_status_display }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₦{{ property.price|floatformat:2 }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ property.created_at|date:"M d, Y" }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{% url 'approve_student_property' property.id %}" 
-                           class="text-blue-600 hover:text-blue-900 mr-4">
-                            Review
-                        </a>
-                        <a href="#" class="text-red-600 hover:text-red-900">
-                            Delete
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                        No properties found.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ property.created_by.username }}</div>
+                                <div class="text-sm text-gray-500">{{ property.created_by.email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                             {% if property.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                             {% elif property.status == 'available' %}bg-green-100 text-green-800
+                                             {% elif property.status == 'draft' %}bg-gray-100 text-gray-800
+                                             {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ property.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ₦{{ property.price|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ property.created_at|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'approve_student_property' property.id %}"
+                                   class="text-blue-600 hover:text-blue-900 mr-4">
+                                    Review
+                                </a>
+                                <a href="#" class="text-red-600 hover:text-red-900">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                No properties found.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 <!--{% include 'auto_reload.html' %} -->
 {% endblock %}

@@ -538,6 +538,15 @@ class PropertyForm(forms.ModelForm):
         widget=forms.HiddenInput(attrs={'id': 'rent-duration-input'})
     )
     
+    images = forms.CharField(
+    required=False,
+    widget=forms.Textarea(attrs={
+        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg',
+        'placeholder': 'Enter one image URL per line'
+        })
+    )
+
+    
     class Meta:
         model = Property
         fields = [
@@ -546,7 +555,7 @@ class PropertyForm(forms.ModelForm):
             'bedrooms', 'bathrooms', 'area_sqft', 'price',
             'rent_duration_display',  # Add this field
             'rent_duration_months',
-            'main_image', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5'
+            'main_image', 'images',
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -631,27 +640,6 @@ class PropertyForm(forms.ModelForm):
             }),
             'main_image': forms.ClearableFileInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_1': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_2': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_3': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_4': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_5': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
             }),
         }
     

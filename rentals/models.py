@@ -41,6 +41,7 @@ class Property(models.Model):
         ('office', 'Office Space'),
         ('warehouse', 'Warehouse'),
         ('land', 'Land'),
+        ('studio', 'Studio'),
         ('commercial', 'Commercial Building'),
     ]
     
@@ -85,22 +86,12 @@ class Property(models.Model):
     rent_duration_months = models.PositiveIntegerField(default=12, blank=True, null=True)
     
     # Amenities
-    amenities = models.TextField(blank=True)
+    amenities = models.JSONField(default=list,blank=True)
     
     # Images
-    # main_image = models.ImageField(upload_to='properties/main/')
-    # image_1 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    # image_2 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    # image_3 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    # image_4 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    # image_5 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    
+
     main_image = models.URLField(blank=True, null=True)
-    image_1    = models.URLField(blank=True, null=True)
-    image_2    = models.URLField(blank=True, null=True)
-    image_3    = models.URLField(blank=True, null=True)
-    image_4    = models.URLField(blank=True, null=True)
-    image_5    = models.URLField(blank=True, null=True)
+    images = models.JSONField(default=list, blank=True)
 
     
     # Metadata
@@ -115,6 +106,18 @@ class Property(models.Model):
     rented_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='rented_properties')
     sale_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     sold_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['purpose', 'city', 'status']),
+            models.Index(fields=['property_type']),
+            models.Index(fields=['price']),
+            models.Index(fields=['bedrooms']),
+            models.Index(fields=['is_featured']),
+            models.Index(fields=['views']),
+            models.Index(fields=['created_at']),
+        ]
+
     
     def save(self, *args, **kwargs):
         # Calculate platform fee (5% of price)
@@ -132,25 +135,6 @@ class Property(models.Model):
             self.published_at = timezone.now()
         
         super().save(*args, **kwargs)
-    
-    def get_amenities_list(self):
-        if not self.amenities:
-            return []
-
-        cleaned = self.amenities.strip('[]').replace('"', '').replace("'", "")
-        return [amenity.strip() for amenity in cleaned.split(',') if amenity.strip()]
-
-    
-    def set_amenities(self, amenities_list):
-        self.amenities = ','.join(amenities_list)
-    
-    def get_additional_images(self):
-        images = []
-        for field_name in ['image_1', 'image_2', 'image_3', 'image_4', 'image_5']:
-            image_field = getattr(self, field_name)
-            if image_field:
-                images.append(image_field)
-        return images
     
     def check_and_expire_rental(self):
         """
@@ -204,6 +188,7 @@ class Payment(models.Model):
     currency = models.CharField(max_length=3, default='NGN')
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     payment_method = models.CharField(max_length=50, blank=True)  # e.g., 'card', 'bank_transfer'
+    purpose = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     related_property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
     related_rental = models.ForeignKey('PropertyRental', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
@@ -214,6 +199,8 @@ class Payment(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+        
+
     
     def __str__(self):
         return f"{self.user.username} - {self.amount} {self.currency} - {self.get_status_display()}"
@@ -960,3 +947,17 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report #{self.id} by {self.reporter.username} - {self.get_reason_display()}"
+
+class PaymentAudit(models.Model):
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name="audits")
+    event = models.CharField(max_length=50)        # created / verified / webhook / error
+    source = models.CharField(max_length=20)       # redirect / webhook / manual
+    raw_payload = models.JSONField(null=True, blank=True)
+    message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.payment.id} - {self.event}"

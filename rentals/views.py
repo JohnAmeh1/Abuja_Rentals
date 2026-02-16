@@ -19,6 +19,9 @@ from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm,
 from dateutil.relativedelta import relativedelta
 import random
 
+from .recommendations import get_property_recommendations
+
+
 
 
 
@@ -48,7 +51,7 @@ def home(request):
     # Try to use featured properties if set, otherwise sample available properties
     featured_qs = Property.objects.filter(status='available', is_featured=True)
     if featured_qs.exists():
-        featured_properties = featured_qs.order_by('?')[:6]
+        featured_properties = featured_qs.order_by('?')[:3]
     else:
         featured_properties = Property.objects.filter(status='available').order_by('?')[:6]
 
@@ -67,7 +70,7 @@ def home(request):
     for t in types_qs:
         label = type_choices.get(t, t.replace('_', ' ').title())
         count = Property.objects.filter(property_type=t, status='available').count()
-        categories.append({'code': t, 'label': label, 'count': count})
+        categories.append({'code': t, 'label': label, 'count': f"{ (count // 100) * 100 }"})
 
     # Limit to 8 categories for display
     context['categories'] = categories[:8]
@@ -2062,16 +2065,17 @@ def property_detail_view(request, property_id):
     platform_fee = Decimal('0.00')
     
     if user.is_authenticated and not is_owner:
-      
-        
-        # Calculate platform fee (5%)
         platform_fee = property_obj.price * Decimal('0.05')
     
     # Get additional images
-    additional_images = property_obj.get_additional_images()
+    additional_images = property_obj.images
     
     # Get today's date for booking form
     today = timezone.now().date()
+    
+    
+    recommendations = get_property_recommendations(property_obj)
+
     
     context = {
         'property': property_obj,
@@ -2081,6 +2085,7 @@ def property_detail_view(request, property_id):
         'is_saved': is_saved,
         'today': today,
         'platform_fee': platform_fee,
+        'recommendations': recommendations
     }
     
     return render(request, 'owner/property_detail.html', context)

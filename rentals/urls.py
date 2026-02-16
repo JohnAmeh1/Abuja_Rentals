@@ -91,7 +91,6 @@ urlpatterns = [
     path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
     
 
-    path("payments/initiate/<int:property_id>/", payment_views.initiate_payment, name="initiate_payment"),
     path("payments/verify/", payment_views.verify_payment, name="verify_payment"),
     path("payments/receipt/<int:payment_id>/", payment_views.payment_receipt, name="payment_receipt"),
     path("payments/property/<int:property_id>/",payment_views.process_property_payment,name="process_property_payment"),

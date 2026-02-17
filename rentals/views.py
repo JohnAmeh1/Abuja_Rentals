@@ -1,25 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, Q, F, DecimalField
-
-from .models import SavedProperty, PropertyVisit
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from datetime import datetime, timedelta
-from decimal import Decimal
-import json
-from .models import (UserProfile, Property, Transaction, SavedProperty, 
-                    PropertyVisit, PropertyInquiry, PropertyOwnership, PropertyRental,
-                    AdminMessage, Report, StudentProperty, StudentPropertyRental, Payment)
-from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, 
-                   PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm, StudentPropertySearchForm)
-from dateutil.relativedelta import relativedelta
-import random
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models.functions import TruncMonth
 
+
+
+from datetime import datetime
+from decimal import Decimal
+
+from .models import (UserProfile, Property, Transaction, SavedProperty, PropertyVisit, PropertyRental, AdminMessage, Report, StudentProperty, StudentPropertyRental, SavedProperty, PropertyVisit)
+from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm)
 from .recommendations import get_property_recommendations
+
+import random
+import json
+
 
 
 
@@ -34,8 +37,6 @@ def check_expired_rentals():
     Check and update expired rentals and their property statuses.
     Call this function at key points where property status matters.
     """
-    from django.utils import timezone
-    today = timezone.now().date()
     
     # Get all active rentals
     active_rentals = PropertyRental.objects.filter(is_active=True).select_related('property')
@@ -62,6 +63,7 @@ def home(request):
         'total_properties': total_properties,
         'page_title': 'Home',
     }
+    
     # Build categories list from DB (unique property_type values), randomized each load
     type_choices = dict(Property.PROPERTY_TYPE_CHOICES)
     types_qs = list(Property.objects.filter(status='available').values_list('property_type', flat=True).distinct())
@@ -151,6 +153,8 @@ def signup_view(request):
 
             # Auto-login after signup
             login(request, user)
+            request.session.set_expiry(1209600)  # 2 weeks
+            
             messages.success(request, f'Account created successfully! Welcome, {user.username}!')
             return redirect('home')
         else:
@@ -164,7 +168,6 @@ def signup_view(request):
 @login_required
 def student_properties(request):
     """List properties - different logic for agents vs students"""
-    from .models import StudentProperty
     try:
         user_profile = request.user.userprofile
         is_agent = user_profile.user_type == 'agent'
@@ -249,7 +252,6 @@ def student_properties(request):
                 properties = properties.filter(amenities__icontains=amenity)
     
     # Pagination
-    from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
     paginator = Paginator(properties, 12)
     page = request.GET.get('page', 1)
     
@@ -401,7 +403,6 @@ def create_property(request):
                 # Calculate fees if not already done in form
                 price = form.cleaned_data.get('price')
                 if price:
-                    from decimal import Decimal
                     if not isinstance(price, Decimal):
                         price = Decimal(str(price))
                     
@@ -516,9 +517,6 @@ def toggle_featured(request, pk):
 
 
 
-
-
-
 @login_required
 @user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.user_type == 'admin')
 def approve_student_property(request, pk):
@@ -613,9 +611,6 @@ def profile_view(request):
     return render(request, 'auth/profile.html', {'form': form})
 
 
-from django.db.models import Sum
-from .models import StudentProperty
-from django.db.models import Q
 
 @login_required
 def dashboard_view(request):
@@ -887,7 +882,6 @@ def student_properties_view(request):
     properties = properties.order_by('price')
     
     # Pagination
-    from django.core.paginator import Paginator
     paginator = Paginator(properties, 12)
     page = request.GET.get('page', 1)
     properties_page = paginator.get_page(page)
@@ -933,6 +927,7 @@ def agent_student_properties_view(request):
     }
     
     return render(request, 'agent/student_properties.html', context)
+
 
 def owner_properties_view(request):
     """
@@ -990,7 +985,7 @@ def owner_properties_view(request):
         
 
     properties = properties.order_by('-created_at')
-    total = properties.__len__()
+    total = len(properties)
 
     paginator = Paginator(properties, 21)   
 
@@ -1131,7 +1126,6 @@ def calculate_platform_fee(request):
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
-from datetime import date
 
 @login_required
 def book_property_visit(request, property_id):
@@ -1464,9 +1458,6 @@ def admin_report_action(request, report_id):
     return redirect('admin_reports')
 
 
-# When a property is sold
-from decimal import Decimal
-from django.utils import timezone
 
 def mark_property_as_sold(property_id, sale_price):
     property = Property.objects.get(id=property_id)
@@ -1505,11 +1496,6 @@ def mark_property_as_sold(property_id, sale_price):
     property.save()
 
 # Add these imports at the top
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 # API Views for property bookings
 @login_required
@@ -1645,23 +1631,6 @@ def booking_complete_api(request, booking_id):
 
 
 # Make sure ALL these imports are at the top of views.py:
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.db.models import Count, Sum, Q
-from django.utils import timezone
-from django.core.paginator import Paginator
-from django.db.models.functions import TruncMonth
-from datetime import datetime
-from decimal import Decimal
-import json
-
-# Import your models
-from .models import UserProfile, Property,  Transaction, SavedProperty, PropertyVisit
-from .forms import CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm
 
 
 # In your admin views.py
@@ -1727,7 +1696,6 @@ def admin_users_view(request):
     admins_count = UserProfile.objects.filter(user_type='admin').count()
     
     # Pagination
-    from django.core.paginator import Paginator
     paginator = Paginator(users, 20)
     page = request.GET.get('page', 1)
     users_page = paginator.get_page(page)
@@ -1851,7 +1819,6 @@ def admin_transactions_view(request):
     total_transactions = transactions.count()
     
     # Pagination
-    from django.core.paginator import Paginator
     paginator = Paginator(transactions, 25)
     page = request.GET.get('page', 1)
     transactions_page = paginator.get_page(page)
@@ -1904,7 +1871,6 @@ def admin_platform_fees_view(request):
     pending_percentage = (pending_fees / total_fees * 100) if total_fees > 0 else 0
     
     # Group by month
-    from django.db.models.functions import TruncMonth
     monthly_fees = Property.objects.annotate(
         month=TruncMonth('created_at')
     ).values('month').annotate(
@@ -1925,7 +1891,6 @@ def admin_platform_fees_view(request):
         item['percentage'] = (item['total_fees'] / total_fees * 100) if total_fees > 0 else 0
     
     # Pagination for properties
-    from django.core.paginator import Paginator
     paginator = Paginator(properties, 15)
     page = request.GET.get('page', 1)
     properties_page = paginator.get_page(page)
@@ -2024,18 +1989,12 @@ def update_property_status_admin(request, property_id):
         
         # In your views.py
 ## In your views.py
-from django.db.models import Sum
-from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.decorators import login_required
-from .models import  Transaction, Property, UserProfile
 
 
 
 
 
 
-
-@login_required
 def property_detail_view(request, property_id):
     """View property details"""
     
@@ -2255,14 +2214,6 @@ def get_active_messages(request):
     return JsonResponse({'messages': []})
 
 
-
-
-
-
-# views.py
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import json
 
 @csrf_exempt
 @login_required

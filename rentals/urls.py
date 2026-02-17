@@ -24,7 +24,7 @@ urlpatterns = [
     path('owner/properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
     
     # Property detail and actions - Regular Properties
-    path('property/<int:property_id>/', views.property_detail_view, name='property_detail'),
+    path('property/<int:property_id>/', views.property_detaipl_view, name='property_detail'),
     path('property/<int:property_id>/contact-owner/', views.contact_property_owner, name='contact_property_owner'),
     path('property/<int:property_id>/update-status/', views.update_property_status, name='update_property_status'),
     

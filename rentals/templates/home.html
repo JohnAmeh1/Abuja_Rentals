@@ -132,7 +132,7 @@
                 <div class="property-card bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
                     <div class="relative">
                         {% if prop.main_image %}
-                        <img src="{{ prop.main_image.url }}" alt="{{ prop.title }}" class="w-full h-64 object-cover">
+                        <img src="{{ prop.main_image}}" alt="{{ prop.title }}" class="w-full h-64 object-cover">
                         {% else %}
                         <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
                             <i class="fas fa-home text-gray-400 text-4xl"></i>

@@ -24,7 +24,7 @@
         <!-- Property Images -->
         <div class="relative h-64 overflow-hidden">
             {% if property.main_image %}
-            <img src="{{ property.main_image.url }}" alt="{{ property.title }}" 
+            <img src="{{ property.main_image}}" alt="{{ property.title }}" 
                  class="w-full h-full object-cover">
             {% else %}
             <div class="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -241,19 +241,19 @@
             <h4 class="font-semibold text-gray-700 mb-4">Additional Images</h4>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {% if property.image_1 %}
-                <img src="{{ property.image_1.url }}" alt="Image 1" class="w-full h-32 object-cover rounded-lg">
+                <img src="{{ property.image_1}}" alt="Image 1" class="w-full h-32 object-cover rounded-lg">
                 {% endif %}
                 {% if property.image_2 %}
-                <img src="{{ property.image_2.url }}" alt="Image 2" class="w-full h-32 object-cover rounded-lg">
+                <img src="{{ property.image_2}}" alt="Image 2" class="w-full h-32 object-cover rounded-lg">
                 {% endif %}
                 {% if property.image_3 %}
-                <img src="{{ property.image_3.url }}" alt="Image 3" class="w-full h-32 object-cover rounded-lg">
+                <img src="{{ property.image_3}}" alt="Image 3" class="w-full h-32 object-cover rounded-lg">
                 {% endif %}
                 {% if property.image_4 %}
-                <img src="{{ property.image_4.url }}" alt="Image 4" class="w-full h-32 object-cover rounded-lg">
+                <img src="{{ property.image_4}}" alt="Image 4" class="w-full h-32 object-cover rounded-lg">
                 {% endif %}
                 {% if property.image_5 %}
-                <img src="{{ property.image_5.url }}" alt="Image 5" class="w-full h-32 object-cover rounded-lg">
+                <img src="{{ property.image_5}}" alt="Image 5" class="w-full h-32 object-cover rounded-lg">
                 {% endif %}
             </div>
         </div>

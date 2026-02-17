@@ -68,7 +68,7 @@
                                     {% if booking.property %}
                                     <a href="{% url 'property_detail' booking.property.id %}" class="flex items-center hover:text-accent">
                                         {% if booking.property.main_image %}
-                                        <img src="{{ booking.property.main_image.url }}" alt="{{ booking.property.title }}" class="w-10 h-10 rounded-lg object-cover mr-3">
+                                        <img src="{{ booking.property.main_image}}" alt="{{ booking.property.title }}" class="w-10 h-10 rounded-lg object-cover mr-3">
                                         {% endif %}
                                         <span class="font-medium">{{ booking.property.title|truncatechars:20|default:"Unknown Property" }}</span>
                                     </a>

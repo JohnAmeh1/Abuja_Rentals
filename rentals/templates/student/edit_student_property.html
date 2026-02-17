@@ -338,7 +338,7 @@
                 <label for="id_main_image" class="form-label">Main Image *</label>
                 {{ form.main_image }}
                 {% if property.main_image %}
-                <img src="{{ property.main_image.url }}" alt="Current main image" class="image-preview">
+                <img src="{{ property.main_image}}" alt="Current main image" class="image-preview">
                 <p class="text-sm text-gray-600 mt-2">Current main image (upload new to replace)</p>
                 {% endif %}
                 {% if form.main_image.errors %}
@@ -353,7 +353,7 @@
                         <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                         {{ field }}
                         {% if field.value %}
-                        <img src="{{ field.value.url }}" alt="Current image" class="image-preview">
+                        <img src="{{ field.value}}" alt="Current image" class="image-preview">
                         <p class="text-sm text-gray-600 mt-2">Current image (upload new to replace)</p>
                         {% endif %}
                     </div>

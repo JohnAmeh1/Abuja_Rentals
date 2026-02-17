@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, Q, F, DecimalField
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .models import SavedProperty, PropertyVisit
 from django.utils import timezone
@@ -13,9 +15,9 @@ from decimal import Decimal
 import json
 from .models import (UserProfile, Property, Wallet, Transaction, SavedProperty, 
                     PropertyVisit, PropertyInquiry, PropertyOwnership, PropertyRental,
-                    AdminMessage, Report, StudentProperty, StudentPropertyRental) 
+                    AdminMessage, Report, StudentProperty, StudentPropertyRental, OTP) 
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, 
-                   PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm, StudentPropertySearchForm)
+                   PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm, StudentPropertySearchForm, OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm)
 from dateutil.relativedelta import relativedelta
 import random
 
@@ -25,6 +27,288 @@ import random
 def is_admin(user):
     """Check if user is an admin"""
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
+
+def send_otp_email(user, otp_code):
+    """Send OTP code to user's email"""
+    try:
+        subject = 'Your OTP for Email Verification - Abuja Rentals'
+        message = f"""
+        Hello {user.first_name or user.username},
+        
+        Your One-Time Password (OTP) for email verification is:
+        
+        {otp_code}
+        
+        This code will expire in 10 minutes.
+        
+        If you did not request this code, please ignore this email.
+        
+        Best regards,
+        Abuja Rentals Team
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
+            [user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending OTP email: {e}")
+        return False
+
+def verify_otp_view(request, user_id):
+    """View to verify OTP code"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Check if OTP exists
+    try:
+        otp = OTP.objects.get(user=user)
+    except OTP.DoesNotExist:
+        messages.error(request, 'OTP not found. Please request a new one.')
+        return redirect('signup')
+    
+    if otp.is_verified:
+        messages.info(request, 'Email already verified.')
+        login(request, user)
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = OTPVerificationForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp_code']
+            
+            if not otp.is_valid():
+                messages.error(request, 'OTP has expired. Please request a new one.')
+                return redirect('signup')
+            
+            if otp.verify(otp_code):
+                # Mark email as verified in UserProfile
+                user_profile = user.userprofile
+                user_profile.email_verified = True
+                user_profile.save()
+                # Activate the user account so they can authenticate normally
+                user.is_active = True
+                user.save()
+
+                messages.success(request, 'Email verified successfully!')
+                # Log the user in
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.error(request, 'Invalid OTP code. Please try again.')
+    else:
+        form = OTPVerificationForm()
+    
+    return render(request, 'auth/verify_otp.html', {
+        'form': form,
+        'user_email': user.email,
+        'user_id': user_id
+    })
+
+def resend_otp(request, user_id):
+    """Resend OTP to user's email"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Create new OTP
+    otp = OTP.create_otp(user)
+    
+    # Send email
+    if send_otp_email(user, otp.code):
+        messages.success(request, f'OTP sent to {user.email}')
+    else:
+        messages.error(request, 'Failed to send OTP. Please try again.')
+    
+    return redirect('verify_otp', user_id=user.id)
+
+def send_forgot_password_email(user, otp_code):
+    """Send OTP code for password reset to user's email"""
+    try:
+        subject = 'Password Reset Request - Abuja Rentals'
+        message = f"""
+        Hello {user.first_name or user.username},
+        
+        We received a request to reset your password. 
+        
+        Please use the OTP code below to verify your identity and reset your password:
+        
+        Your One-Time Password (OTP): {otp_code}
+        
+        This code will expire in 10 minutes.
+        
+        If you did not request this password reset, please ignore this email and your password will remain unchanged.
+        
+        Best regards,
+        Abuja Rentals Team
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
+            [user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending forgot password email: {e}")
+        return False
+
+def forgot_password(request):
+    """Handle forgot password request - submit email"""
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                
+                # Create OTP for password reset
+                otp = OTP.create_otp(user)
+                
+                # Send email with OTP
+                if send_forgot_password_email(user, otp.code):
+                    # Store the user_id in session for the next step
+                    request.session['password_reset_user_id'] = user.id
+                    messages.success(request, f'OTP sent to {user.email}. Please check your email.')
+                    return redirect('verify_forgot_password_otp')
+                else:
+                    messages.error(request, 'Failed to send OTP. Please try again later.')
+            except User.DoesNotExist:
+                # Don't reveal if email exists for security
+                messages.info(request, f'If an account exists with {email}, you will receive an OTP.')
+                return redirect('login')
+    else:
+        form = ForgotPasswordForm()
+    
+    return render(request, 'auth/forgot_password.html', {'form': form})
+
+def verify_forgot_password_otp(request):
+    """Verify OTP during forgot password process"""
+    # Get user_id from session
+    user_id = request.session.get('password_reset_user_id')
+    
+    if not user_id:
+        messages.error(request, 'Password reset session expired. Please try again.')
+        return redirect('login')
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Check if OTP exists
+    try:
+        otp = OTP.objects.get(user=user)
+    except OTP.DoesNotExist:
+        messages.error(request, 'OTP not found. Please request a new one.')
+        return redirect('forgot_password')
+    
+    if request.method == 'POST':
+        form = ForgotPasswordOTPForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp_code']
+            
+            if not otp.is_valid():
+                messages.error(request, 'OTP has expired. Please request a new one.')
+                return redirect('forgot_password')
+            
+            if otp.verify(otp_code):
+                # Mark as ready for password reset
+                request.session['password_reset_verified'] = True
+                messages.success(request, 'OTP verified successfully. Please set your new password.')
+                return redirect('reset_password')
+            else:
+                messages.error(request, 'Invalid OTP code. Please try again.')
+    else:
+        form = ForgotPasswordOTPForm()
+    
+    return render(request, 'auth/verify_forgot_password_otp.html', {
+        'form': form,
+        'user_email': user.email,
+        'user_id': user_id
+    })
+
+def reset_password(request):
+    """Reset password after OTP verification"""
+    # Check if OTP was verified
+    if not request.session.get('password_reset_verified'):
+        messages.error(request, 'Please verify your OTP first.')
+        return redirect('forgot_password')
+    
+    # Get user_id from session
+    user_id = request.session.get('password_reset_user_id')
+    
+    if not user_id:
+        messages.error(request, 'Password reset session expired. Please try again.')
+        return redirect('login')
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['password']
+            
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+            
+            # Clear OTP verification
+            try:
+                otp = OTP.objects.get(user=user)
+                otp.delete()
+            except OTP.DoesNotExist:
+                pass
+            
+            # Clear session data
+            request.session.pop('password_reset_user_id', None)
+            request.session.pop('password_reset_verified', None)
+            
+            messages.success(request, 'Password reset successfully! You can now login with your new password.')
+            return redirect('login')
+    else:
+        form = ResetPasswordForm()
+    
+    return render(request, 'auth/reset_password.html', {
+        'form': form,
+        'user_email': user.email
+    })
+
+def resend_forgot_password_otp(request, user_id):
+    """Resend OTP during forgot password process"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Create new OTP
+    otp = OTP.create_otp(user)
+    
+    # Send email
+    if send_forgot_password_email(user, otp.code):
+        messages.success(request, f'OTP resent to {user.email}')
+    else:
+        messages.error(request, 'Failed to send OTP. Please try again.')
+    
+    return redirect('verify_forgot_password_otp')
+
 
 def check_expired_rentals():
     """
@@ -124,7 +408,9 @@ def signup_view(request):
             # Debug: Check what user_type is being passed
             print(f"DEBUG View: user_type from form = {form.cleaned_data.get('user_type')}")
             
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False  # Deactivate user until email is verified
+            user.save()
 
             # Double-check that user_type was saved correctly
             try:
@@ -146,10 +432,16 @@ def signup_view(request):
                     bio=form.cleaned_data.get('bio', '')
                 )
 
-            # Auto-login after signup
-            login(request, user)
-            messages.success(request, f'Account created successfully! Welcome, {user.username}!')
-            return redirect('home')
+            # Create OTP and send email
+            otp = OTP.create_otp(user)
+            if send_otp_email(user, otp.code):
+                messages.success(request, f'Account created! Please check your email ({user.email}) for the OTP code.')
+                return redirect('verify_otp', user_id=user.id)
+            else:
+                # Delete user if email sending fails
+                user.delete()
+                messages.error(request, 'Failed to send OTP email. Please try again.')
+                return redirect('signup')
         else:
             # Show form errors for debugging
             print(f"DEBUG: Form errors: {form.errors}")
@@ -1282,6 +1574,11 @@ def owner_properties_view(request):
             )
     
     properties = properties.order_by('-created_at')
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(properties, 20)
+    page = request.GET.get('page', 1)
+    properties=paginator.get_page(page)
     
     context = {
         'properties': properties,

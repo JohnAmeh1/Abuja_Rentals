@@ -173,7 +173,7 @@
                 <!-- Main Image -->
                 <div class="md:col-span-2">
                     {% if property.main_image %}
-                    <img src="{{ property.main_image.url }}" 
+                    <img src="{{ property.main_image}}" 
                          alt="{{ property.title }}" 
                          class="w-full h-96 object-cover rounded-lg"
                          onclick="openImageModal(this.src)">
@@ -188,7 +188,7 @@
                 {% if additional_images %}
                 <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 image-gallery">
                     {% for image in additional_images %}
-                    <img src="{{ image.url }}" 
+                    <img src="{{ image}}" 
                          alt="{{ property.title }}" 
                          class="w-full h-32 object-cover rounded-lg"
                          onclick="openImageModal(this.src)">

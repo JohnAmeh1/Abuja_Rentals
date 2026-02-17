@@ -121,12 +121,19 @@ class Property(models.Model):
     amenities = models.TextField(blank=True)
     
     # Images
-    main_image = models.ImageField(upload_to='properties/main/')
-    image_1 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_2 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_3 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_4 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_5 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    
+    # main_image = models.ImageField(upload_to='properties/main/')
+    # image_1 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    # image_2 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    # image_3 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    # image_4 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    # image_5 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+    main_image = models.URLField( blank=True, null=True)
+    image_1 = models.URLField( blank=True, null=True)
+    image_2 = models.URLField( blank=True, null=True)
+    image_3 = models.URLField( blank=True, null=True)
+    image_4 = models.URLField( blank=True, null=True)
+    image_5 = models.URLField( blank=True, null=True)
     
     # Metadata
     is_featured = models.BooleanField(default=False)

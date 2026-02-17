@@ -273,8 +273,8 @@
         <div class="lg:col-span-2">
             <!-- Image Gallery -->
             <div class="image-gallery mb-8">
-                <div class="main-image-container" onclick="openLightbox('{{ property.main_image.url }}')">
-                    <img id="mainImage" src="{{ property.main_image.url }}" alt="{{ property.title }}">
+                <div class="main-image-container" onclick="openLightbox('{{ property.main_image }}')">
+                    <img id="mainImage" src="{{ property.main_image }}" alt="{{ property.title }}">
                     <div class="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg">
                         <i class="fas fa-images mr-2"></i>
                         View All {{ all_images|length }} Photos
@@ -282,8 +282,8 @@
                 </div>
 
                 {% for image in additional_images %}
-                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="changeMainImage('{{ image.url }}', this)">
-                    <img src="{{ image.url }}" alt="Property Image {{ forloop.counter }}">
+                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="changeMainImage('{{ image }}', this)">
+                    <img src="{{ image }}" alt="Property Image {{ forloop.counter }}">
                 </div>
                 {% endfor %}
             </div>
@@ -396,7 +396,7 @@
                 </h2>
                 <div class="flex items-center">
                     {% if property.owner.userprofile.profile_picture %}
-                    <img src="{{ property.owner.userprofile.profile_picture.url }}" alt="{{ property.owner.get_full_name }}" class="w-16 h-16 rounded-full object-cover mr-4">
+                    <img src="{{ property.owner.userprofile.profile_picture }}" alt="{{ property.owner.get_full_name }}" class="w-16 h-16 rounded-full object-cover mr-4">
                     {% else %}
                     <div class="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center text-2xl font-bold mr-4">
                         {{ property.owner.first_name.0|default:property.owner.username.0|upper }}

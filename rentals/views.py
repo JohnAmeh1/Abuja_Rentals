@@ -18,6 +18,7 @@ from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm,
                    PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm, StudentPropertySearchForm)
 from dateutil.relativedelta import relativedelta
 import random
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
 
@@ -72,6 +73,21 @@ def home(request):
     # Limit to 8 categories for display
     context['categories'] = categories[:8]
     return render(request, "home.html", context)
+
+def listings(request):
+    """Display all available properties"""
+    check_expired_rentals()
+    
+    # Fetch all available properties from the database
+    houses = Property.objects.filter(status='available').order_by('-created_at')
+    
+    # Pass them to the template
+    context = {
+        'houses': houses,
+        'page_title': 'Available Properties',
+    }
+    return render(request, 'listings.html', context)
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -1282,6 +1298,10 @@ def owner_properties_view(request):
             )
     
     properties = properties.order_by('-created_at')
+    paginator = Paginator(properties, 21)
+
+    page_number = request.GET.get('page', 1)
+    properties = paginator.get_page(page_number)
     
     context = {
         'properties': properties,
@@ -3192,8 +3212,6 @@ def get_active_messages(request):
         return JsonResponse({'messages': active_messages})
     
     return JsonResponse({'messages': []})
-
-
 
 
 

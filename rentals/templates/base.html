@@ -292,23 +292,28 @@
               class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
               >Home</a
             >
+            <a
+              href="{% url 'listings' %}"
+              class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
+              >Browse Properties</a
+            >
             {% if user.userprofile.user_type == 'student' %}
             <a
               href="{% url 'student_properties' %}"
               class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
-              >Properties</a
+              >My Properties</a
             >
             {% elif user.userprofile.user_type == 'agent' %}
             <a
               href="{% url 'student_properties' %}"
               class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
-              >Properties</a
+              >My Properties</a
             >
             {% else %}
             <a
               href="{% url 'owner_properties' %}"
               class="px-4 py-2 text-gray-700 hover:text-accent font-medium rounded-lg hover:bg-gray-50 transition"
-              >Properties</a
+              >My Properties</a
             >
             {% endif %}
             
@@ -416,26 +421,32 @@
             >
               <i class="fas fa-home mr-3"></i>Home
             </a>
+            <a
+              href="{% url 'listings' %}"
+              class="block px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium"
+            >
+              <i class="fas fa-shop mr-3"></i>Browse Properties
+            </a>
             {% if user.userprofile.user_type == 'student' %}
             <a
               href="{% url 'student_properties' %}"
               class="block px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium"
             >
-              <i class="fas fa-shop mr-3"></i>Properties
+              <i class="fas fa-shop mr-3"></i>My Properties
             </a>
             {% elif user.userprofile.user_type == 'agent' %}
             <a
               href="{% url 'student_properties' %}"
               class="block px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium"
             >
-              <i class="fas fa-shop mr-3"></i>Properties
+              <i class="fas fa-shop mr-3"></i>My Properties
             </a>
             {% else %}
             <a
               href="{% url 'owner_properties' %}"
               class="block px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium"
             >
-              <i class="fas fa-shop mr-3"></i>Properties
+              <i class="fas fa-shop mr-3"></i>My Properties
             </a>
             {% endif %}
 

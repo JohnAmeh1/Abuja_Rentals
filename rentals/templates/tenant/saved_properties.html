@@ -19,7 +19,7 @@
             <div class="relative h-48 overflow-hidden">
                 {% if property.main_image %}
                 <a href="{% url 'property_detail' property.id %}">
-                    <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                    <img src="{{ property.main_image }}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
                 </a>
                 {% else %}
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center">

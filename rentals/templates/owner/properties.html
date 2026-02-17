@@ -164,7 +164,7 @@
                 <article class="bg-white rounded-xl border border-gray-100 overflow-hidden property-card hover:shadow-lg">
                     <div class="relative h-56 overflow-hidden">
                         {% if property.main_image %}
-                        <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover transition duration-300">
+                        <img src="{{ property.main_image }}" alt="{{ property.title }}" class="w-full h-full object-cover transition duration-300">
                         {% else %}
                         <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <i class="fas fa-home text-gray-400 text-4xl"></i>

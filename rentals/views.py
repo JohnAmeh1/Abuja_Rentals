@@ -3261,8 +3261,6 @@ def get_active_messages(request):
 
 
 
-
-
 # views.py
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse

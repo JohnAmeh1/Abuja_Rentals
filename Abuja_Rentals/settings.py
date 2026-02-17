@@ -87,14 +87,25 @@ WSGI_APPLICATION = 'Abuja_Rentals.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'abuja_rentals',
-        'USER': 'root',
-        'PASSWORD': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Abuja_Rentals',
+        'USER': 'postgres',
+        'PASSWORD': '221005',
         'HOST': 'localhost',
-        'PORT': '3306',
+        'PORT': '5432',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'abuja_rentals',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
 
 
 # Password validation

@@ -787,7 +787,7 @@ def renew_student_rental(request, rental_id):
         return redirect('dashboard')
 
 
-
+# vv
 @login_required
 @user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.user_type == 'admin')
 def approve_student_property(request, pk):
@@ -826,6 +826,7 @@ def approve_student_property(request, pk):
     
     return render(request, 'admin/approve_student_property.html', context)
 
+# vv
 @login_required
 @user_passes_test(is_admin)
 def review_student_property(request, pk):
@@ -3133,37 +3134,6 @@ def admin_messages_view(request):
     
     return render(request, 'admin/messages.html', context)
 
-@login_required
-@user_passes_test(is_admin)
-def create_admin_message(request):
-    """Create a new admin message"""
-    if request.method == 'POST':
-        form = AdminMessageForm(request.POST)
-        if form.is_valid():
-            message = AdminMessage(
-                title=form.cleaned_data['title'],
-                message=form.cleaned_data['message'],
-                message_type=form.cleaned_data['message_type'],
-                is_active=form.cleaned_data.get('is_active', True),
-                show_to_all=form.cleaned_data.get('show_to_all', True),
-                show_to_owners=form.cleaned_data.get('show_to_owners', True),
-                show_to_tenants=form.cleaned_data.get('show_to_tenants', True),
-                start_date=form.cleaned_data.get('start_date') or timezone.now(),
-                end_date=form.cleaned_data.get('end_date'),
-                created_by=request.user,
-            )
-            message.save()
-            messages.success(request, 'Message created successfully!')
-            return redirect('admin_messages')
-    else:
-        form = AdminMessageForm()
-    
-    context = {
-        'page_title': 'Create Message',
-        'form': form,
-    }
-    
-    return render(request, 'admin/create_message.html', context)
 
 @login_required
 @user_passes_test(is_admin)
@@ -3257,9 +3227,6 @@ def get_active_messages(request):
         return JsonResponse({'messages': active_messages})
     
     return JsonResponse({'messages': []})
-
-
-
 
 # views.py
 from django.views.decorators.csrf import csrf_exempt

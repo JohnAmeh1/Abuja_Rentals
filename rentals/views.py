@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, Q, F, DecimalField
 
-from .models import SavedProperty, PropertyVisit
+from .models import SavedProperty, PropertyVisit, Booking
 from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal

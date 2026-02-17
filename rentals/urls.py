@@ -1,7 +1,5 @@
 from django.urls import path, include
 from . import views
-from . import payment_views
-import os
 from django.views.generic import TemplateView
 from django.views.static import serve
 from django.conf import settings
@@ -24,7 +22,7 @@ urlpatterns = [
     path('owner/properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
     
     # Property detail and actions - Regular Properties
-    path('property/<int:property_id>/', views.property_detaipl_view, name='property_detail'),
+    path('property/<int:property_id>/', views.property_detail_view, name='property_detail'),
     path('property/<int:property_id>/contact-owner/', views.contact_property_owner, name='contact_property_owner'),
     path('property/<int:property_id>/update-status/', views.update_property_status, name='update_property_status'),
     
@@ -89,14 +87,6 @@ urlpatterns = [
     
     # AJAX endpoints
     path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
-    
-
-    path("payments/verify/", payment_views.verify_payment, name="verify_payment"),
-    path("payments/receipt/<int:payment_id>/", payment_views.payment_receipt, name="payment_receipt"),
-    path("payments/property/<int:property_id>/",payment_views.process_property_payment,name="process_property_payment"),
-    path("payments/flutterwave/verify/",payment_views.flutterwave_verify,name="flutterwave_verify"),
-    path("payments/webhook/flutterwave/",payment_views.flutterwave_webhook,name="flutterwave_webhook"),
-
 
     # PWA URLs
     # path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),

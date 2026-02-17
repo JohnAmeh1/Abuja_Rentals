@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, Q, F, DecimalField
 
-from .models import SavedProperty, PropertyVisit, Booking
+from .models import SavedProperty, PropertyVisit
 from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -447,6 +447,8 @@ def create_property(request):
     }
     
     return render(request, 'student/createproperty.html', context)
+
+
 @login_required
 def edit_student_property(request, pk):
     """Edit a student property (renamed to avoid conflict with regular properties)"""
@@ -2091,40 +2093,6 @@ def property_detail_view(request, property_id):
     return render(request, 'owner/property_detail.html', context)
 
 
-
-
-@login_required
-@user_passes_test(is_admin)
-def create_admin_message(request):
-    """Create a new admin message"""
-    if request.method == 'POST':
-        form = AdminMessageForm(request.POST)
-        if form.is_valid():
-            from .models import AdminMessage
-            message = AdminMessage(
-                title=form.cleaned_data['title'],
-                message=form.cleaned_data['message'],
-                message_type=form.cleaned_data['message_type'],
-                is_active=form.cleaned_data.get('is_active', True),
-                show_to_all=form.cleaned_data.get('show_to_all', True),
-                show_to_owners=form.cleaned_data.get('show_to_owners', True),
-                show_to_tenants=form.cleaned_data.get('show_to_tenants', True),
-                start_date=form.cleaned_data.get('start_date') or timezone.now(),
-                end_date=form.cleaned_data.get('end_date'),
-                created_by=request.user,
-            )
-            message.save()
-            messages.success(request, 'Message created successfully!')
-            return redirect('admin_messages')
-    else:
-        form = AdminMessageForm()
-    
-    context = {
-        'page_title': 'Create Message',
-        'form': form,
-    }
-    
-    return render(request, 'admin/create_message.html', context)
 
 
 

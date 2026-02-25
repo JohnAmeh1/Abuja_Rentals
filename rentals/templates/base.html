@@ -571,6 +571,7 @@
     {% comment %} {% load static %} {% endcomment %}
 
     <!-- Admin Messages Modal -->
+    {% if user.userprofile.user_type == 'student' %}
     <div id="adminMessagesModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Background overlay -->
@@ -724,6 +725,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
     <!-- Main Content -->
     <main>{% block content %} {% endblock %}</main>
@@ -1172,7 +1174,6 @@
       }
     </script>
 
-    {% include 'manual_reload_button.html' %}
     {% block extra_js %}{% endblock %}
 
 

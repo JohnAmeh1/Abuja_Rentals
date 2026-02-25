@@ -110,12 +110,14 @@ class Property(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['purpose', 'city', 'status']),
+            models.Index(fields=['purpose', 'status']),
             models.Index(fields=['property_type']),
             models.Index(fields=['price']),
             models.Index(fields=['bedrooms']),
             models.Index(fields=['is_featured']),
             models.Index(fields=['views']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['status']),
         ]
 
     

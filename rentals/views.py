@@ -54,7 +54,7 @@ def home(request):
     if featured_qs.exists():
         featured_properties = featured_qs.order_by('?')[:3]
     else:
-        featured_properties = Property.objects.filter(status='available').order_by('?')[:6]
+        featured_properties = Property.objects.filter(status='available').order_by('views')[:3]
 
     total_properties = Property.objects.filter(status='available').count()
 
@@ -614,7 +614,6 @@ def profile_view(request):
 
 @login_required
 def dashboard_view(request):
-    print("hi")
     user = request.user
     user_profile = get_object_or_404(UserProfile, user=user)
     check_expired_rentals()

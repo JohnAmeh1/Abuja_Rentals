@@ -224,10 +224,6 @@
                                 Click a card to view full details
                             </li>
 
-                            <li class="flex gap-2">
-                                <i class="fas fa-user text-accent mt-1"></i>
-                                Owners manage listings from dashboard
-                            </li>
                         </ul>
 
                     </div>
@@ -321,90 +317,111 @@
                                     <div class="absolute bottom-2.5 left-2.5">
                                         <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
                                             ₦{{ property.price|floatformat:0|intcomma }}
+                                            {% if property.purpose == "rent"%}
+                                            <span class="font-normal text-xs ">
+                                                (per annum)
+                                            </span>
+                                            {% endif %}
                                         </span>
+                                    </div>
+
+                                    <div class="absolute top-2.5 left-2.5 flex items-center">
+                                        <span
+                                        class="bg-white/90 backdrop-blur-sm text-primary font-semibold text-sm px-2 py-1 rounded-lg shadow-sm"
+                                        >{{ property.get_purpose_display }}</span
+                                        >
                                     </div>
 
                                 </div>
 
                                 <!-- CONTENT -->
-                                <div class="p-4 flex flex-col gap-2">
+                                <a  href="{% url 'property_detail' property.id %}">
+                                <div class="p-5 flex flex-col gap-4">
 
-                                    <h3 class="font-semibold text-gray-900 line-clamp-1 group-hover:text-accent">
-                                        {{ property.title }}
-                                    </h3>
+                                <!-- TITLE -->
+                                <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">
+                                    {{ property.title }}
+                                </h3>
 
-                                    <div class="flex items-center justify-between text-sm text-gray-500">
+                                <!-- LOCATION -->
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                                    <span>{{ property.city|capfirst }}</span>
+                                </div>
 
-                                        <span class="flex items-center">
-                                            <i class="fas fa-map-marker-alt mr-1.5"></i>
-                                            {{ property.city|capfirst }}
-                                        </span>
+                                <!-- PROPERTY META -->
+                                <div class="flex items-center gap-6 text-sm text-gray-600 my-1.5">
 
-                                        <div class="flex items-center gap-3 ">
-
-                                            {% if property.bedrooms %}
-                                                <span><i class="fas fa-bed mr-1"></i>{{ property.bedrooms }}</span>
-                                            {% endif %}
-
-                                            {% if property.bathrooms %}
-                                                <span><i class="fas fa-bath mr-1"></i>{{ property.bathrooms }}</span>
-                                            {% endif %}
-
-                                            {% if property.area_sqft %}
-                                                <span>
-                                                    <i class="fas fa-ruler-combined mr-1"></i>
-                                                    {{ property.area_sqft|floatformat:0 }} sqft
-                                                </span>
-                                            {% endif %}
-
+                                    {% if property.bedrooms %}
+                                        <div class="flex items-center gap-1.5">
+                                            <i class="fas fa-bed text-gray-400"></i>
+                                            <span>{{ property.bedrooms }}</span>
                                         </div>
-                                    </div>
+                                    {% endif %}
 
-                                    <p class="text-sm text-gray-600 line-clamp-2">
-                                        {{ property.description|truncatechars:140 }}
-                                    </p>
+                                    {% if property.bathrooms %}
+                                        <div class="flex items-center gap-1.5">
+                                            <i class="fas fa-bath text-gray-400"></i>
+                                            <span>{{ property.bathrooms }}</span>
+                                        </div>
+                                    {% endif %}
 
-                                    <!-- ACTIONS -->
-                                    <div class="flex items-center mt-3 gap-2">
-
-                                        <a
-                                            href="{% url 'property_detail' property.id %}"
-                                            class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition"
-                                        >
-                                            View Details
-                                        </a>
-
-                                        {% if user.is_authenticated and property.owner == user %}
-                                            <a
-                                                href="{% url 'edit_property' property.id %}"
-                                                class="w-9 h-9 bg-yellow-50 text-yellow-600  rounded-lg flex items-center justify-center  hover:bg-yellow-100 transition"
-                                                title="Edit"
-                                            >
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-
-                                            <button
-                                                onclick="openDeleteModal('{{ property.id }}', '{{ property.title }}')"
-                                                class="w-9 h-9 bg-red-50 text-red-600  rounded-lg flex items-center justify-center  hover:bg-red-100 transition"
-                                                title="Delete"
-                                            >
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        {% endif %}
-
-                                        {% if user.is_authenticated and user.userprofile.user_type == 'tenant' %}
-                                            <button
-                                                onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
-                                                class="w-9 h-9 bg-gray-50 text-gray-600  rounded-lg flex items-center justify-center  hover:bg-gray-100 transition"
-                                                title="Report"
-                                            >
-                                                <i class="fas fa-flag"></i>
-                                            </button>
-                                        {% endif %}
-
-                                    </div>
+                                    {% if property.area_sqft %}
+                                        <div class="flex items-center gap-1.5">
+                                            <i class="fas fa-ruler-combined text-gray-400"></i>
+                                            <span>{{ property.area_sqft|floatformat:0 }} sqft</span>
+                                        </div>
+                                    {% endif %}
 
                                 </div>
+
+                                <!-- DESCRIPTION -->
+                                <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                                    {{ property.description|truncatechars:120 }}
+                                </p>
+
+                                <!-- ACTIONS -->
+                                <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+
+                                    <a
+                                        href="{% url 'property_detail' property.id %}"
+                                        class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+                                    >
+                                        View Details
+                                    </a>
+
+                                    {% if user.is_authenticated and property.owner == user %}
+                                        <a
+                                            href="{% url 'edit_property' property.id %}"
+                                            class="w-9 h-9 bg-yellow-50 text-yellow-600 rounded-lg flex items-center justify-center hover:bg-yellow-100 transition"
+                                            title="Edit"
+                                        >
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <button
+                                            onclick="openDeleteModal('{{ property.id }}', '{{ property.title }}')"
+                                            class="w-9 h-9 bg-red-50 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-100 transition"
+                                            title="Delete"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    {% endif %}
+
+                                    {% if user.is_authenticated and user.userprofile.user_type == 'tenant' %}
+                                        <button
+                                            onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
+                                            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
+                                            title="Report"
+                                        >
+                                            <i class="fas fa-flag"></i>
+                                        </button>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                            </a>
                             </article>
                         {% endfor %}
                     </div>
@@ -557,16 +574,18 @@
                 </form>
             </div>
         </div>
-        <div class="fixed rounded-full bottom-[80px] md:bottom-[100px] right-[20px] md:right-[30px] z-10 h-[48px] md:h-[56px] w-[48px] md:w-[56px] bg-accent flex justify-center items-center filter-btn lg:hidden duration-200"
+        
+    
+    {% endif %}
+        <div class="fixed rounded-full bottom-[40px] md:bottom-[100px] right-[20px] md:right-[30px] z-10 h-[48px] md:h-[56px] w-[48px] md:w-[56px] bg-accent flex justify-center items-center filter-btn lg:hidden duration-200"
             onclick="toggleSidebar()">
             <i class="fas fa-filter text-white text-sm"></i>
         </div>
-    {% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
-    {% include 'auto_reload.html' %}
+
     <script>
         function openDeleteModal(propertyId, propertyTitle) {
             document.getElementById('propertyName').textContent = propertyTitle;
@@ -590,6 +609,7 @@
             });
         }
     </script>
+
     <script>
         function openReportModal(propertyId, propertyTitle) {
             const form = document.getElementById('reportForm') || document.getElementById('reportFormDetail');
@@ -673,6 +693,7 @@
                 bg.classList.add("max-lg:hidden")
             }, { once: true })
         }
+
 
     </script>
 {% endblock %}

@@ -78,6 +78,21 @@ def home(request):
     context['categories'] = categories[:8]
     return render(request, "home.html", context)
 
+def listings(request):
+    """Display all available properties"""
+    check_expired_rentals()
+    
+    # Fetch all available properties from the database
+    houses = Property.objects.filter(status='available').order_by('-created_at')
+    
+    # Pass them to the template
+    context = {
+        'houses': houses,
+        'page_title': 'Available Properties',
+    }
+    return render(request, 'listings.html', context)
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')

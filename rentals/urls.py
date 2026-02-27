@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('listings/', views.listings, name='listings'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
     path('logout/', views.logout_view, name='logout'),
@@ -96,6 +97,8 @@ urlpatterns = [
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),
+
+    path('listings/', views.listings, name='listings'),
 
 
 ]

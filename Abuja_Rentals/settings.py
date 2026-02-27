@@ -15,6 +15,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -90,6 +91,19 @@ WSGI_APPLICATION = 'Abuja_Rentals.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': os.getenv("DB_ENGINE"),
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER", ""),
+        'PASSWORD': os.getenv("DB_PASSWORD", ""),
+        'HOST': os.getenv("DB_HOST", ""),
+        'PORT': os.getenv("DB_PORT", ""),
+        'OPTIONS': (
+            {'sslmode': os.getenv("DB_SSL")}
+            if os.getenv("DB_SSL")
+            else {}
+        ),
+    }
+}
         'ENGINE': os.getenv("DB_ENGINE"),
         'NAME': os.getenv("DB_NAME"),
         'USER': os.getenv("DB_USER", ""),

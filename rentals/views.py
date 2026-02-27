@@ -910,38 +910,6 @@ def student_properties_view(request):
     
     return render(request, 'student/properties.html', context)
 
-@login_required
-def agent_student_properties_view(request):
-    """View for agents to see their student-friendly properties"""
-    user = request.user
-    
-    # Get agent's student-friendly properties
-    agent_properties = AgentProperty.objects.filter(
-        agent=user,
-        is_student_friendly=True
-    ).select_related('property').order_by('-created_at')
-    
-    # Get statistics
-    total_student_properties = agent_properties.count()
-    active_student_properties = agent_properties.filter(property__status='available').count()
-    
-    # Calculate total student discount value
-    total_discount_value = 0
-    for agent_prop in agent_properties:
-        if agent_prop.property.status == 'available':
-            discount_amount = agent_prop.property.price * (agent_prop.student_discount / 100)
-            total_discount_value += discount_amount
-    
-    context = {
-        'page_title': 'Student-Friendly Properties',
-        'agent_properties': agent_properties,
-        'total_student_properties': total_student_properties,
-        'active_student_properties': active_student_properties,
-        'total_discount_value': total_discount_value,
-    }
-    
-    return render(request, 'agent/student_properties.html', context)
-
 
 def owner_properties_view(request):
     """

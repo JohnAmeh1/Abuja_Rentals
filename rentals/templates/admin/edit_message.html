@@ -4,134 +4,134 @@
 {% block title %}Edit Message | Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
-    <div class="max-w-3xl mx-auto">
-        <div class="mb-8">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-3xl font-bold text-primary">{{ page_title }}</h1>
-                    <p class="text-gray-600 mt-2">Edit message: {{ message.title }}</p>
-                    <div class="mt-3">
-                        <span class="px-3 py-1 text-xs rounded-full {% if message.message_type == 'info' %}bg-blue-100 text-blue-800{% elif message.message_type == 'warning' %}bg-yellow-100 text-yellow-800{% elif message.message_type == 'success' %}bg-green-100 text-green-800{% elif message.message_type == 'alert' %}bg-red-100 text-red-800{% else %}bg-purple-100 text-purple-800{% endif %}">
-                            {{ message.get_message_type_display }}
-                        </span>
-                        <span class="ml-2 px-3 py-1 text-xs rounded-full {% if message.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if message.is_active %}Active{% else %}Inactive{% endif %}
-                        </span>
-                        <span class="ml-2 text-sm text-gray-600">
-                            Created: {{ message.created_at|date:"M d, Y" }}
-                        </span>
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+        <div class="max-w-3xl mx-auto">
+            <div class="mb-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-bold text-primary">{{ page_title }}</h1>
+                        <p class="text-gray-600 mt-2">Edit message: {{ message.title }}</p>
+                        <div class="mt-3">
+                            <span class="px-3 py-1 text-xs rounded-full {% if message.message_type == 'info' %}bg-blue-100 text-blue-800{% elif message.message_type == 'warning' %}bg-yellow-100 text-yellow-800{% elif message.message_type == 'success' %}bg-green-100 text-green-800{% elif message.message_type == 'alert' %}bg-red-100 text-red-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                {{ message.get_message_type_display }}
+                            </span>
+                            <span class="ml-2 px-3 py-1 text-xs rounded-full {% if message.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if message.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                            <span class="ml-2 text-sm text-gray-600">
+                                Created: {{ message.created_at|date:"M d, Y" }}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="text-right">
-                    <a href="{% url 'admin_messages' %}" class="text-accent font-medium hover:text-accent-dark">
-                        <i class="fas fa-arrow-left mr-1"></i>Back to Messages
-                    </a>
+                    <div class="text-right">
+                        <a href="{% url 'admin_messages' %}" class="text-accent font-medium hover:text-accent-dark">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to Messages
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <form method="POST">
-                {% csrf_token %}
-                
-                {% if form.errors %}
-                <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-                    <p class="font-medium">Please correct the errors below:</p>
-                    <ul class="mt-2 text-sm">
-                        {% for field, errors in form.errors.items %}
-                            {% for error in errors %}
-                            <li>{{ field|title }}: {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-                
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                        {{ form.title }}
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                        {{ form.message }}
-                        <p class="text-xs text-gray-500 mt-1">This message will be displayed to all selected users</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
-                        {{ form.message_type }}
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date (Optional)</label>
-                            {{ form.start_date }}
-                            <p class="text-xs text-gray-500 mt-1">When should this message start appearing?</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+                            <p class="font-medium">Please correct the errors below:</p>
+                            <ul class="mt-2 text-sm">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
                         </div>
-                        
+                    {% endif %}
+
+                    <div class="space-y-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">End Date (Optional)</label>
-                            {{ form.end_date }}
-                            <p class="text-xs text-gray-500 mt-1">When should this message stop appearing?</p>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                            {{ form.title }}
                         </div>
-                    </div>
-                    
-                    <div class="border-t border-gray-200 pt-6">
-                        <h3 class="text-lg font-medium text-primary mb-4">Audience Settings</h3>
-                        
-                        <div class="space-y-4">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            {{ form.message }}
+                            <p class="text-xs text-gray-500 mt-1">This message will be displayed to all selected users</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                            {{ form.message_type }}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Start Date (Optional)</label>
+                                {{ form.start_date }}
+                                <p class="text-xs text-gray-500 mt-1">When should this message start appearing?</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">End Date (Optional)</label>
+                                {{ form.end_date }}
+                                <p class="text-xs text-gray-500 mt-1">When should this message stop appearing?</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-primary mb-4">Audience Settings</h3>
+
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    {{ form.show_to_all }}
+                                    <label for="{{ form.show_to_all.id_for_label }}" class="ml-3 text-gray-700">
+                                        <span class="font-medium">Show to all non-admin users</span>
+                                        <p class="text-sm text-gray-500">Display this message to all regular users</p>
+                                    </label>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="flex items-center">
+                                        {{ form.show_to_owners }}
+                                        <label for="{{ form.show_to_owners.id_for_label }}" class="ml-3 text-gray-700">
+                                            <span class="font-medium">Show to property owners</span>
+                                            <p class="text-sm text-gray-500">Property owners/landlords</p>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex items-center">
+                                        {{ form.show_to_tenants }}
+                                        <label for="{{ form.show_to_tenants.id_for_label }}" class="ml-3 text-gray_700">
+                                            <span class="font-medium">Show to tenants</span>
+                                            <p class="text-sm text-gray-500">Tenants and prospective renters</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-6">
                             <div class="flex items-center">
-                                {{ form.show_to_all }}
-                                <label for="{{ form.show_to_all.id_for_label }}" class="ml-3 text-gray-700">
-                                    <span class="font-medium">Show to all non-admin users</span>
-                                    <p class="text-sm text-gray-500">Display this message to all regular users</p>
+                                {{ form.is_active }}
+                                <label for="{{ form.is_active.id_for_label }}" class="ml-3 text-gray-700">
+                                    <span class="font-medium">Active</span>
+                                    <p class="text-sm text-gray-500">Make this message visible to users</p>
                                 </label>
                             </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="flex items-center">
-                                    {{ form.show_to_owners }}
-                                    <label for="{{ form.show_to_owners.id_for_label }}" class="ml-3 text-gray-700">
-                                        <span class="font-medium">Show to property owners</span>
-                                        <p class="text-sm text-gray-500">Property owners/landlords</p>
-                                    </label>
-                                </div>
-                                
-                                <div class="flex items-center">
-                                    {{ form.show_to_tenants }}
-                                    <label for="{{ form.show_to_tenants.id_for_label }}" class="ml-3 text-gray_700">
-                                        <span class="font-medium">Show to tenants</span>
-                                        <p class="text-sm text-gray-500">Tenants and prospective renters</p>
-                                    </label>
-                                </div>
-                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                            <a href="{% url 'admin_messages' %}" class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn-gradient text-white font-medium rounded-lg px-6 py-3">
+                                <i class="fas fa-save mr-2"></i>Update Message
+                            </button>
                         </div>
                     </div>
-                    
-                    <div class="border-t border-gray-200 pt-6">
-                        <div class="flex items-center">
-                            {{ form.is_active }}
-                            <label for="{{ form.is_active.id_for_label }}" class="ml-3 text-gray-700">
-                                <span class="font-medium">Active</span>
-                                <p class="text-sm text-gray-500">Make this message visible to users</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                        <a href="{% url 'admin_messages' %}" class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50">
-                            Cancel
-                        </a>
-                        <button type="submit" class="btn-gradient text-white font-medium rounded-lg px-6 py-3">
-                            <i class="fas fa-save mr-2"></i>Update Message
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

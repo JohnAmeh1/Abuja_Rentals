@@ -3,860 +3,831 @@
 {% block title %}Create Property | Student Portal{% endblock %}
 
 {% block extra_css %}
-<style>
-  .form-section {
-    background: white;
-    border-radius: 1rem;
-    border: 1px solid #e5e7eb;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .form-section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #3b82f6;
-  }
-
-  .image-upload-container {
-    border: 2px dashed #d1d5db;
-    border-radius: 0.75rem;
-    padding: 2rem;
-    text-align: center;
-    transition: border-color 0.2s;
-    cursor: pointer;
-  }
-
-  .image-upload-container:hover {
-    border-color: #3b82f6;
-  }
-
-  .image-preview {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    border: 2px solid #e5e7eb;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-
-  .image-preview:hover {
-    transform: scale(1.05);
-    border-color: #3b82f6;
-  }
-
-  .preview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  @media (max-width: 640px) {
-    .preview-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
+  <style>
+    .form-section {
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid #e5e7eb;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
     }
-  }
 
-  @media (min-width: 641px) and (max-width: 1024px) {
-    .preview-grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.875rem;
+    .form-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #3b82f6;
     }
-  }
 
-  @media (min-width: 1025px) {
+    .image-upload-container {
+      border: 2px dashed #d1d5db;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      text-align: center;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+
+    .image-upload-container:hover {
+      border-color: #3b82f6;
+    }
+
+    .image-preview {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      border: 2px solid #e5e7eb;
+      margin: 0.5rem;
+    }
+
     .preview-grid {
-      grid-template-columns: repeat(5, 1fr);
+      display: flex;
+      flex-wrap: wrap;
       gap: 1rem;
+      margin-top: 1rem;
     }
-  }
 
-  .fee-highlight {
-    transition: all 0.3s ease;
-  }
+    .fee-highlight {
+      transition: all 0.3s ease;
+    }
 
-  .fee-highlight:focus {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+    .fee-highlight:focus {
+      transform: scale(1.02);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
 
-  .input-error {
-    border-color: #ef4444 !important;
-  }
+    .input-error {
+      border-color: #ef4444 !important;
+    }
 
-  .error-message {
-    color: #ef4444;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
+    .error-message {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
 
-  .required-field::after {
-    content: " *";
-    color: #ef4444;
-  }
-</style>
+    .required-field::after {
+      content: " *";
+      color: #ef4444;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-primary">Create New Property</h1>
-    <p class="text-gray-600 mt-2">
-      Fill in all the details to list your property. All fields marked with * are required.
-    </p>
-  </div>
-
-  {% if messages %}
-  <div class="mb-6">
-    {% for message in messages %}
-    <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
-      {{ message }}
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-primary">Create New Property</h1>
+      <p class="text-gray-600 mt-2">
+        Fill in all the details to list your property. All fields marked with * are required.
+      </p>
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
-  <form method="POST" enctype="multipart/form-data" class="space-y-6" id="propertyForm">
-    {% csrf_token %}
+    {% if messages %}
+      <div class="mb-6">
+        {% for message in messages %}
+          <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
-    {% if form.errors %}
-    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-        <div class="flex">
+    <form method="POST" enctype="multipart/form-data" class="space-y-6" id="propertyForm">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+          <div class="flex">
             <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              </svg>
             </div>
             <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">
-                    There were {{ form.errors|length }} error(s) with your submission
-                </h3>
-                <div class="mt-2 text-sm text-red-700">
-                    <ul class="list-disc pl-5 space-y-1">
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+              <h3 class="text-sm font-medium text-red-800">
+                There were {{ form.errors|length }} error(s) with your submission
+              </h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul class="list-disc pl-5 space-y-1">
+                  {% for field in form %}
+                    {% for error in field.errors %}
+                      <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                  {% endfor %}
+                  {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
-    {% endif %}
-    
+      {% endif %}
+
     <!-- Basic Information Section -->
-    <div class="form-section">
+      <div class="form-section">
 
         <!-- In createproperty.html, add this after the form title -->
         {% if is_agent %}
-        <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div class="flex items-start">
-                <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-                <div>
-                    <p class="text-sm text-yellow-800">
-                        <strong>Note for Agents:</strong> All properties you create will be submitted for admin review.
-                        They will be set to "Pending" status until approved by an administrator.
-                        Once approved, the status will change to "Available" and the property will be visible to students.
-                    </p>
-                </div>
+              <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              <div>
+                <p class="text-sm text-yellow-800">
+                  <strong>Note for Agents:</strong> All properties you create will be submitted for admin review.
+                  They will be set to "Pending" status until approved by an administrator.
+                  Once approved, the status will change to "Available" and the property will be visible to students.
+                </p>
+              </div>
             </div>
-        </div>
+          </div>
         {% endif %}
 
-      <h2 class="form-section-title">Basic Information</h2>
+        <h2 class="form-section-title">Basic Information</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            Property Title
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              Property Title
+            </label>
+            <input type="text"
+                   name="title"
+                   id="title"
+                   required
+                   maxlength="200"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.title %}input-error{% endif %}"
+                   placeholder="e.g., Spacious 3-Bedroom Apartment">
+            {% if form.errors.title %}
+              <p class="error-message">{{ form.errors.title.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              Property Type
+            </label>
+            <select name="property_type"
+                    id="property_type"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.property_type %}input-error{% endif %}">
+              <option value="">Select Property Type</option>
+              <option value="apartment">Apartment</option>
+              <option value="self_contain">Self Contain</option>
+
+            </select>
+            {% if form.errors.property_type %}
+              <p class="error-message">{{ form.errors.property_type.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+            Description
           </label>
-          <input type="text" 
-                 name="title" 
-                 id="title" 
-                 required
-                 maxlength="200"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.title %}input-error{% endif %}"
-                 placeholder="e.g., Spacious 3-Bedroom Apartment">
-          {% if form.errors.title %}
-          <p class="error-message">{{ form.errors.title.0 }}</p>
+          <textarea name="description"
+                    id="description"
+                    rows="4"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.description %}input-error{% endif %}"
+                    placeholder="Describe the property, location, features, etc."></textarea>
+          {% if form.errors.description %}
+            <p class="error-message">{{ form.errors.description.0 }}</p>
           {% endif %}
         </div>
 
-        <div>
-          <label for="property_type" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            Property Type
-          </label>
-          <select name="property_type" 
-                  id="property_type" 
-                  required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.property_type %}input-error{% endif %}">
-            <option value="">Select Property Type</option>
-            <option value="apartment">Apartment</option>
-            <option value="self_contain">Self Contain</option>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              Purpose
+            </label>
+            <select name="purpose"
+                    id="purpose"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.purpose %}input-error{% endif %}">
+              <option value="">Select Purpose</option>
+              <option value="rent">For Rent</option>
 
-          </select>
-          {% if form.errors.property_type %}
-          <p class="error-message">{{ form.errors.property_type.0 }}</p>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="mt-6">
-        <label for="description" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-          Description
-        </label>
-        <textarea name="description" 
-                  id="description" 
-                  rows="4"
-                  required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.description %}input-error{% endif %}"
-                  placeholder="Describe the property, location, features, etc."></textarea>
-        {% if form.errors.description %}
-        <p class="error-message">{{ form.errors.description.0 }}</p>
-        {% endif %}
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div>
-          <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            Purpose
-          </label>
-          <select name="purpose" 
-                  id="purpose" 
-                  required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.purpose %}input-error{% endif %}">
-            <option value="">Select Purpose</option>
-            <option value="rent">For Rent</option>
-
-          </select>
-          {% if form.errors.purpose %}
-          <p class="error-message">{{ form.errors.purpose.0 }}</p>
-          {% endif %}
-        </div>
+            </select>
+            {% if form.errors.purpose %}
+              <p class="error-message">{{ form.errors.purpose.0 }}</p>
+            {% endif %}
+          </div>
 
         <!-- Rent Duration (Only shown when purpose is rent) -->
-        <div id="rent-duration-field" class="hidden">
-          <label for="rent_duration_months" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            Rent Duration
-          </label>
-          <select name="rent_duration_months" 
-                  id="rent_duration_months"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option value="1">1 Month</option>
-            <option value="3">3 Months</option>
-            <option value="6">6 Months</option>
-            <option value="12" selected>1 Year</option>
-          </select>
-          {% if form.errors.rent_duration_months %}
-          <p class="error-message">{{ form.errors.rent_duration_months.0 }}</p>
-          {% endif %}
+          <div id="rent-duration-field" class="hidden">
+            <label for="rent_duration_months" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              Rent Duration
+            </label>
+            <select name="rent_duration_months"
+                    id="rent_duration_months"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="1">1 Month</option>
+              <option value="3">3 Months</option>
+              <option value="6">6 Months</option>
+              <option value="12" selected>1 Year</option>
+            </select>
+            {% if form.errors.rent_duration_months %}
+              <p class="error-message">{{ form.errors.rent_duration_months.0 }}</p>
+            {% endif %}
+          </div>
         </div>
-      </div>
 
       <!-- Price Input -->
-      <div class="mt-6">
-        <label for="price" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-          Price (₦)
-        </label>
-        <input type="number" 
-               name="price" 
-               id="price" 
-               min="0" 
-               step="0.01"
-               required
-               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.price %}input-error{% endif %}"
-               placeholder="Enter amount in Naira">
-        {% if form.errors.price %}
-        <p class="error-message">{{ form.errors.price.0 }}</p>
-        {% endif %}
-      </div>
+        <div class="mt-6">
+          <label for="price" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+            Price (₦)
+          </label>
+          <input type="number"
+                 name="price"
+                 id="price"
+                 min="0"
+                 step="0.01"
+                 required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.price %}input-error{% endif %}"
+                 placeholder="Enter amount in Naira">
+          {% if form.errors.price %}
+            <p class="error-message">{{ form.errors.price.0 }}</p>
+          {% endif %}
+        </div>
 
       <!-- Platform Fee Calculation Section (2%) -->
-      <div class="mt-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200">
-        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-          </svg>
-          Fee Breakdown (2% Platform Fee)
-        </h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Platform Fee (5%)
-            </label>
-            <input type="text" 
-                   id="platform_fee_display" 
-                   readonly
-                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-blue-600 font-bold text-lg cursor-not-allowed fee-highlight"
-                   value="₦0.00">
-            <input type="hidden" name="platform_fee" id="platform_fee" value="0">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Your Net Amount (95%)
-            </label>
-            <input type="text" 
-                   id="net_amount_display" 
-                   readonly
-                   class="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-white text-green-600 font-bold text-lg cursor-not-allowed fee-highlight"
-                   value="₦0.00">
-            <input type="hidden" name="net_amount" id="net_amount" value="0">
-          </div>
-        </div>
-        <p class="text-sm text-gray-600 mt-3 flex items-start">
-          <svg class="w-4 h-4 mr-1 mt-0.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-          </svg>
-          Platform fee is automatically calculated at 5% of the total price
-        </p>
-      </div>
-    </div>
-
-    <!-- In the Location Details Section -->
-    <div class="form-section">
-    <h2 class="form-section-title">Location Details</h2>
-
-    <div class="mb-6">
-        <p class="text-sm text-gray-600 mb-2">
-        Please provide the complete location details for your property.
-        </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-        <label for="city" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            City
-        </label>
-        <input type="text" 
-                name="city" 
-                id="city" 
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.city %}input-error{% endif %}"
-                placeholder="e.g., Abuja">
-        {% if form.errors.city %}
-        <p class="error-message">{{ form.errors.city.0 }}</p>
-        {% endif %}
-        </div>
-
-        <div>
-        <label for="state" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            State
-        </label>
-        <input type="text" 
-                name="state" 
-                id="state" 
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.state %}input-error{% endif %}"
-                placeholder="e.g., FCT">
-        {% if form.errors.state %}
-        <p class="error-message">{{ form.errors.state.0 }}</p>
-        {% endif %}
-        </div>
-    </div>
-
-    <!-- NEW: University Field -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div>
-        <label for="university" class="block text-sm font-medium text-gray-700 mb-2">
-            Nearest University
-        </label>
-        <select name="university" 
-                id="university_select"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.university %}input-error{% endif %}">
-            <option value="">Select University (Optional)</option>
-            {% for value, display in form.fields.university.choices %}
-            <option value="{{ value }}" {% if form.university.value == value %}selected{% endif %}>
-                {{ display }}
-            </option>
-            {% endfor %}
-        </select>
-        
-        <!-- Custom university input (hidden by default) -->
-        <input type="text" 
-                name="custom_university" 
-                id="custom_university"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mt-2 hidden"
-                placeholder="Enter university name">
-        
-        {% if form.errors.university %}
-        <p class="error-message">{{ form.errors.university.0 }}</p>
-        {% endif %}
-        {% if form.errors.custom_university %}
-        <p class="error-message">{{ form.errors.custom_university.0 }}</p>
-        {% endif %}
-        </div>
-
-        <div>
-        <label for="zip_code" class="block text-sm font-medium text-gray-700 mb-2">
-            ZIP Code
-        </label>
-        <input type="text" 
-                name="zip_code" 
-                id="zip_code"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.zip_code %}input-error{% endif %}"
-                placeholder="e.g., 900001">
-        {% if form.errors.zip_code %}
-        <p class="error-message">{{ form.errors.zip_code.0 }}</p>
-        {% endif %}
-        </div>
-    </div>
-    </div>
-
-    <!-- Property Details Section -->
-    <div class="form-section">
-      <h2 class="form-section-title">Property Details</h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div>
-          <label for="bedrooms" class="block text-sm font-medium text-gray-700 mb-2">
-            Bedrooms
-          </label>
-          <input type="number" 
-                 name="bedrooms" 
-                 id="bedrooms" 
-                 min="0"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.bedrooms %}input-error{% endif %}"
-                 placeholder="0">
-          {% if form.errors.bedrooms %}
-          <p class="error-message">{{ form.errors.bedrooms.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label for="bathrooms" class="block text-sm font-medium text-gray-700 mb-2">
-            Bathrooms
-          </label>
-          <input type="number" 
-                 name="bathrooms" 
-                 id="bathrooms" 
-                 min="0"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.bathrooms %}input-error{% endif %}"
-                 placeholder="0">
-          {% if form.errors.bathrooms %}
-          <p class="error-message">{{ form.errors.bathrooms.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label for="area_sqft" class="block text-sm font-medium text-gray-700 mb-2">
-            Area (sq ft)
-          </label>
-          <input type="number" 
-                 name="area_sqft" 
-                 id="area_sqft" 
-                 min="0"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.area_sqft %}input-error{% endif %}"
-                 placeholder="e.g., 1200">
-          {% if form.errors.area_sqft %}
-          <p class="error-message">{{ form.errors.area_sqft.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label for="is_featured" class="flex items-center h-full">
-            <input type="checkbox" 
-                   name="is_featured" 
-                   id="is_featured"
-                   class="h-5 w-5 text-blue-600 rounded focus:ring-blue-500">
-            <span class="ml-2 text-sm text-gray-700">Feature this property</span>
-          </label>
-          {% if form.errors.is_featured %}
-          <p class="error-message">{{ form.errors.is_featured.0 }}</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Amenities Section -->
-    <div class="form-section">
-        <h2 class="form-section-title">Amenities & Features</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Use form.amenities.field.choices instead of hardcoded amenities -->
-            {% for value, label in form.amenities.field.choices %}
-            <div class="flex items-center">
-            <input type="checkbox" 
-                    name="amenities" 
-                    id="amenity_{{ forloop.counter }}" 
-                    value="{{ value }}"
-                    class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
-                    {% if value in form.amenities.value %}checked{% endif %}>
-            <label for="amenity_{{ forloop.counter }}" class="ml-2 text-sm text-gray-700">
-                {{ label }}
-            </label>
-            </div>
-            {% endfor %}
-        </div>
-        {% if form.errors.amenities %}
-            <p class="error-message mt-2">{{ form.errors.amenities.0 }}</p>
-        {% endif %}
-    </div>
-
-    <!-- Images Section -->
-    <div class="form-section">
-      <h2 class="form-section-title">Property Images</h2>
-      <p class="text-sm text-gray-600 mb-4">
-        Upload a main image and up to 9 additional images. Main image will be displayed as the cover.
-      </p>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="main_image" class="block text-sm font-medium text-gray-700 mb-2 required-field">
-            Main Image
-          </label>
-          <div class="image-upload-container" onclick="document.getElementById('main_image').click()">
-            <input type="file" 
-                   name="main_image" 
-                   id="main_image" 
-                   accept="image/*" 
-                   required
-                   class="hidden"
-                   onchange="previewImage(this, 'main')">
-            <div class="mt-4">
-              <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-              <p class="text-sm text-gray-600">Click to upload main image</p>
-              <p class="text-xs text-gray-500 mt-1">
-                Recommended: 1200x800px, max 5MB
-              </p>
-            </div>
-          </div>
-          {% if form.errors.main_image %}
-          <p class="error-message">{{ form.errors.main_image.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Additional Images (Optional)
-          </label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {% for i in "123456789"|make_list %}
+        <div class="mt-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            Fee Breakdown (2% Platform Fee)
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs text-gray-600 mb-1 font-medium">Photo {{ i }}</label>
-              <input type="file" 
-                     name="image_{{ i }}" 
-                     id="image_{{ i }}"
-                     accept="image/*"
-                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition"
-                     onchange="previewImage(this, 'additional_{{ i }}')">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Platform Fee (2%)
+              </label>
+              <input type="text"
+                     id="platform_fee_display"
+                     readonly
+                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-blue-600 font-bold text-lg cursor-not-allowed fee-highlight"
+                     value="₦0.00">
+              <input type="hidden" name="platform_fee" id="platform_fee" value="0">
             </div>
-            {% endfor %}
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Your Net Amount (98%)
+              </label>
+              <input type="text"
+                     id="net_amount_display"
+                     readonly
+                     class="w-full px-4 py-3 border-2 border-green-300 rounded-lg bg-white text-green-600 font-bold text-lg cursor-not-allowed fee-highlight"
+                     value="₦0.00">
+              <input type="hidden" name="net_amount" id="net_amount" value="0">
+            </div>
           </div>
-          <p class="text-xs text-gray-500 mt-3">
-            <i class="fas fa-info-circle"></i> You can upload up to 9 additional photos. Each file should be under 5MB.
+          <p class="text-sm text-gray-600 mt-3 flex items-start">
+            <svg class="w-4 h-4 mr-1 mt-0.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            Platform fee is automatically calculated at 2% of the total price
           </p>
         </div>
       </div>
 
-      <!-- Image Preview Area -->
-      <div class="mt-6">
-        <h4 class="font-medium text-gray-700 mb-3">Image Previews</h4>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4" id="image-preview-container">
-          <!-- Images will be previewed here in responsive grid -->
+    <!-- In the Location Details Section -->
+      <div class="form-section">
+        <h2 class="form-section-title">Location Details</h2>
+
+        <div class="mb-6">
+          <p class="text-sm text-gray-600 mb-2">
+            Please provide the complete location details for your property.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="city" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              City
+            </label>
+            <input type="text"
+                   name="city"
+                   id="city"
+                   required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.city %}input-error{% endif %}"
+                   placeholder="e.g., Abuja">
+            {% if form.errors.city %}
+              <p class="error-message">{{ form.errors.city.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="state" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              State
+            </label>
+            <input type="text"
+                   name="state"
+                   id="state"
+                   required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.state %}input-error{% endif %}"
+                   placeholder="e.g., FCT">
+            {% if form.errors.state %}
+              <p class="error-message">{{ form.errors.state.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+    <!-- NEW: University Field -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label for="university" class="block text-sm font-medium text-gray-700 mb-2">
+              Nearest University
+            </label>
+            <select name="university"
+                    id="university_select"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.university %}input-error{% endif %}">
+              <option value="">Select University (Optional)</option>
+              {% for value, display in form.fields.university.choices %}
+                <option value="{{ value }}" {% if form.university.value == value %}selected{% endif %}>
+                  {{ display }}
+                </option>
+              {% endfor %}
+            </select>
+
+        <!-- Custom university input (hidden by default) -->
+            <input type="text"
+                   name="custom_university"
+                   id="custom_university"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mt-2 hidden"
+                   placeholder="Enter university name">
+
+            {% if form.errors.university %}
+              <p class="error-message">{{ form.errors.university.0 }}</p>
+            {% endif %}
+            {% if form.errors.custom_university %}
+              <p class="error-message">{{ form.errors.custom_university.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="zip_code" class="block text-sm font-medium text-gray-700 mb-2">
+              ZIP Code
+            </label>
+            <input type="text"
+                   name="zip_code"
+                   id="zip_code"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.zip_code %}input-error{% endif %}"
+                   placeholder="e.g., 900001">
+            {% if form.errors.zip_code %}
+              <p class="error-message">{{ form.errors.zip_code.0 }}</p>
+            {% endif %}
+          </div>
         </div>
       </div>
-    </div>
+
+    <!-- Property Details Section -->
+      <div class="form-section">
+        <h2 class="form-section-title">Property Details</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <label for="bedrooms" class="block text-sm font-medium text-gray-700 mb-2">
+              Bedrooms
+            </label>
+            <input type="number"
+                   name="bedrooms"
+                   id="bedrooms"
+                   min="0"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.bedrooms %}input-error{% endif %}"
+                   placeholder="0">
+            {% if form.errors.bedrooms %}
+              <p class="error-message">{{ form.errors.bedrooms.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="bathrooms" class="block text-sm font-medium text-gray-700 mb-2">
+              Bathrooms
+            </label>
+            <input type="number"
+                   name="bathrooms"
+                   id="bathrooms"
+                   min="0"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.bathrooms %}input-error{% endif %}"
+                   placeholder="0">
+            {% if form.errors.bathrooms %}
+              <p class="error-message">{{ form.errors.bathrooms.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="area_sqft" class="block text-sm font-medium text-gray-700 mb-2">
+              Area (sq ft)
+            </label>
+            <input type="number"
+                   name="area_sqft"
+                   id="area_sqft"
+                   min="0"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {% if form.errors.area_sqft %}input-error{% endif %}"
+                   placeholder="e.g., 1200">
+            {% if form.errors.area_sqft %}
+              <p class="error-message">{{ form.errors.area_sqft.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="is_featured" class="flex items-center h-full">
+              <input type="checkbox"
+                     name="is_featured"
+                     id="is_featured"
+                     class="h-5 w-5 text-blue-600 rounded focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Feature this property</span>
+            </label>
+            {% if form.errors.is_featured %}
+              <p class="error-message">{{ form.errors.is_featured.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    <!-- Amenities Section -->
+      <div class="form-section">
+        <h2 class="form-section-title">Amenities & Features</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Use form.amenities.field.choices instead of hardcoded amenities -->
+          {% for value, label in form.amenities.field.choices %}
+            <div class="flex items-center">
+              <input type="checkbox"
+                     name="amenities"
+                     id="amenity_{{ forloop.counter }}"
+                     value="{{ value }}"
+                     class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                     {% if value in form.amenities.value %}checked{% endif %}>
+              <label for="amenity_{{ forloop.counter }}" class="ml-2 text-sm text-gray-700">
+                {{ label }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+        {% if form.errors.amenities %}
+          <p class="error-message mt-2">{{ form.errors.amenities.0 }}</p>
+        {% endif %}
+      </div>
+
+    <!-- Images Section -->
+      <div class="form-section">
+        <h2 class="form-section-title">Property Images</h2>
+        <p class="text-sm text-gray-600 mb-4">
+          Upload a main image and up to 5 additional images. Main image will be displayed as the cover.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="main_image" class="block text-sm font-medium text-gray-700 mb-2 required-field">
+              Main Image
+            </label>
+            <div class="image-upload-container" onclick="document.getElementById('main_image').click()">
+              <input type="file"
+                     name="main_image"
+                     id="main_image"
+                     accept="image/*"
+                     required
+                     class="hidden"
+                     onchange="previewImage(this, 'main')">
+              <div class="mt-4">
+                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                <p class="text-sm text-gray-600">Click to upload main image</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Recommended: 1200x800px, max 5MB
+                </p>
+              </div>
+            </div>
+            {% if form.errors.main_image %}
+              <p class="error-message">{{ form.errors.main_image.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Additional Images (Optional)
+            </label>
+            <div class="space-y-4">
+              {% for i in "12345"|make_list %}
+                <div>
+                  <label class="block text-sm text-gray-700 mb-1">Image {{ i }}</label>
+                  <input type="file"
+                         name="image_{{ i }}"
+                         id="image_{{ i }}"
+                         accept="image/*"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                         onchange="previewImage(this, 'additional_{{ i }}')">
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+      <!-- Image Preview Area -->
+        <div class="mt-6">
+          <h4 class="font-medium text-gray-700 mb-3">Image Previews</h4>
+          <div class="preview-grid" id="image-preview-container">
+          <!-- Images will be previewed here -->
+          </div>
+        </div>
+      </div>
 
     <!-- Hidden fields for default values -->
-    <input type="hidden" name="views" value="0">
-    <input type="hidden" name="created_by" value="{{ request.user.id }}">
+      <input type="hidden" name="views" value="0">
+      <input type="hidden" name="created_by" value="{{ request.user.id }}">
 
     <!-- Form Actions -->
-    <div class="form-section">
-    <div class="flex flex-col md:flex-row md:justify-between items-stretch md:items-center gap-4">
-        <a href="{% url 'student_properties' %}" 
-        class="w-full md:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-center md:text-left">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Properties
-        </a>
+      <div class="form-section">
+        <div class="flex flex-col md:flex-row md:justify-between items-stretch md:items-center gap-4">
+          <a href="{% url 'student_properties' %}"
+             class="w-full md:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-center md:text-left">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Properties
+          </a>
 
-        <div class="flex w-full md:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        {% if is_student %}
-        <button type="submit" 
-                name="save_draft"
-                class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-            Save as Draft
-        </button>
-        {% endif %}
-        <button type="submit" 
-                class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-paper-plane mr-2"></i>
-            {% if is_agent %}
-            Submit for Review
-            {% elif user.userprofile.user_type == 'admin' %}
-            Submit for Review
-            {% elif is_student %}
-            Publish Property
-            {% else %}
-            Create Property
+          <div class="flex w-full md:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {% if is_student %}
+              <button type="submit"
+                      name="save_draft"
+                      class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                Save as Draft
+              </button>
             {% endif %}
-        </button>
+            <button type="submit"
+                    class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+              <i class="fas fa-paper-plane mr-2"></i>
+              {% if is_agent %}
+                Submit for Review
+              {% elif user.userprofile.user_type == 'admin' %}
+                Submit for Review
+              {% elif is_student %}
+                Publish Property
+              {% else %}
+                Create Property
+              {% endif %}
+            </button>
+          </div>
         </div>
-    </div>
-    </div>
-  </form>
-</div>
+      </div>
+    </form>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-(function() {
-  'use strict';
-  
-  console.log('=== STUDENT PROPERTY CREATION FORM INITIALIZED ===');
+  <script>
+    (function() {
+      'use strict';
+
+      console.log('=== STUDENT PROPERTY CREATION FORM INITIALIZED ===');
 
   // Format currency helper
-  function formatNaira(amount) {
-    if (isNaN(amount) || amount === null || amount === undefined) {
-      return '₦0.00';
-    }
-    return '₦' + parseFloat(amount).toLocaleString('en-NG', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
+      function formatNaira(amount) {
+        if (isNaN(amount) || amount === null || amount === undefined) {
+          return '₦0.00';
+        }
+        return '₦' + parseFloat(amount).toLocaleString('en-NG', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
 
   // Calculate fees function (2% platform fee)
-  function calculateFees() {
-    try {
-      const priceInput = document.getElementById('price');
-      const platformFeeDisplay = document.getElementById('platform_fee_display');
-      const netAmountDisplay = document.getElementById('net_amount_display');
-      const platformFeeHidden = document.getElementById('platform_fee');
-      const netAmountHidden = document.getElementById('net_amount');
+      function calculateFees() {
+        try {
+          const priceInput = document.getElementById('price');
+          const platformFeeDisplay = document.getElementById('platform_fee_display');
+          const netAmountDisplay = document.getElementById('net_amount_display');
+          const platformFeeHidden = document.getElementById('platform_fee');
+          const netAmountHidden = document.getElementById('net_amount');
 
-      if (!priceInput || !platformFeeDisplay || !netAmountDisplay) {
-        console.error('ERROR: Required elements not found!');
-        return;
-      }
-
-      const rawPrice = priceInput.value;
-      
-      if (!rawPrice || rawPrice.trim() === '') {
-        platformFeeDisplay.value = formatNaira(0);
-        netAmountDisplay.value = formatNaira(0);
-        if (platformFeeHidden) platformFeeHidden.value = 0;
-        if (netAmountHidden) netAmountHidden.value = 0;
-        return;
-      }
-
-      const cleanPrice = rawPrice.replace(/[^0-9.]/g, '');
-      const price = parseFloat(cleanPrice);
-      
-      if (isNaN(price) || price < 0) {
-        platformFeeDisplay.value = formatNaira(0);
-        netAmountDisplay.value = formatNaira(0);
-        if (platformFeeHidden) platformFeeHidden.value = 0;
-        if (netAmountHidden) netAmountHidden.value = 0;
-        return;
-      }
-
-      // Calculate fees (2% platform fee)
-      const platformFee = price * 0.05;
-      const netAmount = price * 0.98;
-
-      // Update displays
-      platformFeeDisplay.value = formatNaira(platformFee);
-      netAmountDisplay.value = formatNaira(netAmount);
-      
-      // Update hidden fields
-      if (platformFeeHidden) platformFeeHidden.value = platformFee.toFixed(2);
-      if (netAmountHidden) netAmountHidden.value = netAmount.toFixed(2);
-
-      console.log('Price:', price, 'Fee (2%):', platformFee, 'Net (98%):', netAmount);
-      
-    } catch (error) {
-      console.error('Error in calculateFees:', error);
-    }
-  }
-
-  // Initialize the form
-  function initializeForm() {
-    console.log('Initializing student property creation form...');
-    
-    // Price input fee calculation
-    const priceInput = document.getElementById('price');
-    
-    if (priceInput) {
-      console.log('Price input found successfully!');
-
-      // Attach event listeners for real-time calculation
-      const events = ['input', 'change', 'keyup'];
-      
-      events.forEach(eventType => {
-        priceInput.addEventListener(eventType, function(e) {
-          clearTimeout(window.feeCalculationTimeout);
-          window.feeCalculationTimeout = setTimeout(calculateFees, 50);
-        });
-      });
-
-      // Handle paste events
-      priceInput.addEventListener('paste', function() {
-        setTimeout(calculateFees, 100);
-      });
-    }
-
-    // Purpose handler for rent duration
-    const purposeSelect = document.getElementById('purpose');
-    const rentDurationField = document.getElementById('rent-duration-field');
-
-    if (purposeSelect && rentDurationField) {
-      purposeSelect.addEventListener('change', function() {
-        if (this.value === 'rent') {
-          rentDurationField.classList.remove('hidden');
-          document.getElementById('rent_duration_months').required = true;
-        } else {
-          rentDurationField.classList.add('hidden');
-          document.getElementById('rent_duration_months').required = false;
-          document.getElementById('rent_duration_months').value = '';
-        }
-      });
-      
-      // Trigger change event to set initial state
-      purposeSelect.dispatchEvent(new Event('change'));
-    }
-
-    // Image preview functionality
-    window.previewImage = function(input, previewId) {
-      const file = input.files[0];
-      const previewContainer = document.getElementById('image-preview-container');
-      
-      if (!file || !previewContainer) return;
-
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
-        input.value = '';
-        return;
-      }
-
-      // Check file type
-      if (!file.type.match('image.*')) {
-        alert('Please select an image file');
-        input.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        // Remove existing preview for this input
-        const existingPreview = document.getElementById(`preview_${previewId}`);
-        if (existingPreview) {
-          existingPreview.remove();
-        }
-
-        // Create new preview
-        const img = document.createElement('img');
-        img.id = `preview_${previewId}`;
-        img.src = e.target.result;
-        img.className = 'image-preview';
-        img.title = file.name;
-        
-        previewContainer.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-    };
-
-    // Save as draft function
-    window.saveAsDraft = function() {
-      const statusInput = document.querySelector('input[name="status"]');
-      if (statusInput) {
-        statusInput.value = 'draft';
-      }
-      
-      // Submit form
-      document.getElementById('propertyForm').submit();
-    };
-
-    // Form validation before submit
-    const propertyForm = document.getElementById('propertyForm');
-    if (propertyForm) {
-      propertyForm.addEventListener('submit', function(e) {
-        // Calculate fees one last time before submission
-        calculateFees();
-        
-        // Basic validation
-        const price = document.getElementById('price').value;
-        if (!price || parseFloat(price) <= 0) {
-          alert('Please enter a valid price');
-          e.preventDefault();
-          return;
-        }
-        
-        const purpose = document.getElementById('purpose').value;
-        if (purpose === 'rent') {
-          const rentDuration = document.getElementById('rent_duration_months').value;
-          if (!rentDuration) {
-            alert('Please select a rent duration');
-            e.preventDefault();
+          if (!priceInput || !platformFeeDisplay || !netAmountDisplay) {
+            console.error('ERROR: Required elements not found!');
             return;
           }
+
+          const rawPrice = priceInput.value;
+
+          if (!rawPrice || rawPrice.trim() === '') {
+            platformFeeDisplay.value = formatNaira(0);
+            netAmountDisplay.value = formatNaira(0);
+            if (platformFeeHidden) platformFeeHidden.value = 0;
+            if (netAmountHidden) netAmountHidden.value = 0;
+            return;
+          }
+
+          const cleanPrice = rawPrice.replace(/[^0-9.]/g, '');
+          const price = parseFloat(cleanPrice);
+
+          if (isNaN(price) || price < 0) {
+            platformFeeDisplay.value = formatNaira(0);
+            netAmountDisplay.value = formatNaira(0);
+            if (platformFeeHidden) platformFeeHidden.value = 0;
+            if (netAmountHidden) netAmountHidden.value = 0;
+            return;
+          }
+
+      // Calculate fees (2% platform fee)
+          const platformFee = price * 0.02;
+          const netAmount = price * 0.98;
+
+      // Update displays
+          platformFeeDisplay.value = formatNaira(platformFee);
+          netAmountDisplay.value = formatNaira(netAmount);
+
+      // Update hidden fields
+          if (platformFeeHidden) platformFeeHidden.value = platformFee.toFixed(2);
+          if (netAmountHidden) netAmountHidden.value = netAmount.toFixed(2);
+
+          console.log('Price:', price, 'Fee (2%):', platformFee, 'Net (98%):', netAmount);
+
+        } catch (error) {
+          console.error('Error in calculateFees:', error);
         }
-        
+      }
+
+  // Initialize the form
+      function initializeForm() {
+        console.log('Initializing student property creation form...');
+
+    // Price input fee calculation
+        const priceInput = document.getElementById('price');
+
+        if (priceInput) {
+          console.log('Price input found successfully!');
+
+      // Attach event listeners for real-time calculation
+          const events = ['input', 'change', 'keyup'];
+
+          events.forEach(eventType => {
+            priceInput.addEventListener(eventType, function(e) {
+              clearTimeout(window.feeCalculationTimeout);
+              window.feeCalculationTimeout = setTimeout(calculateFees, 50);
+            });
+          });
+
+      // Handle paste events
+          priceInput.addEventListener('paste', function() {
+            setTimeout(calculateFees, 100);
+          });
+        }
+
+    // Purpose handler for rent duration
+        const purposeSelect = document.getElementById('purpose');
+        const rentDurationField = document.getElementById('rent-duration-field');
+
+        if (purposeSelect && rentDurationField) {
+          purposeSelect.addEventListener('change', function() {
+            if (this.value === 'rent') {
+              rentDurationField.classList.remove('hidden');
+              document.getElementById('rent_duration_months').required = true;
+            } else {
+              rentDurationField.classList.add('hidden');
+              document.getElementById('rent_duration_months').required = false;
+              document.getElementById('rent_duration_months').value = '';
+            }
+          });
+
+      // Trigger change event to set initial state
+          purposeSelect.dispatchEvent(new Event('change'));
+        }
+
+    // Image preview functionality
+        window.previewImage = function(input, previewId) {
+          const file = input.files[0];
+          const previewContainer = document.getElementById('image-preview-container');
+
+          if (!file || !previewContainer) return;
+
+      // Check file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            input.value = '';
+            return;
+          }
+
+      // Check file type
+          if (!file.type.match('image.*')) {
+            alert('Please select an image file');
+            input.value = '';
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+        // Remove existing preview for this input
+            const existingPreview = document.getElementById(`preview_${previewId}`);
+            if (existingPreview) {
+              existingPreview.remove();
+            }
+
+        // Create new preview
+            const img = document.createElement('img');
+            img.id = `preview_${previewId}`;
+            img.src = e.target.result;
+            img.className = 'image-preview';
+            img.title = file.name;
+
+            previewContainer.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        };
+
+    // Save as draft function
+        window.saveAsDraft = function() {
+          const statusInput = document.querySelector('input[name="status"]');
+          if (statusInput) {
+            statusInput.value = 'draft';
+          }
+
+      // Submit form
+          document.getElementById('propertyForm').submit();
+        };
+
+    // Form validation before submit
+        const propertyForm = document.getElementById('propertyForm');
+        if (propertyForm) {
+          propertyForm.addEventListener('submit', function(e) {
+        // Calculate fees one last time before submission
+            calculateFees();
+
+        // Basic validation
+            const price = document.getElementById('price').value;
+            if (!price || parseFloat(price) <= 0) {
+              alert('Please enter a valid price');
+              e.preventDefault();
+              return;
+            }
+
+            const purpose = document.getElementById('purpose').value;
+            if (purpose === 'rent') {
+              const rentDuration = document.getElementById('rent_duration_months').value;
+              if (!rentDuration) {
+                alert('Please select a rent duration');
+                e.preventDefault();
+                return;
+              }
+            }
+
         // Show loading state
-        const submitBtn = this.querySelector('button[type="submit"]');
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
+            }
+          });
         }
-      });
-    }
 
     // Initial calculation
-    console.log('Running initial fee calculation...');
-    calculateFees();
-    
-    // Fallback calculation
-    setTimeout(function() {
-      console.log('Running fallback fee calculation...');
-      calculateFees();
-    }, 500);
+        console.log('Running initial fee calculation...');
+        calculateFees();
 
-    console.log('=== FORM INITIALIZATION COMPLETE ===');
-  }
+    // Fallback calculation
+        setTimeout(function() {
+          console.log('Running fallback fee calculation...');
+          calculateFees();
+        }, 500);
+
+        console.log('=== FORM INITIALIZATION COMPLETE ===');
+      }
 
   // Wait for DOM to be fully loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeForm);
-  } else {
-    initializeForm();
-  }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeForm);
+      } else {
+        initializeForm();
+      }
 
   // Make functions available globally for debugging
-  window.calculateFees = calculateFees;
+      window.calculateFees = calculateFees;
 
   // University selection handler
-const universitySelect = document.getElementById('university_select');
-const customUniversityInput = document.getElementById('custom_university');
+      const universitySelect = document.getElementById('university_select');
+      const customUniversityInput = document.getElementById('custom_university');
 
-if (universitySelect && customUniversityInput) {
-    universitySelect.addEventListener('change', function() {
-        if (this.value === 'other') {
+      if (universitySelect && customUniversityInput) {
+        universitySelect.addEventListener('change', function() {
+          if (this.value === 'other') {
             customUniversityInput.classList.remove('hidden');
             customUniversityInput.required = true;
-        } else {
+          } else {
             customUniversityInput.classList.add('hidden');
             customUniversityInput.required = false;
             customUniversityInput.value = '';
-        }
-    });
-    
+          }
+        });
+
     // Trigger on page load
-    if (universitySelect.value === 'other') {
-        customUniversityInput.classList.remove('hidden');
-        customUniversityInput.required = true;
-    }
-}
-})();
-</script>
+        if (universitySelect.value === 'other') {
+          customUniversityInput.classList.remove('hidden');
+          customUniversityInput.required = true;
+        }
+      }
+    })();
+  </script>
 {% endblock %}

@@ -31,39 +31,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
-class Wallet(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return f"{self.user.username}'s Wallet - ₦{self.balance}"
-    
-    def deposit(self, amount):
-        self.balance += amount
-        self.save()
-        Transaction.objects.create(
-            wallet=self,
-            transaction_type='deposit',
-            amount=amount,
-            description='Deposit to wallet'
-        )
-    
-    def withdraw(self, amount):
-        if self.balance >= amount:
-            self.balance -= amount
-            self.save()
-            Transaction.objects.create(
-                wallet=self,
-                transaction_type='withdrawal',
-                amount=amount,
-                description='Withdrawal from wallet'
-            )
-            return True
-        return False
-
-
 class Property(models.Model):
     PROPERTY_TYPE_CHOICES = [
         ('apartment', 'Apartment'),
@@ -74,6 +41,7 @@ class Property(models.Model):
         ('office', 'Office Space'),
         ('warehouse', 'Warehouse'),
         ('land', 'Land'),
+        ('studio', 'Studio'),
         ('commercial', 'Commercial Building'),
     ]
     
@@ -118,19 +86,13 @@ class Property(models.Model):
     rent_duration_months = models.PositiveIntegerField(default=12, blank=True, null=True)
     
     # Amenities
-    amenities = models.TextField(blank=True)
+    amenities = models.JSONField(default=list,blank=True)
     
     # Images
-    main_image = models.ImageField(upload_to='properties/main/')
-    image_1 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_2 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_3 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_4 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_5 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_6 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_7 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_8 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
-    image_9 = models.ImageField(upload_to='properties/additional/', blank=True, null=True)
+
+    main_image = models.URLField(blank=True, null=True)
+    images = models.JSONField(default=list, blank=True)
+
     
     # Metadata
     is_featured = models.BooleanField(default=False)
@@ -144,6 +106,20 @@ class Property(models.Model):
     rented_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='rented_properties')
     sale_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     sold_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['purpose', 'city', 'status']),
+            models.Index(fields=['purpose', 'status']),
+            models.Index(fields=['property_type']),
+            models.Index(fields=['price']),
+            models.Index(fields=['bedrooms']),
+            models.Index(fields=['is_featured']),
+            models.Index(fields=['views']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['status']),
+        ]
+
     
     def save(self, *args, **kwargs):
         # Calculate platform fee (5% of price)
@@ -161,22 +137,6 @@ class Property(models.Model):
             self.published_at = timezone.now()
         
         super().save(*args, **kwargs)
-    
-    def get_amenities_list(self):
-        if self.amenities:
-            return [amenity.strip() for amenity in self.amenities.split(',')]
-        return []
-    
-    def set_amenities(self, amenities_list):
-        self.amenities = ','.join(amenities_list)
-    
-    def get_additional_images(self):
-        images = []
-        for field_name in ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9']:
-            image_field = getattr(self, field_name)
-            if image_field:
-                images.append(image_field)
-        return images
     
     def check_and_expire_rental(self):
         """
@@ -214,27 +174,62 @@ class Property(models.Model):
         return f"{self.title} - {self.get_property_type_display()} ({self.get_purpose_display()})"
 
 
-class Transaction(models.Model):
-    TRANSACTION_TYPES = [
-        ('deposit', 'Deposit'),
-        ('withdrawal', 'Withdrawal'),
-        ('property_sale', 'Property Sale'),
-        ('property_purchase', 'Property Purchase'),
-        ('rental_payment', 'Rental Payment'),
-        ('platform_fee', 'Platform Fee'),
-        ('refund', 'Refund'),
+class Payment(models.Model):
+    """Payment records for external payment providers (Stripe, PayPal, etc.)"""
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
     ]
     
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    payment_provider = models.CharField(max_length=50, blank=True)  # e.g., 'stripe', 'paypal'
+    external_payment_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='NGN')
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=50, blank=True)  # e.g., 'card', 'bank_transfer'
+    purpose = models.CharField(max_length=50)
+    description = models.TextField(blank=True)
+    related_property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+    related_rental = models.ForeignKey('PropertyRental', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
+    metadata = models.JSONField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} {self.currency} - {self.get_status_display()}"
+
+
+class Transaction(models.Model):
+    """Transaction history for user records and auditing"""
+    TRANSACTION_TYPES = [
+        ('payment', 'Payment'),
+        ('refund', 'Refund'),
+        ('property_rental', 'Property Rental'),
+        ('platform_fee', 'Platform Fee'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    description = models.TextField(max_length=500, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default='completed')
     reference = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    
-    # Optional property reference for tracking property-related transactions
-    related_property_id = models.IntegerField(null=True, blank=True)
+    related_property = models.ForeignKey(Property, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
     related_property_title = models.CharField(max_length=200, blank=True)
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def save(self, *args, **kwargs):
         if not self.reference:
@@ -243,7 +238,7 @@ class Transaction(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.wallet.user.username} - {self.transaction_type} - ₦{self.amount}"
+        return f"{self.user.username} - {self.transaction_type} - ₦{self.amount}"
 
         
 @receiver(post_save, sender=User)
@@ -254,8 +249,6 @@ def create_user_related_models(sender, instance, created, **kwargs):
             user=instance,
             defaults={'user_type': 'tenant'}  # Default only if creating new
         )
-        # If profile already exists (created by form), don't overwrite it
-        Wallet.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
@@ -263,11 +256,6 @@ def save_user_profile(sender, instance, **kwargs):
         UserProfile.objects.create(user=instance)
     else:
         instance.userprofile.save()
-    
-    if not hasattr(instance, 'wallet'):
-        Wallet.objects.create(user=instance)
-    else:
-        instance.wallet.save()
 
 
 class PropertyVisit(models.Model):
@@ -424,7 +412,7 @@ class PropertyRental(models.Model):
     def renew(self, months=None, charge_amount=None):
         """Extend the rental by `months` (defaults to property's rent_duration_months).
 
-        This method does NOT charge wallets; it only updates dates and totals.
+        This method does NOT charge  it only updates dates and totals.
         Returns the new end_date.
         """
         if months is None:
@@ -965,3 +953,17 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report #{self.id} by {self.reporter.username} - {self.get_reason_display()}"
+
+class PaymentAudit(models.Model):
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name="audits")
+    event = models.CharField(max_length=50)        # created / verified / webhook / error
+    source = models.CharField(max_length=20)       # redirect / webhook / manual
+    raw_payload = models.JSONField(null=True, blank=True)
+    message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.payment.id} - {self.event}"

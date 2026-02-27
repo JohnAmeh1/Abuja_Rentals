@@ -5,523 +5,523 @@
 {% block title %}Manage Properties | Abuja Rentals{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary">Manage Properties</h1>
-        <p class="text-gray-600 mt-2">View and manage all property listings on the platform</p>
-    </div>
-    
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary">Manage Properties</h1>
+            <p class="text-gray-600 mt-2">View and manage all property listings on the platform</p>
+        </div>
+
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Regular Properties</p>
-                    <p class="text-3xl font-bold text-primary mt-2">{{ regular_properties.count }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Regular Properties</p>
+                        <p class="text-3xl font-bold text-primary mt-2">{{ regular_properties.count }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-building text-blue-600 text-xl"></i>
+                    </div>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-building text-blue-600 text-xl"></i>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Student Properties</p>
+                        <p class="text-3xl font-bold text-purple-600 mt-2">{{ student_properties.count }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Pending Student Props</p>
+                        <p class="text-3xl font-bold text-yellow-600 mt-2">{{ pending_student_properties_count }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Properties</p>
+                        <p class="text-3xl font-bold text-green-600 mt-2">{{ regular_properties.count|add:student_properties.count }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-home text-green-600 text-xl"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Student Properties</p>
-                    <p class="text-3xl font-bold text-purple-600 mt-2">{{ student_properties.count }}</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-graduation-cap text-purple-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Pending Student Props</p>
-                    <p class="text-3xl font-bold text-yellow-600 mt-2">{{ pending_student_properties_count }}</p>
-                </div>
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">Total Properties</p>
-                    <p class="text-3xl font-bold text-green-600 mt-2">{{ regular_properties.count|add:student_properties.count }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-home text-green-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+
     <!-- Tabs -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
-        <div class="border-b border-gray-200">
-            <nav class="flex">
-                <button onclick="showTab('regular')" id="tab-regular" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
-                    <i class="fas fa-building mr-2"></i>
-                    Regular Properties ({{ regular_properties.count }})
-                </button>
-                <button onclick="showTab('student')" id="tab-student" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    <i class="fas fa-graduation-cap mr-2"></i>
-                    Student Properties ({{ student_properties.count }})
-                    {% if pending_student_properties_count > 0 %}
-                    <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">{{ pending_student_properties_count }} pending</span>
-                    {% endif %}
-                </button>
-            </nav>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="flex">
+                    <button onclick="showTab('regular')" id="tab-regular" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
+                        <i class="fas fa-building mr-2"></i>
+                        Regular Properties ({{ regular_properties.count }})
+                    </button>
+                    <button onclick="showTab('student')" id="tab-student" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-graduation-cap mr-2"></i>
+                        Student Properties ({{ student_properties.count }})
+                        {% if pending_student_properties_count > 0 %}
+                            <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">{{ pending_student_properties_count }} pending</span>
+                        {% endif %}
+                    </button>
+                </nav>
+            </div>
         </div>
-    </div>
-    
+
     <!-- Regular Properties Section -->
-    <div id="regular-properties" class="tab-content">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h3 class="text-lg font-bold text-primary mb-4">Filter Regular Properties</h3>
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="hidden" name="property_type_filter" value="regular">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">All Status</option>
-                        <option value="available">Available</option>
-                        <option value="pending">Pending</option>
-                        <option value="sold">Sold/Rented</option>
-                        <option value="draft">Draft</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
-                    <select name="property_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">All Types</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                        <option value="villa">Villa</option>
-                        <option value="penthouse">Penthouse</option>
-                        <option value="shop">Shop</option>
-                        <option value="office">Office Space</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
-                    <select name="purpose" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">All Purposes</option>
-                        <option value="rent">For Rent</option>
-                        <option value="sale">For Sale</option>
-                    </select>
-                </div>
-                
-                <div class="flex items-end space-x-4">
-                    <button type="submit" class="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
-                        <i class="fas fa-search mr-2"></i> Filter
-                    </button>
-                    <a href="{% url 'admin_properties' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fas fa-redo mr-2"></i> Reset
-                    </a>
-                </div>
-            </form>
-        </div>
-        
-        {% if regular_properties %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for property in regular_properties %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+        <div id="regular-properties" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                <h3 class="text-lg font-bold text-primary mb-4">Filter Regular Properties</h3>
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" name="property_type_filter" value="regular">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="pending">Pending</option>
+                            <option value="sold">Sold/Rented</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                        <select name="property_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Types</option>
+                            <option value="apartment">Apartment</option>
+                            <option value="house">House</option>
+                            <option value="villa">Villa</option>
+                            <option value="penthouse">Penthouse</option>
+                            <option value="shop">Shop</option>
+                            <option value="office">Office Space</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
+                        <select name="purpose" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Purposes</option>
+                            <option value="rent">For Rent</option>
+                            <option value="sale">For Sale</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end space-x-4">
+                        <button type="submit" class="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
+                            <i class="fas fa-search mr-2"></i> Filter
+                        </button>
+                        <a href="{% url 'admin_properties' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-redo mr-2"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            {% if regular_properties %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for property in regular_properties %}
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
                 <!-- Property Image -->
-                <div class="relative h-48 overflow-hidden">
-                    {% if property.main_image %}
-                    <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
-                    {% else %}
-                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-home text-gray-400 text-4xl"></i>
-                    </div>
-                    {% endif %}
-                    
+                            <div class="relative h-48 overflow-hidden">
+                                {% if property.main_image %}
+                                    <img src="{{ property.main_image}}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                {% else %}
+                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-home text-gray-400 text-4xl"></i>
+                                    </div>
+                                {% endif %}
+
                     <!-- Status Badge -->
-                    <div class="absolute top-3 left-3">
-                        <span class="px-3 py-1 text-xs rounded-full font-semibold
-                            {% if property.status == 'available' %}bg-green-100 text-green-800
-                            {% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif property.status == 'sold' %}bg-red-100 text-red-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {{ property.get_status_display }}
-                        </span>
-                    </div>
-                    
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-3 py-1 text-xs rounded-full font-semibold
+                                                 {% if property.status == 'available' %}bg-green-100 text-green-800
+                                                 {% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                                 {% elif property.status == 'sold' %}bg-red-100 text-red-800
+                                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ property.get_status_display }}
+                                    </span>
+                                </div>
+
                     <!-- Price Badge -->
-                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                        <span class="font-bold text-primary text-sm">₦{{ property.price|floatformat:0|intcomma }}</span>
-                    </div>
-                </div>
-                
+                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                                    <span class="font-bold text-primary text-sm">₦{{ property.price|floatformat:0|intcomma }}</span>
+                                </div>
+                            </div>
+
                 <!-- Property Details -->
-                <div class="p-5">
-                    <h3 class="text-lg font-bold text-primary mb-1 truncate">{{ property.title }}</h3>
-                    <p class="text-gray-600 text-sm flex items-center mb-3">
-                        <i class="fas fa-map-marker-alt text-xs mr-1"></i>
-                        {{ property.city|capfirst }}
-                    </p>
-                    
+                            <div class="p-5">
+                                <h3 class="text-lg font-bold text-primary mb-1 truncate">{{ property.title }}</h3>
+                                <p class="text-gray-600 text-sm flex items-center mb-3">
+                                    <i class="fas fa-map-marker-alt text-xs mr-1"></i>
+                                    {{ property.city|capfirst }}
+                                </p>
+
                     <!-- Property Features -->
-                    <div class="flex items-center text-sm text-gray-500 mb-4">
-                        {% if property.bedrooms %}
-                        <span class="mr-3"><i class="fas fa-bed mr-1"></i> {{ property.bedrooms }}</span>
-                        {% endif %}
-                        {% if property.bathrooms %}
-                        <span class="mr-3"><i class="fas fa-bath mr-1"></i> {{ property.bathrooms }}</span>
-                        {% endif %}
-                        {% if property.area_sqft %}
-                        <span><i class="fas fa-ruler-combined mr-1"></i> {{ property.area_sqft|floatformat:0 }}</span>
-                        {% endif %}
-                    </div>
-                    
+                                <div class="flex items-center text-sm text-gray-500 mb-4">
+                                    {% if property.bedrooms %}
+                                        <span class="mr-3"><i class="fas fa-bed mr-1"></i> {{ property.bedrooms }}</span>
+                                    {% endif %}
+                                    {% if property.bathrooms %}
+                                        <span class="mr-3"><i class="fas fa-bath mr-1"></i> {{ property.bathrooms }}</span>
+                                    {% endif %}
+                                    {% if property.area_sqft %}
+                                        <span><i class="fas fa-ruler-combined mr-1"></i> {{ property.area_sqft|floatformat:0 }}</span>
+                                    {% endif %}
+                                </div>
+
                     <!-- Property Info -->
-                    <div class="space-y-1 mb-4 text-sm">
-                        <div class="flex justify-between text-gray-600">
-                            <span>Owner:</span>
-                            <span class="font-medium">{{ property.owner.username }}</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Type:</span>
-                            <span>{{ property.get_property_type_display }}</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Purpose:</span>
-                            <span class="font-medium">{{ property.get_purpose_display }}</span>
-                        </div>
-                    </div>
-                    
+                                <div class="space-y-1 mb-4 text-sm">
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Owner:</span>
+                                        <span class="font-medium">{{ property.owner.username }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Type:</span>
+                                        <span>{{ property.get_property_type_display }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Purpose:</span>
+                                        <span class="font-medium">{{ property.get_purpose_display }}</span>
+                                    </div>
+                                </div>
+
                     <!-- Actions -->
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-                        <div class="text-xs text-gray-500">
-                            <i class="fas fa-calendar-alt mr-1"></i>
-                            {{ property.created_at|date:"M d, Y" }}
+                                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                                    <div class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        {{ property.created_at|date:"M d, Y" }}
+                                    </div>
+
+                                    <div class="flex space-x-2">
+                                        <a href="{% url 'property_detail' property.id %}" class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition" title="View">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </a>
+
+                                        <button onclick="openStatusModal('{{ property.id }}', '{{ property.title }}', '{{ property.status }}', 'regular')" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Status">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="flex space-x-2">
-                            <a href="{% url 'property_detail' property.id %}" class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition" title="View">
-                                <i class="fas fa-eye text-sm"></i>
-                            </a>
-                            
-                            <button onclick="openStatusModal('{{ property.id }}', '{{ property.title }}', '{{ property.status }}', 'regular')" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Status">
-                                <i class="fas fa-edit text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
-            </div>
-            {% endfor %}
+            {% else %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-home text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">No Regular Properties</h3>
+                    <p class="text-gray-600">No regular properties found in the system.</p>
+                </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-home text-gray-400 text-3xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-gray-700 mb-2">No Regular Properties</h3>
-            <p class="text-gray-600">No regular properties found in the system.</p>
-        </div>
-        {% endif %}
-    </div>
-    
+
     <!-- Student Properties Section -->
-    <div id="student-properties" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h3 class="text-lg font-bold text-primary mb-4">Filter Student Properties</h3>
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="hidden" name="property_type_filter" value="student">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select name="student_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">All Status</option>
-                        <option value="draft">Draft</option>
-                        <option value="pending">Pending Review</option>
-                        <option value="available">Available</option>
-                        <option value="rented">Rented</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
-                    <select name="property_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">All Types</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="self_contain">Self Contain</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">University</label>
-                    <select name="university" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                        <option value="">All Universities</option>
-                        <option value="university_of_abuja">University of Abuja</option>
-                        <option value="nigerian_defence_academy">Nigerian Defence Academy</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                
-                <div class="flex items-end space-x-4">
-                    <button type="submit" class="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
-                        <i class="fas fa-search mr-2"></i> Filter
-                    </button>
-                    <a href="{% url 'admin_properties' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fas fa-redo mr-2"></i> Reset
-                    </a>
-                </div>
-            </form>
-        </div>
-        
-        {% if student_properties %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for property in student_properties %}
-            <div class="bg-white rounded-xl shadow-sm border border-purple-100 overflow-hidden hover:shadow-md transition">
+        <div id="student-properties" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                <h3 class="text-lg font-bold text-primary mb-4">Filter Student Properties</h3>
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="hidden" name="property_type_filter" value="student">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select name="student_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Status</option>
+                            <option value="draft">Draft</option>
+                            <option value="pending">Pending Review</option>
+                            <option value="available">Available</option>
+                            <option value="rented">Rented</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                        <select name="property_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Types</option>
+                            <option value="apartment">Apartment</option>
+                            <option value="self_contain">Self Contain</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">University</label>
+                        <select name="university" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Universities</option>
+                            <option value="university_of_abuja">University of Abuja</option>
+                            <option value="nigerian_defence_academy">Nigerian Defence Academy</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end space-x-4">
+                        <button type="submit" class="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
+                            <i class="fas fa-search mr-2"></i> Filter
+                        </button>
+                        <a href="{% url 'admin_properties' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-redo mr-2"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            {% if student_properties %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for property in student_properties %}
+                        <div class="bg-white rounded-xl shadow-sm border border-purple-100 overflow-hidden hover:shadow-md transition">
                 <!-- Property Image -->
-                <div class="relative h-48 overflow-hidden">
-                    {% if property.main_image %}
-                    <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
-                    {% else %}
-                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-graduation-cap text-gray-400 text-4xl"></i>
-                    </div>
-                    {% endif %}
-                    
+                            <div class="relative h-48 overflow-hidden">
+                                {% if property.main_image %}
+                                    <img src="{{ property.main_image}}" alt="{{ property.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                {% else %}
+                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-graduation-cap text-gray-400 text-4xl"></i>
+                                    </div>
+                                {% endif %}
+
                     <!-- Student Property Badge -->
-                    <div class="absolute top-3 left-3">
-                        <span class="px-3 py-1 text-xs rounded-full font-semibold bg-purple-100 text-purple-800">
-                            <i class="fas fa-graduation-cap mr-1"></i> Student
-                        </span>
-                    </div>
-                    
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-3 py-1 text-xs rounded-full font-semibold bg-purple-100 text-purple-800">
+                                        <i class="fas fa-graduation-cap mr-1"></i> Student
+                                    </span>
+                                </div>
+
                     <!-- Status Badge -->
-                    <div class="absolute top-12 left-3">
-                        <span class="px-3 py-1 text-xs rounded-full font-semibold
-                            {% if property.status == 'available' %}bg-green-100 text-green-800
-                            {% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif property.status == 'rented' %}bg-blue-100 text-blue-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {{ property.get_status_display }}
-                        </span>
-                    </div>
-                    
+                                <div class="absolute top-12 left-3">
+                                    <span class="px-3 py-1 text-xs rounded-full font-semibold
+                                                 {% if property.status == 'available' %}bg-green-100 text-green-800
+                                                 {% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                                 {% elif property.status == 'rented' %}bg-blue-100 text-blue-800
+                                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ property.get_status_display }}
+                                    </span>
+                                </div>
+
                     <!-- Price Badge -->
-                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                        <span class="font-bold text-purple-600 text-sm">₦{{ property.price|floatformat:0|intcomma }}</span>
-                    </div>
-                </div>
-                
+                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                                    <span class="font-bold text-purple-600 text-sm">₦{{ property.price|floatformat:0|intcomma }}</span>
+                                </div>
+                            </div>
+
                 <!-- Property Details -->
-                <div class="p-5">
-                    <h3 class="text-lg font-bold text-primary mb-1 truncate">{{ property.title }}</h3>
-                    <p class="text-gray-600 text-sm flex items-center mb-1">
-                        <i class="fas fa-map-marker-alt text-xs mr-1"></i>
-                        {{ property.city|capfirst }}
-                    </p>
-                    {% if property.university %}
-                    <p class="text-purple-600 text-xs flex items-center mb-3">
-                        <i class="fas fa-university text-xs mr-1"></i>
-                        {{ property.get_university_display }}
-                    </p>
-                    {% endif %}
-                    
+                            <div class="p-5">
+                                <h3 class="text-lg font-bold text-primary mb-1 truncate">{{ property.title }}</h3>
+                                <p class="text-gray-600 text-sm flex items-center mb-1">
+                                    <i class="fas fa-map-marker-alt text-xs mr-1"></i>
+                                    {{ property.city|capfirst }}
+                                </p>
+                                {% if property.university %}
+                                    <p class="text-purple-600 text-xs flex items-center mb-3">
+                                        <i class="fas fa-university text-xs mr-1"></i>
+                                        {{ property.get_university_display }}
+                                    </p>
+                                {% endif %}
+
                     <!-- Property Features -->
-                    <div class="flex items-center text-sm text-gray-500 mb-4">
-                        {% if property.bedrooms %}
-                        <span class="mr-3"><i class="fas fa-bed mr-1"></i> {{ property.bedrooms }}</span>
-                        {% endif %}
-                        {% if property.bathrooms %}
-                        <span class="mr-3"><i class="fas fa-bath mr-1"></i> {{ property.bathrooms }}</span>
-                        {% endif %}
-                        {% if property.area_sqft %}
-                        <span><i class="fas fa-ruler-combined mr-1"></i> {{ property.area_sqft|floatformat:0 }}</span>
-                        {% endif %}
-                    </div>
-                    
+                                <div class="flex items-center text-sm text-gray-500 mb-4">
+                                    {% if property.bedrooms %}
+                                        <span class="mr-3"><i class="fas fa-bed mr-1"></i> {{ property.bedrooms }}</span>
+                                    {% endif %}
+                                    {% if property.bathrooms %}
+                                        <span class="mr-3"><i class="fas fa-bath mr-1"></i> {{ property.bathrooms }}</span>
+                                    {% endif %}
+                                    {% if property.area_sqft %}
+                                        <span><i class="fas fa-ruler-combined mr-1"></i> {{ property.area_sqft|floatformat:0 }}</span>
+                                    {% endif %}
+                                </div>
+
                     <!-- Property Info -->
-                    <div class="space-y-1 mb-4 text-sm">
-                        <div class="flex justify-between text-gray-600">
-                            <span>Posted By:</span>
-                            <span class="font-medium">{{ property.created_by.username }}</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Type:</span>
-                            <span>{{ property.get_property_type_display }}</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Duration:</span>
-                            <span class="font-medium">{{ property.get_rent_duration_months_display }}</span>
-                        </div>
-                    </div>
-                    
+                                <div class="space-y-1 mb-4 text-sm">
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Posted By:</span>
+                                        <span class="font-medium">{{ property.created_by.username }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Type:</span>
+                                        <span>{{ property.get_property_type_display }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Duration:</span>
+                                        <span class="font-medium">{{ property.get_rent_duration_months_display }}</span>
+                                    </div>
+                                </div>
+
                     <!-- Actions -->
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-                        <div class="text-xs text-gray-500">
-                            <i class="fas fa-calendar-alt mr-1"></i>
-                            {{ property.created_at|date:"M d, Y" }}
+                                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                                    <div class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        {{ property.created_at|date:"M d, Y" }}
+                                    </div>
+
+                                    <div class="flex space-x-2">
+                                        <a href="{% url 'student_property_detail' property.id %}" class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition" title="View">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </a>
+
+                                        {% if property.status == 'pending' %}
+                                            <a href="{% url 'review_student_property' property.id %}" class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center hover:bg-green-200 transition" title="Review">
+                                                <i class="fas fa-check text-sm"></i>
+                                            </a>
+                                        {% endif %}
+
+                                        <button onclick="openStatusModal('{{ property.id }}', '{{ property.title }}', '{{ property.status }}', 'student')" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Status">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="flex space-x-2">
-                            <a href="{% url 'student_property_detail' property.id %}" class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition" title="View">
-                                <i class="fas fa-eye text-sm"></i>
-                            </a>
-                            
-                            {% if property.status == 'pending' %}
-                            <a href="{% url 'review_student_property' property.id %}" class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center hover:bg-green-200 transition" title="Review">
-                                <i class="fas fa-check text-sm"></i>
-                            </a>
-                            {% endif %}
-                            
-                            <button onclick="openStatusModal('{{ property.id }}', '{{ property.title }}', '{{ property.status }}', 'student')" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition" title="Edit Status">
-                                <i class="fas fa-edit text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
-            </div>
-            {% endfor %}
+            {% else %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-graduation-cap text-purple-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">No Student Properties</h3>
+                    <p class="text-gray-600">No student properties found in the system.</p>
+                </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-graduation-cap text-purple-400 text-3xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-gray-700 mb-2">No Student Properties</h3>
-            <p class="text-gray-600">No student properties found in the system.</p>
-        </div>
-        {% endif %}
     </div>
-</div>
 
 <!-- Status Update Modal -->
-<div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold text-primary">Update Property Status</h3>
-            <button onclick="closeStatusModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-2xl"></i>
-            </button>
-        </div>
-        
-        <form id="statusForm" method="POST" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Property</label>
-                <input type="text" id="propertyTitle" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
+    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-primary">Update Property Status</h3>
+                <button onclick="closeStatusModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
             </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">New Status</label>
-                <select name="status" id="statusSelect" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+
+            <form id="statusForm" method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Property</label>
+                    <input type="text" id="propertyTitle" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">New Status</label>
+                    <select name="status" id="statusSelect" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
                     <!-- Options will be populated by JavaScript -->
-                </select>
-            </div>
-            
-            <div class="flex space-x-4 pt-4">
-                <button type="button" onclick="closeStatusModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                    Cancel
-                </button>
-                <button type="submit" class="flex-1 bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition">
-                    Update Status
-                </button>
-            </div>
-        </form>
+                    </select>
+                </div>
+
+                <div class="flex space-x-4 pt-4">
+                    <button type="button" onclick="closeStatusModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition">
+                        Update Status
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 {% endblock %}
 {% block extra_js %}
-{% include 'auto_reload.html' %}
-<script>
-    // Status modal functionality - defined early for onclick handlers
-    function openStatusModal(propertyId, propertyTitle, currentStatus, propertyType) {
-        document.getElementById('propertyTitle').value = propertyTitle;
-        
+<!--{% include 'auto_reload.html' %} -->
+    <script>
+    // Tab functionality
+        function showTab(tabName) {
+        // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+        // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-blue-500', 'text-blue-600');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+
+        // Show selected tab content
+            if (tabName === 'regular') {
+                document.getElementById('regular-properties').classList.remove('hidden');
+                document.getElementById('tab-regular').classList.add('border-blue-500', 'text-blue-600');
+                document.getElementById('tab-regular').classList.remove('border-transparent', 'text-gray-500');
+            } else if (tabName === 'student') {
+                document.getElementById('student-properties').classList.remove('hidden');
+                document.getElementById('tab-student').classList.add('border-blue-500', 'text-blue-600');
+                document.getElementById('tab-student').classList.remove('border-transparent', 'text-gray-500');
+            }
+        }
+
+    // Status modal functionality
+        function openStatusModal(propertyId, propertyTitle, currentStatus, propertyType) {
+            document.getElementById('propertyTitle').value = propertyTitle;
+
         // Set the appropriate action URL based on property type
-        if (propertyType === 'regular') {
-            document.getElementById('statusForm').action = `/admin/properties/update/${propertyId}/`;
-            
+            if (propertyType === 'regular') {
+                document.getElementById('statusForm').action = `/admin/properties/update/${propertyId}/`;
+
             // Set regular property status options
-            const statusSelect = document.getElementById('statusSelect');
-            statusSelect.innerHTML = `
+                const statusSelect = document.getElementById('statusSelect');
+                statusSelect.innerHTML = `
                 <option value="available">Available</option>
                 <option value="pending">Pending</option>
                 <option value="sold">Sold/Rented</option>
                 <option value="draft">Draft</option>
             `;
-        } else {
+            } else {
             // For student properties, you'll need to create a similar endpoint
-            document.getElementById('statusForm').action = `/admin/student-properties/update/${propertyId}/`;
-            
+                document.getElementById('statusForm').action = `/admin/student-properties/update/${propertyId}/`;
+
             // Set student property status options
-            const statusSelect = document.getElementById('statusSelect');
-            statusSelect.innerHTML = `
+                const statusSelect = document.getElementById('statusSelect');
+                statusSelect.innerHTML = `
                 <option value="draft">Draft</option>
                 <option value="pending">Pending Review</option>
                 <option value="available">Available</option>
                 <option value="rented">Rented</option>
             `;
-        }
-        
-        // Set current status as selected
-        document.querySelector('#statusSelect').value = currentStatus;
-        
-        // Show modal
-        document.getElementById('statusModal').classList.remove('hidden');
-        document.getElementById('statusModal').classList.add('flex');
-    }
-    
-    function closeStatusModal() {
-        document.getElementById('statusModal').classList.add('hidden');
-        document.getElementById('statusModal').classList.remove('flex');
-    }
+            }
 
-    // Tab functionality
-    function showTab(tabName) {
-        // Hide all tab content
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.add('hidden');
-        });
-        
-        // Remove active class from all tabs
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.classList.remove('border-blue-500', 'text-blue-600');
-            button.classList.add('border-transparent', 'text-gray-500');
-        });
-        
-        // Show selected tab content
-        if (tabName === 'regular') {
-            document.getElementById('regular-properties').classList.remove('hidden');
-            document.getElementById('tab-regular').classList.add('border-blue-500', 'text-blue-600');
-            document.getElementById('tab-regular').classList.remove('border-transparent', 'text-gray-500');
-        } else if (tabName === 'student') {
-            document.getElementById('student-properties').classList.remove('hidden');
-            document.getElementById('tab-student').classList.add('border-blue-500', 'text-blue-600');
-            document.getElementById('tab-student').classList.remove('border-transparent', 'text-gray-500');
+        // Set current status as selected
+            document.querySelector('#statusSelect').value = currentStatus;
+
+        // Show modal
+            document.getElementById('statusModal').classList.remove('hidden');
+            document.getElementById('statusModal').classList.add('flex');
         }
-    }
-    
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').classList.add('hidden');
+            document.getElementById('statusModal').classList.remove('flex');
+        }
+
     // Close modal when clicking outside
-    const statusModalElement = document.getElementById('statusModal');
-    if (statusModalElement) {
-        statusModalElement.addEventListener('click', function(e) {
-            if (e.target === this) {
+        const modal = document.getElementById('statusModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeStatusModal();
+                }
+            });
+        }
+
+    // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
                 closeStatusModal();
             }
         });
-    }
-    
-    // Close modal on escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeStatusModal();
-        }
-    });
 
-    
-</script>
+
+    </script>
 {% endblock %}

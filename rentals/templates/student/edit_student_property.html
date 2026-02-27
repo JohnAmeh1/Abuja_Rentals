@@ -5,479 +5,469 @@
 {% block title %}Edit Property | Student Properties{% endblock %}
 
 {% block extra_css %}
-<style>
-    .form-section {
-        background: white;
-        border-radius: 0.75rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-    
-    .form-field {
-        margin-bottom: 1rem;
-    }
-    
-    .form-label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #374151;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        transition: all 0.2s;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    .image-preview {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        border-radius: 0.5rem;
-        border: 2px solid #e5e7eb;
-        margin-top: 0.5rem;
-    }
-    
-    .amenity-checkbox {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .amenity-checkbox:hover {
-        background: #f3f4f6;
-    }
-    
-    .amenity-checkbox input[type="checkbox"] {
-        margin-right: 0.5rem;
-        width: 1.25rem;
-        height: 1.25rem;
-        cursor: pointer;
-    }
-    
-    .amenity-checkbox input[type="checkbox"]:checked {
-        accent-color: #3b82f6;
-    }
-    
-    .file-upload-area {
-        border: 2px dashed #d1d5db;
-        border-radius: 0.5rem;
-        padding: 2rem;
-        text-align: center;
-        background: #f9fafb;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .file-upload-area:hover {
-        border-color: #3b82f6;
-        background: #eff6ff;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(90deg, #3b82f6, #2563eb);
-        color: white;
-        padding: 0.75rem 2rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .btn-primary:hover {
-        background: linear-gradient(90deg, #2563eb, #1e40af);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .btn-secondary {
-        background: white;
-        color: #374151;
-        padding: 0.75rem 2rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        border: 1px solid #d1d5db;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .btn-secondary:hover {
-        background: #f9fafb;
-    }
+    <style>
+        .form-section {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
 
-    #custom_university {
-        display: none;
-    }
-</style>
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-field {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 2px solid #e5e7eb;
+            margin-top: 0.5rem;
+        }
+
+        .amenity-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .amenity-checkbox:hover {
+            background: #f3f4f6;
+        }
+
+        .amenity-checkbox input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+
+        .amenity-checkbox input[type="checkbox"]:checked {
+            accent-color: #3b82f6;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-upload-area:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #2563eb, #1e40af);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        #custom_university {
+            display: none;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="mb-8">
-        <a href="{% url 'student_property_detail' property.pk %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Back to Property
-        </a>
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Edit Property</h1>
-        <p class="text-gray-600 mt-2">Update your property information</p>
-    </div>
+        <div class="mb-8">
+            <a href="{% url 'student_property_detail' property.pk %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Property
+            </a>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Edit Property</h1>
+            <p class="text-gray-600 mt-2">Update your property information</p>
+        </div>
 
-    <form method="POST" enctype="multipart/form-data" id="propertyForm">
-        {% csrf_token %}
+        <form method="POST" enctype="multipart/form-data" id="propertyForm">
+            {% csrf_token %}
 
         <!-- Basic Information -->
-        <div class="form-section">
-            <h2 class="section-title">Basic Information</h2>
-            
-            <div class="form-field">
-                <label for="id_title" class="form-label">Property Title *</label>
-                {{ form.title }}
-                {% if form.title.errors %}
-                <p class="text-red-600 text-sm mt-1">{{ form.title.errors.0 }}</p>
-                {% endif %}
-            </div>
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
 
-            <div class="form-field">
-                <label for="id_description" class="form-label">Description *</label>
-                {{ form.description }}
-                {% if form.description.errors %}
-                <p class="text-red-600 text-sm mt-1">{{ form.description.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <div class="form-grid">
                 <div class="form-field">
-                    <label for="id_property_type" class="form-label">Property Type *</label>
-                    {{ form.property_type }}
-                    {% if form.property_type.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.property_type.errors.0 }}</p>
+                    <label for="id_title" class="form-label">Property Title *</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.title.errors.0 }}</p>
                     {% endif %}
                 </div>
 
                 <div class="form-field">
-                    <label for="id_purpose" class="form-label">Purpose *</label>
-                    {{ form.purpose }}
-                    {% if form.purpose.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.purpose.errors.0 }}</p>
+                    <label for="id_description" class="form-label">Description *</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.description.errors.0 }}</p>
                     {% endif %}
                 </div>
+
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="id_property_type" class="form-label">Property Type *</label>
+                        {{ form.property_type }}
+                        {% if form.property_type.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.property_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_purpose" class="form-label">Purpose *</label>
+                        {{ form.purpose }}
+                        {% if form.purpose.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.purpose.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-        </div>
 
         <!-- Location -->
-        <div class="form-section">
-            <h2 class="section-title">Location</h2>
-            
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="id_city" class="form-label">City *</label>
-                    {{ form.city }}
-                    {% if form.city.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.city.errors.0 }}</p>
-                    {% endif %}
-                </div>
+            <div class="form-section">
+                <h2 class="section-title">Location</h2>
 
-                <div class="form-field">
-                    <label for="id_state" class="form-label">State *</label>
-                    {{ form.state }}
-                    {% if form.state.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.state.errors.0 }}</p>
-                    {% endif %}
-                </div>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="id_city" class="form-label">City *</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.city.errors.0 }}</p>
+                        {% endif %}
+                    </div>
 
-                <div class="form-field">
-                    <label for="id_zip_code" class="form-label">Zip Code</label>
-                    {{ form.zip_code }}
-                    {% if form.zip_code.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.zip_code.errors.0 }}</p>
-                    {% endif %}
-                </div>
+                    <div class="form-field">
+                        <label for="id_state" class="form-label">State *</label>
+                        {{ form.state }}
+                        {% if form.state.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.state.errors.0 }}</p>
+                        {% endif %}
+                    </div>
 
-                <div class="form-field">
-                    <label for="id_university" class="form-label">Nearest University</label>
-                    {{ form.university }}
-                    {% if form.university.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.university.errors.0 }}</p>
-                    {% endif %}
+                    <div class="form-field">
+                        <label for="id_zip_code" class="form-label">Zip Code</label>
+                        {{ form.zip_code }}
+                        {% if form.zip_code.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.zip_code.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_university" class="form-label">Nearest University</label>
+                        {{ form.university }}
+                        {% if form.university.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.university.errors.0 }}</p>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
 
             <!-- Custom University Field (hidden by default) -->
-            <div class="form-field" id="custom_university_field" style="display: none;">
-                <label for="id_custom_university" class="form-label">Enter University Name</label>
-                {{ form.custom_university }}
-                {% if form.custom_university.errors %}
-                <p class="text-red-600 text-sm mt-1">{{ form.custom_university.errors.0 }}</p>
-                {% endif %}
+                <div class="form-field" id="custom_university_field" style="display: none;">
+                    <label for="id_custom_university" class="form-label">Enter University Name</label>
+                    {{ form.custom_university }}
+                    {% if form.custom_university.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.custom_university.errors.0 }}</p>
+                    {% endif %}
+                </div>
             </div>
-        </div>
 
         <!-- Property Details -->
-        <div class="form-section">
-            <h2 class="section-title">Property Details</h2>
-            
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="id_bedrooms" class="form-label">Bedrooms</label>
-                    {{ form.bedrooms }}
-                    {% if form.bedrooms.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.bedrooms.errors.0 }}</p>
-                    {% endif %}
-                </div>
+            <div class="form-section">
+                <h2 class="section-title">Property Details</h2>
 
-                <div class="form-field">
-                    <label for="id_bathrooms" class="form-label">Bathrooms</label>
-                    {{ form.bathrooms }}
-                    {% if form.bathrooms.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.bathrooms.errors.0 }}</p>
-                    {% endif %}
-                </div>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="id_bedrooms" class="form-label">Bedrooms</label>
+                        {{ form.bedrooms }}
+                        {% if form.bedrooms.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.bedrooms.errors.0 }}</p>
+                        {% endif %}
+                    </div>
 
-                <div class="form-field">
-                    <label for="id_area_sqft" class="form-label">Area (sq ft)</label>
-                    {{ form.area_sqft }}
-                    {% if form.area_sqft.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.area_sqft.errors.0 }}</p>
-                    {% endif %}
+                    <div class="form-field">
+                        <label for="id_bathrooms" class="form-label">Bathrooms</label>
+                        {{ form.bathrooms }}
+                        {% if form.bathrooms.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.bathrooms.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_area_sqft" class="form-label">Area (sq ft)</label>
+                        {{ form.area_sqft }}
+                        {% if form.area_sqft.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.area_sqft.errors.0 }}</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
 
         <!-- Pricing -->
-        <div class="form-section">
-            <h2 class="section-title">Pricing</h2>
-            
-            <div class="form-grid">
-                <div class="form-field">
-                    <label for="id_price" class="form-label">Price (₦) *</label>
-                    {{ form.price }}
-                    {% if form.price.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.price.errors.0 }}</p>
-                    {% endif %}
-                </div>
+            <div class="form-section">
+                <h2 class="section-title">Pricing</h2>
 
-                <div class="form-field">
-                    <label for="id_rent_duration_months" class="form-label">Rent Duration</label>
-                    {{ form.rent_duration_months }}
-                    {% if form.rent_duration_months.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ form.rent_duration_months.errors.0 }}</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                <h4 class="font-semibold text-blue-900 mb-2">Fee Breakdown</h4>
-                <div class="space-y-1 text-sm text-blue-800">
-                    <div class="flex justify-between">
-                        <span>Platform Fee (2%):</span>
-                        <span class="font-semibold" id="platformFee">₦0.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>You'll Receive (98%):</span>
-                        <span class="font-semibold" id="netAmount">₦0.00</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Amenities -->
-        <div class="form-section">
-            <h2 class="section-title">Amenities</h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {% for choice in form.amenities %}
-                <label class="amenity-checkbox">
-                    {{ choice.tag }}
-                    <span>{{ choice.choice_label }}</span>
-                </label>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Images -->
-        <div class="form-section">
-            <h2 class="section-title">Property Images (Up to 9 Additional)</h2>
-            
-            <div class="form-field mb-6">
-                <label for="id_main_image" class="form-label font-semibold">Main Image *</label>
-                {{ form.main_image }}
-                {% if property.main_image %}
-                <img src="{{ property.main_image.url }}" alt="Current main image" class="image-preview mt-2 max-h-64 w-auto">
-                <p class="text-sm text-gray-600 mt-2">Current main image (upload new to replace)</p>
-                {% endif %}
-                {% if form.main_image.errors %}
-                <p class="text-red-600 text-sm mt-1">{{ form.main_image.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-                {% for field in form %}
-                    {% if 'image_' in field.name %}
+                <div class="form-grid">
                     <div class="form-field">
-                        <label for="{{ field.id_for_label }}" class="form-label text-xs font-medium">Photo {{ field.name|slice:"6:" }}</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-blue-400 transition cursor-pointer">
-                            {{ field }}
-                            {% if field.value %}
-                            <img src="{{ field.value.url }}" alt="Current image" class="image-preview mt-2 h-24 w-full object-cover">
-                            <p class="text-xs text-gray-500 mt-1">Current (click to replace)</p>
-                            {% else %}
-                            <div class="text-center py-6">
-                                <i class="fas fa-image text-gray-300 text-lg"></i>
-                                <p class="text-xs text-gray-500 mt-1">Click to upload</p>
-                            </div>
-                            {% endif %}
+                        <label for="id_price" class="form-label">Price (₦) *</label>
+                        {{ form.price }}
+                        {% if form.price.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.price.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="id_rent_duration_months" class="form-label">Rent Duration</label>
+                        {{ form.rent_duration_months }}
+                        {% if form.rent_duration_months.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.rent_duration_months.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                    <h4 class="font-semibold text-blue-900 mb-2">Fee Breakdown</h4>
+                    <div class="space-y-1 text-sm text-blue-800">
+                        <div class="flex justify-between">
+                            <span>Platform Fee (2%):</span>
+                            <span class="font-semibold" id="platformFee">₦0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>You'll Receive (98%):</span>
+                            <span class="font-semibold" id="netAmount">₦0.00</span>
                         </div>
                     </div>
-                    {% endif %}
-                {% endfor %}
+                </div>
             </div>
-            <p class="text-xs text-gray-500 mt-4">
-                <i class="fas fa-info-circle"></i> You can upload up to 9 additional photos. Each file should be under 5MB.
-            </p>
-        </div>
+
+        <!-- Amenities -->
+            <div class="form-section">
+                <h2 class="section-title">Amenities</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {% for choice in form.amenities %}
+                        <label class="amenity-checkbox">
+                            {{ choice.tag }}
+                            <span>{{ choice.choice_label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+        <!-- Images -->
+            <div class="form-section">
+                <h2 class="section-title">Property Images</h2>
+
+                <div class="form-field">
+                    <label for="id_main_image" class="form-label">Main Image *</label>
+                    {{ form.main_image }}
+                    {% if property.main_image %}
+                        <img src="{{ property.main_image}}" alt="Current main image" class="image-preview">
+                        <p class="text-sm text-gray-600 mt-2">Current main image (upload new to replace)</p>
+                    {% endif %}
+                    {% if form.main_image.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.main_image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {% for field in form %}
+                        {% if 'image_' in field.name %}
+                            <div class="form-field">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.value %}
+                                    <img src="{{ field.value}}" alt="Current image" class="image-preview">
+                                    <p class="text-sm text-gray-600 mt-2">Current image (upload new to replace)</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
 
         <!-- Featured -->
-        <div class="form-section">
-            <div class="flex items-center">
-                {{ form.is_featured }}
-                <label for="id_is_featured" class="ml-3 text-sm font-medium text-gray-700">
-                    Mark as Featured Property
-                </label>
+            <div class="form-section">
+                <div class="flex items-center">
+                    {{ form.is_featured }}
+                    <label for="id_is_featured" class="ml-3 text-sm font-medium text-gray-700">
+                        Mark as Featured Property
+                    </label>
+                </div>
             </div>
-        </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col sm:flex-row gap-4 mt-8">
-            <button type="submit" class="btn-primary flex-1 sm:flex-none">
-                <i class="fas fa-save mr-2"></i> Update Property
-            </button>
-            <a href="{% url 'student_property_detail' property.pk %}" class="btn-secondary flex-1 sm:flex-none text-center">
-                <i class="fas fa-times mr-2"></i> Cancel
-            </a>
-        </div>
-    </form>
-</div>
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <button type="submit" class="btn-primary flex-1 sm:flex-none">
+                    <i class="fas fa-save mr-2"></i> Update Property
+                </button>
+                <a href="{% url 'student_property_detail' property.pk %}" class="btn-secondary flex-1 sm:flex-none text-center">
+                    <i class="fas fa-times mr-2"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
+    <script>
     // University selection handler
-    const universitySelect = document.getElementById('id_university');
-    const customUniversityField = document.getElementById('custom_university_field');
-    const customUniversityInput = document.getElementById('id_custom_university');
+        const universitySelect = document.getElementById('id_university');
+        const customUniversityField = document.getElementById('custom_university_field');
+        const customUniversityInput = document.getElementById('id_custom_university');
 
-    if (universitySelect) {
-        universitySelect.addEventListener('change', function() {
-            if (this.value === 'other') {
-                customUniversityField.style.display = 'block';
-                customUniversityInput.required = true;
-            } else {
-                customUniversityField.style.display = 'none';
-                customUniversityInput.required = false;
-            }
-        });
+        if (universitySelect) {
+            universitySelect.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    customUniversityField.style.display = 'block';
+                    customUniversityInput.required = true;
+                } else {
+                    customUniversityField.style.display = 'none';
+                    customUniversityInput.required = false;
+                }
+            });
 
         // Check on page load
-        if (universitySelect.value === 'other') {
-            customUniversityField.style.display = 'block';
-            customUniversityInput.required = true;
+            if (universitySelect.value === 'other') {
+                customUniversityField.style.display = 'block';
+                customUniversityInput.required = true;
+            }
         }
-    }
 
     // Price calculation
-    const priceInput = document.getElementById('id_price');
-    const platformFeeSpan = document.getElementById('platformFee');
-    const netAmountSpan = document.getElementById('netAmount');
+        const priceInput = document.getElementById('id_price');
+        const platformFeeSpan = document.getElementById('platformFee');
+        const netAmountSpan = document.getElementById('netAmount');
 
-    function calculateFees() {
-        const price = parseFloat(priceInput.value) || 0;
-        const platformFee = price * 0.05;
-        const netAmount = price * 0.98;
+        function calculateFees() {
+            const price = parseFloat(priceInput.value) || 0;
+            const platformFee = price * 0.02;
+            const netAmount = price * 0.98;
 
-        platformFeeSpan.textContent = '₦' + platformFee.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        netAmountSpan.textContent = '₦' + netAmount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
+            platformFeeSpan.textContent = '₦' + platformFee.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            netAmountSpan.textContent = '₦' + netAmount.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
 
-    if (priceInput) {
-        priceInput.addEventListener('input', calculateFees);
+        if (priceInput) {
+            priceInput.addEventListener('input', calculateFees);
         // Calculate on page load
-        calculateFees();
-    }
+            calculateFees();
+        }
 
     // Image preview
-    document.querySelectorAll('input[type="file"]').forEach(input => {
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
                     // Find or create preview image
-                    let preview = input.parentElement.querySelector('.image-preview');
-                    if (!preview) {
-                        preview = document.createElement('img');
-                        preview.className = 'image-preview';
-                        input.parentElement.appendChild(preview);
+                        let preview = input.parentElement.querySelector('.image-preview');
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.className = 'image-preview';
+                            input.parentElement.appendChild(preview);
+                        }
+                        preview.src = event.target.result;
                     }
-                    preview.src = event.target.result;
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
+            });
         });
-    });
 
     // Form validation
-    document.getElementById('propertyForm').addEventListener('submit', function(e) {
-        const title = document.getElementById('id_title').value.trim();
-        const description = document.getElementById('id_description').value.trim();
-        const price = document.getElementById('id_price').value;
+        document.getElementById('propertyForm').addEventListener('submit', function(e) {
+            const title = document.getElementById('id_title').value.trim();
+            const description = document.getElementById('id_description').value.trim();
+            const price = document.getElementById('id_price').value;
 
-        if (!title || !description || !price) {
-            e.preventDefault();
-            alert('Please fill in all required fields (Title, Description, Price)');
-            return false;
-        }
+            if (!title || !description || !price) {
+                e.preventDefault();
+                alert('Please fill in all required fields (Title, Description, Price)');
+                return false;
+            }
 
-        if (parseFloat(price) <= 0) {
-            e.preventDefault();
-            alert('Price must be greater than 0');
-            return false;
-        }
-    });
-</script>
+            if (parseFloat(price) <= 0) {
+                e.preventDefault();
+                alert('Price must be greater than 0');
+                return false;
+            }
+        });
+    </script>
 {% endblock %}

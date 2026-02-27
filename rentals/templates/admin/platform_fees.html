@@ -5,242 +5,242 @@
 {% block title %}Platform Fees | Abuja Rentals{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary">Platform Fees</h1>
-        <p class="text-gray-600 mt-2">View platform fee collection and breakdown</p>
-    </div>
-    
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-primary">Platform Fees</h1>
+            <p class="text-gray-600 mt-2">View platform fee collection and breakdown</p>
+        </div>
+
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
-            <div class="text-center">
-                <p class="text-4xl font-bold text-purple-600 mb-2">₦{{ total_fees|floatformat:2|intcomma }}</p>
-                <p class="text-lg text-purple-700 mb-2">Total Platform Fees</p>
-                <p class="text-sm text-gray-600">5% of all property transactions</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
+                <div class="text-center">
+                    <p class="text-4xl font-bold text-purple-600 mb-2">₦{{ total_fees|floatformat:2|intcomma }}</p>
+                    <p class="text-lg text-purple-700 mb-2">Total Platform Fees</p>
+                    <p class="text-sm text-gray-600">5% of all property transactions</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+                <div class="text-center">
+                    <p class="text-4xl font-bold text-blue-600 mb-2">{{ total_properties }}</p>
+                    <p class="text-lg text-blue-700 mb-2">Properties with Fees</p>
+                    <p class="text-sm text-gray-600">All listed properties</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                <div class="text-center">
+                    <p class="text-4xl font-bold text-green-600 mb-2">₦{{ average_fee|floatformat:2|intcomma }}</p>
+                    <p class="text-lg text-green-700 mb-2">Average Fee per Property</p>
+                    <p class="text-sm text-gray-600">Based on current listings</p>
+                </div>
             </div>
         </div>
-        
-        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
-            <div class="text-center">
-                <p class="text-4xl font-bold text-blue-600 mb-2">{{ total_properties }}</p>
-                <p class="text-lg text-blue-700 mb-2">Properties with Fees</p>
-                <p class="text-sm text-gray-600">All listed properties</p>
-            </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
-            <div class="text-center">
-                <p class="text-4xl font-bold text-green-600 mb-2">₦{{ average_fee|floatformat:2|intcomma }}</p>
-                <p class="text-lg text-green-700 mb-2">Average Fee per Property</p>
-                <p class="text-sm text-gray-600">Based on current listings</p>
-            </div>
-        </div>
-    </div>
-    
+
     <!-- Monthly Breakdown -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-        <h3 class="text-xl font-bold text-primary mb-6">Monthly Platform Fees</h3>
-        
-        {% if monthly_fees %}
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Properties Listed</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Property Value</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform Fees</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for month_data in monthly_fees %}
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ month_data.month|date:"F Y" }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ month_data.property_count }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">₦{{ month_data.total_value|floatformat:2|intcomma }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-purple-600">₦{{ month_data.total_fees|floatformat:2|intcomma }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">5%</div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h3 class="text-xl font-bold text-primary mb-6">Monthly Platform Fees</h3>
+
+            {% if monthly_fees %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Properties Listed</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Property Value</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform Fees</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for month_data in monthly_fees %}
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ month_data.month|date:"F Y" }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ month_data.property_count }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">₦{{ month_data.total_value|floatformat:2|intcomma }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-purple-600">₦{{ month_data.total_fees|floatformat:2|intcomma }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">5%</div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-chart-bar text-4xl mb-4"></i>
+                    <p>No monthly fee data available</p>
+                </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="text-center py-8 text-gray-500">
-            <i class="fas fa-chart-bar text-4xl mb-4"></i>
-            <p>No monthly fee data available</p>
-        </div>
-        {% endif %}
-    </div>
-    
+
     <!-- Property Fee Breakdown -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-        <h3 class="text-xl font-bold text-primary mb-6">Property Fee Details</h3>
-        
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform Fee</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for property in properties_with_fees %}
-                    <tr>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                {% if property.main_image %}
-                                <div class="w-10 h-10 rounded-lg overflow-hidden mr-3">
-                                    <img src="{{ property.main_image.url }}" alt="{{ property.title }}" class="w-full h-full object-cover">
-                                </div>
-                                {% endif %}
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ property.title|truncatechars:30 }}</div>
-                                    <div class="text-xs text-gray-500">{{ property.get_property_type_display }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ property.owner.username }}</div>
-                            <div class="text-xs text-gray-500">{{ property.owner.email }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">₦{{ property.price|floatformat:2|intcomma }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-purple-600">₦{{ property.platform_fee|floatformat:2|intcomma }}</div>
-                            <div class="text-xs text-gray-500">5% of price</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">₦{{ property.net_amount|floatformat:2|intcomma }}</div>
-                            <div class="text-xs text-gray-500">Owner receives</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 text-xs rounded-full {% if property.status == 'available' %}bg-green-100 text-green-800{% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif property.status == 'sold' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                {{ property.get_status_display }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-home text-gray-400 text-2xl"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-700 mb-2">No Properties Found</h3>
-                            <p class="text-gray-600">No property fee data available</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h3 class="text-xl font-bold text-primary mb-6">Property Fee Details</h3>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform Fee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for property in properties_with_fees %}
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        {% if property.main_image %}
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden mr-3">
+                                                <img src="{{ property.main_image}}" alt="{{ property.title }}" class="w-full h-full object-cover">
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ property.title|truncatechars:30 }}</div>
+                                            <div class="text-xs text-gray-500">{{ property.get_property_type_display }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ property.owner.username }}</div>
+                                    <div class="text-xs text-gray-500">{{ property.owner.email }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">₦{{ property.price|floatformat:2|intcomma }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-purple-600">₦{{ property.platform_fee|floatformat:2|intcomma }}</div>
+                                    <div class="text-xs text-gray-500">5% of price</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">₦{{ property.net_amount|floatformat:2|intcomma }}</div>
+                                    <div class="text-xs text-gray-500">Owner receives</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-3 py-1 text-xs rounded-full {% if property.status == 'available' %}bg-green-100 text-green-800{% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif property.status == 'sold' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ property.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-home text-gray-400 text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-700 mb-2">No Properties Found</h3>
+                                    <p class="text-gray-600">No property fee data available</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
         <!-- Pagination -->
-        {% if properties_with_fees.has_other_pages %}
-        <div class="px-6 py-4 border-t border-gray-200">
-            <nav class="flex items-center justify-center space-x-2">
-                {% if properties_with_fees.has_previous %}
-                <a href="?page={{ properties_with_fees.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-                {% endif %}
-                
-                {% for num in properties_with_fees.paginator.page_range %}
-                    {% if properties_with_fees.number == num %}
-                    <span class="px-4 py-2 bg-accent text-white rounded-lg">{{ num }}</span>
-                    {% elif num > properties_with_fees.number|add:'-3' and num < properties_with_fees.number|add:'3' %}
-                    <a href="?page={{ num }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
-                    {% endif %}
-                {% endfor %}
-                
-                {% if properties_with_fees.has_next %}
-                <a href="?page={{ properties_with_fees.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                {% endif %}
-            </nav>
+            {% if properties_with_fees.has_other_pages %}
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <nav class="flex items-center justify-center space-x-2">
+                        {% if properties_with_fees.has_previous %}
+                            <a href="?page={{ properties_with_fees.previous_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for num in properties_with_fees.paginator.page_range %}
+                            {% if properties_with_fees.number == num %}
+                                <span class="px-4 py-2 bg-accent text-white rounded-lg">{{ num }}</span>
+                            {% elif num > properties_with_fees.number|add:'-3' and num < properties_with_fees.number|add:'3' %}
+                                <a href="?page={{ num }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if properties_with_fees.has_next %}
+                            <a href="?page={{ properties_with_fees.next_page_number }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
         </div>
-        {% endif %}
-    </div>
-    
+
     <!-- Fee Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- By Status -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="text-xl font-bold text-primary mb-6">Fees by Property Status</h3>
-            <div class="space-y-4">
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm text-gray-600">Available Properties</span>
-                        <span class="text-sm font-medium text-gray-900">₦{{ available_fees|floatformat:2|intcomma }}</span>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-xl font-bold text-primary mb-6">Fees by Property Status</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">Available Properties</span>
+                            <span class="text-sm font-medium text-gray-900">₦{{ available_fees|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ available_percentage }}%"></div>
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-green-500 h-2 rounded-full" style="width: {{ available_percentage }}%"></div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">Sold Properties</span>
+                            <span class="text-sm font-medium text-gray-900">₦{{ sold_fees|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ sold_percentage }}%"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm text-gray-600">Sold Properties</span>
-                        <span class="text-sm font-medium text-gray-900">₦{{ sold_fees|floatformat:2|intcomma }}</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-red-500 h-2 rounded-full" style="width: {{ sold_percentage }}%"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm text-gray-600">Pending Properties</span>
-                        <span class="text-sm font-medium text-gray-900">₦{{ pending_fees|floatformat:2|intcomma }}</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ pending_percentage }}%"></div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm text-gray-600">Pending Properties</span>
+                            <span class="text-sm font-medium text-gray-900">₦{{ pending_fees|floatformat:2|intcomma }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ pending_percentage }}%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
+
         <!-- By Property Type -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="text-xl font-bold text-primary mb-6">Top Property Types by Fees</h3>
-            <div class="space-y-4">
-                {% for type_data in fees_by_type %}
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm text-gray-600">{{ type_data.property_type_display }}</span>
-                        <span class="text-sm font-medium text-gray-900">₦{{ type_data.total_fees|floatformat:2|intcomma }}</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ type_data.percentage }}%"></div>
-                    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-xl font-bold text-primary mb-6">Top Property Types by Fees</h3>
+                <div class="space-y-4">
+                    {% for type_data in fees_by_type %}
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-gray-600">{{ type_data.property_type_display }}</span>
+                                <span class="text-sm font-medium text-gray-900">₦{{ type_data.total_fees|floatformat:2|intcomma }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ type_data.percentage }}%"></div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-4 text-gray-500">
+                            <p>No property type data available</p>
+                        </div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="text-center py-4 text-gray-500">
-                    <p>No property type data available</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
-</div>
-{% include 'auto_reload.html' %}
+<!--{% include 'auto_reload.html' %} -->
 {% endblock %}

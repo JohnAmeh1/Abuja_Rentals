@@ -1,73 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline - Abuja Rentals</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full text-center">
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-wifi-slash text-red-600 text-3xl"></i>
-            </div>
-            
-            <h1 class="text-2xl font-bold text-gray-800 mb-3">You're Offline</h1>
-            
-            <p class="text-gray-600 mb-6">
-                It looks like you've lost your internet connection. Some features may not be available until you're back online.
-            </p>
-            
-            <div class="space-y-4">
-                <div class="flex items-center justify-center space-x-2 text-gray-500">
-                    <i class="fas fa-sync-alt fa-spin"></i>
-                    <span>Waiting for connection...</span>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Offline - Abuja Rentals</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+    <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full text-center">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-wifi-slash text-red-600 text-3xl"></i>
                 </div>
-                
-                <button onclick="window.location.reload()" 
-                        class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-redo mr-2"></i>Try Again
-                </button>
-                
-                <button onclick="window.history.back()" 
-                        class="w-full py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Go Back
-                </button>
-            </div>
-            
-            <div class="mt-8 pt-6 border-t border-gray-100">
-                <p class="text-sm text-gray-500">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Cached content is still available while offline
-                </p>
-            </div>
-        </div>
-        
-        <div class="mt-6 text-center">
-            <div class="text-sm text-gray-500">
-                <i class="fas fa-building mr-2"></i>
-                Abuja Rentals
-            </div>
-        </div>
-    </div>
 
-    <script>
+                <h1 class="text-2xl font-bold text-gray-800 mb-3">You're Offline</h1>
+
+                <p class="text-gray-600 mb-6">
+                    It looks like you've lost your internet connection. Some features may not be available until you're back online.
+                </p>
+
+                <div class="space-y-4">
+                    <div class="flex items-center justify-center space-x-2 text-gray-500">
+                        <i class="fas fa-sync-alt fa-spin"></i>
+                        <span>Waiting for connection...</span>
+                    </div>
+
+                    <button onclick="window.location.reload()"
+                            class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-redo mr-2"></i>Try Again
+                    </button>
+
+                    <button onclick="window.history.back()"
+                            class="w-full py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Go Back
+                    </button>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Cached content is still available while offline
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-building mr-2"></i>
+                    Abuja Rentals
+                </div>
+            </div>
+        </div>
+
+        <script>
         // Check connection status periodically
-        function checkConnection() {
-            if (navigator.onLine) {
-                window.location.reload();
+            function checkConnection() {
+                if (navigator.onLine) {
+                    window.location.reload();
+                }
             }
-        }
-        
+
         // Check every 5 seconds
-        setInterval(checkConnection, 5000);
-        
+            setInterval(checkConnection, 5000);
+
         // Listen for online event
-        window.addEventListener('online', function() {
-            window.location.reload();
-        });
-    </script>
-</body>
+            window.addEventListener('online', function() {
+                window.location.reload();
+            });
+        </script>
+    </body>
 </html>

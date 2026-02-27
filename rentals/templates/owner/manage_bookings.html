@@ -1,216 +1,416 @@
+<!-- owner/edit_property.html -->
 {% extends "base.html" %}
 {% load humanize %}
 
-{% block title %}Manage Bookings | Abuja Rentals{% endblock %}
+{% block title %}Edit Property | Abuja Rentals{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+            border: 3px solid #e5e7eb;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary">Manage Bookings</h1>
-        <p class="text-gray-600 mt-2">Review and manage property visit requests</p>
-        
-        {% if messages %}
-        <div class="mt-4">
-            {% for message in messages %}
-            <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
-                {{ message }}
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+        <nav class="mb-6">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="{% url 'dashboard' %}" class="hover:text-accent">Dashboard</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                <li><a href="{% url 'owner_properties' %}" class="hover:text-accent">My Properties</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                <li class="text-gray-900 font-medium">Edit Property</li>
+            </ol>
+        </nav>
+
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-primary">Edit Property</h1>
+                <p class="text-gray-600 mt-2">Update your property listing details</p>
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Booking Stats -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg font-bold text-primary mb-4">Booking Stats</h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="text-2xl font-bold text-blue-600">{{ total_count|default:0 }}</div>
-                        <div class="text-sm text-gray-600">Total Bookings</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-yellow-600">{{ pending_count|default:0 }}</div>
-                        <div class="text-sm text-gray-600">Pending</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-green-600">{{ confirmed_count|default:0 }}</div>
-                        <div class="text-sm text-gray-600">Confirmed</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-red-600">{{ declined_count|default:0 }}</div>
-                        <div class="text-sm text-gray-600">Declined</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bookings List -->
-        <div class="lg:col-span-3">
-            {% if bookings %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visitor</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            {% for booking in bookings %}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {% if booking.property %}
-                                    <a href="{% url 'property_detail' booking.property.id %}" class="flex items-center hover:text-accent">
-                                        {% if booking.property.main_image %}
-                                        <img src="{{ booking.property.main_image.url }}" alt="{{ booking.property.title }}" class="w-10 h-10 rounded-lg object-cover mr-3">
-                                        {% endif %}
-                                        <span class="font-medium">{{ booking.property.title|truncatechars:20|default:"Unknown Property" }}</span>
-                                    </a>
-                                    {% else %}
-                                    <span class="text-gray-500">Property deleted</span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ booking.visitor.get_full_name|default:booking.visitor.username }}</div>
-                                    <div class="text-sm text-gray-500">{{ booking.visitor.email }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ booking.visit_date|date:"M d, Y" }}</div>
-                                    <div class="text-sm text-gray-500">{{ booking.visit_time|time:"g:i A" }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs rounded-full 
-                                        {% if booking.status == 'pending' %}bg-yellow-100 text-yellow-800
-                                        {% elif booking.status == 'confirmed' %}bg-green-100 text-green-800
-                                        {% elif booking.status == 'declined' %}bg-red-100 text-red-800
-                                        {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
-                                        {% elif booking.status == 'cancelled' %}bg-gray-100 text-gray-800
-                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                        {% if booking.get_status_display %}
-                                            {{ booking.get_status_display }}
-                                        {% else %}
-                                            {{ booking.status|title }}
-                                        {% endif %}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    {% if booking.status == 'pending' %}
-                                    <div class="flex space-x-2">
-                                        <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="action" value="confirm">
-                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition">Confirm</button>
-                                        </form>
-                                        <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="action" value="decline">
-                                            <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition">Decline</button>
-                                        </form>
-                                    </div>
-                                    {% elif booking.status == 'confirmed' %}
-                                    <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="complete">
-                                        <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Mark Complete</button>
-                                    </form>
-                                    {% endif %}
-                                    {% comment %} <button onclick="viewBookingDetails('{{ booking.id }}')" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition">Details</button> {% endcomment %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {% else %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="far fa-calendar-check text-gray-400 text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-700 mb-2">No Booking Requests</h3>
-                <p class="text-gray-600 mb-6">
-                    You don't have any booking requests for your properties yet.
-                </p>
-                <a href="{% url 'dashboard' %}" class="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-dark transition">
-                    Return to Dashboard
+            <div>
+                <a href="{% url 'property_detail' property.id %}" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    <i class="fas fa-eye mr-2"></i> View Property
                 </a>
             </div>
-            {% endif %}
         </div>
-    </div>
-</div>
 
-<!-- Booking Details Modal -->
-<div id="bookingDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold text-primary">Booking Details</h3>
-            <button onclick="closeBookingDetailsModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-2xl"></i>
-            </button>
-        </div>
-        <div id="bookingDetailsContent">
-            <!-- Details will be loaded here -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <form method="POST" enctype="multipart/form-data" id="propertyForm">
+                        {% csrf_token %}
+
+                    <!-- Basic Information -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Basic Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Property Title *</label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <p class="text-red-500 text-sm mt-1">{{ form.title.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Property Type *</label>
+                                    {{ form.property_type }}
+                                    {% if form.property_type.errors %}
+                                        <p class="text-red-500 text-sm mt-1">{{ form.property_type.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Purpose *</label>
+                                    {{ form.purpose }}
+                                    {% if form.purpose.errors %}
+                                        <p class="text-red-500 text-sm mt-1">{{ form.purpose.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- Description -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Description</h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Property Description *</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <p class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</p>
+                                {% endif %}
+                                <p class="text-sm text-gray-500 mt-2">Describe your property in detail, including features and unique selling points.</p>
+                            </div>
+                        </div>
+
+                    <!-- Location -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Location Details</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <p class="text-sm text-gray-600">Full address is collected by admins after approval. Please provide city and other basic location details below.</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                                    {{ form.city }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
+                                    {{ form.state }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
+                                    {{ form.zip_code }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Latitude (Optional)</label>
+                                    {{ form.latitude }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Longitude (Optional)</label>
+                                    {{ form.longitude }}
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- Property Details -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Property Details</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                                    {{ form.bedrooms }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                                    {{ form.bathrooms }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Area (sq ft)</label>
+                                    {{ form.area_sqft }}
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- Price -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Pricing</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Price (₦) *</label>
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                        <p class="text-red-500 text-sm mt-1">{{ form.price.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                                {% if form.purpose.value == 'rent' %}
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Rent Duration</label>
+                                        {{ form.rent_duration_display }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+                                <p class="text-sm text-blue-700">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Platform Fee: 5% of price. You'll receive: ₦<span id="net-amount">{{ property.net_amount|floatformat:2|intcomma }}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                    <!-- Amenities -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Amenities & Features</h3>
+                            <div class="checkbox-grid">
+                                {% for value, label in form.fields.amenities.choices %}
+                                    <div class="flex items-center">
+                                        <input type="checkbox"
+                                               name="amenities"
+                                               value="{{ value }}"
+                                               id="amenity_{{ value }}"
+                                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                               {% if value in form.amenities.value %}checked{% endif %}>
+                                        <label for="amenity_{{ value }}" class="ml-2 text-sm text-gray-700">{{ label }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.amenities.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.amenities.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                    <!-- Images -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold text-primary mb-4">Property Images</h3>
+                            <p class="text-sm text-gray-600 mb-4">Upload high-quality images of your property. Main image will be the cover photo.</p>
+
+                            <div class="space-y-6">
+                            <!-- Main Image -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Main Image *</label>
+                                    <div class="flex items-center space-x-4">
+                                        {% if property.main_image %}
+                                            <div class="relative">
+                                                <img src="{{ property.main_image}}" alt="Main Image" class="image-preview">
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex-1">
+                                            {{ form.main_image }}
+                                        </div>
+                                    </div>
+                                    {% if form.main_image.errors %}
+                                        <p class="text-red-500 text-sm mt-1">{{ form.main_image.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                            <!-- Additional Images - Simplified without custom filter -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Additional Images (Optional)
+                                    </label>
+
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+
+                                        {% for image in property.images %}
+                                            <div>
+                                                {% if image %}
+                                                    <img src="{{ image }}"
+                                                         alt="Image {{ forloop.counter }}"
+                                                         class="image-preview mb-2">
+                                                {% else %}
+                                                    <div class="image-preview bg-gray-100 flex items-center justify-center mb-2">
+                                                        <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                                    </div>
+                                                {% endif %}
+
+                                                <label class="block text-xs text-gray-600 mb-1">
+                                                    Image {{ forloop.counter }}
+                                                </label>
+                                            </div>
+                                        {% empty %}
+                                            <div class="text-sm text-gray-500">
+                                                No additional images uploaded.
+                                            </div>
+                                        {% endfor %}
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    <!-- Form Actions -->
+                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                            <a href="{% url 'owner_properties' %}" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                                Cancel
+                            </a>
+                            <button type="submit" class="px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent-dark transition font-medium">
+                                <i class="fas fa-save mr-2"></i>Update Property
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">Editing Tips</h3>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                            <span>Use clear, high-quality images</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                            <span>Be detailed in your description</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                            <span>Update pricing regularly</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                            <span>Keep status up-to-date</span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="text-lg font-bold text-primary mb-4">Property Info</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Property ID:</span>
+                                <span class="font-semibold">#{{ property.id }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Created:</span>
+                                <span class="font-semibold">{{ property.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Views:</span>
+                                <span class="font-semibold">{{ property.views }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="text-lg font-bold text-primary mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <a href="{% url 'property_detail' property.id %}" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                                <i class="fas fa-eye mr-2"></i>Preview Property
+                            </a>
+                            <a href="{% url 'owner_properties' %}" class="block w-full text-center px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition">
+                                <i class="fas fa-list mr-2"></i>Back to Properties
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-{% include 'auto_reload.html' %}
-<script>
-    function viewBookingDetails(bookingId) {
-        fetch(`/api/bookings/${bookingId}/details/`)
-            .then(response => response.json())
-            .then(data => {
-                const content = `
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-semibold text-gray-700">Visitor Information</h4>
-                            <p class="text-gray-600">Name: ${data.visitor_name || 'Not available'}</p>
-                            <p class="text-gray-600">Email: ${data.visitor_email || 'Not available'}</p>
-                            <p class="text-gray-600">Phone: ${data.visitor_phone || 'Not provided'}</p>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-700">Visit Details</h4>
-                            <p class="text-gray-600">Date: ${data.visit_date || 'Not specified'}</p>
-                            <p class="text-gray-600">Time: ${data.visit_time || 'Not specified'}</p>
-                            <p class="text-gray-600">Status: <span class="px-2 py-1 rounded-full ${data.status_class || 'bg-gray-100 text-gray-800'}">${data.status || 'Unknown'}</span></p>
-                        </div>
-                        ${data.notes ? `<div>
-                            <h4 class="font-semibold text-gray-700">Visitor Notes</h4>
-                            <p class="text-gray-600">${data.notes}</p>
-                        </div>` : ''}
-                        ${data.owner_response ? `<div>
-                            <h4 class="font-semibold text-gray-700">Your Response</h4>
-                            <p class="text-gray-600">${data.owner_response}</p>
-                        </div>` : ''}
-                        <div>
-                            <h4 class="font-semibold text-gray-700">Property</h4>
-                            <p class="text-gray-600">${data.property_title || 'Unknown property'}</p>
-                            <p class="text-gray-600">${data.property_address || 'Address not available'}</p>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('bookingDetailsContent').innerHTML = content;
-                document.getElementById('bookingDetailsModal').classList.remove('hidden');
-                document.getElementById('bookingDetailsModal').classList.add('flex');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to load booking details.');
+    <script>
+    // Auto-calculate platform fee and net amount when price changes
+        const priceInput = document.getElementById('price-input');
+        const netAmountSpan = document.getElementById('net-amount');
+
+        if (priceInput && netAmountSpan) {
+            priceInput.addEventListener('input', function() {
+                const price = parseFloat(this.value) || 0;
+                if (price > 0) {
+                    const platformFee = price * 0.05;
+                    const netAmount = price - platformFee;
+                    netAmountSpan.textContent = netAmount.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                } else {
+                    netAmountSpan.textContent = '0.00';
+                }
             });
-    }
-    
-    function closeBookingDetailsModal() {
-        document.getElementById('bookingDetailsModal').classList.add('hidden');
-        document.getElementById('bookingDetailsModal').classList.remove('flex');
-    }
-</script>
+        }
+
+    // Show/hide rent duration based on purpose
+        const purposeSelect = document.querySelector('[name="purpose"]');
+        const rentDurationField = document.querySelector('[name="rent_duration_display"]');
+
+        if (purposeSelect && rentDurationField) {
+        // Initial check
+            if (purposeSelect.value !== 'rent') {
+                rentDurationField.closest('.grid > div').style.display = 'none';
+            }
+
+            purposeSelect.addEventListener('change', function() {
+                if (this.value === 'rent') {
+                    rentDurationField.closest('.grid > div').style.display = 'block';
+                } else {
+                    rentDurationField.closest('.grid > div').style.display = 'none';
+                }
+            });
+        }
+
+    // Image preview functionality
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    const container = this.closest('div');
+                    const existingPreview = container.querySelector('img.image-preview');
+
+                    reader.onload = function(e) {
+                        if (existingPreview) {
+                            existingPreview.src = e.target.result;
+                        } else {
+                            const newPreview = document.createElement('img');
+                            newPreview.className = 'image-preview mb-2';
+                            newPreview.src = e.target.result;
+                            this.parentElement.insertBefore(newPreview, this);
+                        }
+                    }.bind(this);
+
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
 {% endblock %}

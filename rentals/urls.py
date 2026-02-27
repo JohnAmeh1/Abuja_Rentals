@@ -1,6 +1,5 @@
 from django.urls import path, include
 from . import views
-import os
 from django.views.generic import TemplateView
 from django.views.static import serve
 from django.conf import settings
@@ -8,6 +7,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('listings/', views.listings, name='listings'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
     path('logout/', views.logout_view, name='logout'),
@@ -32,11 +32,7 @@ urlpatterns = [
     path('property/<int:property_id>/book-visit/', views.book_property_visit, name='book_property_visit'),
     path('property/<int:property_id>/report/', views.submit_report, name='submit_report'),
     
-    # Payment processing - Regular Properties
-    path('property/<int:property_id>/process-payment/', views.process_property_payment, name='process_property_payment'),
-    path('property/<int:property_id>/buy/', views.process_property_payment, name='buy_property'),
-    path('property/<int:property_id>/rent/', views.process_property_payment, name='rent_property'),
-    
+
     # Tenant views
     path('saved-properties/', views.saved_properties_view, name='saved_properties'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
@@ -73,8 +69,6 @@ urlpatterns = [
     path('admin/reports/', views.admin_reports_view, name='admin_reports'),
     path('admin/reports/<int:report_id>/action/', views.admin_report_action, name='admin_report_action'),
     
-    # send money
-    path('admin/send-money/', views.admin_send_money, name='admin_send_money'),
     path('api/check-username/', views.check_username_api, name='check_username_api'),
     
     # Student-specific URLs - Student Properties (separate from regular properties)
@@ -84,27 +78,17 @@ urlpatterns = [
     path('student/properties/<int:pk>/edit/', views.edit_student_property, name='edit_student_property'),
     path('student/properties/<int:pk>/delete/', views.delete_student_property, name='delete_student_property'),
 
-    # Student property payment and rental URLs
-    path('student/property/<int:property_id>/process-payment/', views.student_process_property_payment, name='student_process_property_payment'),
-    path('student/rental/<int:rental_id>/renew/', views.renew_student_rental, name='renew_student_rental'),
-
     # API endpoints
     path('api/property/<int:property_id>/bookings/', views.property_bookings_api, name='property_bookings_api'),
     path('api/bookings/<int:booking_id>/details/', views.booking_details_api, name='booking_details_api'),
     path('api/bookings/<int:booking_id>/respond/', views.booking_respond_api, name='booking_respond_api'),
     path('api/bookings/<int:booking_id>/complete/', views.booking_complete_api, name='booking_complete_api'),
     
-    # Wallet routes
-    path('wallet/', views.wallet_view, name='wallet'),
-    # Receipts
-    path('receipts/', views.receipts_view, name='receipts'),
-    path('receipt/verify/<str:reference>/', views.receipt_verify, name='receipt_verify'),
     # Rental actions
-    path('rental/<int:rental_id>/renew/', views.renew_rental, name='renew_rental'),
     
     # AJAX endpoints
     path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
-    
+
     # PWA URLs
     # path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     # path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
@@ -113,6 +97,8 @@ urlpatterns = [
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),
+
+    path('listings/', views.listings, name='listings'),
 
 
 ]

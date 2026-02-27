@@ -14,10 +14,14 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+ENV = os.getenv("DJANGO_ENV", "development")
+
+load_dotenv(BASE_DIR / f".env.{ENV}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -72,8 +76,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'rentals.context_processors.wallet_context',
-                'rentals.context_processors.admin_messages_context',
+                # 'rentals.context_processors.wallet_context',
+                # 'rentals.context_processors.admin_messages_context',
             ],
         },
     },
@@ -87,29 +91,32 @@ WSGI_APPLICATION = 'Abuja_Rentals.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Abuja_Rentals',
-        'USER': 'postgres',
-        'PASSWORD': '221005',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': os.getenv("DB_ENGINE"),
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER", ""),
+        'PASSWORD': os.getenv("DB_PASSWORD", ""),
+        'HOST': os.getenv("DB_HOST", ""),
+        'PORT': os.getenv("DB_PORT", ""),
+        'OPTIONS': (
+            {'sslmode': os.getenv("DB_SSL")}
+            if os.getenv("DB_SSL")
+            else {}
+        ),
     }
 }
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'abuja_rentals',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
-
-# gg
-
+        'ENGINE': os.getenv("DB_ENGINE"),
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER", ""),
+        'PASSWORD': os.getenv("DB_PASSWORD", ""),
+        'HOST': os.getenv("DB_HOST", ""),
+        'PORT': os.getenv("DB_PORT", ""),
+        'OPTIONS': (
+            {'sslmode': os.getenv("DB_SSL")}
+            if os.getenv("DB_SSL")
+            else {}
+        ),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -229,3 +236,9 @@ PWA_APP_SPLASH_SCREEN = [
     }
 ]
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'pwa', 'sw.js')
+
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-xxxxx"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-xxxxx"
+
+FLUTTERWAVE_REDIRECT_URL = "http://127.0.0.1:8000/payments/verify/"
+FLUTTERWAVE_WEBHOOK_HASH = "my_super_secret_hash_123"

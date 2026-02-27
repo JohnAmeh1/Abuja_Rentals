@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 # from .models import UserProfile, Property
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Property, Wallet
+from .models import UserProfile, Property
 from .models import Report, StudentProperty
 from dateutil.relativedelta import relativedelta
 import json
@@ -63,7 +63,6 @@ class CustomUserCreationForm(UserCreationForm):
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add Tailwind classes to form fields
         for field_name in ['username', 'first_name', 'last_name']:
             self.fields[field_name].widget.attrs.update({
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
@@ -86,18 +85,14 @@ class CustomUserCreationForm(UserCreationForm):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         
-        # Get user_type BEFORE saving
         user_type = self.cleaned_data.get('user_type', 'tenant')
         print(f"DEBUG Form Save: user_type = {user_type}")
         
         if commit:
             user.save()
             
-            # Create UserProfile with all data at once
-            # Delete any existing profile first to avoid conflicts
             UserProfile.objects.filter(user=user).delete()
             
-            # Create new profile with ALL data
             user_profile = UserProfile.objects.create(
                 user=user,
                 user_type=user_type,
@@ -106,8 +101,6 @@ class CustomUserCreationForm(UserCreationForm):
                 bio=self.cleaned_data.get('bio', '')
             )
             
-            # Also create wallet
-            Wallet.objects.get_or_create(user=user, defaults={'balance': 0.00})
             
         return user
 
@@ -195,10 +188,8 @@ class ProfileUpdateForm(forms.ModelForm):
                 pass
     
     def save(self, commit=True):
-        # Save UserProfile data
         profile = super().save(commit=False)
         
-        # Update User model data
         if self.user:
             self.user.first_name = self.cleaned_data['first_name']
             self.user.last_name = self.cleaned_data['last_name']
@@ -466,8 +457,6 @@ class StudentPropertyForm(forms.ModelForm):
         
         return instance
     
-# In forms.py - Make sure StudentProperty is imported at the top
-# from .models import UserProfile, Property, Wallet, Transaction, StudentProperty  
 
 class StudentPropertySearchForm(forms.Form):
     # Universities dropdown - will be populated from StudentProperty.UNIVERSITY_CHOICES
@@ -565,6 +554,15 @@ class PropertyForm(forms.ModelForm):
         widget=forms.HiddenInput(attrs={'id': 'rent-duration-input'})
     )
     
+    images = forms.CharField(
+    required=False,
+    widget=forms.Textarea(attrs={
+        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg',
+        'placeholder': 'Enter one image URL per line'
+        })
+    )
+
+    
     class Meta:
         model = Property
         fields = [
@@ -573,8 +571,7 @@ class PropertyForm(forms.ModelForm):
             'bedrooms', 'bathrooms', 'area_sqft', 'price',
             'rent_duration_display',  # Add this field
             'rent_duration_months',
-            'main_image', 'image_1', 'image_2', 'image_3', 'image_4', 'image_5',
-            'image_6', 'image_7', 'image_8', 'image_9'
+            'main_image', 'images',
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -659,43 +656,6 @@ class PropertyForm(forms.ModelForm):
             }),
             'main_image': forms.ClearableFileInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_1': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_2': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_3': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_4': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_5': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_6': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_7': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_8': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
-            }),
-            'image_9': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'accept': 'image/*'
             }),
         }
     

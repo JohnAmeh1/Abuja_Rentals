@@ -126,7 +126,7 @@
             <aside class="lg:col-span-3 lg:order-1 z-50">
 
                 <div class="lg:sticky lg:top-24 max-lg:fixed max-lg:left-1/2 max-lg:-translate-x-1/2 max-lg:w-11/12 max-lg:top-1/2 max-lg:-translate-y-1/2 max-lg:scale-75 max-lg:hidden max-lg:opacity-0 max-lg:origin-bottom-right" id="sidebar">
-                    <form   class="bg-white rounded-xl border border-gray-200
+                    <div   class="bg-white rounded-xl border border-gray-200
                                 shadow-sm p-5 mb-5">
 
                         <!-- Header -->
@@ -142,7 +142,7 @@
                             {% endif %}
                         </div>
 
-                        <div class="space-y-4">
+                        <form method="GET" class="space-y-4" id="filterFormSidebar">
 
                             <!-- Property Type -->
                             <div class="space-y-1.5">
@@ -198,7 +198,7 @@
                             <!-- Actions -->
                             <div class="grid grid-cols-2 gap-2 pt-2">
                                 <button
-                                    onclick="() =>applyFilter()"
+                                    type="submit"
                                     class="px-4 py-2.5 bg-accent text-white rounded-lg hover:opacity-90 transition font-medium text-sm">
                                     Apply
                                 </button>

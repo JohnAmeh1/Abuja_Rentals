@@ -125,7 +125,6 @@ function showInstallSuccess() {
         <i class="fas fa-check-circle text-xl"></i>
         <div>
           <div class="font-semibold">App Installed!</div>
-          <div class="text-sm">You can now use Abuja Rentals offline</div>
         </div>
       </div>
     </div>

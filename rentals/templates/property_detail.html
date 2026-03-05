@@ -147,7 +147,7 @@
             <ol class="flex items-center space-x-2 text-sm text-gray-600">
                 <li><a href="{% url 'home' %}" class="hover:text-accent">Home</a></li>
                 <li><i class="fas fa-chevron-right text-xs"></i></li>
-                <li><a href="{% url 'owner_properties' %}" class="hover:text-accent">Properties</a></li>
+                <li><a href="{% url 'properties' %}" class="hover:text-accent">Properties</a></li>
                 <li><i class="fas fa-chevron-right text-xs"></i></li>
                 <li class="text-gray-900 font-medium line-clamp-1">{{ property.title|truncatewords:5 }}</li>
             </ol>
@@ -1346,6 +1346,7 @@
         </div>
         <script>
             function openReportModal(id, title) {
+                alert("CLicked")
                 const form = document.getElementById('reportFormDetail') || document.getElementById('reportForm');
                 if (form) {
                     form.action = `/property/${id}/report/`;

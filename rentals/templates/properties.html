@@ -126,8 +126,7 @@
             <aside class="lg:col-span-3 lg:order-1 z-50">
 
                 <div class="lg:sticky lg:top-24 max-lg:fixed max-lg:left-1/2 max-lg:-translate-x-1/2 max-lg:w-11/12 max-lg:top-1/2 max-lg:-translate-y-1/2 max-lg:scale-75 max-lg:hidden max-lg:opacity-0 max-lg:origin-bottom-right" id="sidebar">
-
-                    <div class="bg-white rounded-xl border border-gray-200
+                    <form   class="bg-white rounded-xl border border-gray-200
                                 shadow-sm p-5 mb-5">
 
                         <!-- Header -->
@@ -137,13 +136,13 @@
                             </h2>
 
                             {% if request.GET %}
-                                <a href="{% url 'owner_properties' %}" class="text-xs text-accent hover:underline">
+                                <button onclick="() => loadMore('')" class="text-xs text-accent hover:underline">
                                     Clear all
-                                </a>
+                                </button>
                             {% endif %}
                         </div>
 
-                        <form method="GET" class="space-y-4" id="filterFormSidebar">
+                        <div class="space-y-4">
 
                             <!-- Property Type -->
                             <div class="space-y-1.5">
@@ -151,7 +150,10 @@
                                     Property Type
                                 </label>
                                 <div class="form-field">
-                                    {{ search_form.property_type }}
+                                    <!-- {{ search_form.property_type }} -->
+                                    <select name="ptype" id="ptype" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                                        
+                                    </select>
                                 </div>
                             </div>
 
@@ -161,7 +163,10 @@
                                     Purpose
                                 </label>
                                 <div class="form-field">
-                                    {{ search_form.purpose }}
+                                    <!-- {{ search_form.purpose }} -->
+                                    <select name="purpose" id="purpose" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                                        
+                                    </select>
                                 </div>
                             </div>
 
@@ -171,7 +176,10 @@
                                     Location
                                 </label>
                                 <div class="form-field">
-                                    {{ search_form.city }}
+                                    <!-- {{ search_form.city }} -->
+                                    <select name="city" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                                        
+                                    </select>
                                 </div>
                             </div>
 
@@ -181,7 +189,8 @@
                                     Search
                                 </label>
                                 <div class="relative">
-                                    {{ search_form.search }}
+                                    <!-- {{ search_form.search }} -->
+                                    <input id="search" name="search" type="text" class='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent' placeholder='Search by title or address...'>
                                     <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                                 </div>
                             </div>
@@ -189,21 +198,21 @@
                             <!-- Actions -->
                             <div class="grid grid-cols-2 gap-2 pt-2">
                                 <button
-                                    type="submit"
+                                    onclick="() =>applyFilter()"
                                     class="px-4 py-2.5 bg-accent text-white rounded-lg hover:opacity-90 transition font-medium text-sm">
                                     Apply
                                 </button>
 
-                                <a
-                                    href="{% url 'owner_properties' %}"
+                                <button
+                                    onclick="() =>ResetFilter()"
                                     class="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50 transition text-sm">
                                     Reset
-                                </a>
+                                </button>
                             </div>
 
-                        </form>
+                        </div>
 
-                    </div>
+                    </form>
 
                     <!-- Tips Card -->
                     <div class="hidden lg:block bg-white rounded-xl
@@ -255,19 +264,9 @@
                     <!-- Right Controls -->
                     <div class="flex flex-wrap items-center gap-3">
 
-                        <div class="text-sm text-gray-500">
-                            Showing <span class="font-semibold text-gray-900">
-                                {{ properties|length }}
-                            </span>
-                            of
-                            <span class="font-semibold text-gray-900">
-                                {{ total }}
-                            </span>
-                        </div>
-
                         <select
                             name="sort"
-                            onchange="document.getElementById('filterFormSidebar').submit()"
+                            onchange="loadMore()"
                             class="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent outline-none"
                         >
                             <option value="">Sort: Recommended</option>
@@ -289,227 +288,11 @@
                     </div>
                 </div>
 
-                <!-- PROPERTY GRID -->
-                {% if properties %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-                        {% for property in properties %}
-                            <article
-                                class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition"
-                            >
-
-                            <!-- IMAGE -->
-                                <div class="relative h-52 overflow-hidden bg-gray-100">
-
-                                    {% if property.main_image %}  
-                                    <img
-                                            src="{{ property.main_image }}"
-                                            alt="{{ property.title }}"
-                                            class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
-                                        >
-                                    {% else %}
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <i class="fas fa-home text-gray-300 text-4xl"></i>
-                                        </div>
-                                    {% endif %}
-
-                                    <!-- PRICE -->
-                                    <div class="absolute bottom-2.5 left-2.5">
-                                        <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                                            ₦{{ property.price|floatformat:0|intcomma }}
-                                            {% if property.purpose == "rent"%}
-                                            <span class="font-normal text-xs ">
-                                                (per annum)
-                                            </span>
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="absolute top-2.5 left-2.5 flex items-center">
-                                        <span
-                                        class="bg-white/90 backdrop-blur-sm text-primary font-semibold text-sm px-2 py-1 rounded-lg shadow-sm"
-                                        >{{ property.get_purpose_display }}</span
-                                        >
-                                    </div>
-
-                                </div>
-
-                                <!-- CONTENT -->
-                                <a  href="{% url 'property_detail' property.id %}">
-                                <div class="p-5 flex flex-col gap-4">
-
-                                <!-- TITLE -->
-                                <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">
-                                    {{ property.title }}
-                                </h3>
-
-                                <!-- LOCATION -->
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
-                                    <span>{{ property.city|capfirst }}</span>
-                                </div>
-
-                                <!-- PROPERTY META -->
-                                <div class="flex items-center gap-6 text-sm text-gray-600 my-1.5">
-
-                                    {% if property.bedrooms %}
-                                        <div class="flex items-center gap-1.5">
-                                            <i class="fas fa-bed text-gray-400"></i>
-                                            <span>{{ property.bedrooms }}</span>
-                                        </div>
-                                    {% endif %}
-
-                                    {% if property.bathrooms %}
-                                        <div class="flex items-center gap-1.5">
-                                            <i class="fas fa-bath text-gray-400"></i>
-                                            <span>{{ property.bathrooms }}</span>
-                                        </div>
-                                    {% endif %}
-
-                                    {% if property.area_sqft %}
-                                        <div class="flex items-center gap-1.5">
-                                            <i class="fas fa-ruler-combined text-gray-400"></i>
-                                            <span>{{ property.area_sqft|floatformat:0 }} sqft</span>
-                                        </div>
-                                    {% endif %}
-
-                                </div>
-
-                                <!-- DESCRIPTION -->
-                                <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                                    {{ property.description|truncatechars:120 }}
-                                </p>
-
-                                <!-- ACTIONS -->
-                                <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
-
-                                    <a
-                                        href="{% url 'property_detail' property.id %}"
-                                        class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition"
-                                    >
-                                        View Details
-                                    </a>
-
-                                    {% if user.is_authenticated and property.owner == user %}
-                                        <a
-                                            href="{% url 'edit_property' property.id %}"
-                                            class="w-9 h-9 bg-yellow-50 text-yellow-600 rounded-lg flex items-center justify-center hover:bg-yellow-100 transition"
-                                            title="Edit"
-                                        >
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-
-                                        <button
-                                            onclick="openDeleteModal('{{ property.id }}', '{{ property.title }}')"
-                                            class="w-9 h-9 bg-red-50 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-100 transition"
-                                            title="Delete"
-                                        >
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    {% endif %}
-
-                                    {% if user.is_authenticated and user.userprofile.user_type == 'tenant' %}
-                                        <button
-                                            onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
-                                            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
-                                            title="Report"
-                                        >
-                                            <i class="fas fa-flag"></i>
-                                        </button>
-                                    {% endif %}
-
-                                </div>
-
-                            </div>
-                            </a>
-                            </article>
-                        {% endfor %}
-                    </div>
-
-                {% else %}
-
-
-                <!-- EMPTY STATE -->
-                    <div class="bg-white rounded-xl border border-gray-200
-                                p-10 text-center">
-
-                        <div class="w-20 h-20 bg-gray-100 rounded-full
-                                    flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-home text-gray-400 text-3xl"></i>
-                        </div>
-
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            No Properties Found
-                        </h3>
-
-                        <p class="text-gray-500 mb-5 max-w-md mx-auto text-sm">
-                            {% if is_owner_view %}
-                                You haven't listed any properties yet.
-                            {% else %}
-                                No properties match your search. Try adjusting filters.
-                            {% endif %}
-                        </p>
-
-                        {% if is_owner_view and user.is_authenticated and user.userprofile.user_type == 'owner' %}
-                            <a
-                                href="{% url 'add_property' %}"
-                                class="btn-gradient text-white px-5 py-2.5 rounded-lg inline-flex items-center text-sm"
-                            >
-                                <i class="fas fa-plus mr-2"></i>
-                                Add Your First Property
-                            </a>
-                        {% endif %}
-
-                    </div>
-
-                {% endif %}
-
-
-                <!-- PAGINATION -->
-                {% if properties.has_other_pages %}
-                    <div class="mt-8 flex justify-center">
-
-                        <nav class="inline-flex items-center gap-1">
-
-                            {% if properties.has_previous %}
-                                <a
-                                    href="?page={{ properties.previous_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}"
-                                    class="h-9 w-9 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
-                                >
-                                    <i class="fas fa-chevron-left text-sm"></i>
-                                </a>
-                            {% endif %}
-
-                            {% for num in properties.paginator.page_range %}
-                                {% if properties.number == num %}
-                                    <span class="h-9 w-9 flex items-center justify-center bg-accent text-white rounded-lg">
-                                        {{ num }}
-                                    </span>
-
-                                {% elif num > properties.number|add:'-3' and num < properties.number|add:'3' %}
-                                    <a
-                                        href="?page={{ num }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}"
-                                        class="h-9 w-9 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
-                                    >
-                                        {{ num }}
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
-
-                            {% if properties.has_next %}
-                                <a
-                                    href="?page={{ properties.next_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}"
-                                    class="h-9 w-9 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
-                                >
-                                    <i class="fas fa-chevron-right text-sm"></i>
-                                </a>
-                            {% endif %}
-
-                        </nav>
-
-                    </div>
-                {% endif %}
-
+                <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <div id="empty"></div>
+                <div id="sentinel"></div>
+                <div id="loadmorebtn" onclick="loadMore()" class="w-full p-10 bg-white rounded-xl border border-gray-200 shadow-sm my-10 flex justify-center items-center cursor-pointer hover:bg-gray-100 duration-200 text-gray-600">Load More</div>
             </main>
 
         </div>
@@ -587,9 +370,258 @@
 {% block extra_js %}
 
     <script>
+        let cursor = null
+        let loading = false
+        let hasNext = true
+        let length = 0
+
+        let purpose = ''
+        let city = ""
+        let search = ""
+        let ptype = ""
+        let status = ""
+
+        const purposeElement = document.getElementById("purpose")
+        const searchElement = document.getElementById("search")
+        const ptypeElement = document.getElementById("ptype")
+        const cityElement = document.getElementById("city")
+
+        const loader = document.createElement("div")
+        loader.innerHTML = `<div class="animate-spin inset-0 absolute bg-white cursor-not-allowed"><span class="border-t-0 border border-gray-600 rounded-full"></span></div>`
+
+        async function loadMore() {
+            if (loading || !hasNext) return
+            loading = true
+            document.getElementById("loadmorebtn").appendChild(loader)
+
+            const url = cursor
+            ? `/api/properties/?property_type=${ptype}&purpose=${purpose}&city=${city}&search=${search}&cursor=${cursor}`
+            : `/api/properties/?property_type=${ptype}&purpose=${purpose}&city=${city}&search=${search}`
+
+            const res = await fetch(url)
+            const data = await res.json()
+
+            const container = document.getElementById("properties_grid")
+            const formatter = new Intl.NumberFormat("en-NG", {
+                style: 'currency',
+                currency: 'NGN'
+            })
+            data.properties.forEach(property => {
+                length++
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    <article
+                        class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition"
+                            >
+                                <div class="relative h-52 overflow-hidden bg-gray-100">
+                                    ${property.main_image ? 
+                                    `<img
+                                        src="${property.main_image}"
+                                        alt="${property.title}"
+                                        width="30"
+                                        height="30"
+                                        class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+                                        > `: 
+                                    `<div class="w-full h-full flex items-center justify-center">
+                                        <i class="fas fa-home text-gray-300 text-4xl"></i>
+                                    </div>`
+                                    }
+                                    
+                                    <div class="absolute bottom-2.5 left-2.5">
+                                        <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                                            ${formatter.format(property.price)}
+                                            ${property.purpose == "rent" ?
+                                            `<span class="font-normal text-xs ">
+                                                (per annum)
+                                            </span>`:""}
+                                        </span>
+                                    </div>
+                                    <a href="/property/${property.id}/save"
+                                        class="absolute top-3 right-3 w-8 h-8
+                                                bg-white/90 backdrop-blur rounded-lg
+                                                flex items-center justify-center
+                                                text-gray-400 hover:text-red-500 transition">
+                                        <i class="fas fa-heart"></i>
+                                        </a>
+
+                                    <div class="absolute top-2.5 left-2.5 flex items-center">
+                                        <!-- <span
+                                        class="bg-white/90 backdrop-blur-sm text-primary font-semibold text-sm px-2 py-1 rounded-lg shadow-sm"
+                                        >{{ property.get_purpose_display }}</span> -->
+                                    </div>
+
+                                </div>
+
+                                <a  href="/property/${property.id}/"
+                                <div class="p-5 flex flex-col gap-4">
+
+                                <!-- TITLE -->
+                                <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">
+                                    ${property.title}
+                                </h3>
+
+                                <!-- LOCATION -->
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400 capitalize"></i>
+                                    <span>${property.city.toLocaleUpperCase()}</span>
+                                </div>
+
+                                <!-- PROPERTY META -->
+                                <div class="flex items-center gap-6 text-sm text-gray-600 my-1.5">
+                                    ${property.bedrooms ?
+                                    `<div class="flex items-center gap-1.5">
+                                            <i class="fas fa-bed text-gray-400"></i>
+                                            <span>${ property.bedrooms }</span>
+                                        </div>`:""
+                                    }
+                                    ${property.bathrooms ? 
+                                    ` <div class="flex items-center gap-1.5">
+                                            <i class="fas fa-bath text-gray-400"></i>
+                                            <span>${ property.bathrooms }</span>
+                                        </div>`:""
+                                    }
+                                    ${property.area_sqft ? 
+                                    `   <div class="flex items-center gap-1.5">
+                                            <i class="fas fa-ruler-combined text-gray-400"></i>
+                                            <span>${ property.area_sqft } sqft</span>
+                                        </div>`:''
+                                    }
+
+                                </div>
+
+                                <!-- DESCRIPTION -->
+                                <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                                    ${ property.description }
+                                </p>
+
+                                <!-- ACTIONS -->
+                                <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+
+                                    <span
+                                        class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+                                    >
+                                        View Details
+                                    </span>
+
+                                        <button
+                                            onclick="openReportModal(${ property.id }, ${ property.title })"
+                                            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
+                                            title="Report"
+                                        >
+                                            <i class="fas fa-flag"></i>
+                                        </button>
+
+                                </div>
+
+                            </div>
+                            </a>
+                            </article>
+                `
+                container.appendChild(div)
+            })
+
+            if (data.properties.lenght == 0) {
+                loader.innerText= "No more properties with this filter"
+            } 
+            cursor = data.next_cursor
+            hasNext = data.has_next
+            loading = false
+            document.getElementById("loadmorebtn").removeChild(loader)
+
+            if (length == 0){
+                document.getElementById("loadmorebtn").innerHTML = ``
+                document.getElementById("empty").innerHTML = 
+                `<div class="bg-white rounded-xl border border-gray-200
+                                p-10 text-center">
+
+                        <div class="w-20 h-20 bg-gray-100 rounded-full
+                                    flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-home text-gray-400 text-3xl"></i>
+                        </div>
+
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
+                            No Properties Found
+                        </h3>
+
+                        <p class="text-gray-500 mb-5 max-w-md mx-auto text-sm">
+                            {% if is_owner_view %}
+                                You haven't listed any properties yet.
+                            {% else %}
+                                No properties match your search. Try adjusting filters.
+                            {% endif %}
+                        </p>
+
+                        {% if is_owner_view and user.is_authenticated and user.userprofile.user_type == 'owner' %}
+                            <a
+                                href="{% url 'add_property' %}"
+                                class="btn-gradient text-white px-5 py-2.5 rounded-lg inline-flex items-center text-sm"
+                            >
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Your First Property
+                            </a>
+                        {% endif %}
+
+                    </div>`
+            }
+        }
+
+
+        purposeElement.addEventListener("change", (e) => {console.log(e.target.value)})
+
+        async function loadFirst() {
+            pd = "{{search_form_options.purpose}}".split(",")
+            ptd = "{{search_form_options.property_type}}".split(",")
+            cd = "{{search_form_options.city}}".split(",")
+
+            const container = document.getElementById("properties_grid")
+            container.innerHTML = ''
+
+            for (let i=0; i < pd.length; i++) {
+                const option = document.createElement("option")
+                option.value = pd[i]
+                option.innerHTML = pd[i]
+                purposeElement.appendChild(option)
+            }
+
+            for (let i=0; i < ptd.length; i++) {
+                const option = document.createElement("option")
+                option.value = ptd[i]
+                option.innerHTML = ptd[i]
+                ptypeElement.appendChild(option)
+            }
+
+            for (let i=0; i < cd.length; i++) {
+                const option = document.createElement("option")
+                option.value = cd[i]
+                option.innerHTML = cd[i]
+                cityElement.appendChild(option)
+            }
+
+            purpose = "{{search_form_data.purpose}}"
+            city = "{{search_form_data.city}}"
+            search = "{{search_form_data.search}}"
+            ptype = "{{search_form_data.ptype}}"
+            status = "{{search_form_data.status}}"
+
+            loadMore()
+        }
+
+
+
+        const observer = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                loadMore()
+            }
+        })
+
+        observer.observe(document.getElementById("sentinel"))
+        loadFirst()
+    </script>
+
+    <script>
         function openDeleteModal(propertyId, propertyTitle) {
             document.getElementById('propertyName').textContent = propertyTitle;
-            document.getElementById('deleteForm').action = `/owner/properties/delete/${propertyId}/`;
+            document.getElementById('deleteForm').action = `/properties/delete/${propertyId}/`;
             document.getElementById('deleteModal').classList.remove('hidden');
             document.getElementById('deleteModal').classList.add('flex');
         }
@@ -628,6 +660,9 @@
             }
         }
 
+        
+    </script>
+    <script>
         function closeReportModal() {
             const modal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
             if (modal) {
@@ -696,4 +731,6 @@
 
 
     </script>
+
+
 {% endblock %}

@@ -31,7 +31,7 @@
                         </a>
 
                         {% if user.userprofile.user_type == 'owner' %}
-                            <a href="{% url 'owner_properties' %}" class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                            <a href="{% url 'properties' %}" class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
                                 <i class="fas fa-home mr-3"></i>My Properties
                             </a>
                             <a href="{% url 'add_property' %}" class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
@@ -223,7 +223,7 @@
             <!-- Quick Actions for Tenant -->
                     <div class="mb-8">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <a href="{% url 'owner_properties' %}" class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
+                            <a href="{% url 'properties' %}" class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <h4 class="text-lg font-bold">Browse Properties</h4>
@@ -774,7 +774,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-xl font-bold text-primary">Recent Properties</h3>
-                            <a href="{% url 'owner_properties' %}" class="text-accent font-medium hover:text-accent-dark">
+                            <a href="{% url 'properties' %}" class="text-accent font-medium hover:text-accent-dark">
                                 View All →
                             </a>
                         </div>
@@ -878,7 +878,7 @@
                                     <p class="font-medium">Start your property search</p>
                                     <p class="text-sm text-gray-600">Browse thousands of properties in Abuja.</p>
                                 </div>
-                                <a href="{% url 'owner_properties' %}" class="text-accent font-medium">Browse Properties →</a>
+                                <a href="{% url 'properties' %}" class="text-accent font-medium">Browse Properties →</a>
                             </div>
                         {% elif user.userprofile.user_type == 'admin' %}
                             <div class="flex items-center p-4 bg-gray-50 rounded-lg">

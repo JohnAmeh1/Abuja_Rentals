@@ -227,18 +227,12 @@
                     }
                     // Re-enable scrolling
                     document.body.style.overflow = 'auto';
-                }, 500);
+                }, 200);
             }
         }
 
         // Disable scrolling while preloader is active
         document.body.style.overflow = 'hidden';
-
-        // Hide preloader when page is fully loaded
-        window.addEventListener('load', function() {
-            // Small delay for better UX
-            setTimeout(hidePreloader, 500);
-        });
 
         // Force hide after maximum time (5 seconds)
         setTimeout(function() {
@@ -251,12 +245,10 @@
         // Also hide on DOMContentLoaded as fallback
         document.addEventListener('DOMContentLoaded', function() {
             // Wait a bit to show the animation
-            setTimeout(function() {
                 // Only hide if window is already loaded
-                if (document.readyState === 'complete') {
-                    hidePreloader();
-                }
-            }, 1000);
+            if (document.readyState === 'complete') {
+                hidePreloader();
+            }
         });
 
         // Hide immediately if user navigates away

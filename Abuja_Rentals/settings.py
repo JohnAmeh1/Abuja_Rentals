@@ -57,7 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'rentals.middleware.RentalExpiryMiddleware',
 ]
 
 ROOT_URLCONF = 'Abuja_Rentals.urls'
@@ -76,7 +75,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # 'rentals.context_processors.wallet_context',
                 # 'rentals.context_processors.admin_messages_context',
             ],
         },
@@ -91,19 +89,6 @@ WSGI_APPLICATION = 'Abuja_Rentals.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv("DB_ENGINE"),
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER", ""),
-        'PASSWORD': os.getenv("DB_PASSWORD", ""),
-        'HOST': os.getenv("DB_HOST", ""),
-        'PORT': os.getenv("DB_PORT", ""),
-        'OPTIONS': (
-            {'sslmode': os.getenv("DB_SSL")}
-            if os.getenv("DB_SSL")
-            else {}
-        ),
-    }
-}
         'ENGINE': os.getenv("DB_ENGINE"),
         'NAME': os.getenv("DB_NAME"),
         'USER': os.getenv("DB_USER", ""),
@@ -236,9 +221,3 @@ PWA_APP_SPLASH_SCREEN = [
     }
 ]
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'pwa', 'sw.js')
-
-FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-xxxxx"
-FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-xxxxx"
-
-FLUTTERWAVE_REDIRECT_URL = "http://127.0.0.1:8000/payments/verify/"
-FLUTTERWAVE_WEBHOOK_HASH = "my_super_secret_hash_123"

@@ -7,7 +7,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('listings/', views.listings, name='listings'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
     path('logout/', views.logout_view, name='logout'),
@@ -15,12 +14,12 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     
     # Properties routes (public and owner) - Regular Properties
-    path('properties/', views.owner_properties_view, name='properties'),
-    path('owner/properties/', views.owner_properties_view, name='owner_properties'),
-    path('owner/properties/add/', views.add_property_view, name='add_property'),
-    path('owner/properties/edit/<int:property_id>/', views.edit_property_view, name='edit_property'),
-    path('owner/properties/status/<int:property_id>/', views.update_property_status, name='update_property_status'),
-    path('owner/properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
+    path('properties/', views.properties_view, name='properties'),
+    path('api/properties/', views.get_properties, name='properties_api'),
+    path('properties/add/', views.add_property_view, name='add_property'),
+    path('properties/edit/<int:property_id>/', views.edit_property_view, name='edit_property'),
+    path('properties/status/<int:property_id>/', views.update_property_status, name='update_property_status'),
+    path('properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
     
     # Property detail and actions - Regular Properties
     path('property/<int:property_id>/', views.property_detail_view, name='property_detail'),
@@ -38,31 +37,24 @@ urlpatterns = [
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
     
     # Owner views
-    path('owner/manage-bookings/', views.manage_bookings_view, name='manage_bookings'),
-    path('owner/bookings/<int:booking_id>/update/', views.update_booking_status, name='update_booking_status'),
+    path('manage-bookings/', views.manage_bookings_view, name='manage_bookings'),
+    path('bookings/<int:booking_id>/update/', views.update_booking_status, name='update_booking_status'),
     
     # Admin URLs
     path('admin/dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
     path('admin/users/', views.admin_users_view, name='admin_users'),
     path('admin/properties/', views.admin_properties_view, name='admin_properties'),
-    path('admin/transactions/', views.admin_transactions_view, name='admin_transactions'),
-    path('admin/platform-fees/', views.admin_platform_fees_view, name='admin_platform_fees'),
     path('admin/settings/', views.admin_settings_view, name='admin_settings'),
     path('admin/users/update/<int:user_id>/', views.update_user_status, name='update_user_status'),
     path('admin/properties/update/<int:property_id>/', views.update_property_status_admin, name='update_property_status_admin'),
     
     path('admin/messages/', views.admin_messages_view, name='admin_messages'),
-    path('admin/messages/create/', views.create_admin_message, name='create_admin_message'),
     path('admin/messages/edit/<int:message_id>/', views.edit_admin_message, name='edit_admin_message'),
     path('admin/messages/toggle/<int:message_id>/', views.toggle_admin_message, name='toggle_admin_message'),
     path('admin/messages/delete/<int:message_id>/', views.delete_admin_message, name='delete_admin_message'),
     path('admin/messages/dismiss/', views.dismiss_admin_message, name='dismiss_admin_message'),
     path('api/active-messages/', views.get_active_messages, name='get_active_messages'),
-    path('admin/student-properties/review/<int:pk>/', views.review_student_property, name='review_student_property'),
-    path('admin/student-properties/', views.admin_student_properties, name='admin_student_properties'),
-    path('admin/approve/<int:pk>/', views.approve_student_property, name='approve_student_property'),
     path('admin/properties/update/<int:property_id>/', views.update_property_status_admin, name='update_property_status_admin'),
-    path('admin/student-properties/update/<int:property_id>/', views.update_student_property_status_admin, name='update_student_property_status_admin'),
 
 
     # Reports
@@ -70,13 +62,6 @@ urlpatterns = [
     path('admin/reports/<int:report_id>/action/', views.admin_report_action, name='admin_report_action'),
     
     path('api/check-username/', views.check_username_api, name='check_username_api'),
-    
-    # Student-specific URLs - Student Properties (separate from regular properties)
-    path('student/properties/', views.student_properties, name='student_properties'),
-    path('student/properties/create/', views.create_property, name='create_property'),
-    path('student/property/<int:pk>/', views.student_property_detail, name='student_property_detail'),
-    path('student/properties/<int:pk>/edit/', views.edit_student_property, name='edit_student_property'),
-    path('student/properties/<int:pk>/delete/', views.delete_student_property, name='delete_student_property'),
 
     # API endpoints
     path('api/property/<int:property_id>/bookings/', views.property_bookings_api, name='property_bookings_api'),
@@ -85,20 +70,10 @@ urlpatterns = [
     path('api/bookings/<int:booking_id>/complete/', views.booking_complete_api, name='booking_complete_api'),
     
     # Rental actions
-    
-    # AJAX endpoints
-    path('calculate-platform-fee/', views.calculate_platform_fee, name='calculate_platform_fee'),
 
-    # PWA URLs
-    # path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
-    # path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
-    # path('static/pwa/<path:path>', serve, {'document_root': os.path.join(settings.STATIC_ROOT, 'pwa')}),
-    
-    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),
 
-    path('listings/', views.listings, name='listings'),
 
 
 ]

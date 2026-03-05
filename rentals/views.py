@@ -56,7 +56,7 @@ def home(request):
         count = Property.objects.filter(property_type=t, status='available').count()
         categories.append({'code': t, 'label': label, 'count': f"{ (count // 100) * 100 }"})
 
-    context['categories'] = categories[:8]
+    context['categories'] = categories[:9]
     return render(request, "home.html", context)
 
 def login_view(request):
@@ -257,7 +257,6 @@ def get_user_is_admin(request):
 
 
 def get_properties(request):
-
     search_form = PropertySearchForm(request.GET or None)
     user_is_admin = get_user_is_admin(request)
 
@@ -282,9 +281,11 @@ def get_properties(request):
                 Q(city__icontains=search_term) |
                 Q(description__icontains=search_term)
             )
-    amenities = request.GET.getlist('amenities')
-    for amenity in amenities:
-        properties = properties.filter(amenities__contains=amenity)
+        if search_form.cleaned_data.get("amenities"):
+            
+            amenities = request.GET.getlist('amenities')
+            for amenity in amenities:
+                properties = properties.filter(amenities__contains=amenity)
 
     properties = properties.order_by("-created_at", "-id")
     cursor = request.GET.get("cursor")
@@ -325,15 +326,16 @@ def get_properties(request):
         "properties": data,
         "next_cursor": next_cursor,
         "has_next": next_cursor is not None,
+        "total": len(properties)
     })
 
 
 def properties_view(request):
     user_is_admin = get_user_is_admin(request)
 
-    purposes = ""
+    purposes = "All Purposes"
     status = ""
-    ptype = ""
+    ptype = "All Types"
 
     for v in Property.PURPOSE_CHOICES:
         purposes += ',' + v[0]
@@ -366,17 +368,20 @@ def properties_view(request):
             search_form_data["status"] = str(search_form.cleaned_data.get('status'))
         if search_form.cleaned_data.get('search'):
             search_form_data["search"] = str(search_form.cleaned_data.get('search'))
+        if search_form.cleaned_data.get('amenities'):
+            search_form_data["amenities"] = str(search_form.cleaned_data.get('amenities'))
 
     context = {
         'search_form_options': search_form_options,
         'search_form_data': search_form_data,
         'page_title': 'Available Properties',
+        'property_type_choices':  Property.PROPERTY_TYPE_CHOICES,
+        'amenity_choices':Property.AMENITY_CHOICES
     }
-    context['amenity_choices'] = Property.AMENITY_CHOICES
-    context['property_type_choices'] = Property.PROPERTY_TYPE_CHOICES
-    context['selected_amenities'] = request.GET.getlist('amenities') 
 
     return render(request, 'properties.html', context)
+
+
 
 
 def owner_can_publish_more(user):
@@ -1298,7 +1303,8 @@ def property_request(request):
 
     amenities = ','.join(request.POST.getlist('amenities'))
 
-    Inquiry.objects.create(
+    obj = Inquiry.objects.create(
+        user          = request.user,
         full_name     = request.POST.get('full_name', '').strip(),
         phone         = request.POST.get('phone', '').strip(),
         email         = request.POST.get('email', '').strip(),
@@ -1314,7 +1320,17 @@ def property_request(request):
         amenities     = amenities,
         notes         = request.POST.get('notes', '').strip(),
     )
+    
+    print(obj)
 
-    # The modal submits via fetch() so always return JSON
     return JsonResponse({'ok': True})
 
+
+
+def get_details(request):
+    return JsonResponse({
+        'property_type_choices': list(Property.PROPERTY_TYPE_CHOICES),
+        'amenity_choices':Property.AMENITY_CHOICES,
+        'purpose_choices':Property.PURPOSE_CHOICES,
+        'cities':Property.CITIES,
+    })

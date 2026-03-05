@@ -127,12 +127,12 @@
 
             <!-- Sidebar Filters -->
             <aside class="lg:col-span-3 lg:order-1 z-50">
-                <div class="overflow-y-scroll lg:ticky lg:top-24 max-lg:fixed max-lg:left-1/2 max-lg:-translate-x-1/2 max-lg:w-11/12 max-lg:top-1/2 max-lg:-translate-y-1/2 max-lg:scale-75 max-lg:hidden max-lg:opacity-0 max-lg:origin-bottom-right" id="sidebar">
+                <div class="overflow-y-scroll lg:sticky lg:top-24 max-lg:fixed max-lg:left-1/2 max-lg:-translate-x-1/2 max-lg:w-11/12 max-lg:top-1/2 max-lg:-translate-y-1/2 max-lg:scale-75 max-lg:hidden max-lg:opacity-0 max-lg:origin-bottom-right" id="sidebar">
 
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-5 ">
 
                         <!-- Header -->
-                        <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center justify-between mb-2.5">
                             <h2 class="text-lg font-semibold text-gray-900">Filters</h2>
                             {% if request.GET %}
                             <a href="{% url 'properties' %}" class="text-xs text-accent hover:underline">Clear all</a>
@@ -140,43 +140,43 @@
                         </div>
 
                         <!-- FIX: form tag properly wraps all fields including the buttons -->
-                        <form method="GET" class="space-y-4" id="filterFormSidebar">
+                        <form method="GET" class="space-y-2" id="filterFormSidebar">
 
                             <!-- Property Type -->
-                            <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">Property Type</label>
-                                <select name="property_type" id="property_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
+                            <div class="space-y-.5">
+                                <label class="text-sm text-gray-700">Property Type</label>
+                                <select name="property_type" id="property_type" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
                             </div>
 
                             <!-- Purpose -->
-                            <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">Purpose</label>
-                                <select name="purpose" id="purpose" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
+                            <div class="space-y-.5">
+                                <label class="text-sm text-gray-700">Purpose</label>
+                                <select name="purpose" id="purpose" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
                             </div>
 
                             <!-- Location -->
-                            <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">Location</label>
-                                <select name="city" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
+                            <div class="space-y-.5">
+                                <label class="text-sm text-gray-700">Location</label>
+                                <select name="city" id="city" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
                             </div>
                             
 
                             <!-- Search -->
-                            <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">Search</label>
+                            <div class="space-y-.5">
+                                <label class="text-sm text-gray-700">Search</label>
                                 <div class="relative">
                                     <input id="search" name="search" type="text"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                                        class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                                         placeholder="Search by title or address...">
                                     <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                                 </div>
                             </div>
 
-                            <div class="space-y-1.5">
+                            <div class="space-y-.5">
 
-                            <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">Amenities</label>
-                                <div class="flex flex-wrap gap-1.5">
+                            <div class="space-y-.5">
+                                <label class="text-sm text-gray-700">Amenities</label>
+                                <div class="flex flex-wrap gap-1.5 gap-y-2">
 
                                     {% for value, label in amenity_choices %}
                                     <div>
@@ -185,9 +185,9 @@
                                             name="amenities"
                                             value="{{ value }}"
                                             class="hidden peer"
-                                            {% if value in selected_amenities %}checked{% endif %}>
+                                            {% if value in search_form_data.selected_amenities %}checked{% endif %}>
                                         <label for="af_{{ value }}"
-                                            class="cursor-pointer select-none text-xs font-medium px-3 py-1.5
+                                            class="cursor-pointer select-none text-xs px-3 py-1.5
                                                     rounded-full border border-gray-300 text-gray-600 bg-white
                                                     peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600
                                                     hover:border-blue-300 hover:text-blue-500 transition-all">
@@ -215,7 +215,8 @@
                     </div>
 
                     <!-- Tips Card -->
-                    <div class="hidden lg:block bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                   <div id="tips" class="fixed inset-0 bg-black/30 duration-200">
+                     <div class="fixed bottom-10 right-5 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
                         <ul class="text-sm text-gray-600 space-y-2.5">
                             <li class="flex gap-2">
@@ -228,6 +229,7 @@
                             </li>
                         </ul>
                     </div>
+                   </div>
 
                 </div>
             </aside>
@@ -241,7 +243,13 @@
                         <p class="text-gray-500 text-sm mt-1">Browse available properties in Abuja</p>
                     </div>
 
+        
+
                     <div class="flex flex-wrap items-center gap-3">
+                        <div class="text-sm text-gray-500">
+                            Found  <span class="font-semibold text-gray-900" id="total"></span> properties
+                        </div>
+
                         <select name="sort"
                             onchange="document.getElementById('filterFormSidebar').submit()"
                             class="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent outline-none">
@@ -259,7 +267,6 @@
                 <div id="loadmorebtn"
                     onclick="loadMore()"
                     class="w-full p-10 bg-white rounded-xl border border-gray-200 shadow-sm my-10 flex justify-center items-center cursor-pointer hover:bg-gray-100 duration-200 text-gray-600">
-                    Load More
                 </div>
 
             </main>
@@ -301,13 +308,33 @@
     <!-- Mobile filter toggle button -->
     <div class="fixed rounded-full bottom-[40px] md:bottom-[100px] right-[20px] md:right-[30px] z-10 h-[48px] md:h-[56px] w-[48px] md:w-[56px] bg-accent flex justify-center items-center filter-btn lg:hidden duration-200"
         onclick="toggleSidebar()">
-        <i class="fas fa-filter text-white text-sm"></i>
+        <i class="fas fa-filter text-white text-sm "></i>
     </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
+
+    const tips = document.getElementById("tips")
+    
+    if (!localStorage.getItem("shown")) {
+        setTimeout(removeTips, 2000)
+        let tiplist = tips.addEventListener("click", removeTips)
+        let doclist = document.addEventListener("scroll", removeTips)
+        
+        function removeTips() {
+            tips.classList.add("opacity-0")
+            tips.addEventListener("transitionend", () => {
+                tips.classList.add("hidden")
+            })
+            document.removeEventListener("scroll", doclist)
+            tips.removeEventListener("scroll", tiplist)
+        }
+        localStorage.setItem("shown","true")
+    }
+
+
     let cursor = null
     let loading = false
     let hasNext = true
@@ -319,14 +346,16 @@
     let search = ''
     let ptype = ''
     let status = ''
+    let total = 0
 
     const purposeElement = document.getElementById("purpose")
     const searchElement  = document.getElementById("search")
     const ptypeElement   = document.getElementById("property_type")
     const cityElement    = document.getElementById("city")
+    const amenitiesList = []
 
     const loader = document.createElement("div")
-    loader.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full"
+    loader.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full duration-700 cursor-not-allowed"
 
     const formatter = new Intl.NumberFormat("en-NG", { style: 'currency', currency: 'NGN' })
 
@@ -405,10 +434,12 @@
         const btn = document.getElementById("loadmorebtn")
         btn.appendChild(loader)
 
-        // FIX: was accidentally writing to window.location instead of city
-        const effectivePtype   = (ptype.toLowerCase().startsWith("all"))   ? "" : ptype.toLowerCase()
-        const effectivePurpose = (purpose.toLowerCase().startsWith("all")) ? "" : purpose.toLowerCase()
-        const effectiveCity    = (city.toLowerCase().startsWith("all"))    ? "" : city.toLowerCase()
+        const effectiveAmmenities = amenitiesList.map((amenity) => {
+            return "&amenities="+amenity
+        })
+        const effectivePtype      = (ptype.toLowerCase().startsWith("all"))   ? "" : ptype.toLowerCase()
+        const effectivePurpose    = (purpose.toLowerCase().startsWith("all")) ? "" : purpose.toLowerCase()
+        const effectiveCity       = (city.toLowerCase().startsWith("all"))    ? "" : city.toLowerCase()
 
         const params = new URLSearchParams({
             property_type: effectivePtype,
@@ -418,7 +449,8 @@
         })
         if (cursor) params.set("cursor", cursor)
 
-        const res  = await fetch(`/api/properties/?${params}`)
+        const res  = await fetch(`/api/properties/?${params}${effectiveAmmenities.join("")}`)
+
         const data = await res.json()
 
         const container = document.getElementById("properties_grid")
@@ -433,6 +465,7 @@
         cursor  = data.next_cursor
         hasNext = data.has_next
         loading = false
+        total = data.total
 
         if (btn.contains(loader)) btn.removeChild(loader)
 
@@ -474,20 +507,32 @@
         const ptd = "{{ search_form_options.property_type }}".split(",")
         const cd  = "{{ search_form_options.city }}".split(",")
 
-        purpose = "{{ search_form_data.purpose|default:'' }}"
-        city    = "{{ search_form_data.city|default:'' }}"
-        search  = "{{ search_form_data.search|default:'' }}"
-        ptype   = "{{ search_form_data.ptype|default:'' }}"
-        status  = "{{ search_form_data.status|default:'' }}"
+        purpose    = "{{ search_form_data.purpose|default:'' }}"
+        city       = "{{ search_form_data.city|default:'' }}"
+        search     = "{{ search_form_data.search|default:'' }}"
+        ptype      = "{{ search_form_data.ptype|default:'' }}"
+        status     = "{{ search_form_data.status|default:'' }}"
+        a          = "{{ search_form_data.selected_amenities|default:''}}"
+        ammenities = a.slice(1, a.length-1).split(',')
 
         populateSelect(purposeElement, pd,  purpose)
         populateSelect(ptypeElement,   ptd, ptype)
         populateSelect(cityElement,    cd,  city)
 
         if (search) searchElement.value = search
+        for (let i = 0; i < ammenities.length; i++ ){
+            amenitiesList.push(ammenities[i].replaceAll("&#x27;", "").trimStart())
+        }
 
         initialised = true
         await loadMore()
+
+        let div = document.createElement("div")
+        div.innerHTML = `
+        {% include 'cta.html' %}
+        `
+        document.getElementById("properties_grid").appendChild(div)
+        document.getElementById("total").innerText = total.toString()
     }
 
     const observer = new IntersectionObserver(entries => {
@@ -498,6 +543,8 @@
     observer.observe(document.getElementById("sentinel"))
 
     loadFirst()
+
+
 </script>
 
     <script>

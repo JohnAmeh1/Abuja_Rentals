@@ -13,7 +13,6 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     
-    # Properties routes (public and owner) - Regular Properties
     path('properties/', views.properties_view, name='properties'),
     path('api/properties/', views.get_properties, name='properties_api'),
     path('properties/add/', views.add_property_view, name='add_property'),
@@ -21,27 +20,21 @@ urlpatterns = [
     path('properties/status/<int:property_id>/', views.update_property_status, name='update_property_status'),
     path('properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
     
-    # Property detail and actions - Regular Properties
     path('property/<int:property_id>/', views.property_detail_view, name='property_detail'),
-    path('property/<int:property_id>/contact-owner/', views.contact_property_owner, name='contact_property_owner'),
     path('property/<int:property_id>/update-status/', views.update_property_status, name='update_property_status'),
     
-    # Property actions - Regular Properties
     path('property/<int:property_id>/save/', views.save_property, name='save_property'),
     path('property/<int:property_id>/book-visit/', views.book_property_visit, name='book_property_visit'),
     path('property/<int:property_id>/report/', views.submit_report, name='submit_report'),
     
 
-    # Tenant views
     path('saved-properties/', views.saved_properties_view, name='saved_properties'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
     path('property-request/', views.property_request, name='property_request'),
     
-    # Owner views
     path('manage-bookings/', views.manage_bookings_view, name='manage_bookings'),
     path('bookings/<int:booking_id>/update/', views.update_booking_status, name='update_booking_status'),
     
-    # Admin URLs
     path('admin/dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
     path('admin/users/', views.admin_users_view, name='admin_users'),
     path('admin/properties/', views.admin_properties_view, name='admin_properties'),
@@ -57,15 +50,14 @@ urlpatterns = [
     path('api/active-messages/', views.get_active_messages, name='get_active_messages'),
     path('admin/properties/update/<int:property_id>/', views.update_property_status_admin, name='update_property_status_admin'),
 
-
-    # Reports
     path('admin/reports/', views.admin_reports_view, name='admin_reports'),
     path('admin/reports/<int:report_id>/action/', views.admin_report_action, name='admin_report_action'),
     
     path('api/check-username/', views.check_username_api, name='check_username_api'),
+    path('api/get-details/', views.get_details, name='get_details'),
 
-    # API endpoints
     path('api/property/<int:property_id>/bookings/', views.property_bookings_api, name='property_bookings_api'),
+    
     path('api/bookings/<int:booking_id>/details/', views.booking_details_api, name='booking_details_api'),
     path('api/bookings/<int:booking_id>/respond/', views.booking_respond_api, name='booking_respond_api'),
     path('api/bookings/<int:booking_id>/complete/', views.booking_complete_api, name='booking_complete_api'),

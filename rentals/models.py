@@ -9,7 +9,6 @@ class UserProfile(models.Model):
     USER_TYPE_CHOICES = [
         ('tenant', 'Tenant/Looking to Rent'),
         ('agent', 'Real Estate Agent'),
-        ('student', 'Student'),
         # ('admin', 'Administrator'),
     ]
     
@@ -72,6 +71,24 @@ class Property(models.Model):
         ('draft', 'Draft'),
     ]
     
+    CITIES = [
+                ('gwarinpa', 'Gwarinpa'),
+                ('jahi', 'Jahi'),
+                ('wuse', 'Wuse'),
+                ('wuye', 'Wuye'),
+                ('apo', 'Apo'),
+                ('dutse', 'Dutse'),
+                ('kubwa', 'Kubwa'),
+                ('bwari', 'Bwari'),
+                ('gwagwalada', 'Gwagwalada'),
+                ('lugbe', 'Lugbe'),
+                ('kuje', 'Kuje'),
+                ('kwali', 'Kwali'),
+                ('abaji', 'Abaji'),
+                ('maitama', 'Maitama'),
+                ('asokoro', 'Asokoro'),
+            ]
+    
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -115,9 +132,7 @@ class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(blank=True, null=True)
-    
-    sale_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    
+
     class Meta:
         indexes = [
             models.Index(fields=['purpose', 'city', 'status']),
@@ -128,6 +143,7 @@ class Property(models.Model):
             models.Index(fields=['is_featured']),
             models.Index(fields=['views']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['created_at', "-id"]),
             models.Index(fields=['status']),
         ]
 
@@ -195,35 +211,15 @@ class PropertyVisit(models.Model):
 
 class Inquiry(models.Model):
 
-    PROPERTY_TYPE_CHOICES = [
-        ('apartment', 'Apartment'),
-        ('house',     'House'),
-        ('land',      'Land'),
-        ('commercial','Commercial'),
-    ]
-
-    PURPOSE_CHOICES = [
-        ('rent', 'For Rent'),
-        ('sale', 'To Buy'),
-    ]
-
-    BUDGET_CHOICES = [
-        ('500000',   '₦500k'),
-        ('1000000',  '₦1M'),
-        ('2000000',  '₦2M'),
-        ('5000000',  '₦5M'),
-        ('10000000', '₦10M'),
-        ('20000000', '₦20M+'),
-    ]
-
     # Contact
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquires')
     full_name   = models.CharField(max_length=150)
     phone       = models.CharField(max_length=30)
     email       = models.EmailField(blank=True)
 
     # What they want
-    property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES, blank=True)
-    purpose       = models.CharField(max_length=10, choices=PURPOSE_CHOICES, blank=True)
+    property_type = models.CharField(max_length=20, choices=Property.PROPERTY_TYPE_CHOICES, blank=True)
+    purpose       = models.CharField(max_length=10, choices=Property.PURPOSE_CHOICES, blank=True)
 
     # Location
     city = models.CharField(max_length=100, blank=True)
@@ -261,7 +257,6 @@ class Inquiry(models.Model):
     def amenities_list(self):
         """Return amenities as a Python list."""
         return [a.strip() for a in self.amenities.split(',') if a.strip()]
-
 
 class SavedProperty(models.Model):
     """Model to track properties saved by users"""
@@ -346,7 +341,6 @@ class AdminMessage(models.Model):
 
 class Report(models.Model):
     REASON_CHOICES = [
-        ('payment_issue', 'Payment / Refund Issue'),
         ('fake_listing', 'Fake / Misleading Listing'),
         ('harassment', 'Harassment / Abusive Behavior'),
         ('other', 'Other'),

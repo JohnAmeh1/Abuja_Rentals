@@ -222,6 +222,24 @@ class PropertyForm(forms.ModelForm):
         ('cctv', 'CCTV Surveillance'),
     ]
     
+    CITIES = [
+                ('gwarinpa', 'Gwarinpa'),
+                ('jahi', 'Jahi'),
+                ('wuse', 'Wuse'),
+                ('wuye', 'Wuye'),
+                ('apo', 'Apo'),
+                ('dutse', 'Dutse'),
+                ('kubwa', 'Kubwa'),
+                ('bwari', 'Bwari'),
+                ('gwagwalada', 'Gwagwalada'),
+                ('lugbe', 'Lugbe'),
+                ('kuje', 'Kuje'),
+                ('kwali', 'Kwali'),
+                ('abaji', 'Abaji'),
+                ('maitama', 'Maitama'),
+                ('asokoro', 'Asokoro'),
+            ]
+    
     amenities = forms.MultipleChoiceField(
         choices=AMENITY_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'space-y-2'}),
@@ -422,25 +440,16 @@ class PropertySearchForm(forms.Form):
     property_type = forms.ChoiceField(
         choices=[('', 'All Types')] + Property.PROPERTY_TYPE_CHOICES,
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-        })
     )
     
     purpose = forms.ChoiceField(
         choices=[('', 'All Purposes')] + Property.PURPOSE_CHOICES,
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-        })
     )
     
     status = forms.ChoiceField(
         choices=[('', 'All Status')] + Property.STATUS_CHOICES,
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-        })
     )
     city = forms.ChoiceField(
         choices=[('', 'All Locations')] + [
@@ -459,19 +468,17 @@ class PropertySearchForm(forms.Form):
             ('abaji', 'Abaji'),
         ],
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-        })
     )
     
     search = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-            'placeholder': 'Search by title or address...'
-        })
     )
     
+    amenities = forms.MultipleChoiceField(
+        choices=PropertyForm.AMENITY_CHOICES,
+        required=False
+    )
+
 
 
 

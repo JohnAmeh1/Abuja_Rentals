@@ -242,14 +242,7 @@
             }
         }, maxLoadTime);
 
-        // Also hide on DOMContentLoaded as fallback
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit to show the animation
-                // Only hide if window is already loaded
-            if (document.readyState === 'complete') {
-                hidePreloader();
-            }
-        });
+        window.addEventListener('load', hidePreloader);
 
         // Hide immediately if user navigates away
         window.addEventListener('beforeunload', function() {

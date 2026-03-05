@@ -41,6 +41,25 @@ class Property(models.Model):
         ('commercial', 'Commercial Building'),
     ]
     
+    AMENITY_CHOICES = [
+        ('swimming_pool', 'Swimming Pool'),
+        ('gym', 'Gym/Fitness Center'),
+        ('parking', 'Parking Space'),
+        ('security', '24/7 Security'),
+        ('garden', 'Garden'),
+        ('balcony', 'Balcony/Terrace'),
+        ('elevator', 'Elevator'),
+        ('ac', 'Air Conditioning'),
+        ('heating', 'Heating System'),
+        ('laundry', 'Laundry Room'),
+        ('storage', 'Storage Space'),
+        ('concierge', 'Concierge Service'),
+        ('pet_friendly', 'Pet Friendly'),
+        ('furnished', 'Furnished'),
+        ('wifi', 'High-Speed Internet'),
+        ('cctv', 'CCTV Surveillance'),
+    ]
+    
     PURPOSE_CHOICES = [
         ('rent', 'For Rent'),
         ('sale', 'For Sale'),
@@ -173,22 +192,75 @@ class PropertyVisit(models.Model):
         return f"{self.visitor.username} - {self.property.title} on {self.visit_date}"
 
 
+
 class Inquiry(models.Model):
-    """Model to track property inquiries/contact messages"""
-    Inquiry = models.TextField()
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone = models.CharField(max_length=15)
-    message = models.TextField()
+
+    PROPERTY_TYPE_CHOICES = [
+        ('apartment', 'Apartment'),
+        ('house',     'House'),
+        ('land',      'Land'),
+        ('commercial','Commercial'),
+    ]
+
+    PURPOSE_CHOICES = [
+        ('rent', 'For Rent'),
+        ('sale', 'To Buy'),
+    ]
+
+    BUDGET_CHOICES = [
+        ('500000',   '₦500k'),
+        ('1000000',  '₦1M'),
+        ('2000000',  '₦2M'),
+        ('5000000',  '₦5M'),
+        ('10000000', '₦10M'),
+        ('20000000', '₦20M+'),
+    ]
+
+    # Contact
+    full_name   = models.CharField(max_length=150)
+    phone       = models.CharField(max_length=30)
+    email       = models.EmailField(blank=True)
+
+    # What they want
+    property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES, blank=True)
+    purpose       = models.CharField(max_length=10, choices=PURPOSE_CHOICES, blank=True)
+
+    # Location
+    city = models.CharField(max_length=100, blank=True)
+
+    # Budget range
+    budget_min = models.PositiveIntegerField(null=True, blank=True)
+    budget_max = models.PositiveIntegerField(null=True, blank=True)
+
+    # Bedrooms range
+    bedrooms_min = models.PositiveSmallIntegerField(null=True, blank=True)
+    bedrooms_max = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    # Bathrooms range
+    bathrooms_min = models.PositiveSmallIntegerField(null=True, blank=True)
+    bathrooms_max = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    # Amenities stored as comma-separated values e.g. "parking,wifi,gym"
+    amenities = models.TextField(blank=True)
+
+    # Free-text notes
+    notes = models.TextField(blank=True)
+
+    # Meta
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    is_resolved = models.BooleanField(default=False)
+
     class Meta:
         ordering = ['-created_at']
-        verbose_name_plural = 'Property Inquiries'
-    
+        verbose_name = 'Inquiry'
+        verbose_name_plural = 'Inquiries'
+
     def __str__(self):
-        return f"{self.name} - {self.property.title}"
+        return f"{self.full_name} — {self.property_type or 'any'} ({self.created_at:%d %b %Y})"
+
+    def amenities_list(self):
+        """Return amenities as a Python list."""
+        return [a.strip() for a in self.amenities.split(',') if a.strip()]
 
 
 class SavedProperty(models.Model):

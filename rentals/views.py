@@ -14,7 +14,7 @@ from django.core import signing
 from datetime import datetime
 from decimal import Decimal
 
-from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit)
+from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit, Inquiry)
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm)
 from .recommendations import get_property_recommendations
 
@@ -246,24 +246,26 @@ def decode_cursor(cursor):
         data["id"]
     )
 
-def get_properties(request):
-    
-    search_form = PropertySearchForm(request.GET or None)
-    
-    user_is_admin = False
-
+def get_user_is_admin(request):
+    """Helper to avoid repeating admin-check logic."""
     if request.user.is_authenticated:
         try:
-            if request.user.userprofile.user_type == 'admin':
-                user_is_admin = True
+            return request.user.userprofile.user_type == 'admin'
         except Exception:
-            user_is_admin = False
-    
+            pass
+    return False
+
+
+def get_properties(request):
+
+    search_form = PropertySearchForm(request.GET or None)
+    user_is_admin = get_user_is_admin(request)
+
     if user_is_admin:
         properties = Property.objects.all()
     else:
         properties = Property.objects.filter(status='available')
-    
+
     if search_form.is_valid():
         if search_form.cleaned_data.get('property_type'):
             properties = properties.filter(property_type=search_form.cleaned_data['property_type'])
@@ -271,37 +273,40 @@ def get_properties(request):
             properties = properties.filter(purpose=search_form.cleaned_data['purpose'])
         if search_form.cleaned_data.get('city'):
             properties = properties.filter(city=search_form.cleaned_data['city'])
-        if search_form.cleaned_data.get('status') and (user_is_admin):
+        if search_form.cleaned_data.get('status') and user_is_admin:
             properties = properties.filter(status=search_form.cleaned_data['status'])
         if search_form.cleaned_data.get('search'):
             search_term = search_form.cleaned_data['search']
             properties = properties.filter(
-                Q(title__icontains=search_term) | 
+                Q(title__icontains=search_term) |
                 Q(city__icontains=search_term) |
                 Q(description__icontains=search_term)
             )
-        
+    amenities = request.GET.getlist('amenities')
+    for amenity in amenities:
+        properties = properties.filter(amenities__contains=amenity)
+
     properties = properties.order_by("-created_at", "-id")
     cursor = request.GET.get("cursor")
-    
+
     if cursor:
         created_at, id = decode_cursor(cursor)
         properties = properties.filter(
             Q(created_at__lt=created_at) |
             Q(created_at=created_at, id__lt=id)
         )
-    
+
     page_size = 21
     result = list(properties[:page_size])
-    
+
     next_cursor = None
     if len(result) == page_size:
         last = result[-1]
         next_cursor = encode_cursor(last.created_at, last.id)
-        
+
     data = [
         {
-            "title":p.title,
+            "title": p.title,
             "main_image": p.main_image if p.main_image else None,
             "price": p.price,
             "purpose": p.purpose,
@@ -311,70 +316,68 @@ def get_properties(request):
             "bathrooms": p.bathrooms,
             "area_sqft": p.area_sqft,
             "description": p.description,
-            "owner": p.owner.id
-        } for p in result
+            "owner": p.owner.id,
+        }
+        for p in result
     ]
-    
+
     return JsonResponse({
         "properties": data,
         "next_cursor": next_cursor,
-        "has_next": next_cursor is not None
+        "has_next": next_cursor is not None,
     })
 
 
-def properties_view(request):    
-    purposes = "All Purpose"
-    status = ""
-    ptype = "All Types"
-    
-    user_is_admin = False
+def properties_view(request):
+    user_is_admin = get_user_is_admin(request)
 
-    if request.user.is_authenticated:
-        try:
-            if request.user.userprofile.user_type == 'admin':
-                user_is_admin = True
-        except Exception:
-            user_is_admin = False
-    
-    
+    purposes = ""
+    status = ""
+    ptype = ""
+
     for v in Property.PURPOSE_CHOICES:
-        purposes += ','+v[0]
-        
+        purposes += ',' + v[0]
+
     for v in Property.STATUS_CHOICES:
-        status += ','+v[0]
-        
+        status += ',' + v[0]
+
     for v in Property.PROPERTY_TYPE_CHOICES:
-        ptype += ','+v[0]
-    
+        ptype += ',' + v[0]
+
     search_form_options = {
-            "search": "",
-            "purpose": purposes,
-            "status": status,
-            "city":'All Locations,gwarinpa,jahi,wuse,wuye,apo,dutse,kubwa,bwari,gwagwalada,lugbe,kuje,kwali,abaji', 
-            "property_type": ptype
-            }
+        "search": "",
+        "purpose": purposes,
+        "status": status,
+        "city": 'All Locations,Gwarinpa,Jahi,Wuse,Wuye,Apo,Dutse,Kubwa,Bwari,Gwagwalada,Lugbe,Kuje,Kwali,Abaji',
+        "property_type": ptype,
+    }
+
     search_form = PropertySearchForm(request.GET or None)
-    search_form_data = { }
-    
+    search_form_data = {}
+
     if search_form.is_valid():
         if search_form.cleaned_data.get('property_type'):
-            search_form_data["ptype"] = search_form.cleaned_data.get('property_type')
+            search_form_data["ptype"] = str(search_form.cleaned_data.get('property_type'))
         if search_form.cleaned_data.get('purpose'):
-            search_form_data["purpose"] = search_form.cleaned_data.get('purpose')            
+            search_form_data["purpose"] = str(search_form.cleaned_data.get('purpose'))
         if search_form.cleaned_data.get('city'):
-            search_form_data["city"] = search_form.cleaned_data.get('city')            
-        if search_form.cleaned_data.get('status') and (user_is_admin):
-            search_form_data["status"] = search_form.cleaned_data.get('status')            
+            search_form_data["city"] = str(search_form.cleaned_data.get('city'))
+        if search_form.cleaned_data.get('status') and user_is_admin:
+            search_form_data["status"] = str(search_form.cleaned_data.get('status'))
         if search_form.cleaned_data.get('search'):
-            search_form_data["search"] = search_form.cleaned_data.get('search')                   
-    
+            search_form_data["search"] = str(search_form.cleaned_data.get('search'))
+
     context = {
         'search_form_options': search_form_options,
         'search_form_data': search_form_data,
-        'page_title':  'Available Properties',
+        'page_title': 'Available Properties',
     }
+    context['amenity_choices'] = Property.AMENITY_CHOICES
+    context['property_type_choices'] = Property.PROPERTY_TYPE_CHOICES
+    context['selected_amenities'] = request.GET.getlist('amenities') 
 
     return render(request, 'properties.html', context)
+
 
 def owner_can_publish_more(user):
     """Return True if the owner is allowed to publish another property.
@@ -1283,3 +1286,35 @@ def dismiss_admin_message(request):
             return JsonResponse({'success': False, 'error': 'Invalid JSON'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@require_http_methods(["POST"])
+def property_request(request):
+    def to_int(val):
+        try:
+            return int(val) if val else None
+        except (ValueError, TypeError):
+            return None
+
+    amenities = ','.join(request.POST.getlist('amenities'))
+
+    Inquiry.objects.create(
+        full_name     = request.POST.get('full_name', '').strip(),
+        phone         = request.POST.get('phone', '').strip(),
+        email         = request.POST.get('email', '').strip(),
+        property_type = request.POST.get('property_type', ''),
+        purpose       = request.POST.get('purpose', ''),
+        city          = request.POST.get('city', ''),
+        budget_min    = to_int(request.POST.get('budget_min')),
+        budget_max    = to_int(request.POST.get('budget_max')),
+        bedrooms_min  = to_int(request.POST.get('bedrooms_min')),
+        bedrooms_max  = to_int(request.POST.get('bedrooms_max')),
+        bathrooms_min = to_int(request.POST.get('bathrooms_min')),
+        bathrooms_max = to_int(request.POST.get('bathrooms_max')),
+        amenities     = amenities,
+        notes         = request.POST.get('notes', '').strip(),
+    )
+
+    # The modal submits via fetch() so always return JSON
+    return JsonResponse({'ok': True})
+

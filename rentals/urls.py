@@ -35,6 +35,7 @@ urlpatterns = [
     # Tenant views
     path('saved-properties/', views.saved_properties_view, name='saved_properties'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
+    path('property-request/', views.property_request, name='property_request'),
     
     # Owner views
     path('manage-bookings/', views.manage_bookings_view, name='manage_bookings'),
@@ -73,7 +74,6 @@ urlpatterns = [
 
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),
-
 
 
 ]

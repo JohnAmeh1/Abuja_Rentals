@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, Inquiry
 
 # Inline for UserProfile
 class UserProfileInline(admin.StackedInline):
@@ -36,3 +36,13 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('user_type', 'created_at')
     search_fields = ('user__username', 'user__email', 'phone_number')
     
+
+
+@admin.register(Inquiry)
+class InquiryAdmin(admin.ModelAdmin):
+    list_display  = ('full_name', 'phone', 'email', 'property_type', 'purpose', 'city', 'is_resolved', 'created_at')
+    list_filter   = ('property_type', 'purpose', 'is_resolved', 'city')
+    search_fields = ('full_name', 'phone', 'email', 'notes')
+    list_editable = ('is_resolved',)
+    readonly_fields = ('created_at',)
+

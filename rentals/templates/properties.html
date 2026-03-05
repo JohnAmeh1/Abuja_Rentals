@@ -121,502 +121,384 @@
 {% block content %}
     <div class="container mx-auto px-4 lg:px-10 py-8 duration-200 max-lg:overflow-hidden">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
-            <!-- Sidebar Filters (Left) -->
-            <div class="z-10 bg-black/10 backdrop-blur-sm fixed inset-0 max-lg:hidden lg:hidden" id="bg"></div>
-            <aside class="lg:col-span-3 lg:order-1 z-50">
 
-                <div class="lg:sticky lg:top-24 max-lg:fixed max-lg:left-1/2 max-lg:-translate-x-1/2 max-lg:w-11/12 max-lg:top-1/2 max-lg:-translate-y-1/2 max-lg:scale-75 max-lg:hidden max-lg:opacity-0 max-lg:origin-bottom-right" id="sidebar">
-                    <div   class="bg-white rounded-xl border border-gray-200
-                                shadow-sm p-5 mb-5">
+            <!-- Backdrop (mobile) -->
+            <div class="z-10 bg-black/10 backdrop-blur-sm fixed inset-0 max-lg:hidden lg:hidden" id="bg"></div>
+
+            <!-- Sidebar Filters -->
+            <aside class="lg:col-span-3 lg:order-1 z-50">
+                <div class="overflow-y-scroll lg:ticky lg:top-24 max-lg:fixed max-lg:left-1/2 max-lg:-translate-x-1/2 max-lg:w-11/12 max-lg:top-1/2 max-lg:-translate-y-1/2 max-lg:scale-75 max-lg:hidden max-lg:opacity-0 max-lg:origin-bottom-right" id="sidebar">
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-5 ">
 
                         <!-- Header -->
                         <div class="flex items-center justify-between mb-5">
-                            <h2 class="text-lg font-semibold text-gray-900">
-                                Filters
-                            </h2>
-
+                            <h2 class="text-lg font-semibold text-gray-900">Filters</h2>
                             {% if request.GET %}
-                                <button onclick="() => loadMore('')" class="text-xs text-accent hover:underline">
-                                    Clear all
-                                </button>
+                            <a href="{% url 'properties' %}" class="text-xs text-accent hover:underline">Clear all</a>
                             {% endif %}
                         </div>
 
+                        <!-- FIX: form tag properly wraps all fields including the buttons -->
                         <form method="GET" class="space-y-4" id="filterFormSidebar">
 
                             <!-- Property Type -->
                             <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">
-                                    Property Type
-                                </label>
-                                <div class="form-field">
-                                    <!-- {{ search_form.property_type }} -->
-                                    <select name="ptype" id="ptype" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                                        
-                                    </select>
-                                </div>
+                                <label class="text-sm font-medium text-gray-700">Property Type</label>
+                                <select name="property_type" id="property_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
                             </div>
 
                             <!-- Purpose -->
                             <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">
-                                    Purpose
-                                </label>
-                                <div class="form-field">
-                                    <!-- {{ search_form.purpose }} -->
-                                    <select name="purpose" id="purpose" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                                        
-                                    </select>
-                                </div>
+                                <label class="text-sm font-medium text-gray-700">Purpose</label>
+                                <select name="purpose" id="purpose" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
                             </div>
 
                             <!-- Location -->
                             <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">
-                                    Location
-                                </label>
-                                <div class="form-field">
-                                    <!-- {{ search_form.city }} -->
-                                    <select name="city" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                                        
-                                    </select>
-                                </div>
+                                <label class="text-sm font-medium text-gray-700">Location</label>
+                                <select name="city" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
                             </div>
+                            
 
                             <!-- Search -->
                             <div class="space-y-1.5">
-                                <label class="text-sm font-medium text-gray-700">
-                                    Search
-                                </label>
+                                <label class="text-sm font-medium text-gray-700">Search</label>
                                 <div class="relative">
-                                    <!-- {{ search_form.search }} -->
-                                    <input id="search" name="search" type="text" class='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent' placeholder='Search by title or address...'>
+                                    <input id="search" name="search" type="text"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                                        placeholder="Search by title or address...">
                                     <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                                 </div>
                             </div>
 
-                            <!-- Actions -->
+                            <div class="space-y-1.5">
+
+                            <div class="space-y-1.5">
+                                <label class="text-sm font-medium text-gray-700">Amenities</label>
+                                <div class="flex flex-wrap gap-1.5">
+
+                                    {% for value, label in amenity_choices %}
+                                    <div>
+                                        <input type="checkbox"
+                                            id="af_{{ value }}"
+                                            name="amenities"
+                                            value="{{ value }}"
+                                            class="hidden peer"
+                                            {% if value in selected_amenities %}checked{% endif %}>
+                                        <label for="af_{{ value }}"
+                                            class="cursor-pointer select-none text-xs font-medium px-3 py-1.5
+                                                    rounded-full border border-gray-300 text-gray-600 bg-white
+                                                    peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600
+                                                    hover:border-blue-300 hover:text-blue-500 transition-all">
+                                            {{ label }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+
+                            <!-- FIX: buttons are now inside the <form> tag -->
                             <div class="grid grid-cols-2 gap-2 pt-2">
-                                <button
-                                    type="submit"
+                                <button type="submit"
                                     class="px-4 py-2.5 bg-accent text-white rounded-lg hover:opacity-90 transition font-medium text-sm">
                                     Apply
                                 </button>
-
-                                <button
-                                    onclick="() =>ResetFilter()"
+                                <a href="{% url 'properties' %}"
                                     class="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50 transition text-sm">
                                     Reset
-                                </button>
+                                </a>
                             </div>
 
-                        </div>
-
-                    </form>
+                        </form>
+                    </div>
 
                     <!-- Tips Card -->
-                    <div class="hidden lg:block bg-white rounded-xl
-                                border border-gray-200 shadow-sm p-4 ">
-
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                            Quick Tips
-                        </h3>
-
+                    <div class="hidden lg:block bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
                         <ul class="text-sm text-gray-600 space-y-2.5">
                             <li class="flex gap-2">
                                 <i class="fas fa-filter text-accent mt-1"></i>
                                 Use filters to narrow results quickly
                             </li>
-
                             <li class="flex gap-2">
                                 <i class="fas fa-eye text-accent mt-1"></i>
                                 Click a card to view full details
                             </li>
-
                         </ul>
-
                     </div>
-                </div>
 
+                </div>
             </aside>
 
-
-            <!-- Main content (Right) -->
+            <!-- Main Content -->
             <main class="lg:col-span-9 order-2 lg:order-2 duration-200 origin-top" id="content">
-                
-                <!-- HEADER -->
+
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
-                            {{ page_title }}
-                        </h1>
-
-                        <p class="text-gray-500 text-sm mt-1">
-                            {% if is_owner_view %}
-                                Manage your property listings
-                            {% else %}
-                                Browse available properties in Abuja
-                            {% endif %}
-                        </p>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+                        <p class="text-gray-500 text-sm mt-1">Browse available properties in Abuja</p>
                     </div>
 
-                    <!-- Right Controls -->
                     <div class="flex flex-wrap items-center gap-3">
-
-                        <select
-                            name="sort"
-                            onchange="loadMore()"
-                            class="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent outline-none"
-                        >
+                        <select name="sort"
+                            onchange="document.getElementById('filterFormSidebar').submit()"
+                            class="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent outline-none">
                             <option value="">Sort: Recommended</option>
                             <option value="price_asc">Price: Low → High</option>
                             <option value="price_desc">Price: High → Low</option>
                             <option value="newest">Newest</option>
                         </select>
-
-                        {% if user.is_authenticated and user.userprofile.user_type == 'owner' %}
-                            <a
-                                href="{% url 'add_property' %}"
-                                class="btn-gradient text-white font-medium px-4 h-9 rounded-lg flex items-center text-sm"
-                            >
-                                <i class="fas fa-plus mr-2"></i>
-                                Add Property
-                            </a>
-                        {% endif %}
-
                     </div>
                 </div>
-
 
                 <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
                 <div id="empty"></div>
                 <div id="sentinel"></div>
-                <div id="loadmorebtn" onclick="loadMore()" class="w-full p-10 bg-white rounded-xl border border-gray-200 shadow-sm my-10 flex justify-center items-center cursor-pointer hover:bg-gray-100 duration-200 text-gray-600">Load More</div>
-            </main>
+                <div id="loadmorebtn"
+                    onclick="loadMore()"
+                    class="w-full p-10 bg-white rounded-xl border border-gray-200 shadow-sm my-10 flex justify-center items-center cursor-pointer hover:bg-gray-100 duration-200 text-gray-600">
+                    Load More
+                </div>
 
+            </main>
         </div>
     </div>
 
-<!-- Delete Modal - Only shown to property owners -->
     {% if user.is_authenticated %}
-        <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-xl p-6 max-w-md w-full">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Property</h3>
-                    <p class="text-gray-600">Are you sure you want to delete <span id="propertyName" class="font-semibold"></span>? This action cannot be undone.</p>
-                </div>
-
-                <form id="deleteForm" method="POST" class="space-y-4">
-                    {% csrf_token %}
-                    <div class="flex space-x-4">
-                        <button type="button" onclick="closeDeleteModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                            Cancel
-                        </button>
-                        <button type="submit" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                            Delete Property
-                        </button>
-                    </div>
-                </form>
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-lg w-full">
+            <div class="text-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Report Property Owner</h3>
+                <p class="text-gray-600 text-sm">Describe the issue and our admin team will review and act accordingly.</p>
             </div>
+            <form id="reportForm" method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                    <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="payment_issue">Payment / Refund Issue</option>
+                        <option value="fake_listing">Fake / Misleading Listing</option>
+                        <option value="harassment">Harassment / Abusive Behavior</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
+                    <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Describe the issue"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Submit Report</button>
+                </div>
+            </form>
         </div>
+    </div>
     {% endif %}
 
-    {% if user.is_authenticated %}
-<!-- Report Modal for properties list -->
-        <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-xl p-6 max-w-lg w-full">
-                <div class="text-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Report Property Owner</h3>
-                    <p class="text-gray-600 text-sm">Describe the issue and our admin team will review and act accordingly.</p>
-                </div>
-
-                <form id="reportForm" method="POST" class="space-y-4">
-                    {% csrf_token %}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
-                        <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                            <option value="payment_issue">Payment / Refund Issue</option>
-                            <option value="fake_listing">Fake / Misleading Listing</option>
-                            <option value="harassment">Harassment / Abusive Behavior</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
-                        <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Describe the issue"></textarea>
-                    </div>
-
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeReportModal()" class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Submit Report</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-    
-    {% endif %}
-        <div class="fixed rounded-full bottom-[40px] md:bottom-[100px] right-[20px] md:right-[30px] z-10 h-[48px] md:h-[56px] w-[48px] md:w-[56px] bg-accent flex justify-center items-center filter-btn lg:hidden duration-200"
-            onclick="toggleSidebar()">
-            <i class="fas fa-filter text-white text-sm"></i>
-        </div>
+    <!-- Mobile filter toggle button -->
+    <div class="fixed rounded-full bottom-[40px] md:bottom-[100px] right-[20px] md:right-[30px] z-10 h-[48px] md:h-[56px] w-[48px] md:w-[56px] bg-accent flex justify-center items-center filter-btn lg:hidden duration-200"
+        onclick="toggleSidebar()">
+        <i class="fas fa-filter text-white text-sm"></i>
+    </div>
 
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    let cursor = null
+    let loading = false
+    let hasNext = true
+    let totalLoaded = 0
+    let initialised = false  
 
-    <script>
-        let cursor = null
-        let loading = false
-        let hasNext = true
-        let length = 0
+    let purpose = ''
+    let city = ''
+    let search = ''
+    let ptype = ''
+    let status = ''
 
-        let purpose = ''
-        let city = ""
-        let search = ""
-        let ptype = ""
-        let status = ""
+    const purposeElement = document.getElementById("purpose")
+    const searchElement  = document.getElementById("search")
+    const ptypeElement   = document.getElementById("property_type")
+    const cityElement    = document.getElementById("city")
 
-        const purposeElement = document.getElementById("purpose")
-        const searchElement = document.getElementById("search")
-        const ptypeElement = document.getElementById("ptype")
-        const cityElement = document.getElementById("city")
+    const loader = document.createElement("div")
+    loader.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full"
 
-        const loader = document.createElement("div")
-        loader.innerHTML = `<div class="animate-spin inset-0 absolute bg-white cursor-not-allowed"><span class="border-t-0 border border-gray-600 rounded-full"></span></div>`
+    const formatter = new Intl.NumberFormat("en-NG", { style: 'currency', currency: 'NGN' })
 
-        async function loadMore() {
-            if (loading || !hasNext) return
-            loading = true
-            document.getElementById("loadmorebtn").appendChild(loader)
+    function buildCard(property) {
+        const safeTitle = property.title.replace(/'/g, "\\'")
 
-            const url = cursor
-            ? `/api/properties/?property_type=${ptype}&purpose=${purpose}&city=${city}&search=${search}&cursor=${cursor}`
-            : `/api/properties/?property_type=${ptype}&purpose=${purpose}&city=${city}&search=${search}`
+        return `
+        <article class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition">
 
-            const res = await fetch(url)
-            const data = await res.json()
+            <a href="/property/${property.id}/">
 
-            const container = document.getElementById("properties_grid")
-            const formatter = new Intl.NumberFormat("en-NG", {
-                style: 'currency',
-                currency: 'NGN'
-            })
-            data.properties.forEach(property => {
-                length++
-                const div = document.createElement("div");
-                div.innerHTML = `
-                    <article
-                        class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition"
-                            >
-                                <div class="relative h-52 overflow-hidden bg-gray-100">
-                                    ${property.main_image ? 
-                                    `<img
-                                        src="${property.main_image}"
-                                        alt="${property.title}"
-                                        width="30"
-                                        height="30"
-                                        class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
-                                        > `: 
-                                    `<div class="w-full h-full flex items-center justify-center">
-                                        <i class="fas fa-home text-gray-300 text-4xl"></i>
-                                    </div>`
-                                    }
-                                    
-                                    <div class="absolute bottom-2.5 left-2.5">
-                                        <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                                            ${formatter.format(property.price)}
-                                            ${property.purpose == "rent" ?
-                                            `<span class="font-normal text-xs ">
-                                                (per annum)
-                                            </span>`:""}
-                                        </span>
-                                    </div>
-                                    <a href="/property/${property.id}/save"
-                                        class="absolute top-3 right-3 w-8 h-8
-                                                bg-white/90 backdrop-blur rounded-lg
-                                                flex items-center justify-center
-                                                text-gray-400 hover:text-red-500 transition">
-                                        <i class="fas fa-heart"></i>
-                                        </a>
+                <div class="relative h-52 overflow-hidden bg-gray-100">
+                    ${property.main_image
+                        ? `<img src="${property.main_image}" alt="${property.title}"
+                                class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300">`
+                        : `<div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-home text-gray-300 text-4xl"></i>
+                           </div>`
+                    }
 
-                                    <div class="absolute top-2.5 left-2.5 flex items-center">
-                                        <!-- <span
-                                        class="bg-white/90 backdrop-blur-sm text-primary font-semibold text-sm px-2 py-1 rounded-lg shadow-sm"
-                                        >{{ property.get_purpose_display }}</span> -->
-                                    </div>
+                    <div class="absolute bottom-2.5 left-2.5">
+                        <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                            ${formatter.format(property.price)}
+                            ${property.purpose === 'rent'
+                                ? `<span class="font-normal text-xs">(per annum)</span>`
+                                : ''}
+                        </span>
+                    </div>
 
-                                </div>
+                    <div class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur rounded-lg
+                                flex items-center justify-center text-gray-400 hover:text-red-500 transition">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                </div>
 
-                                <a  href="/property/${property.id}/"
-                                <div class="p-5 flex flex-col gap-4">
+                <div class="p-5 flex flex-col gap-4">
 
-                                <!-- TITLE -->
-                                <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">
-                                    ${property.title}
-                                </h3>
+                    <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">
+                        ${property.title}
+                    </h3>
 
-                                <!-- LOCATION -->
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400 capitalize"></i>
-                                    <span>${property.city.toLocaleUpperCase()}</span>
-                                </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                        <span class="first-letter:capitalize">${property.city}</span>
+                    </div>
 
-                                <!-- PROPERTY META -->
-                                <div class="flex items-center gap-6 text-sm text-gray-600 my-1.5">
-                                    ${property.bedrooms ?
-                                    `<div class="flex items-center gap-1.5">
-                                            <i class="fas fa-bed text-gray-400"></i>
-                                            <span>${ property.bedrooms }</span>
-                                        </div>`:""
-                                    }
-                                    ${property.bathrooms ? 
-                                    ` <div class="flex items-center gap-1.5">
-                                            <i class="fas fa-bath text-gray-400"></i>
-                                            <span>${ property.bathrooms }</span>
-                                        </div>`:""
-                                    }
-                                    ${property.area_sqft ? 
-                                    `   <div class="flex items-center gap-1.5">
-                                            <i class="fas fa-ruler-combined text-gray-400"></i>
-                                            <span>${ property.area_sqft } sqft</span>
-                                        </div>`:''
-                                    }
+                    <div class="flex items-center gap-6 text-sm text-gray-600 my-1.5">
+                        ${property.bedrooms  ? `<div class="flex items-center gap-1.5"><i class="fas fa-bed text-gray-400"></i><span>${property.bedrooms}</span></div>`   : ''}
+                        ${property.bathrooms ? `<div class="flex items-center gap-1.5"><i class="fas fa-bath text-gray-400"></i><span>${property.bathrooms}</span></div>` : ''}
+                        ${property.area_sqft ? `<div class="flex items-center gap-1.5"><i class="fas fa-ruler-combined text-gray-400"></i><span>${property.area_sqft} sqft</span></div>` : ''}
+                    </div>
 
-                                </div>
+                    <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">${property.description}</p>
 
-                                <!-- DESCRIPTION -->
-                                <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                                    ${ property.description }
-                                </p>
+                    <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+                        <span class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition">
+                            View Details
+                        </span>
+                        <button
+                            onclick="event.preventDefault(); openReportModal(${property.id}, '${safeTitle}')"
+                            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
+                            title="Report">
+                            <i class="fas fa-flag"></i>
+                        </button>
+                    </div>
 
-                                <!-- ACTIONS -->
-                                <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+                </div>
+            </a>
+        </article>`
+    }
 
-                                    <span
-                                        class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition"
-                                    >
-                                        View Details
-                                    </span>
+    async function loadMore() {
+        if (loading || !hasNext) return
+        loading = true
 
-                                        <button
-                                            onclick="openReportModal(${ property.id }, ${ property.title })"
-                                            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
-                                            title="Report"
-                                        >
-                                            <i class="fas fa-flag"></i>
-                                        </button>
+        const btn = document.getElementById("loadmorebtn")
+        btn.appendChild(loader)
 
-                                </div>
+        // FIX: was accidentally writing to window.location instead of city
+        const effectivePtype   = (ptype.toLowerCase().startsWith("all"))   ? "" : ptype.toLowerCase()
+        const effectivePurpose = (purpose.toLowerCase().startsWith("all")) ? "" : purpose.toLowerCase()
+        const effectiveCity    = (city.toLowerCase().startsWith("all"))    ? "" : city.toLowerCase()
 
-                            </div>
-                            </a>
-                            </article>
-                `
-                container.appendChild(div)
-            })
+        const params = new URLSearchParams({
+            property_type: effectivePtype,
+            purpose:       effectivePurpose,
+            city:          effectiveCity,
+            search:        search.toLowerCase(),
+        })
+        if (cursor) params.set("cursor", cursor)
 
-            if (data.properties.lenght == 0) {
-                loader.innerText= "No more properties with this filter"
-            } 
-            cursor = data.next_cursor
-            hasNext = data.has_next
-            loading = false
-            document.getElementById("loadmorebtn").removeChild(loader)
+        const res  = await fetch(`/api/properties/?${params}`)
+        const data = await res.json()
 
-            if (length == 0){
-                document.getElementById("loadmorebtn").innerHTML = ``
-                document.getElementById("empty").innerHTML = 
-                `<div class="bg-white rounded-xl border border-gray-200
-                                p-10 text-center">
+        const container = document.getElementById("properties_grid")
 
-                        <div class="w-20 h-20 bg-gray-100 rounded-full
-                                    flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-home text-gray-400 text-3xl"></i>
-                        </div>
-
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            No Properties Found
-                        </h3>
-
-                        <p class="text-gray-500 mb-5 max-w-md mx-auto text-sm">
-                            {% if is_owner_view %}
-                                You haven't listed any properties yet.
-                            {% else %}
-                                No properties match your search. Try adjusting filters.
-                            {% endif %}
-                        </p>
-
-                        {% if is_owner_view and user.is_authenticated and user.userprofile.user_type == 'owner' %}
-                            <a
-                                href="{% url 'add_property' %}"
-                                class="btn-gradient text-white px-5 py-2.5 rounded-lg inline-flex items-center text-sm"
-                            >
-                                <i class="fas fa-plus mr-2"></i>
-                                Add Your First Property
-                            </a>
-                        {% endif %}
-
-                    </div>`
-            }
-        }
-
-
-        purposeElement.addEventListener("change", (e) => {console.log(e.target.value)})
-
-        async function loadFirst() {
-            pd = "{{search_form_options.purpose}}".split(",")
-            ptd = "{{search_form_options.property_type}}".split(",")
-            cd = "{{search_form_options.city}}".split(",")
-
-            const container = document.getElementById("properties_grid")
-            container.innerHTML = ''
-
-            for (let i=0; i < pd.length; i++) {
-                const option = document.createElement("option")
-                option.value = pd[i]
-                option.innerHTML = pd[i]
-                purposeElement.appendChild(option)
-            }
-
-            for (let i=0; i < ptd.length; i++) {
-                const option = document.createElement("option")
-                option.value = ptd[i]
-                option.innerHTML = ptd[i]
-                ptypeElement.appendChild(option)
-            }
-
-            for (let i=0; i < cd.length; i++) {
-                const option = document.createElement("option")
-                option.value = cd[i]
-                option.innerHTML = cd[i]
-                cityElement.appendChild(option)
-            }
-
-            purpose = "{{search_form_data.purpose}}"
-            city = "{{search_form_data.city}}"
-            search = "{{search_form_data.search}}"
-            ptype = "{{search_form_data.ptype}}"
-            status = "{{search_form_data.status}}"
-
-            loadMore()
-        }
-
-
-
-        const observer = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting) {
-                loadMore()
-            }
+        data.properties.forEach(property => {
+            totalLoaded++
+            const wrapper = document.createElement("div")
+            wrapper.innerHTML = buildCard(property)
+            container.appendChild(wrapper)
         })
 
-        observer.observe(document.getElementById("sentinel"))
-        loadFirst()
-    </script>
+        cursor  = data.next_cursor
+        hasNext = data.has_next
+        loading = false
+
+        if (btn.contains(loader)) btn.removeChild(loader)
+
+        if (!hasNext) {
+            btn.textContent = "No more properties with this filter"
+            btn.classList.add("cursor-not-allowed", "bg-gray-100")
+            btn.onclick = null
+        }
+
+        if (totalLoaded === 0) {
+            btn.innerHTML = ''
+            document.getElementById("empty").innerHTML = `
+                <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-home text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">No Properties Found</h3>
+                    <p class="text-gray-500 mb-5 max-w-md mx-auto text-sm">No properties match your search. Try adjusting filters.</p>
+                </div>`
+        }
+    }
+
+    function populateSelect(el, items, selectedValue) {
+        items.forEach(item => {
+            const option   = document.createElement("option")
+            const isAll    = item.toLowerCase().startsWith("all")
+            option.value   = isAll ? "" : item.toLowerCase()
+            option.text    = item
+            // FIX: restore the selected option that came back from the server
+            if (!isAll && option.value === selectedValue.toLowerCase()) {
+                option.selected = true
+            }
+            el.appendChild(option)
+        })
+    }
+
+    async function loadFirst() {
+        const pd  = "{{ search_form_options.purpose }}".split(",")
+        const ptd = "{{ search_form_options.property_type }}".split(",")
+        const cd  = "{{ search_form_options.city }}".split(",")
+
+        purpose = "{{ search_form_data.purpose|default:'' }}"
+        city    = "{{ search_form_data.city|default:'' }}"
+        search  = "{{ search_form_data.search|default:'' }}"
+        ptype   = "{{ search_form_data.ptype|default:'' }}"
+        status  = "{{ search_form_data.status|default:'' }}"
+
+        populateSelect(purposeElement, pd,  purpose)
+        populateSelect(ptypeElement,   ptd, ptype)
+        populateSelect(cityElement,    cd,  city)
+
+        if (search) searchElement.value = search
+
+        initialised = true
+        await loadMore()
+    }
+
+    const observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && initialised) {
+            loadMore()
+        }
+    })
+    observer.observe(document.getElementById("sentinel"))
+
+    loadFirst()
+</script>
 
     <script>
         function openDeleteModal(propertyId, propertyTitle) {

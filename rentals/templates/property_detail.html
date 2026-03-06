@@ -92,7 +92,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
+<div class="container mx-auto px-4 lg:px-8 py-8 pt-20">
     <nav class="mb-6">
         <ol class="flex items-center space-x-2 text-sm text-gray-600">
             <li><a href="{% url 'home' %}" class="hover:text-accent">Home</a></li>
@@ -146,8 +146,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start mb-4 space-y-4 md:space-y-0">
                     <div>
                         <div class="flex flex-wrap gap-2 items-center mb-3">
-                            <span class="property-status status-{{ property.status }}">{{ property.get_status_display
-                                }}</span>
+                            <span class="property-status status-{{ property.status }}">{{ property.get_status_display }}</span>
                             <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                                 {{ property.get_property_type_display }}
                             </span>
@@ -324,16 +323,14 @@
                     <!-- WhatsApp Primary CTA -->
                     <button onclick="openWhatsApp()"
                         class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition"
-                        {% if not property.owner.userprofile.whatsapp_link and not
-                        property.owner.userprofile.phone_number %}disabled{% endif %}>
+                        {% if not property.owner.userprofile.whatsapp_link and not property.owner.userprofile.phone_number %}disabled{% endif %}>
                         <i class="fab fa-whatsapp mr-2"></i>
                         Contact on WhatsApp
                     </button>
 
                     <!-- Call Button -->
                     <button onclick="callOwner()"
-                        class="w-full border border-gray-300 hover:bg-gray-50 py-3 rounded-lg font-medium transition" {%
-                        if not property.owner.userprofile.phone_number %}disabled{% endif %}>
+                        class="w-full border border-gray-300 hover:bg-gray-50 py-3 rounded-lg font-medium transition" {% if not property.owner.userprofile.phone_number %}disabled{% endif %}>
                         <i class="fas fa-phone mr-2"></i>
                         Call {{ property.owner.userprofile.phone_number }}
                     </button>

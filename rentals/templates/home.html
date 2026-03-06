@@ -1,7 +1,7 @@
-{% extends "base.html" %} {% load humanize %} {% block title %}Abuja Rentals |
-Premium Property Marketplace{% endblock %}
+{% extends "base.html" %} {% load humanize %} {% block title %}Abuja Rentals{% endblock %}
 
-{%block extra_css%}
+
+{% block content %}
 
 <style>
   .step-img-wrap {
@@ -62,15 +62,8 @@ Premium Property Marketplace{% endblock %}
   }
 </style>
 
-{%endblock%}
 
-{% block content %}
-
-<section class="hero-background relative overflow-hidden min-h-[90vh] flex items-center">
-
-  <div class="absolute inset-0 bg-gradient-to-t
-                  from-primary/80 via-primary/50 to-transparent">
-  </div>
+<section class="hero-background relative overflow-hidden min-h-[90vh] flex items-center pt-20">
 
   <div class="container mx-auto px-4 lg:px-8 py-12 relative z-10">
 
@@ -78,20 +71,18 @@ Premium Property Marketplace{% endblock %}
 
       <div class="mb-10">
 
-        <span class="inline-flex items-center
-                         bg-white/10 backdrop-blur
-                         text-white px-4 py-2 rounded-full
-                         mb-5 text-xs">
+        <!-- <span class="inline-flex items-center bg-white/10 backdrop-blur text-white px-4 py-2 rounded-full mb-5 text-xs">
           PREMIUM PROPERTIES IN ABUJA
-        </span>
+        </span> -->
 
-        <h1 class="text-3xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+        <h1 class="text- text-3xl lg:text-5xl font-black text-white mb-6 leading-tight text-center">
           Find a Place You’ll
-          <span class="text-accent"><i>Call Home</i></span>
+          <br>
+          <span class="text-primary italic font-serif">Call Home</span>
           in Abuja
         </h1>
 
-        <p class="text-gray-200 text-sm md:text-lg max-w-2xl font-light">
+        <p class="text-gray-200 text-sm md:text-base max-w-2xl font-light text-center mx-auto">
           From luxury apartments in Maitama and Asokoro to family homes in Wuse
           and Gwarinpa, find your ideal property across Abuja's most desirable
           neighbourhoods.
@@ -101,16 +92,15 @@ Premium Property Marketplace{% endblock %}
 
 
       <!-- Search Card -->
-      <div class="bg-white rounded-2xl p-6 lg:p-8 max-w-4xl mx-auto shadow-2xl max-sm:mt-20">
+      <div class="bg-white rounded-2xl p-5 lg:p-7 max-w-3xl mx-auto shadow-2xl max-sm:mt-20">
 
         <div class="flex items-center mb-6">
-          <div class="w-10 h-10 bg-primary rounded-lg
-                          flex items-center justify-center mr-3">
+          <div class="size-8 bg-accent/70 rounded-lg flex items-center justify-center mr-3">
             <i class="fas fa-search text-white"></i>
           </div>
 
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-base font-semibold text-gray-900">
               Quick Property Search
             </h3>
             <p class="text-sm text-gray-500">
@@ -124,7 +114,6 @@ Premium Property Marketplace{% endblock %}
 
           <div class="grid lg:grid-cols-2 gap-4">
 
-            <!-- Location -->
             <div>
               <label class="block text-sm text-gray-600 mb-2">
                 Location
@@ -133,14 +122,11 @@ Premium Property Marketplace{% endblock %}
               <div class="relative">
                 <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
 
-                <input name="search" type="text" placeholder="Maitama, Wuse, Gwarinpa..." class="w-full pl-11 pr-4 py-3 border border-gray-200
-                                  rounded-xl focus:ring-2 focus:ring-primary/20
-                                  focus:border-primary outline-none" />
+                <input name="search" type="text" placeholder="Maitama, Wuse, Gwarinpa..." class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
               </div>
             </div>
 
 
-            <!-- Type -->
             <div>
               <label class="block text-sm text-gray-600 mb-2">
                 Property Type
@@ -149,15 +135,9 @@ Premium Property Marketplace{% endblock %}
               <div class="relative">
                 <i class="fas fa-home absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
 
-                <select name="property_type" class="w-full pl-11 pr-4 py-3 border border-gray-200
-                                   rounded-xl focus:ring-2 focus:ring-primary/20
-                                   focus:border-primary outline-none appearance-none">
+                <select id="quicktypeform" name="property_type" class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
 
                   <option value="">All Types</option>
-                  <option value="apartment">Apartment</option>
-                  <option value="duplex">Duplex</option>
-                  <option value="terrace">Terrace</option>
-                  <option value="commercial">Commercial</option>
                 </select>
 
                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -167,11 +147,7 @@ Premium Property Marketplace{% endblock %}
           </div>
 
 
-          <button type="submit" class="mt-5 w-full lg:w-auto px-8 py-3.5
-                             bg-primary text-white rounded-xl
-                             hover:bg-primary/90 transition
-                             flex items-center justify-center gap-2">
-
+          <button type="submit" class="text-xs text-[13px] mt-4 w-full lg:w-auto px-5 py-3 bg-accent/70 text-white rounded-xl hover:bg-primary/90 transition flex items-center justify-center gap-2">
             <i class="fas fa-search"></i>
             Search Properties
           </button>
@@ -182,10 +158,10 @@ Premium Property Marketplace{% endblock %}
 
 
       <!-- Realistic Trust -->
-      <div class="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
+      <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
 
         <div class="text-center">
-          <div class="text-3xl font-bold text-white ">
+          <div class="text-2xl font-bold text-white ">
             {{ total_properties }}+
 
           </div>
@@ -195,7 +171,7 @@ Premium Property Marketplace{% endblock %}
         </div>
 
         <div class="text-center">
-          <div class="text-3xl font-bold text-white">
+          <div class="text-2xl font-bold text-white">
             Verified
           </div>
           <div class="text-gray-200 font-light text-sm mt-1">
@@ -204,7 +180,7 @@ Premium Property Marketplace{% endblock %}
         </div>
 
         <div class="text-center">
-          <div class="text-3xl font-bold text-white">
+          <div class="text-2xl font-bold text-white">
             Abuja
           </div>
           <div class="text-gray-200 font-light text-sm mt-1">
@@ -213,7 +189,7 @@ Premium Property Marketplace{% endblock %}
         </div>
 
         <div class="text-center">
-          <div class="text-3xl font-bold text-white">
+          <div class="text-2xl font-bold text-white">
             Support
           </div>
           <div class="text-gray-200 font-light text-sm mt-1">
@@ -225,7 +201,7 @@ Premium Property Marketplace{% endblock %}
 
 
       <!-- Scroll -->
-      <div class="mt-12 text-center">
+      <div class="mt-8 text-center">
         <a href="#featured" class="text-white/80 hover:text-white text-sm">
           Browse listings ↓
         </a>
@@ -401,16 +377,16 @@ Premium Property Marketplace{% endblock %}
         class='group relative overflow-hidden transition-all duration-300 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
 
         <img src="/media/properties/cats/{{cat.code}}_high_quality.webp"
-          class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 brightness-[.62] group-hover:brightness-[.35]"
+          class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 brightness-[.70] group-hover:brightness-[.35]"
           alt="{{cat.label}}" />
 
         <!-- Content -->
         <div class="relative p-2.5 lg:p-5 h-48 flex items-end lg:justify-between text-white gap-2">
 
           <div class="flex items-center gap-3">
-            <div class="hidden lg:flex w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm items-center justify-center">
+            <!-- <div class="hidden lg:flex w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm items-center justify-center">
               <i class="fas fa-building text-white text-lg"></i>
-            </div>
+            </div> -->
             <h3 class="font-semibold text-lg">
               {{ cat.label }}
               <p class="text-xs lg:text-sm text-white/80 font-light">
@@ -573,4 +549,7 @@ Premium Property Marketplace{% endblock %}
   </div>
 </section>
 
+
 {%endblock%}
+
+

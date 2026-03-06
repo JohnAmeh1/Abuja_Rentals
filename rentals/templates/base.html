@@ -92,9 +92,8 @@
     }
 
     .hero-background {
-      background-image: linear-gradient(rgba(15, 23, 42, 0.7),
-          rgba(15, 23, 42, 0.7)),
-        url("https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80");
+      background-image: 
+        url("/media/properties/cats/magicpattern-87PP9Zd7MNo-unsplash.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -111,7 +110,6 @@
       transform: translateY(-2px);
       box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
     }
-
 
     .dropdown-menu {
       display: none;
@@ -414,8 +412,6 @@
     sheet.classList.remove('translate-y-4')
     document.body.style.overflow = 'hidden'
     document.getElementById('requestFormBody').classList.remove('hidden')
-
-    get_details()
   }
 
 
@@ -500,6 +496,7 @@
     }
   }
 
+  get_details()
 
   document.getElementById('propertyRequestForm').addEventListener('submit', async function (e) {
     e.preventDefault()
@@ -537,7 +534,7 @@
   {% include 'preloader.html' %}
 
   {% block navbar %}
-  <nav class="sticky top-0 z-50 bg-white border-b border-gray-100">
+  <nav class="fixed top-0 z-50 right-0 left-0 bg-white/50 backdrop-blur-md border-b border-gray-100">
     <div class="container mx-auto px-4 lg:px-8">
 
       <div class="flex justify-between items-center h-[72px]">

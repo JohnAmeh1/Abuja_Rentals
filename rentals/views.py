@@ -1,23 +1,26 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, Q, F, DecimalField
+from django.core.mail import send_mail
+from django.conf import settings
+
+from .models import SavedProperty, PropertyVisit
+from django.db.models import Sum, Q, F, DecimalField
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models.functions import TruncMonth
-
-
+from django.core.paginator import Paginator
+from django.core import signing
 
 from datetime import datetime
 from decimal import Decimal
 
-from .models import (UserProfile, Property, Transaction, SavedProperty, PropertyVisit, PropertyRental, AdminMessage, Report, StudentProperty, StudentPropertyRental, SavedProperty, PropertyVisit)
-from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, StudentPropertyForm)
+from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit, Inquiry, OTP)
+from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm)
 from .recommendations import get_property_recommendations
 
 import random
@@ -32,11 +35,295 @@ def is_admin(user):
     """Check if user is an admin"""
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
 
+def send_otp_email(user, otp_code):
+    """Send OTP code to user's email"""
+    try:
+        subject = 'Your OTP for Email Verification - Abuja Rentals'
+        message = f"""
+        Hello {user.first_name or user.username},
+        
+        Your One-Time Password (OTP) for email verification is:
+        
+        {otp_code}
+        
+        This code will expire in 10 minutes.
+        
+        If you did not request this code, please ignore this email.
+        
+        Best regards,
+        Abuja Rentals Team
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
+            [user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending OTP email: {e}")
+        return False
+
+def verify_otp_view(request, user_id):
+    """View to verify OTP code"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Check if OTP exists
+    try:
+        otp = OTP.objects.get(user=user)
+    except OTP.DoesNotExist:
+        messages.error(request, 'OTP not found. Please request a new one.')
+        return redirect('signup')
+    
+    if otp.is_verified:
+        messages.info(request, 'Email already verified.')
+        login(request, user)
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = OTPVerificationForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp_code']
+            
+            if not otp.is_valid():
+                messages.error(request, 'OTP has expired. Please request a new one.')
+                return redirect('signup')
+            
+            if otp.verify(otp_code):
+                # Mark email as verified in UserProfile
+                user_profile = user.userprofile
+                user_profile.email_verified = True
+                user_profile.save()
+                # Activate the user account so they can authenticate normally
+                user.is_active = True
+                user.save()
+
+                messages.success(request, 'Email verified successfully!')
+                # Log the user in
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.error(request, 'Invalid OTP code. Please try again.')
+    else:
+        form = OTPVerificationForm()
+    
+    return render(request, 'auth/verify_otp.html', {
+        'form': form,
+        'user_email': user.email,
+        'user_id': user_id
+    })
+
+def resend_otp(request, user_id):
+    """Resend OTP to user's email"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Create new OTP
+    otp = OTP.create_otp(user)
+    
+    # Send email
+    if send_otp_email(user, otp.code):
+        messages.success(request, f'OTP sent to {user.email}')
+    else:
+        messages.error(request, 'Failed to send OTP. Please try again.')
+    
+    return redirect('verify_otp', user_id=user.id)
+
+def send_forgot_password_email(user, otp_code):
+    """Send OTP code for password reset to user's email"""
+    try:
+        subject = 'Password Reset Request - Abuja Rentals'
+        message = f"""
+        Hello {user.first_name or user.username},
+        
+        We received a request to reset your password. 
+        
+        Please use the OTP code below to verify your identity and reset your password:
+        
+        Your One-Time Password (OTP): {otp_code}
+        
+        This code will expire in 10 minutes.
+        
+        If you did not request this password reset, please ignore this email and your password will remain unchanged.
+        
+        Best regards,
+        Abuja Rentals Team
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
+            [user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending forgot password email: {e}")
+        return False
+
+def forgot_password(request):
+    """Handle forgot password request - submit email"""
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                
+                # Create OTP for password reset
+                otp = OTP.create_otp(user)
+                
+                # Send email with OTP
+                if send_forgot_password_email(user, otp.code):
+                    # Store the user_id in session for the next step
+                    request.session['password_reset_user_id'] = user.id
+                    messages.success(request, f'OTP sent to {user.email}. Please check your email.')
+                    return redirect('verify_forgot_password_otp')
+                else:
+                    messages.error(request, 'Failed to send OTP. Please try again later.')
+            except User.DoesNotExist:
+                # Don't reveal if email exists for security
+                messages.info(request, f'If an account exists with {email}, you will receive an OTP.')
+                return redirect('login')
+    else:
+        form = ForgotPasswordForm()
+    
+    return render(request, 'auth/forgot_password.html', {'form': form})
+
+def verify_forgot_password_otp(request):
+    """Verify OTP during forgot password process"""
+    # Get user_id from session
+    user_id = request.session.get('password_reset_user_id')
+    
+    if not user_id:
+        messages.error(request, 'Password reset session expired. Please try again.')
+        return redirect('login')
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Check if OTP exists
+    try:
+        otp = OTP.objects.get(user=user)
+    except OTP.DoesNotExist:
+        messages.error(request, 'OTP not found. Please request a new one.')
+        return redirect('forgot_password')
+    
+    if request.method == 'POST':
+        form = ForgotPasswordOTPForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp_code']
+            
+            if not otp.is_valid():
+                messages.error(request, 'OTP has expired. Please request a new one.')
+                return redirect('forgot_password')
+            
+            if otp.verify(otp_code):
+                # Mark as ready for password reset
+                request.session['password_reset_verified'] = True
+                messages.success(request, 'OTP verified successfully. Please set your new password.')
+                return redirect('reset_password')
+            else:
+                messages.error(request, 'Invalid OTP code. Please try again.')
+    else:
+        form = ForgotPasswordOTPForm()
+    
+    return render(request, 'auth/verify_forgot_password_otp.html', {
+        'form': form,
+        'user_email': user.email,
+        'user_id': user_id
+    })
+
+def reset_password(request):
+    """Reset password after OTP verification"""
+    # Check if OTP was verified
+    if not request.session.get('password_reset_verified'):
+        messages.error(request, 'Please verify your OTP first.')
+        return redirect('forgot_password')
+    
+    # Get user_id from session
+    user_id = request.session.get('password_reset_user_id')
+    
+    if not user_id:
+        messages.error(request, 'Password reset session expired. Please try again.')
+        return redirect('login')
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['password']
+            
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+            
+            # Clear OTP verification
+            try:
+                otp = OTP.objects.get(user=user)
+                otp.delete()
+            except OTP.DoesNotExist:
+                pass
+            
+            # Clear session data
+            request.session.pop('password_reset_user_id', None)
+            request.session.pop('password_reset_verified', None)
+            
+            messages.success(request, 'Password reset successfully! You can now login with your new password.')
+            return redirect('login')
+    else:
+        form = ResetPasswordForm()
+    
+    return render(request, 'auth/reset_password.html', {
+        'form': form,
+        'user_email': user.email
+    })
+
+def resend_forgot_password_otp(request, user_id):
+    """Resend OTP during forgot password process"""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('login')
+    
+    # Create new OTP
+    otp = OTP.create_otp(user)
+    
+    # Send email
+    if send_forgot_password_email(user, otp.code):
+        messages.success(request, f'OTP resent to {user.email}')
+    else:
+        messages.error(request, 'Failed to send OTP. Please try again.')
+    
+    return redirect('verify_forgot_password_otp')
+
+
 def check_expired_rentals():
     """
     Check and update expired rentals and their property statuses.
     Call this function at key points where property status matters.
     """
+    from django.utils import timezone
+    today = timezone.now().date()
     
     # Get all active rentals
     active_rentals = PropertyRental.objects.filter(is_active=True).select_related('property')
@@ -46,9 +333,7 @@ def check_expired_rentals():
         rental.check_and_update_status()
 
 def home(request):
-    
-    check_expired_rentals()
-    
+        
     # Try to use featured properties if set, otherwise sample available properties
     featured_qs = Property.objects.filter(status='available', is_featured=True)
     if featured_qs.exists():
@@ -64,7 +349,6 @@ def home(request):
         'page_title': 'Home',
     }
     
-    # Build categories list from DB (unique property_type values), randomized each load
     type_choices = dict(Property.PROPERTY_TYPE_CHOICES)
     types_qs = list(Property.objects.filter(status='available').values_list('property_type', flat=True).distinct())
     random.shuffle(types_qs)
@@ -74,24 +358,8 @@ def home(request):
         count = Property.objects.filter(property_type=t, status='available').count()
         categories.append({'code': t, 'label': label, 'count': f"{ (count // 100) * 100 }"})
 
-    # Limit to 8 categories for display
-    context['categories'] = categories[:8]
+    context['categories'] = categories[:9]
     return render(request, "home.html", context)
-
-def listings(request):
-    """Display all available properties"""
-    check_expired_rentals()
-    
-    # Fetch all available properties from the database
-    houses = Property.objects.filter(status='available').order_by('-created_at')
-    
-    # Pass them to the template
-    context = {
-        'houses': houses,
-        'page_title': 'Available Properties',
-    }
-    return render(request, 'listings.html', context)
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -104,10 +372,8 @@ def login_view(request):
             password = form.cleaned_data['password']
             remember_me = form.cleaned_data['remember_me']
             
-            # Try to authenticate
             user = authenticate(request, username=username, password=password)
             
-            # If authentication fails with username, try with email
             if user is None:
                 try:
                     user_obj = User.objects.get(email=username)
@@ -118,11 +384,10 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 
-                # Set session expiry based on "remember me"
                 if not remember_me:
-                    request.session.set_expiry(0)  # Session expires when browser closes
+                    request.session.set_expiry(0)  
                 else:
-                    request.session.set_expiry(1209600)  # 2 weeks
+                    request.session.set_expiry(1209600) 
                     
                 messages.success(request, f'Welcome back, {user.username}!')
                 next_url = request.GET.get('next', 'home')
@@ -141,16 +406,16 @@ def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            # Debug: Check what user_type is being passed
-            print(f"DEBUG View: user_type from form = {form.cleaned_data.get('user_type')}")
             
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False  # Deactivate user until email is verified
+            user.save()
 
             # Double-check that user_type was saved correctly
             try:
                 profile = UserProfile.objects.get(user=user)
                 # Force update if needed
-                selected_type = form.cleaned_data.get('user_type')
+                selected_type = "tenant"
                 if selected_type and profile.user_type != selected_type:
                     profile.user_type = selected_type
                     profile.save()
@@ -166,12 +431,16 @@ def signup_view(request):
                     bio=form.cleaned_data.get('bio', '')
                 )
 
-            # Auto-login after signup
-            login(request, user)
-            request.session.set_expiry(1209600)  # 2 weeks
-            
-            messages.success(request, f'Account created successfully! Welcome, {user.username}!')
-            return redirect('home')
+            # Create OTP and send email
+            otp = OTP.create_otp(user)
+            if send_otp_email(user, otp.code):
+                messages.success(request, f'Account created! Please check your email ({user.email}) for the OTP code.')
+                return redirect('verify_otp', user_id=user.id)
+            else:
+                # Delete user if email sending fails
+                user.delete()
+                messages.error(request, 'Failed to send OTP email. Please try again.')
+                return redirect('signup')
         else:
             # Show form errors for debugging
             print(f"DEBUG: Form errors: {form.errors}")
@@ -179,433 +448,6 @@ def signup_view(request):
         form = CustomUserCreationForm()
     
     return render(request, 'auth/signup.html', {'form': form})
-
-@login_required
-def student_properties(request):
-    """List properties - different logic for agents vs students"""
-    try:
-        user_profile = request.user.userprofile
-        is_agent = user_profile.user_type == 'agent'
-        is_student = user_profile.user_type == 'student'
-        is_admin = user_profile.user_type == 'admin'
-    except:
-        is_agent = False
-        is_student = False
-        is_admin = False
-    
-    # Get filter parameters directly from request.GET
-    university_filter = request.GET.get('university', '')
-    property_type_filter = request.GET.get('property_type', '')
-    purpose_filter = request.GET.get('purpose', '')
-    city_filter = request.GET.get('city', '')
-    search_query = request.GET.get('search', '')
-    
-    if is_agent:
-        # Agents see only their own properties (all statuses)
-        properties = StudentProperty.objects.filter(created_by=request.user).order_by('-created_at')
-        page_title = 'My Properties (Agent)'
-    elif is_admin:
-        # Admins see all properties
-        properties = StudentProperty.objects.all().order_by('-created_at')
-        page_title = 'All Properties (Admin)'
-    elif is_student:
-        # Students see available properties (approved by admin) and their own
-        available_properties = StudentProperty.objects.filter(
-            status='available'
-        ).order_by('-created_at')
-        
-        my_properties = StudentProperty.objects.filter(
-            created_by=request.user
-        ).order_by('-created_at')
-        
-        # Combine both querysets
-        properties = (available_properties | my_properties).distinct().order_by('-created_at')
-        page_title = 'Available Properties'
-    else:
-        # Other user types see only available properties
-        properties = StudentProperty.objects.filter(
-            status='available'
-        ).order_by('-created_at')
-        page_title = 'Available Properties'
-    
-    # Apply filters
-    if university_filter:
-        properties = properties.filter(university=university_filter)
-    
-    if property_type_filter:
-        properties = properties.filter(property_type=property_type_filter)
-    
-    if purpose_filter:
-        properties = properties.filter(purpose=purpose_filter)
-    
-    if city_filter:
-        properties = properties.filter(city__iexact=city_filter)
-    
-    if search_query:
-        properties = properties.filter(
-            Q(title__icontains=search_query) |
-            Q(description__icontains=search_query) |
-            Q(city__icontains=search_query) |
-            Q(university__icontains=search_query)
-        )
-    
-    # Additional filters for students viewing available properties
-    if is_student and not search_query:
-        # Students can filter by price
-        max_price = request.GET.get('max_price')
-        if max_price:
-            try:
-                max_price_decimal = Decimal(max_price)
-                properties = properties.filter(price__lte=max_price_decimal)
-            except:
-                pass
-        
-        # Students can filter by amenities
-        amenities_filter = request.GET.getlist('amenities')
-        if amenities_filter:
-            for amenity in amenities_filter:
-                properties = properties.filter(amenities__icontains=amenity)
-    
-    # Pagination
-    paginator = Paginator(properties, 12)
-    page = request.GET.get('page', 1)
-    
-    try:
-        properties_page = paginator.page(page)
-    except PageNotAnInteger:
-        properties_page = paginator.page(1)
-    except EmptyPage:
-        properties_page = paginator.page(paginator.num_pages)
-    
-    # Create a simple form-like dictionary for the template
-    filter_values = {
-        'university': university_filter,
-        'property_type': property_type_filter,
-        'purpose': purpose_filter,
-        'city': city_filter,
-        'search': search_query,
-    }
-    
-    # Get dynamic choices for dropdowns
-    university_choices = StudentProperty.UNIVERSITY_CHOICES
-    property_type_choices = StudentProperty.PROPERTY_TYPE_CHOICES
-    purpose_choices = StudentProperty.PURPOSE_CHOICES
-    
-    # Get unique cities from database
-    try:
-        cities = StudentProperty.objects.values_list('city', flat=True).distinct().order_by('city')
-        city_choices = [(city, city.title()) for city in cities if city]
-    except:
-        city_choices = []
-    
-    context = {
-        'properties': properties_page,
-        'filter_values': filter_values,
-        'page_title': page_title,
-        'is_agent': is_agent,
-        'is_student': is_student,
-        'is_admin': is_admin,
-        'user': request.user,
-        # Add choices for dropdowns
-        'university_choices': university_choices,
-        'property_type_choices': property_type_choices,
-        'purpose_choices': purpose_choices,
-        'city_choices': city_choices,
-    }
-    
-    return render(request, 'student/properties.html', context)
-
-@login_required
-@user_passes_test(is_admin)
-def admin_student_properties(request):
-    """Admin view of all student properties"""
-    properties = StudentProperty.objects.all().order_by('-created_at')
-    
-    # Filter by status
-    status_filter = request.GET.get('status', '')
-    if status_filter:
-        properties = properties.filter(status=status_filter)
-    
-    # Count pending properties
-    pending_count = StudentProperty.objects.filter(status='pending').count()
-    
-    context = {
-        'properties': properties,
-        'pending_count': pending_count,
-        'status_filter': status_filter,
-        'page_title': 'Student Properties Management',
-    }
-    
-    return render(request, 'admin/student_properties.html', context)
-
-
-@login_required
-def student_property_detail(request, pk):
-    """View student property details (separate from regular property detail)"""
-    property = get_object_or_404(StudentProperty, pk=pk)
-    
-    # Increment view count
-    property.increment_views()
-    
-    # Convert amenities string to list
-    amenities_list = property.get_amenities_list()
-    
-    # Get additional images
-    additional_images = []
-    for i in range(1, 6):
-        image_field = getattr(property, f'image_{i}', None)
-        if image_field:
-            additional_images.append(image_field)
-    
-    # Check if user is the creator
-    is_owner = request.user == property.created_by
-    
-    # Calculate platform fee (2% for student properties)
-    platform_fee = property.price * Decimal('0.02')
-    
-    context = {
-        'property': property,
-        'amenities_list': amenities_list,
-        'additional_images': additional_images,
-        'is_owner': is_owner,
-        'is_admin': is_admin,
-        'platform_fee': platform_fee,
-        'page_title': property.title,
-    }
-    
-    return render(request, 'student/student_property_detail.html', context)
-
-@login_required
-def create_property(request):
-    """Create a new student property"""
-    # Check if user is student or agent
-    try:
-        user_profile = request.user.userprofile
-        is_agent = user_profile.user_type == 'agent'
-        is_student = user_profile.user_type == 'student'
-    except UserProfile.DoesNotExist:
-        # Create user profile if it doesn't exist
-        UserProfile.objects.create(user=request.user, user_type='student')
-        is_agent = False
-        is_student = True
-    
-    if request.method == 'POST':
-        form = StudentPropertyForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                property = form.save(commit=False)
-                property.created_by = request.user
-                
-                # Set status based on user type
-                if is_agent:
-                    # Agents submit properties for admin review - status: pending
-                    property.status = 'pending'
-                    status_message = 'Property submitted for admin review. It will be visible to students once approved.'
-                elif is_student:
-                    # Check if this is a "Save as Draft" or "Publish" submission
-                    if 'save_draft' in request.POST:
-                        property.status = 'draft'
-                        status_message = 'Property saved as draft.'
-                    else:
-                        # Students need admin approval too
-                        property.status = 'pending'
-                        status_message = 'Property submitted for admin review.'
-                else:
-                    # Other users (owners) - default to draft
-                    property.status = 'draft'
-                    status_message = 'Property saved as draft.'
-                
-                # Calculate fees if not already done in form
-                price = form.cleaned_data.get('price')
-                if price:
-                    if not isinstance(price, Decimal):
-                        price = Decimal(str(price))
-                    
-                    property.price = price
-                    property.platform_fee = price * Decimal('0.05')
-                    property.net_amount = price * Decimal('0.95')
-                
-                # Save the property
-                property.save()
-                
-                # Handle amenities - form.cleaned_data['amenities'] should be a list of strings
-                amenities_list = form.cleaned_data.get('amenities', [])
-                if amenities_list:
-                    property.set_amenities(amenities_list)
-                    property.save()
-                
-                messages.success(request, status_message)
-                return redirect('student_properties')
-                
-            except Exception as e:
-                print(f"Error saving property: {str(e)}")
-                import traceback
-                traceback.print_exc()
-                messages.error(request, f'Error creating property: {str(e)}')
-        else:
-            # Debug form errors
-            print("Form errors:", form.errors)
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = StudentPropertyForm()
-    
-    # Get amenities choices from the form (not hardcoded)
-    # The form already has AMENITY_CHOICES defined, we don't need to pass them separately
-    # But if you want to use them in template for custom display, extract them
-    amenities = StudentPropertyForm.AMENITY_CHOICES
-    
-    context = {
-        'form': form,
-        'amenities': amenities,  # Pass the choices from the form
-        'page_title': 'Create Property',
-        'is_agent': is_agent,
-        'is_student': is_student,
-    }
-    
-    return render(request, 'student/createproperty.html', context)
-
-
-@login_required
-def edit_student_property(request, pk):
-    """Edit a student property (renamed to avoid conflict with regular properties)"""
-    property = get_object_or_404(StudentProperty, pk=pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        form = StudentPropertyForm(request.POST, request.FILES, instance=property)
-        if form.is_valid():
-            property = form.save(commit=False)
-            
-            # Handle university field
-            university = form.cleaned_data.get('university')
-            if university:
-                property.university = university
-            
-            property.save()
-            messages.success(request, 'Property updated successfully!')
-            return redirect('student_property_detail', pk=property.pk)
-    else:
-        # Initialize form with university data
-        initial_data = {}
-        if property.university:
-            if property.university.startswith('custom_'):
-                initial_data['university'] = 'other'
-                initial_data['custom_university'] = property.university.replace('custom_', '')
-            else:
-                initial_data['university'] = property.university
-        
-        form = StudentPropertyForm(instance=property, initial=initial_data)
-    
-    return render(request, 'student/edit_student_property.html', {'form': form, 'property': property})
-
-
-@login_required
-def delete_student_property(request, pk):
-    """Delete a student property (renamed to avoid conflict with regular properties)"""
-    property = get_object_or_404(StudentProperty, pk=pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        property.delete()
-        messages.success(request, 'Property deleted successfully!')
-        return redirect('student_properties')
-    
-    return render(request, 'student/confirm_delete.html', {'property': property})
-
-@login_required
-def toggle_featured(request, pk):
-    """Toggle featured status of a property"""
-    property = get_object_or_404(StudentProperty, pk=pk, created_by=request.user)
-    
-    if request.method == 'POST':
-        property.is_featured = not property.is_featured
-        property.save()
-        
-        if request.is_ajax():
-            return JsonResponse({
-                'success': True,
-                'is_featured': property.is_featured
-            })
-        
-        messages.success(request, f'Property {"marked as" if property.is_featured else "removed from"} featured!')
-    
-    return redirect('property_detail', pk=pk)
-
-
-
-# vv
-@login_required
-@user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.user_type == 'admin')
-def approve_student_property(request, pk):
-    """Admin approves a student property"""
-    property = get_object_or_404(StudentProperty, pk=pk)
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        admin_notes = request.POST.get('admin_notes', '')
-        
-        if action == 'approve':
-            property.status = 'available'
-            property.published_at = timezone.now()
-            # You could store admin notes in a separate field if needed
-            # property.admin_notes = admin_notes
-            property.save()
-            messages.success(request, f'Property "{property.title}" has been approved and is now available to students.')
-            
-        elif action == 'reject':
-            property.status = 'draft'
-            # property.admin_notes = admin_notes
-            property.save()
-            messages.success(request, f'Property "{property.title}" has been rejected and returned to draft status.')
-            
-        elif action == 'delete':
-            property_title = property.title
-            property.delete()
-            messages.success(request, f'Property "{property_title}" has been deleted.')
-            
-        return redirect('admin_properties')
-    
-    context = {
-        'property': property,
-        'page_title': f'Review: {property.title}',
-    }
-    
-    return render(request, 'admin/approve_student_property.html', context)
-
-# vv
-@login_required
-@user_passes_test(is_admin)
-def review_student_property(request, pk):
-    """Admin review and approval of student properties"""
-    property = get_object_or_404(StudentProperty, pk=pk)
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        if action == 'approve':
-            property.status = 'available'
-            property.save()
-            messages.success(request, f'Property "{property.title}" has been approved and is now available.')
-            
-            # Optional: Notify the agent/creator
-            # send_property_approved_notification(property)
-            
-        elif action == 'reject':
-            property.status = 'draft'
-            property.save()
-            messages.success(request, f'Property "{property.title}" has been rejected and returned to draft status.')
-            
-        elif action == 'delete':
-            property.delete()
-            messages.success(request, f'Property "{property.title}" has been deleted.')
-            
-        return redirect('admin_properties')  # Or create a specific admin view
-    
-    context = {
-        'property': property,
-        'page_title': f'Review: {property.title}',
-    }
-    
-    return render(request, 'admin/review_student_property.html', context)
-# student/views.py ends here
 
 @login_required
 def logout_view(request):
@@ -626,14 +468,11 @@ def profile_view(request):
     
     return render(request, 'auth/profile.html', {'form': form})
 
-
-
 @login_required
 def dashboard_view(request):
     user = request.user
     user_profile = get_object_or_404(UserProfile, user=user)
-    check_expired_rentals()
-
+    
     if user_profile.user_type == 'admin':
         # Admin dashboard logic
         # Get platform fees from transactions
@@ -641,14 +480,14 @@ def dashboard_view(request):
         
 
         # Add pending properties count
-        pending_student_properties = StudentProperty.objects.filter(status='pending').count()
+        pending_properties = Property.objects.filter(status='pending').count()
         
         context = {
             'page_title': 'Admin Dashboard',
             'total_users': UserProfile.objects.count(),
             'total_properties': Property.objects.count(),
             'total_platform_fees': total_platform_fees,
-            'pending_student_properties': pending_student_properties,
+            'pending_properties': pending_properties,
         }
         
     elif user_profile.user_type == 'owner':
@@ -688,309 +527,169 @@ def dashboard_view(request):
         
         # Calculate booking count
         booking_count = user.bookings.count() if hasattr(user, 'bookings') else 0
-
-        # Refresh rental statuses and compute active rentals with countdown
-        all_rentals = PropertyRental.objects.filter(tenant=user)
-        today = timezone.now().date()
-        # Ensure expired rentals are flagged inactive
-        for r in all_rentals:
-            try:
-                r.check_and_update_status()
-            except Exception:
-                # ignore any issues here to avoid breaking dashboard render
-                pass
-
-        active_rentals_qs = PropertyRental.objects.filter(tenant=user, is_active=True)
-        active_rentals = []
-        for r in active_rentals_qs:
-            info = r.term_info(today=today)
-
-            active_rentals.append({
-                'rental': r,
-                'total_days': info.get('total_days'),
-                'starts_in': info.get('starts_in'),
-                'days_passed': info.get('days_passed'),
-                'days_remaining': info.get('days_remaining'),
-                'expired_days': info.get('expired_days'),
-                'renewal_allowed': info.get('renewal_allowed'),
-                'status': info.get('status'),
-            })
-
+    
         context = {
             'page_title': 'Tenant Dashboard',
             'saved_properties_count': saved_properties_count,
             'booking_count': booking_count,
-            'active_rentals': active_rentals,
         }
         
-    elif user_profile.user_type == 'student':
-        # ============ STUDENT DASHBOARD LOGIC ============
-        saved_properties_count = user.saved_properties.count() if hasattr(user, 'saved_properties') else 0
-        
-        # Calculate booking count
-        booking_count = user.bookings.count() if hasattr(user, 'bookings') else 0
-
-        today = timezone.now().date()
-        
-        # Regular property rentals
-        all_rentals = PropertyRental.objects.filter(tenant=user)
-        for r in all_rentals:
-            try:
-                r.check_and_update_status()
-            except Exception:
-                pass
-
-        active_rentals_qs = PropertyRental.objects.filter(tenant=user, is_active=True)
-        active_rentals = []
-        for r in active_rentals_qs:
-            info = r.term_info(today=today)
-            active_rentals.append({
-                'rental': r,
-                'type': 'regular',  # Mark as regular property
-                'total_days': info.get('total_days'),
-                'starts_in': info.get('starts_in'),
-                'days_passed': info.get('days_passed'),
-                'days_remaining': info.get('days_remaining'),
-                'expired_days': info.get('expired_days'),
-                'renewal_allowed': info.get('renewal_allowed'),
-                'status': info.get('status'),
-            })
-        
-        # Student property rentals
-        all_student_rentals = StudentPropertyRental.objects.filter(tenant=user)
-        for r in all_student_rentals:
-            try:
-                r.check_and_update_status()
-            except Exception:
-                pass
-
-        active_student_rentals_qs = StudentPropertyRental.objects.filter(tenant=user, is_active=True)
-        for r in active_student_rentals_qs:
-            info = r.term_info(today=today)
-            active_rentals.append({
-                'rental': r,
-                'type': 'student',  # Mark as student property
-                'total_days': info.get('total_days'),
-                'starts_in': info.get('starts_in'),
-                'days_passed': info.get('days_passed'),
-                'days_remaining': info.get('days_remaining'),
-                'expired_days': info.get('expired_days'),
-                'renewal_allowed': info.get('renewal_allowed'),
-                'status': info.get('status'),
-            })
-        
-        # Student-specific statistics
-        student_friendly_properties = Property.objects.filter(
-            Q(status='available'),
-            Q(property_type__in=['apartment', 'house'])
-        ).count()
-        
-        available_student_properties = StudentProperty.objects.filter(
-            status='available'
-        ).count()
-        
-        context = {
-            'page_title': 'Student Dashboard',
-            'saved_properties_count': saved_properties_count,
-            'booking_count': booking_count,
-            'active_rentals': active_rentals,  # This now includes both types
-            'student_friendly_properties': student_friendly_properties,
-            'available_student_properties': available_student_properties,
-            'is_student': True,
-        }
-
-    elif user_profile.user_type == 'agent':
-        # Agent dashboard logic - similar to owner but with agent-specific features
-        total_properties = Property.objects.filter(owner=user).count()
-        available_properties = Property.objects.filter(owner=user, status='available').count()
-        
-        # Calculate total value of properties
-        total_value = Property.objects.filter(owner=user).aggregate(
-            total=Sum('price')
-        )['total'] or 0
-        
-        # Calculate potential earnings as price * rent_duration_months for rental properties
-        potential_agg = Property.objects.filter(
-            owner=user,
-            purpose='rent'
-        ).exclude(status='draft').aggregate(
-            total=Sum(F('price') * F('rent_duration_months'), output_field=DecimalField())
-        )
-        potential_earnings = potential_agg['total'] or Decimal('0.00')
-        
-        # Get recent properties
-        recent_properties = Property.objects.filter(owner=user).order_by('-created_at')[:3]
-        
-        # Agent-specific: get student-friendly properties count
-        student_friendly_properties = Property.objects.filter(
-            owner=user,
-            status='available'
-        ).count()
-        
-        context = {
-            'page_title': 'Agent Dashboard',
-            'total_properties': total_properties,
-            'available_properties': available_properties,
-            'total_value': total_value,
-            'potential_earnings': potential_earnings,
-            'recent_properties': recent_properties,
-            'student_friendly_properties': student_friendly_properties,
-        }
-    
-    else:  # agent or other user types
+    else:  
         context = {
             'page_title': 'Dashboard',
         }
     
     return render(request, 'auth/dashboard.html', context)
 
+def encode_cursor(created_at, id):
+    return signing.dumps({
+        "created_at": created_at.isoformat(),
+        "id": id
+    })
 
-@login_required
-def student_properties_view(request):
-    """View properties filtered for student needs"""
-    check_expired_rentals()
-    
-    # Base query for available properties
-    properties = Property.objects.filter(status='available')
-    
-    # Student-specific filters
-    # 1. Filter by price (students typically have lower budgets)
-    max_price = request.GET.get('max_price')
-    if max_price:
-        try:
-            properties = properties.filter(price__lte=Decimal(max_price))
-        except:
-            pass
-    
-    # 2. Filter by property types suitable for students
-    student_property_types = ['apartment', 'house', 'penthouse']
-    properties = properties.filter(property_type__in=student_property_types)
-    
-    # 3. Filter by location near schools/universities (if you have location data)
-    # This would depend on your location data structure
-    
-    # 4. Filter by amenities important for students
-    amenities_filter = request.GET.getlist('amenities')
-    if amenities_filter:
-        # Assuming amenities are stored as comma-separated string
-        for amenity in amenities_filter:
-            properties = properties.filter(amenities__icontains=amenity)
-    
-    # Common student amenities to suggest
-    student_amenities = [
-        ('wifi', 'WiFi'),
-        ('furnished', 'Furnished'),
-        ('laundry', 'Laundry'),
-        ('parking', 'Parking'),
-        ('ac', 'Air Conditioning'),
-        ('pet_friendly', 'Pet Friendly'),
-    ]
-    
-    # Get saved properties for current user
-    saved_property_ids = []
-    if request.user.is_authenticated:
-        saved_property_ids = SavedProperty.objects.filter(
-            user=request.user
-        ).values_list('property_id', flat=True)
-    
-    # Order by price (ascending - cheaper first for students)
-    properties = properties.order_by('price')
-    
-    # Pagination
-    paginator = Paginator(properties, 12)
-    page = request.GET.get('page', 1)
-    properties_page = paginator.get_page(page)
-    
-    context = {
-        'properties': properties_page,
-        'page_title': 'Student-Friendly Properties',
-        'student_amenities': student_amenities,
-        'saved_property_ids': list(saved_property_ids),
-        'is_student_view': True,
-    }
-    
-    return render(request, 'student/properties.html', context)
+def decode_cursor(cursor):
+    data = signing.loads(cursor)
+    return (
+        data["created_at"],
+        data["id"]
+    )
 
-
-def owner_properties_view(request):
-    """
-    Public view for REGULAR properties (not student properties).
-    Shows available properties to all users, and allows owners to see their own.
-    """
-    check_expired_rentals()
-    
-    search_form = PropertySearchForm(request.GET or None)
-    
-    # Determine which properties to show based on user role and filters
-    is_owner_view = False
-    user_is_admin = False
-
+def get_user_is_admin(request):
+    """Helper to avoid repeating admin-check logic."""
     if request.user.is_authenticated:
         try:
-            if request.user.userprofile.user_type == 'admin':
-                user_is_admin = True
+            return request.user.userprofile.user_type == 'admin'
         except Exception:
-            user_is_admin = False
+            pass
+    return False
 
-    # Admin sees all REGULAR properties (including pending)
+
+def get_properties(request):
+    search_form = PropertySearchForm(request.GET or None)
+    user_is_admin = get_user_is_admin(request)
+
     if user_is_admin:
         properties = Property.objects.all()
     else:
-        # Check if owner wants to see their own properties
-        if request.user.is_authenticated and getattr(request.user, 'userprofile', None) and request.user.userprofile.user_type == 'agent':
-            show_my_properties = request.GET.get('my_properties', 'false')
-            if show_my_properties == 'true':
-                properties = Property.objects.filter(owner=request.user)
-                is_owner_view = True
-                # Also include any StudentProperty entries the agent created so "My Properties" shows everything
-                try:
-                    from .models import StudentProperty
-                    student_properties = StudentProperty.objects.filter(created_by=request.user).order_by('-created_at')
-                except Exception:
-                    student_properties = None
-            else:
-                properties = Property.objects.filter(status='available')
-        else:
-            properties = Property.objects.filter(status='available')
-            
-            
+        properties = Property.objects.filter(status='available')
+
     if search_form.is_valid():
-    
         if search_form.cleaned_data.get('property_type'):
             properties = properties.filter(property_type=search_form.cleaned_data['property_type'])
         if search_form.cleaned_data.get('purpose'):
             properties = properties.filter(purpose=search_form.cleaned_data['purpose'])
         if search_form.cleaned_data.get('city'):
             properties = properties.filter(city=search_form.cleaned_data['city'])
-        if search_form.cleaned_data.get('status') and (is_owner_view or user_is_admin):
+        if search_form.cleaned_data.get('status') and user_is_admin:
             properties = properties.filter(status=search_form.cleaned_data['status'])
         if search_form.cleaned_data.get('search'):
             search_term = search_form.cleaned_data['search']
             properties = properties.filter(
-                Q(title__icontains=search_term) | 
+                Q(title__icontains=search_term) |
                 Q(city__icontains=search_term) |
                 Q(description__icontains=search_term)
             )
-        
+        if search_form.cleaned_data.get("amenities"):
+            
+            amenities = request.GET.getlist('amenities')
+            for amenity in amenities:
+                properties = properties.filter(amenities__contains=amenity)
 
-    properties = properties.order_by('-created_at')
-    total = len(properties)
+    properties = properties.order_by("-created_at", "-id")
+    cursor = request.GET.get("cursor")
 
-    paginator = Paginator(properties, 21)   
+    if cursor:
+        created_at, id = decode_cursor(cursor)
+        properties = properties.filter(
+            Q(created_at__lt=created_at) |
+            Q(created_at=created_at, id__lt=id)
+        )
 
-    page_number = request.GET.get('page')
-    properties = paginator.get_page(page_number)
+    page_size = 21
+    result = list(properties[:page_size])
 
-    context = {
-        'properties': properties,  
-        'search_form': search_form,
-        'page_title': 'My Properties' if is_owner_view else 'Available Properties',
-        'student_properties': student_properties if is_owner_view else None,
-        'is_owner_view': is_owner_view,
-        'total': total
+    next_cursor = None
+    if len(result) == page_size:
+        last = result[-1]
+        next_cursor = encode_cursor(last.created_at, last.id)
+
+    data = [
+        {
+            "title": p.title,
+            "main_image": p.main_image if p.main_image else None,
+            "price": p.price,
+            "purpose": p.purpose,
+            "id": p.id,
+            "city": p.city,
+            "bedrooms": p.bedrooms,
+            "bathrooms": p.bathrooms,
+            "area_sqft": p.area_sqft,
+            "description": p.description,
+            "owner": p.owner.id,
+        }
+        for p in result
+    ]
+    
+    print(len(properties))
+
+    return JsonResponse({
+        "properties": data,
+        "next_cursor": next_cursor,
+        "has_next": next_cursor is not None,
+        "total": len(properties)
+    })
+
+
+def properties_view(request):
+    user_is_admin = get_user_is_admin(request)
+
+    purposes = "All Purposes"
+    status = ""
+    ptype = "All Types"
+
+    for v in Property.PURPOSE_CHOICES:
+        purposes += ',' + v[0]
+
+    for v in Property.STATUS_CHOICES:
+        status += ',' + v[0]
+
+    for v in Property.PROPERTY_TYPE_CHOICES:
+        ptype += ',' + v[0]
+
+    search_form_options = {
+        "search": "",
+        "purpose": purposes,
+        "status": status,
+        "city": 'All Locations,Gwarinpa,Jahi,Wuse,Wuye,Apo,Dutse,Kubwa,Bwari,Gwagwalada,Lugbe,Kuje,Kwali,Abaji',
+        "property_type": ptype,
     }
 
-    return render(request, 'owner/properties.html', context)
+    search_form = PropertySearchForm(request.GET or None)
+    search_form_data = {}
+
+    if search_form.is_valid():
+        if search_form.cleaned_data.get('property_type'):
+            search_form_data["ptype"] = str(search_form.cleaned_data.get('property_type'))
+        if search_form.cleaned_data.get('purpose'):
+            search_form_data["purpose"] = str(search_form.cleaned_data.get('purpose'))
+        if search_form.cleaned_data.get('city'):
+            search_form_data["city"] = str(search_form.cleaned_data.get('city'))
+        if search_form.cleaned_data.get('status') and user_is_admin:
+            search_form_data["status"] = str(search_form.cleaned_data.get('status'))
+        if search_form.cleaned_data.get('search'):
+            search_form_data["search"] = str(search_form.cleaned_data.get('search'))
+        if search_form.cleaned_data.get('amenities'):
+            search_form_data["amenities"] = str(search_form.cleaned_data.get('amenities'))
+
+    context = {
+        'search_form_options': search_form_options,
+        'search_form_data': search_form_data,
+        'page_title': 'Available Properties',
+        'property_type_choices':  Property.PROPERTY_TYPE_CHOICES,
+        'amenity_choices':Property.AMENITY_CHOICES
+    }
+
+    return render(request, 'properties.html', context)
 
 
 
@@ -1013,11 +712,6 @@ def owner_can_publish_more(user):
 
 @login_required
 def add_property_view(request):
-    # if request.user.userprofile.user_type != 'owner':
-    if request.user.userprofile.user_type not in ['agent', 'admin']:
-        messages.error(request, 'You must be an agent to list properties.')
-        return redirect('dashboard')
-    
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
@@ -1025,7 +719,7 @@ def add_property_view(request):
             # Enforce posting limit for unverified owners (count non-draft properties)
             if not owner_can_publish_more(request.user):
                 messages.error(request, 'You have reached the maximum of 3 properties. Verify your account to post more.')
-                return render(request, 'owner/add_property.html', {'form': form, 'page_title': 'Add New Property'})
+                return render(request, 'add_property.html', {'form': form, 'page_title': 'Add New Property'})
 
             property_obj = form.save(commit=False)
             property_obj.owner = request.user
@@ -1033,7 +727,7 @@ def add_property_view(request):
             property_obj.save()
             
             messages.success(request, 'Property submitted for review. An admin will review your listing shortly.')
-            return redirect('owner_properties')
+            return redirect('properties')
     else:
         form = PropertyForm()
     
@@ -1042,13 +736,10 @@ def add_property_view(request):
         'page_title': 'Add New Property'
     }
     
-    return render(request, 'owner/add_property.html', context)
+    return render(request, 'add_property.html', context)
 
 @login_required
 def edit_property_view(request, property_id):
-    if request.user.userprofile.user_type != 'agent':
-        messages.error(request, 'You must be an agent to edit properties.')
-        return redirect('dashboard')
     
     property_obj = get_object_or_404(Property, id=property_id, owner=request.user)
     
@@ -1062,11 +753,11 @@ def edit_property_view(request, property_id):
 
             if will_publish and not owner_can_publish_more(request.user):
                 messages.error(request, 'Publishing this property would exceed your 3-property limit. Verify your account to publish more.')
-                return render(request, 'owner/edit_property.html', {'form': form, 'property': property_obj, 'page_title': 'Edit Property'})
+                return render(request, 'edit_property.html', {'form': form, 'property': property_obj, 'page_title': 'Edit Property'})
 
             form.save()
             messages.success(request, 'Property updated successfully!')
-            return redirect('owner_properties')
+            return redirect('properties')
         else:
             # Debug: print form errors
             print("Form errors:", form.errors)
@@ -1079,42 +770,18 @@ def edit_property_view(request, property_id):
         'page_title': 'Edit Property'
     }
     
-    return render(request, 'owner/edit_property.html', context)
+    return render(request, 'edit_property.html', context)
 
 @login_required
 def delete_property_view(request, property_id):
-    if request.user.userprofile.user_type != 'agent':
-        messages.error(request, 'You must be an agent to delete properties.')
-        return redirect('dashboard')
-    
     property_obj = get_object_or_404(Property, id=property_id, owner=request.user)
     
     if request.method == 'POST':
         property_obj.delete()
         messages.success(request, 'Property deleted successfully!')
-        return redirect('owner_properties')
+        return redirect('properties')
     
-    return redirect('owner_properties')
-
-
-@login_required
-def calculate_platform_fee(request):
-    if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        try:
-            price = float(request.GET.get('price', 0))
-            platform_fee = price * 0.05
-            net_amount = price - platform_fee
-            
-            return JsonResponse({
-                'success': True,
-                'platform_fee': f'{platform_fee:,.2f}',
-                'net_amount': f'{net_amount:,.2f}'
-            })
-        except ValueError:
-            return JsonResponse({'success': False, 'error': 'Invalid price'})
-    
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
-
+    return redirect('properties')
 
 
 @login_required
@@ -1147,7 +814,6 @@ def book_property_visit(request, property_id):
     
     return redirect('property_detail', property_id=property_id)
 
-
 @login_required
 def contact_property_owner(request, property_id):
     """
@@ -1174,8 +840,6 @@ def contact_property_owner(request, property_id):
     
     return redirect('property_detail', property_id=property_id)
 
-
-
 @login_required
 def update_property_status(request, property_id):
     """
@@ -1197,27 +861,23 @@ def update_property_status(request, property_id):
     
     return redirect('property_detail', property_id=property_id)
 
-
 @login_required
 def save_property(request, property_id):
-    """Save or unsave a property"""
     property_obj = get_object_or_404(Property, id=property_id)
     
-    # Check if property is already saved
     saved_property, created = SavedProperty.objects.get_or_create(
         user=request.user,
         property=property_obj
     )
     
     if not created:
-        # Property was already saved, so unsave it
         saved_property.delete()
         messages.success(request, 'Property removed from saved list.')
     else:
         messages.success(request, 'Property saved successfully!')
     
-    return redirect('property_detail', property_id=property_id)
-
+    # Redirects the user back to the previous page they were viewing
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def saved_properties_view(request):
@@ -1229,8 +889,7 @@ def saved_properties_view(request):
         'page_title': 'Saved Properties'
     }
     
-    return render(request, 'tenant/saved_properties.html', context)
-
+    return render(request, 'saved_properties.html', context)
 
 @login_required
 def book_property_visit(request, property_id):
@@ -1292,7 +951,6 @@ def book_property_visit(request, property_id):
     
     return redirect('property_detail', property_id=property_id)
 
-
 @login_required
 def manage_bookings_view(request):
     """View to manage property bookings for owners"""
@@ -1320,7 +978,7 @@ def manage_bookings_view(request):
             'page_title': 'Manage Bookings',
         }
         
-        return render(request, 'owner/manage_bookings.html', context)
+        return render(request, 'manage_bookings.html', context)
         
     except Exception as e:
         messages.error(request, f'Error loading bookings: {str(e)}')
@@ -1355,7 +1013,6 @@ def update_booking_status(request, booking_id):
         messages.error(request, f'Error updating booking: {str(e)}')
         return redirect('manage_bookings')
 
-
 @login_required
 def my_bookings_view(request):
     """View for tenants to see their booking requests"""
@@ -1369,7 +1026,6 @@ def my_bookings_view(request):
     }
     
     return render(request, 'tenant/my_bookings.html', context)
-
 
 @login_required
 def submit_report(request, property_id):
@@ -1389,15 +1045,13 @@ def submit_report(request, property_id):
         form = ReportForm()
 
     # If reached via GET (should be modal/form submission), render modal template
-    return render(request, 'owner/report_modal.html', {'form': form, 'property': property_obj})
-
+    return render(request, 'report_modal.html', {'form': form, 'property': property_obj})
 
 @login_required
 @user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.user_type == 'admin')
 def admin_reports_view(request):
     reports = Report.objects.select_related('reporter', 'reported_user', 'property').order_by('-created_at')
     return render(request, 'admin/reports.html', {'reports': reports, 'page_title': 'Reports'})
-
 
 @login_required
 @user_passes_test(lambda u: hasattr(u, 'userprofile') and u.userprofile.user_type == 'admin')
@@ -1408,22 +1062,7 @@ def admin_report_action(request, report_id):
         action = request.POST.get('action')
         note = request.POST.get('note', '')
 
-        # Refund action: credit reporter and debit owner where possible
-        if action == 'refund':
-            amount = report.property.price if report.property and report.property.price else Decimal('0.00')
-
-            if amount > 0:
-                Transaction.objects.create( transaction_type='refund', amount=amount, description=f'Refund for property {report.property.title if report.property else "N/A"}', related_property_id=(report.property.id if report.property else None), related_property_title=(report.property.title if report.property else ''))
-
-
-            report.status = 'resolved'
-            report.admin_action = f'Refund of ₦{amount} processed. {note}'
-            report.resolved_by = request.user
-            report.resolved_at = timezone.now()
-            report.save()
-            messages.success(request, 'Refund processed and report marked resolved.')
-
-        elif action == 'deactivate':
+        if action == 'deactivate':
             reported = report.reported_user
             reported.is_active = False
             reported.save()
@@ -1447,47 +1086,6 @@ def admin_report_action(request, report_id):
 
     return redirect('admin_reports')
 
-
-
-def mark_property_as_sold(property_id, sale_price):
-    property = Property.objects.get(id=property_id)
-    
-    # Mark property as sold
-    property.status = 'sold'
-    property.save()
-    
-    # Calculate platform fee (e.g., 5%)
-    platform_fee_percentage = Decimal('0.05')
-    platform_fee_amount = sale_price * platform_fee_percentage
-    
-
-    # Create transaction record for admin
-    Transaction.objects.create(
-        transaction_type='platform_fee',
-        amount=platform_fee_amount,
-        description=f'Platform fee from sale of {property.title}',
-        property=property,  # Assuming Transaction model has a property field
-        reference=f'PF-{property.id}-{timezone.now().strftime("%Y%m%d")}'
-    )
-    
-
-    
-    Transaction.objects.create(
-        transaction_type='property_sale',
-        amount=sale_price - platform_fee_amount,
-        description=f'Sale of {property.title} (after platform fee)',
-        property=property,  # Assuming Transaction model has a property field
-        reference=f'SALE-{property.id}-{timezone.now().strftime("%Y%m%d")}'
-    )
-    
-    # Update property sale price if you have that field
-    property.sale_price = sale_price
-    property.sold_at = timezone.now()
-    property.save()
-
-# Add these imports at the top
-
-# API Views for property bookings
 @login_required
 @require_http_methods(["GET"])
 def property_bookings_api(request, property_id):
@@ -1620,9 +1218,6 @@ def booking_complete_api(request, booking_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-# Make sure ALL these imports are at the top of views.py:
-
-
 # In your admin views.py
 def admin_dashboard_view(request):
     user = request.user
@@ -1701,34 +1296,6 @@ def admin_users_view(request):
     
     return render(request, 'admin/users.html', context)
 
-@login_required
-@user_passes_test(is_admin)
-def update_student_property_status_admin(request, property_id):
-    """Admin update student property status"""
-    if request.method == 'POST':
-        property_obj = get_object_or_404(StudentProperty, id=property_id)
-        status = request.POST.get('status')
-        
-        # Valid status choices for student properties
-        valid_statuses = ['draft', 'pending', 'available', 'rented']
-        
-        if status in valid_statuses:
-            property_obj.status = status
-            
-            # Set published_at when changing to available
-            if status == 'available' and not property_obj.published_at:
-                property_obj.published_at = timezone.now()
-            
-            property_obj.save()
-            messages.success(request, f'Student property status updated to {property_obj.get_status_display()}.')
-        else:
-            messages.error(request, 'Invalid status value.')
-        
-        return redirect('admin_properties')
-    
-    return redirect('admin_properties')
-
-
 
 @login_required
 def check_username_api(request):
@@ -1756,153 +1323,14 @@ def admin_properties_view(request):
     # Get regular properties
     regular_properties = Property.objects.all().select_related('owner')
     
-    # Get student properties
-    student_properties = StudentProperty.objects.all().select_related('created_by')
-    
-    # Filter student properties by status if provided
-    student_status_filter = request.GET.get('student_status', '')
-    if student_status_filter:
-        student_properties = student_properties.filter(status=student_status_filter)
-    
     # Count pending student properties
-    pending_student_properties_count = StudentProperty.objects.filter(status='pending').count()
     
     context = {
         'page_title': 'Manage Properties',
         'regular_properties': regular_properties,
-        'student_properties': student_properties,
-        'pending_student_properties_count': pending_student_properties_count,
-        'student_status_filter': student_status_filter,
     }
     
     return render(request, 'admin/properties.html', context)
-
-@login_required
-@user_passes_test(is_admin)
-def admin_transactions_view(request):
-    """Admin view to see all transactions"""
-    transactions = Transaction.objects.all().order_by('-created_at')
-    
-    # Filter by transaction type
-    transaction_type = request.GET.get('transaction_type', '')
-    if transaction_type:
-        transactions = transactions.filter(transaction_type=transaction_type)
-    
-    # Filter by date
-    start_date = request.GET.get('start_date', '')
-    if start_date:
-        transactions = transactions.filter(created_at__date__gte=start_date)
-    
-    # Calculate statistics
-    total_deposits = Transaction.objects.filter(
-        transaction_type='deposit'
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-    
-    total_withdrawals = Transaction.objects.filter(
-        transaction_type='withdrawal'
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-    
-    total_platform_fees = Transaction.objects.filter(
-        transaction_type='platform_fee'
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-    
-    total_transactions = transactions.count()
-    
-    # Pagination
-    paginator = Paginator(transactions, 25)
-    page = request.GET.get('page', 1)
-    transactions_page = paginator.get_page(page)
-    
-    context = {
-        'page_title': 'Transaction History',
-        'transactions': transactions_page,
-        'total_deposits': total_deposits,
-        'total_withdrawals': total_withdrawals,
-        'total_platform_fees': total_platform_fees,
-        'total_transactions': total_transactions,
-    }
-    
-    return render(request, 'admin/transactions.html', context)
-
-@login_required
-@user_passes_test(is_admin)
-def admin_platform_fees_view(request):
-    """Admin view to see platform fees breakdown"""
-    # Get all properties with platform fees
-    properties = Property.objects.all().select_related('owner').order_by('-created_at')
-    
-    # Calculate totals
-    total_fees = properties.aggregate(
-        total=Sum('platform_fee')
-    )['total'] or Decimal('0.00')
-    
-    total_value = properties.aggregate(
-        total=Sum('price')
-    )['total'] or Decimal('0.00')
-    
-    average_fee = total_fees / properties.count() if properties.count() > 0 else Decimal('0.00')
-    
-    # Calculate fees by status
-    available_fees = Property.objects.filter(status='available').aggregate(
-        total=Sum('platform_fee')
-    )['total'] or Decimal('0.00')
-    
-    sold_fees = Property.objects.filter(status='sold').aggregate(
-        total=Sum('platform_fee')
-    )['total'] or Decimal('0.00')
-    
-    pending_fees = Property.objects.filter(status='pending').aggregate(
-        total=Sum('platform_fee')
-    )['total'] or Decimal('0.00')
-    
-    # Calculate percentages
-    available_percentage = (available_fees / total_fees * 100) if total_fees > 0 else 0
-    sold_percentage = (sold_fees / total_fees * 100) if total_fees > 0 else 0
-    pending_percentage = (pending_fees / total_fees * 100) if total_fees > 0 else 0
-    
-    # Group by month
-    monthly_fees = Property.objects.annotate(
-        month=TruncMonth('created_at')
-    ).values('month').annotate(
-        total_fees=Sum('platform_fee'),
-        total_value=Sum('price'),
-        property_count=Count('id')
-    ).order_by('-month')[:12]
-    
-    # Group by property type
-    fees_by_type = Property.objects.values('property_type').annotate(
-        total_fees=Sum('platform_fee'),
-        property_count=Count('id')
-    ).order_by('-total_fees')
-    
-    # Add display names
-    for item in fees_by_type:
-        item['property_type_display'] = dict(Property.PROPERTY_TYPE_CHOICES).get(item['property_type'], item['property_type'])
-        item['percentage'] = (item['total_fees'] / total_fees * 100) if total_fees > 0 else 0
-    
-    # Pagination for properties
-    paginator = Paginator(properties, 15)
-    page = request.GET.get('page', 1)
-    properties_page = paginator.get_page(page)
-    
-    context = {
-        'page_title': 'Platform Fees',
-        'properties_with_fees': properties_page,
-        'total_fees': total_fees,
-        'total_value': total_value,
-        'total_properties': properties.count(),
-        'average_fee': average_fee,
-        'available_fees': available_fees,
-        'sold_fees': sold_fees,
-        'pending_fees': pending_fees,
-        'available_percentage': available_percentage,
-        'sold_percentage': sold_percentage,
-        'pending_percentage': pending_percentage,
-        'monthly_fees': monthly_fees,
-        'fees_by_type': fees_by_type,
-    }
-    
-    return render(request, 'admin/platform_fees.html', context)
 
 @login_required
 @user_passes_test(is_admin)
@@ -1978,27 +1406,14 @@ def update_property_status_admin(request, property_id):
         
         
         # In your views.py
-## In your views.py
-
-
-
-
-
 
 def property_detail_view(request, property_id):
     """View property details"""
     
     property_obj = get_object_or_404(Property, id=property_id)
-    
-    # Check if this property has expired rentals
-    property_obj.check_and_expire_rental()
-    
-    # Refresh property from database to get updated status
     property_obj.refresh_from_db()
-    
     user = request.user
     
-    # Increment view count (only once per session to avoid inflating views)
     session_key = f'viewed_property_{property_id}'
     if not request.session.get(session_key):
         property_obj.views += 1
@@ -2021,10 +1436,7 @@ def property_detail_view(request, property_id):
     # Get additional images
     additional_images = property_obj.images
     
-    # Get today's date for booking form
     today = timezone.now().date()
-    
-    
     recommendations = get_property_recommendations(property_obj)
 
     
@@ -2039,11 +1451,7 @@ def property_detail_view(request, property_id):
         'recommendations': recommendations
     }
     
-    return render(request, 'owner/property_detail.html', context)
-
-
-
-
+    return render(request, 'property_detail.html', context)
 
 @login_required
 @user_passes_test(is_admin)
@@ -2193,3 +1601,46 @@ def dismiss_admin_message(request):
             return JsonResponse({'success': False, 'error': 'Invalid JSON'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@require_http_methods(["POST"])
+def property_request(request):
+    def to_int(val):
+        try:
+            return int(val) if val else None
+        except (ValueError, TypeError):
+            return None
+
+    amenities = ','.join(request.POST.getlist('amenities'))
+
+    obj = Inquiry.objects.create(
+        user          = request.user,
+        full_name     = request.POST.get('full_name', '').strip(),
+        phone         = request.POST.get('phone', '').strip(),
+        email         = request.POST.get('email', '').strip(),
+        property_type = request.POST.get('property_type', ''),
+        purpose       = request.POST.get('purpose', ''),
+        city          = request.POST.get('city', ''),
+        budget_min    = to_int(request.POST.get('budget_min')),
+        budget_max    = to_int(request.POST.get('budget_max')),
+        bedrooms_min  = to_int(request.POST.get('bedrooms_min')),
+        bedrooms_max  = to_int(request.POST.get('bedrooms_max')),
+        bathrooms_min = to_int(request.POST.get('bathrooms_min')),
+        bathrooms_max = to_int(request.POST.get('bathrooms_max')),
+        amenities     = amenities,
+        notes         = request.POST.get('notes', '').strip(),
+    )
+    
+    print(obj)
+
+    return JsonResponse({'ok': True})
+
+
+
+def get_details(request):
+    return JsonResponse({
+        'property_type_choices': list(Property.PROPERTY_TYPE_CHOICES),
+        'amenity_choices':Property.AMENITY_CHOICES,
+        'purpose_choices':Property.PURPOSE_CHOICES,
+        'cities':Property.CITIES,
+    })

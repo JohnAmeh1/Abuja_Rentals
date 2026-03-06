@@ -15,11 +15,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 ENV = os.getenv("DJANGO_ENV", "development")
+# ENV = "testing"
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
 
@@ -57,7 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'rentals.middleware.RentalExpiryMiddleware',
 ]
 
 ROOT_URLCONF = 'Abuja_Rentals.urls'
@@ -76,7 +75,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # 'rentals.context_processors.wallet_context',
                 # 'rentals.context_processors.admin_messages_context',
             ],
         },
@@ -84,7 +82,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Abuja_Rentals.wsgi.application'
-
+print("Current Environment:", ENV)
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -175,15 +173,14 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-# Email Configuration (for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-# For production, use:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-password'
+# Email Configuration for Gmail SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'dreamzcybercafe2021@gmail.com'
+EMAIL_HOST_PASSWORD = 'xjup fswi kbqf stuw'
+DEFAULT_FROM_EMAIL = 'dreamzcybercafe2021@gmail.com'
 
 # Media files
 
@@ -236,9 +233,3 @@ PWA_APP_SPLASH_SCREEN = [
     }
 ]
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'pwa', 'sw.js')
-
-FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-xxxxx"
-FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-xxxxx"
-
-FLUTTERWAVE_REDIRECT_URL = "http://127.0.0.1:8000/payments/verify/"
-FLUTTERWAVE_WEBHOOK_HASH = "my_super_secret_hash_123"

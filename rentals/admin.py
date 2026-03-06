@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile
-from .models import StudentProperty
+from .models import UserProfile, Inquiry
 
 # Inline for UserProfile
 class UserProfileInline(admin.StackedInline):
@@ -38,9 +37,12 @@ class UserProfileAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'phone_number')
     
 
-@admin.register(StudentProperty)
-class StudentPropertyAdmin(admin.ModelAdmin):
-    list_display = ['title', 'property_type', 'purpose', 'price', 'city', 'status', 'created_at']
-    list_filter = ['property_type', 'purpose', 'status', 'city', 'is_featured']
-    search_fields = ['title', 'description', 'city', 'state']
-    readonly_fields = ['created_at', 'updated_at', 'published_at', 'sold_at', 'views']
+
+@admin.register(Inquiry)
+class InquiryAdmin(admin.ModelAdmin):
+    list_display  = ('full_name', 'phone', 'email', 'property_type', 'purpose', 'city', 'is_resolved', 'created_at')
+    list_filter   = ('property_type', 'purpose', 'is_resolved', 'city')
+    search_fields = ('full_name', 'phone', 'email', 'notes')
+    list_editable = ('is_resolved',)
+    readonly_fields = ('created_at',)
+

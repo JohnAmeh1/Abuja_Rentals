@@ -1,17 +1,3 @@
-# Create a context processor to show wallet balance everywhere
-# In rentals/context_processors.py
-# from .models import Wallet
-
-# def wallet_context(request):
-#     context = {}
-#     if request.user.is_authenticated:
-#         wallet, created = Wallet.objects.get_or_create(
-#             user=request.user,
-#             defaults={'balance': 0.00}
-#         )
-#         context['wallet_balance'] = wallet.balance
-#     return context
-
 # context_processors.py
 from .models import AdminMessage
 from django.utils import timezone

@@ -8,7 +8,6 @@ const PRECACHE_ASSETS = [
   '/offline/',
   '/manifest.json',
   '/serviceworker.js'
-  // Remove external URLs from precache
 ];
 
 // Install event

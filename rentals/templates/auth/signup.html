@@ -3,329 +3,363 @@
 {% block title %}Sign Up | Abuja Rentals{% endblock %}
 
 {% block content %}
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
         <!-- Header Section -->
-            <div class="text-center mb-10">
-                <a href="{% url 'home' %}" class="inline-flex items-center space-x-4 group">
-                    <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center transform group-hover:rotate-6 transition-transform duration-300 shadow-lg">
-                        <i class="fas fa-home text-white text-2xl"></i>
-                    </div>
-                    <div class="text-left">
-                        <div class="text-4xl font-display font-bold text-primary tracking-tight">Abuja</div>
-                        <div class="text-4xl font-display font-bold text-accent tracking-tight">Rentals</div>
-                        <div class="text-sm text-gray-500 -mt-1 font-medium">PREMIUM PROPERTIES</div>
-                    </div>
-                </a>
-
-                <div class="mt-8">
-                    <h2 class="text-3xl lg:text-4xl font-display font-bold text-primary mb-3">
-                        Create Your Account
-                    </h2>
-                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                        Join thousands finding their perfect home in Abuja
-                    </p>
-                    <div class="mt-4">
-                        <span class="inline-flex items-center text-accent font-medium">
-                            <i class="fas fa-check-circle mr-2"></i>
-                            Already have an account?
-                            <a href="{% url 'login' %}" class="ml-2 text-accent-dark hover:underline font-bold">
-                                Sign in here
-                            </a>
-                        </span>
-                    </div>
+        <div class="text-center mb-10">
+            <a href="{% url 'home' %}" class="inline-flex items-center space-x-4 group">
+                <div
+                    class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center transform group-hover:rotate-6 transition-transform duration-300 shadow-lg">
+                    <i class="fas fa-building text-white text-2xl"></i>
                 </div>
-            </div>
-
-        <!-- Form Container -->
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-                <div class="p-8 lg:p-10">
-                    <form method="POST" action="{% url 'signup' %}" class="space-y-8">
-                        {% csrf_token %}
-
-                    <!-- Two Column Layout -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                        <!-- Left Column -->
-                            <div class="space-y-6">
-                                <div>
-                                    <h3 class="text-xl font-bold text-primary mb-6 pb-3 border-b border-gray-100">
-                                        <i class="fas fa-user-circle mr-2 text-accent"></i>
-                                        Personal Information
-                                    </h3>
-
-                                <!-- Username -->
-                                    <div class="mb-6">
-                                        <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i class="fas fa-user mr-2 text-accent"></i>Username *
-                                        </label>
-                                        {{ form.username }}
-                                        {% if form.username.errors %}
-                                            <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
-                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.username.errors|striptags }}
-                                            </p>
-                                        {% endif %}
-                                        <p class="mt-1 text-sm text-gray-500">Choose a unique username</p>
-                                    </div>
-
-                                <!-- Email -->
-                                    <div class="mb-6">
-                                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i class="fas fa-envelope mr-2 text-accent"></i>Email Address *
-                                        </label>
-                                        {{ form.email }}
-                                        {% if form.email.errors %}
-                                            <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
-                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.email.errors|striptags }}
-                                            </p>
-                                        {% endif %}
-                                    </div>
-
-                                <!-- First & Last Name -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                                        <div>
-                                            <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                First Name *
-                                            </label>
-                                            {{ form.first_name }}
-                                            {% if form.first_name.errors %}
-                                                <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors|striptags }}</p>
-                                            {% endif %}
-                                        </div>
-                                        <div>
-                                            <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                Last Name *
-                                            </label>
-                                            {{ form.last_name }}
-                                            {% if form.last_name.errors %}
-                                                <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors|striptags }}</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                <!-- Phone Number -->
-                                    <div class="mb-6">
-                                        <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i class="fas fa-phone mr-2 text-accent"></i>Phone Number *
-                                        </label>
-                                        {{ form.phone_number }}
-                                        {% if form.phone_number.errors %}
-                                            <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
-                                                <i class="fas fa-exclamation-circle mr-1"></i>{{ form.phone_number.errors|striptags }}
-                                            </p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                        <!-- Right Column -->
-                            <div class="space-y-6">
-                                <div>
-                                    <h3 class="text-xl font-bold text-primary mb-6 pb-3 border-b border-gray-100">
-                                        <i class="fas fa-home mr-2 text-accent"></i>
-                                        Account Details
-                                    </h3>
-
-                                <!-- User Type -->
-                                    <div class="mb-6">
-                                        <label class="block text-sm font-semibold text-gray-700 mb-3">
-                                            <i class="fas fa-user-tag mr-2 text-accent"></i>I am a: *
-                                        </label>
-                                        <div class="grid grid-cols-1 gap-3">
-                                            {% for radio in form.user_type %}
-                                                <div class="flex items-center bg-gray-50 p-4 rounded-xl hover:bg-blue-50 transition-colors border border-gray-200 hover:border-accent">
-                                                    {{ radio.tag }}
-                                                    <label for="{{ radio.id_for_label }}" class="ml-3 text-gray-700 font-medium cursor-pointer flex items-center">
-                                                        {% if radio.choice_label == 'Tenant/Looking to Rent' %}
-                                                            <i class="fas fa-search mr-2 text-blue-500"></i>
-                                                        {% elif radio.choice_label == 'Property Owner/Landlord' %}
-                                                            <i class="fas fa-key mr-2 text-green-500"></i>
-
-                                                        {% endif %}
-                                                        {{ radio.choice_label }}
-                                                    </label>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% if form.user_type.errors %}
-                                            <p class="mt-2 text-sm text-red-600">{{ form.user_type.errors|striptags }}</p>
-                                        {% endif %}
-                                    </div>
-
-                                <!-- Address -->
-                                    <div class="mb-6">
-                                        <label for="{{ form.address.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i class="fas fa-map-marker-alt mr-2 text-accent"></i>Address (Optional)
-                                        </label>
-                                        {{ form.address }}
-                                    </div>
-
-                                <!-- Bio -->
-                                    <div class="mb-6">
-                                        <label for="{{ form.bio.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i class="fas fa-edit mr-2 text-accent"></i>About You (Optional)
-                                        </label>
-                                        {{ form.bio }}
-                                        <p class="mt-1 text-sm text-gray-500">Tell us a bit about yourself</p>
-                                    </div>
-                                </div>
-
-                            <!-- Passwords Section -->
-                                <div class="pt-6 border-t border-gray-100">
-                                    <h3 class="text-xl font-bold text-primary mb-6 pb-3 border-b border-gray-100">
-                                        <i class="fas fa-lock mr-2 text-accent"></i>
-                                        Security
-                                    </h3>
-
-                                    <div class="space-y-6">
-                                    <!-- Password 1 -->
-                                        <div>
-                                            <label for="{{ form.password1.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                Password *
-                                            </label>
-                                            {{ form.password1 }}
-                                            {% if form.password1.errors %}
-                                                <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
-                                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password1.errors|striptags }}
-                                                </p>
-                                            {% endif %}
-                                            <div class="mt-2 space-y-1">
-                                                <p class="text-sm text-gray-600">Password must contain:</p>
-                                                <ul class="text-xs text-gray-500 space-y-1 ml-4">
-                                                    <li class="flex items-center"><i class="fas fa-circle text-xs mr-2"></i>At least 8 characters</li>
-                                                    <li class="flex items-center"><i class="fas fa-circle text-xs mr-2"></i>Letters and numbers</li>
-                                                    <li class="flex items-center"><i class="fas fa-circle text-xs mr-2"></i>Not too common</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                    <!-- Password 2 -->
-                                        <div>
-                                            <label for="{{ form.password2.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                Confirm Password *
-                                            </label>
-                                            {{ form.password2 }}
-                                            {% if form.password2.errors %}
-                                                <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
-                                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ form.password2.errors|striptags }}
-                                                </p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    <!-- Terms and Submit -->
-                        <div class="pt-8 border-t border-gray-200">
-                        <!-- Terms Agreement -->
-                            <div class="flex items-start mb-8">
-                                <div class="flex items-center h-5">
-                                    <input id="terms" name="terms" type="checkbox" required class="focus:ring-accent h-5 w-5 text-accent border-gray-300 rounded">
-                                </div>
-                                <div class="ml-3">
-                                    <label for="terms" class="text-gray-700">
-                                        I agree to the
-                                        <a href="#" class="text-accent font-semibold hover:text-accent-dark hover:underline">Terms of Service</a>
-                                        and
-                                        <a href="#" class="text-accent font-semibold hover:text-accent-dark hover:underline">Privacy Policy</a>
-                                        <span class="text-red-500">*</span>
-                                    </label>
-                                    <p class="text-sm text-gray-500 mt-1">By creating an account, you agree to our terms and conditions.</p>
-                                </div>
-                            </div>
-
-                        <!-- Submit Button -->
-                            <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
-                                <div class="text-sm text-gray-600">
-                                    <i class="fas fa-shield-alt text-accent mr-2"></i>
-                                    Your information is secured with 256-bit encryption
-                                </div>
-
-                                <button type="submit" class="group relative px-10 py-4 bg-gradient-to-r from-accent to-accent-dark text-white font-bold rounded-xl hover:from-accent-dark hover:to-accent transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center text-lg">
-                                    <span class="absolute left-0 inset-y-0 flex items-center pl-4">
-                                        <i class="fas fa-user-plus text-white text-lg"></i>
-                                    </span>
-                                    <span class="ml-6">Create My Account</span>
-                                    <span class="ml-4 group-hover:translate-x-2 transition-transform">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                <!-- Divider -->
-                    <div class="mt-10 pt-8 border-t border-gray-200">
-                        <div class="text-center">
-                            <p class="text-gray-600 mb-6">Or sign up with</p>
-                            <div class="flex justify-center space-x-4">
-                                <a href="#" class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl hover:bg-gray-200 transition border border-gray-300">
-                                    <i class="fab fa-google text-red-500 text-xl"></i>
-                                </a>
-                                <a href="#" class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl hover:bg-gray-200 transition border border-gray-300">
-                                    <i class="fab fa-facebook text-blue-600 text-xl"></i>
-                                </a>
-                                <a href="#" class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl hover:bg-gray-200 transition border border-gray-300">
-                                    <i class="fab fa-apple text-gray-800 text-xl"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-left">
+                    <div class="text-4xl font-display font-bold text-primary tracking-tight">Abuja</div>
+                    <div class="text-4xl font-display font-bold text-accent tracking-tight">Rentals</div>
+                    <div class="text-sm text-gray-500 -mt-1 font-medium">PREMIUM PROPERTIES</div>
                 </div>
-            </div>
+            </a>
 
-        <!-- Footer Note -->
-            <div class="mt-10 text-center">
-                <p class="text-gray-600 text-sm">
-                    <i class="fas fa-info-circle mr-2 text-accent"></i>
-                    Need help? <a href="#" class="text-accent font-semibold hover:underline">Contact our support team</a>
+            <div class="mt-8">
+                <h2 class="text-3xl lg:text-4xl font-display font-bold text-primary mb-3">
+                    Create Your Account
+                </h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Join thousands finding their perfect home in Abuja
                 </p>
-                <p class="text-gray-500 text-xs mt-2">
-                    © 2024 Abuja Rentals. All rights reserved.
-                </p>
+                <div class="mt-4">
+                    <span class="inline-flex items-center text-accent font-medium">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Already have an account?
+                        <a href="{% url 'login' %}" class="ml-2 text-accent-dark hover:underline font-bold">
+                            Sign in here
+                        </a>
+                    </span>
+                </div>
             </div>
         </div>
+
+        <!-- Form Container -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+            <div class="p-8 lg:p-10">
+                <form method="POST" action="{% url 'signup' %}" class="space-y-8">
+                    {% csrf_token %}
+
+                    <!-- Two Column Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                        <!-- Left Column -->
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-primary mb-6 pb-3 border-b border-gray-100">
+                                    <i class="fas fa-user-circle mr-2 text-accent"></i>
+                                    Personal Information
+                                </h3>
+
+                                <!-- Username -->
+                                <div class="mb-6">
+                                    <label for="{{ form.username.id_for_label }}"
+                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-user mr-2 text-accent"></i>Username *
+                                    </label>
+                                    {{ form.username }}
+                                    {% if form.username.errors %}
+                                    <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.username.errors|striptags
+                                        }}
+                                    </p>
+                                    {% endif %}
+                                    <p class="mt-1 text-sm text-gray-500">Choose a unique username</p>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="mb-6">
+                                    <label for="{{ form.email.id_for_label }}"
+                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-envelope mr-2 text-accent"></i>Email Address *
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ form.email.errors|striptags }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- First & Last Name -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <label for="{{ form.first_name.id_for_label }}"
+                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                            First Name *
+                                        </label>
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors|striptags }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.last_name.id_for_label }}"
+                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Last Name *
+                                        </label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}
+                                        <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors|striptags }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Phone Number -->
+                                <div class="mb-6">
+                                    <label for="{{ form.phone_number.id_for_label }}"
+                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-phone mr-2 text-accent"></i>Phone Number *
+                                    </label>
+                                    {{ form.phone_number }}
+                                    {% if form.phone_number.errors %}
+                                    <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{
+                                        form.phone_number.errors|striptags }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-primary mb-6 pb-3 border-b border-gray-100">
+                                    <i class="fas fa-home mr-2 text-accent"></i>
+                                    Account Details
+                                </h3>
+
+                                <!-- User Type -->
+                                <div class="mb-6">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                        <i class="fas fa-user-tag mr-2 text-accent"></i>I am a: *
+                                    </label>
+                                    <div class="grid grid-cols-1 gap-3">
+                                        {% for radio in form.user_type %}
+                                        <div
+                                            class="flex items-center bg-gray-50 p-4 rounded-xl hover:bg-blue-50 transition-colors border border-gray-200 hover:border-accent">
+                                            {{ radio.tag }}
+                                            <label for="{{ radio.id_for_label }}"
+                                                class="ml-3 text-gray-700 font-medium cursor-pointer flex items-center">
+                                                {% if radio.choice_label == 'Tenant/Looking to Rent' %}
+                                                <i class="fas fa-search mr-2 text-blue-500"></i>
+                                                {% elif radio.choice_label == 'Property Owner/Landlord' %}
+                                                <i class="fas fa-key mr-2 text-green-500"></i>
+
+                                                {% endif %}
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if form.user_type.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.user_type.errors|striptags }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Address -->
+                                <div class="mb-6">
+                                    <label for="{{ form.address.id_for_label }}"
+                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-map-marker-alt mr-2 text-accent"></i>Address (Optional)
+                                    </label>
+                                    {{ form.address }}
+                                </div>
+
+                                <!-- Bio -->
+                                <div class="mb-6">
+                                    <label for="{{ form.bio.id_for_label }}"
+                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-edit mr-2 text-accent"></i>About You (Optional)
+                                    </label>
+                                    {{ form.bio }}
+                                    <p class="mt-1 text-sm text-gray-500">Tell us a bit about yourself</p>
+                                </div>
+                            </div>
+
+                            <!-- Passwords Section -->
+                            <div class="pt-6 border-t border-gray-100">
+                                <h3 class="text-xl font-bold text-primary mb-6 pb-3 border-b border-gray-100">
+                                    <i class="fas fa-lock mr-2 text-accent"></i>
+                                    Security
+                                </h3>
+
+                                <div class="space-y-6">
+                                    <!-- Password 1 -->
+                                    <div>
+                                        <label for="{{ form.password1.id_for_label }}"
+                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Password *
+                                        </label>
+                                        {{ form.password1 }}
+                                        {% if form.password1.errors %}
+                                        <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{
+                                            form.password1.errors|striptags }}
+                                        </p>
+                                        {% endif %}
+                                        <div class="mt-2 space-y-1">
+                                            <p class="text-sm text-gray-600">Password must contain:</p>
+                                            <ul class="text-xs text-gray-500 space-y-1 ml-4">
+                                                <li class="flex items-center"><i
+                                                        class="fas fa-circle text-xs mr-2"></i>At least 8 characters
+                                                </li>
+                                                <li class="flex items-center"><i
+                                                        class="fas fa-circle text-xs mr-2"></i>Letters and numbers</li>
+                                                <li class="flex items-center"><i
+                                                        class="fas fa-circle text-xs mr-2"></i>Not too common</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Password 2 -->
+                                    <div>
+                                        <label for="{{ form.password2.id_for_label }}"
+                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Confirm Password *
+                                        </label>
+                                        {{ form.password2 }}
+                                        {% if form.password2.errors %}
+                                        <p class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{
+                                            form.password2.errors|striptags }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Submit -->
+                    <div class="pt-8 border-t border-gray-200">
+                        <!-- Terms Agreement -->
+                        <div class="flex items-start mb-8">
+                            <div class="flex items-center h-5">
+                                <input id="terms" name="terms" type="checkbox" required
+                                    class="focus:ring-accent h-5 w-5 text-accent border-gray-300 rounded">
+                            </div>
+                            <div class="ml-3">
+                                <label for="terms" class="text-gray-700">
+                                    I agree to the
+                                    <a href="#"
+                                        class="text-accent font-semibold hover:text-accent-dark hover:underline">Terms
+                                        of Service</a>
+                                    and
+                                    <a href="#"
+                                        class="text-accent font-semibold hover:text-accent-dark hover:underline">Privacy
+                                        Policy</a>
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <p class="text-sm text-gray-500 mt-1">By creating an account, you agree to our terms and
+                                    conditions.</p>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-shield-alt text-accent mr-2"></i>
+                                Your information is secured with 256-bit encryption
+                            </div>
+
+                            <button type="submit"
+                                class="group relative px-10 py-4 bg-gradient-to-r from-accent to-accent-dark text-white font-bold rounded-xl hover:from-accent-dark hover:to-accent transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center text-lg">
+                                <span class="absolute left-0 inset-y-0 flex items-center pl-4">
+                                    <i class="fas fa-user-plus text-white text-lg"></i>
+                                </span>
+                                <span class="ml-6">Create My Account</span>
+                                <span class="ml-4 group-hover:translate-x-2 transition-transform">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Divider -->
+                <div class="mt-10 pt-8 border-t border-gray-200">
+                    <div class="text-center">
+                        <p class="text-gray-600 mb-6">Or sign up with</p>
+                        <div class="flex justify-center space-x-4">
+                            <a href="#"
+                                class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl hover:bg-gray-200 transition border border-gray-300">
+                                <i class="fab fa-google text-red-500 text-xl"></i>
+                            </a>
+                            <a href="#"
+                                class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl hover:bg-gray-200 transition border border-gray-300">
+                                <i class="fab fa-facebook text-blue-600 text-xl"></i>
+                            </a>
+                            <a href="#"
+                                class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl hover:bg-gray-200 transition border border-gray-300">
+                                <i class="fab fa-apple text-gray-800 text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="mt-10 text-center">
+            <p class="text-gray-600 text-sm">
+                <i class="fas fa-info-circle mr-2 text-accent"></i>
+                Need help? <a href="#" class="text-accent font-semibold hover:underline">Contact our support team</a>
+            </p>
+            <p class="text-gray-500 text-xs mt-2">
+                © 2024 Abuja Rentals. All rights reserved.
+            </p>
+        </div>
     </div>
+</div>
 
-    <style>
+<style>
     /* Custom styling for better alignment */
-        input, select, textarea {
-            transition: all 0.3s ease;
-        }
+    input,
+    select,
+    textarea {
+        transition: all 0.3s ease;
+    }
 
-        input:focus, select:focus, textarea:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
+    input:focus,
+    select:focus,
+    textarea:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
 
     /* Style for radio buttons */
-        input[type="radio"] {
-            accent-color: #3b82f6;
-            width: 1.2em;
-            height: 1.2em;
-        }
+    input[type="radio"] {
+        accent-color: #3b82f6;
+        width: 1.2em;
+        height: 1.2em;
+    }
 
     /* Style for checkboxes */
-        input[type="checkbox"] {
-            accent-color: #3b82f6;
-        }
+    input[type="checkbox"] {
+        accent-color: #3b82f6;
+    }
 
     /* Custom scrollbar for textarea */
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
 
     /* Responsive adjustments */
-        @media (max-width: 1024px) {
-            .grid-cols-1.lg\:grid-cols-2 {
-                gap: 1.5rem;
-            }
+    @media (max-width: 1024px) {
+        .grid-cols-1.lg\:grid-cols-2 {
+            gap: 1.5rem;
         }
+    }
 
-        @media (max-width: 640px) {
-            .p-8.lg\:p-10 {
-                padding: 1.5rem;
-            }
+    @media (max-width: 640px) {
+        .p-8.lg\:p-10 {
+            padding: 1.5rem;
         }
-    </style>
+    }
+</style>
 {% endblock %}

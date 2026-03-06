@@ -1,0 +1,67 @@
+<article
+  class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition min-w-64 lg:min-w-80"
+>
+  <div class="relative h-52 overflow-hidden bg-gray-100">
+    {% if prop.main_image %}
+    <img
+      src="{{ prop.main_image }}"
+      alt="{{ prop.title }}"
+      class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300"
+    />
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center">
+      <i class="fas fa-home text-gray-300 text-4xl"></i>
+    </div>
+    {% endif %}
+
+    <!-- PRICE -->
+    <div class="absolute bottom-2.5 left-2.5">
+      <span
+        class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm"
+      >
+        ₦{{ prop.price|floatformat:0 }}
+      </span>
+    </div>
+  </div>
+  <!-- CONTENT -->
+  <div class="p-4 flex flex-col gap-2">
+    <h3
+      class="font-semibold text-gray-900 line-clamp-1 group-hover:text-accent"
+    >
+      {{ prop.title }}
+    </h3>
+
+    <div class="flex items-center justify-between text-sm text-gray-500">
+      <span class="flex items-center">
+        <i class="fas fa-map-marker-alt mr-1.5"></i>
+        {{ prop.city|capfirst }}
+      </span>
+
+      <div class="flex items-center gap-3">
+        {% if prop.bedrooms %}
+        <span><i class="fas fa-bed mr-1"></i>{{ prop.bedrooms }}</span>
+        {% endif %} {% if prop.bathrooms %}
+        <span><i class="fas fa-bath mr-1"></i>{{ prop.bathrooms }}</span>
+        {% endif %} {% if prop.area_sqft %}
+        <span>
+          <i class="fas fa-ruler-combined mr-1"></i>
+          {{ prop.area_sqft|floatformat:0 }} sqft
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <p class="text-sm text-gray-600 line-clamp-2">
+      {{ prop.description|truncatechars:140 }}
+    </p>
+
+    <div class="flex items-center mt-3 gap-2">
+      <a
+        href="{% url 'property_detail' prop.id %}"
+        class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+      >
+        View Details
+      </a>
+    </div>
+  </div>
+</article>

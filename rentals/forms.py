@@ -512,3 +512,114 @@ class AdminMessageForm(forms.Form):
             # Format for datetime-local input
             formatted_time = current_time.strftime('%Y-%m-%dT%H:%M')
             self.fields['start_date'].initial = formatted_time
+
+
+class OTPVerificationForm(forms.Form):
+    """Form for OTP verification"""
+    otp_code = forms.CharField(
+        max_length=6,
+        min_length=6,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest',
+            'placeholder': '000000',
+            'inputmode': 'numeric',
+            'maxlength': '6',
+            'autocomplete': 'one-time-code'
+        }),
+        label='Enter OTP Code'
+    )
+    
+    def clean_otp_code(self):
+        """Validate that the OTP code contains only digits"""
+        otp_code = self.cleaned_data.get('otp_code', '').strip()
+        if not otp_code.isdigit():
+            raise ValidationError('OTP code must contain only digits.')
+        return otp_code
+
+
+class ForgotPasswordForm(forms.Form):
+    """Form for forgot password email submission"""
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'placeholder': 'Enter your email address',
+            'autocomplete': 'email'
+        }),
+        label='Email Address'
+    )
+    
+    def clean_email(self):
+        """Validate that the user with this email exists"""
+        email = self.cleaned_data.get('email')
+        try:
+            User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError('No account found with this email address.')
+        return email
+
+
+class ForgotPasswordOTPForm(forms.Form):
+    """Form for verifying OTP during forgot password"""
+    otp_code = forms.CharField(
+        max_length=6,
+        min_length=6,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-2xl tracking-widest',
+            'placeholder': '000000',
+            'inputmode': 'numeric',
+            'maxlength': '6',
+            'autocomplete': 'one-time-code'
+        }),
+        label='Enter OTP Code'
+    )
+    
+    def clean_otp_code(self):
+        """Validate that the OTP code contains only digits"""
+        otp_code = self.cleaned_data.get('otp_code', '').strip()
+        if not otp_code.isdigit():
+            raise ValidationError('OTP code must contain only digits.')
+        return otp_code
+
+
+class ResetPasswordForm(forms.Form):
+    """Form for resetting password after OTP verification"""
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'placeholder': 'Enter new password',
+            'autocomplete': 'new-password'
+        }),
+        label='New Password',
+        help_text='Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.'
+    )
+    
+    password_confirm = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'placeholder': 'Confirm new password',
+            'autocomplete': 'new-password'
+        }),
+        label='Confirm Password'
+    )
+    
+    def clean(self):
+        """Validate password and confirmation match"""
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        
+        if password and password_confirm:
+            if password != password_confirm:
+                raise ValidationError('Passwords do not match.')
+            
+            # Add Django's password validators
+            from django.contrib.auth.password_validation import validate_password
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                self.add_error('password', e)
+        
+        return cleaned_data

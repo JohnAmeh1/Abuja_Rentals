@@ -3,6 +3,57 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from decimal import Decimal
+import os
+from dateutil.relativedelta import relativedelta
+from django.db import transaction
+import random
+import string
+
+
+class OTP(models.Model):
+    """Model to store OTP for email verification"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp')
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_verified = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"OTP for {self.user.email}"
+    
+    @staticmethod
+    def generate_code():
+        """Generate a 6-digit OTP code"""
+        return ''.join(random.choices(string.digits, k=6))
+    
+    @classmethod
+    def create_otp(cls, user):
+        """Create or update OTP for a user"""
+        otp_code = cls.generate_code()
+        expires_at = timezone.now() + timezone.timedelta(minutes=10)  # OTP valid for 10 minutes
+        
+        otp, created = cls.objects.update_or_create(
+            user=user,
+            defaults={
+                'code': otp_code,
+                'expires_at': expires_at,
+                'is_verified': False
+            }
+        )
+        return otp
+    
+    def is_valid(self):
+        """Check if OTP is still valid"""
+        return timezone.now() < self.expires_at and not self.is_verified
+    
+    def verify(self, code):
+        """Verify the OTP code"""
+        if self.is_valid() and self.code == code:
+            self.is_verified = True
+            self.save()
+            return True
+        return False
 
 
 class UserProfile(models.Model):

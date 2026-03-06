@@ -2,6 +2,8 @@
 
 import django.db.models.deletion
 import django.utils.timezone
+import django.db.models.deletion
+import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
@@ -58,6 +60,7 @@ class Migration(migrations.Migration):
             name='Property',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=200)),
                 ('description', models.TextField()),
                 ('property_type', models.CharField(choices=[('apartment', 'Apartment'), ('house', 'House'), ('villa', 'Villa'), ('penthouse', 'Penthouse'), ('shop', 'Shop'), ('office', 'Office Space'), ('warehouse', 'Warehouse'), ('land', 'Land'), ('studio', 'Studio'), ('commercial', 'Commercial Building')], max_length=20)),
@@ -92,6 +95,7 @@ class Migration(migrations.Migration):
             name='PropertyVisit',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('visit_date', models.DateField()),
                 ('visit_time', models.TimeField()),
                 ('status', models.CharField(choices=[('pending', 'Pending'), ('confirmed', 'Confirmed'), ('completed', 'Completed'), ('cancelled', 'Cancelled'), ('declined', 'Declined')], default='pending', max_length=20)),
@@ -109,12 +113,23 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='Report',
+            name='Report',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('reason', models.CharField(choices=[('payment_issue', 'Payment / Refund Issue'), ('fake_listing', 'Fake / Misleading Listing'), ('harassment', 'Harassment / Abusive Behavior'), ('other', 'Other')], max_length=50)),
                 ('message', models.TextField(blank=True)),
                 ('status', models.CharField(choices=[('open', 'Open'), ('investigating', 'Investigating'), ('resolved', 'Resolved'), ('dismissed', 'Dismissed')], default='open', max_length=20)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('reason', models.CharField(choices=[('payment_issue', 'Payment / Refund Issue'), ('fake_listing', 'Fake / Misleading Listing'), ('harassment', 'Harassment / Abusive Behavior'), ('other', 'Other')], max_length=50)),
+                ('message', models.TextField(blank=True)),
+                ('status', models.CharField(choices=[('open', 'Open'), ('investigating', 'Investigating'), ('resolved', 'Resolved'), ('dismissed', 'Dismissed')], default='open', max_length=20)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('resolved_at', models.DateTimeField(blank=True, null=True)),
+                ('admin_action', models.TextField(blank=True)),
+                ('property', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='rentals.property')),
+                ('reported_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reports_received', to=settings.AUTH_USER_MODEL)),
+                ('reporter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reports_made', to=settings.AUTH_USER_MODEL)),
+                ('resolved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reports_resolved', to=settings.AUTH_USER_MODEL)),
                 ('resolved_at', models.DateTimeField(blank=True, null=True)),
                 ('admin_action', models.TextField(blank=True)),
                 ('property', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='rentals.property')),

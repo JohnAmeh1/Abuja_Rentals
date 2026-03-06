@@ -1,596 +1,466 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Find your perfect home from thousands of premium property listings. Luxury homes, apartments, and commercial properties." />
 
-    {% load static %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Find your perfect home from thousands of premium property listings. Luxury homes, apartments, and commercial properties." />
 
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#0f172a">
-    <meta name="mobile-web-app-capable" content="yes">  <!-- Fixed: removed apple-mobile-web-app-capable -->
-    <meta name="apple-mobile-web-app-capable" content="yes">  <!-- Keep for iOS -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Abuja Rentals">
+  {% load static %}
 
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/manifest.json">
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes"> <!-- Fixed: removed apple-mobile-web-app-capable -->
+  <meta name="apple-mobile-web-app-capable" content="yes"> <!-- Keep for iOS -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Abuja Rentals">
 
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-152x152.png' %}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'pwa/icons/icon-152x152.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'pwa/icons/icon-192x192.png' %}">
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/manifest.json">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'pwa/icons/icon-72x72.png' %}">
-    <title>
-      {% block title %}Abuja Rentals | Premium Property Marketplace{% endblock%}
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-152x152.png' %}">
+  <link rel="apple-touch-icon" sizes="152x152" href="{% static 'pwa/icons/icon-152x152.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'pwa/icons/icon-192x192.png' %}">
 
-    </title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{% static 'pwa/icons/icon-72x72.png' %}">
+  <title>
+    {% block title %}Abuja Rentals | Premium Property Marketplace{% endblock%}
 
-    <!-- Tailwind CSS via CDN with custom config -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: "#0f172a",
-              secondary: "#1e293b",
-              accent: "#3b82f6",
-              "accent-dark": "#1d4ed8",
+  </title>
+
+  <!-- Tailwind CSS via CDN with custom config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0f172a",
+            secondary: "#1e293b",
+            accent: "#3b82f6",
+            "accent-dark": "#1d4ed8",
+          },
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+            display: ["Manrope", "Inter", "system-ui", "sans-serif"],
+          },
+          animation: {
+            "fade-in": "fadeIn 0.5s ease-in-out",
+            "slide-up": "slideUp 0.3s ease-out",
+            "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+          },
+          keyframes: {
+            fadeIn: {
+              "0%": { opacity: "0" },
+              "100%": { opacity: "1" },
             },
-            fontFamily: {
-              sans: ["Inter", "system-ui", "sans-serif"],
-              display: ["Manrope", "Inter", "system-ui", "sans-serif"],
-            },
-            animation: {
-              "fade-in": "fadeIn 0.5s ease-in-out",
-              "slide-up": "slideUp 0.3s ease-out",
-              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-            },
-            keyframes: {
-              fadeIn: {
-                "0%": { opacity: "0" },
-                "100%": { opacity: "1" },
-              },
-              slideUp: {
-                "0%": { transform: "translateY(10px)", opacity: "0" },
-                "100%": { transform: "translateY(0)", opacity: "1" },
-              },
+            slideUp: {
+              "0%": { transform: "translateY(10px)", opacity: "0" },
+              "100%": { transform: "translateY(0)", opacity: "1" },
             },
           },
         },
-      };
-    </script>
+      },
+    };
+  </script>
 
-    <!-- Custom CSS -->
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
 
-      html {
-        scroll-behavior: smooth;
-      }
+    html {
+      scroll-behavior: smooth;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+    #installButton {
+      display: none;
+      animation: slideUp 0.3s ease-out;
+    }
 
-
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-
-
-
-      ::-webkit-scrollbar-track {
-        background: #f1f5f9;
-      }
-
-      ::-webkit-scrollbar-thumb {
-        background: #94a3b8;
-        border-radius: 4px;
-      }
-
-      ::-webkit-scrollbar-thumb:hover {
-        background: #64748b;
-      }
-
-      /* Install Button Styles */
-      #installButton {
-        display: none;
-        animation: slideUp 0.3s ease-out;
-      }
-
-      @media (max-width: 1024px) {
-        .install-button-desktop {
-          display: none !important;
-        }
-      }
-
-      .glass-card {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .dark-glass {
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .hero-background {
-        background-image: linear-gradient(
-          rgba(15, 23, 42, 0.7),
-          rgba(15, 23, 42, 0.7)
-        ),
+    .hero-background {
+      background-image: linear-gradient(rgba(15, 23, 42, 0.7),
+          rgba(15, 23, 42, 0.7)),
         url("https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      margin-top: 0.5rem;
+      width: 12rem;
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+      z-index: 50;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .dropdown-item {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: #374151;
+      transition: all 0.2s;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f9fafb;
+      color: #3b82f6;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-toggle {
+      cursor: pointer;
+    }
+
+
+    .relative>img,
+    .object-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
       }
 
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-      .property-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .progress {
+      animation: progress 4.5s linear forwards;
+    }
+
+    @keyframes progress {
+      from {
+        width: 100%
       }
 
-      .property-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      to {
+        width: 0%
       }
+    }
+  </style>
 
-      .btn-gradient {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-        transition: all 0.3s ease;
-      }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-      .btn-gradient:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-      }
+  <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/000000/real-estate.png" />
 
-      .btn-outline {
-        border: 2px solid #3b82f6;
-        transition: all 0.3s ease;
-      }
+</head>
 
-      .btn-outline:hover {
-        background: #3b82f6;
-        color: white;
-      }
+<div id="requestModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
 
-      .featured-badge {
-        position: relative;
-        overflow: hidden;
-      }
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRequestModal()"></div>
 
-      .featured-badge::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.3),
-          transparent
-        );
-        transition: left 0.5s ease;
-      }
+  <div id="requestSheet" class="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto translate-y-4 transition-transform duration-300 ease-out">
 
-      .featured-badge:hover::before {
-        left: 100%;
-      }
-
-      .hero-text-shadow {
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      }
-
-      /* Dropdown specific styles */
-      .dropdown-menu {
-        display: none;
-        position: absolute;
-        right: 0;
-        margin-top: 0.5rem;
-        width: 12rem;
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e5e7eb;
-        z-index: 50;
-      }
-
-      .dropdown-menu.show {
-        display: block;
-        animation: fadeIn 0.2s ease-in-out;
-      }
-
-      .dropdown-item {
-        display: block;
-        padding: 0.75rem 1rem;
-        color: #374151;
-        transition: all 0.2s;
-        border-bottom: 1px solid #f3f4f6;
-      }
-
-      .dropdown-item:hover {
-        background-color: #f9fafb;
-        color: #3b82f6;
-      }
-
-      .dropdown-item:last-child {
-        border-bottom: none;
-      }
-
-      .dropdown-toggle {
-        cursor: pointer;
-      }
-
-      /* Global responsive & overflow fixes */
-      img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-      }
-
-      /* Ensure images inside fixed-height containers cover and don't stretch */
-      .relative > img,
-      .object-cover {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      /* Prevent card content from overflowing */
-      .property-card {
-        overflow: hidden;
-      }
-
-      /* Break long words / strings to avoid overflow */
-      .break-words {
-        word-break: break-word;
-        overflow-wrap: break-word;
-      }
-
-      /* Line clamp utility (fallback without plugin) */
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .progress {
-        animation: progress 4.5s linear forwards;
-      }
-
-      @keyframes progress {
-        from { width: 100% }
-        to { width: 0% }
-      }
-    </style>
-
-    <!-- Font Awesome Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-
-    <!-- Favicon -->
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="https://img.icons8.com/color/96/000000/real-estate.png"
-    />
-
-    {% block extra_css %}{% endblock %}
-  
-  </head>
-
-<div id="requestModal"
-     class="fixed inset-0 z-[9999] flex items-center justify-center p-4
-            opacity-0 pointer-events-none transition-opacity duration-200">
-
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-         onclick="closeRequestModal()"></div>
-
-    <div id="requestSheet"
-         class="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl
-                max-h-[90vh] overflow-y-auto
-                translate-y-4 transition-transform duration-300 ease-out">
-
-        <!-- Header -->
-        <div class="flex items-start justify-between p-6 pb-4 border-b border-gray-100">
-            <div>
-                <h2 class="text-lg font-bold text-gray-900">Property Request</h2>
-                <p class="text-sm text-gray-400 mt-0.5">We'll get back to you within 24 hours.</p>
-            </div>
-            <button onclick="closeRequestModal()"
-                    class="ml-4 flex-shrink-0 w-8 h-8 flex items-center justify-center
-                           rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
-                <i class="fas fa-times text-sm text-gray-800"></i>
-            </button>
-        </div>
-
-        <!-- Form -->
-        <div id="requestFormBody" class="p-6 py-2">
-            <form id="propertyRequestForm"
-                  method="POST"
-                  action="{% url 'property_request' %}"
-                  class="space-y-5">
-                {% csrf_token %}
-
-                <!-- Contact -->
-                <div>
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Your Details</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
-                            <input type="text" name="full_name" required placeholder="Ada Okonkwo" value="{{user.username}}"
-                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Phone</label>
-                            <input type="tel" name="phone" required placeholder="+234 800 000 0000" value="{{user.phone_number}}"
-                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">
-                                Email <span class="font-normal text-gray-400">(optional)</span>
-                            </label>
-                            <input type="email" name="email" placeholder="ada@email.com" value="{{user.email}}"
-                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-gray-100">
-
-                <!-- Type + Purpose -->
-                <div>
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                        What are you looking for?
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                        {% for value, label in property_type_choices %}
-                        <div>
-                            <input type="radio" name="property_type"
-                                   id="rpt_{{ value }}" value="{{ value }}" class="hidden peer">
-                            <label for="rpt_{{ value }}"
-                                   class="cursor-pointer select-none text-sm font-medium px-4 py-1.5
-                                          rounded-full border border-gray-300 text-gray-600
-                                          peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white
-                                          hover:border-blue-400 transition">
-                                {{ label }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="flex gap-2">
-                        <div>
-                            <input type="radio" name="purpose" id="req_rent" value="rent" class="hidden peer">
-                            <label for="req_rent"
-                                   class="cursor-pointer select-none text-sm font-medium px-4 py-1.5
-                                          rounded-full border border-gray-300 text-gray-600
-                                          peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white
-                                          hover:border-blue-400 transition">
-                                For Rent
-                            </label>
-                        </div>
-                        <div>
-                            <input type="radio" name="purpose" id="req_buy" value="sale" class="hidden peer">
-                            <label for="req_buy"
-                                   class="cursor-pointer select-none text-sm font-medium px-4 py-1.5
-                                          rounded-full border border-gray-300 text-gray-600
-                                          peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white
-                                          hover:border-blue-400 transition">
-                                To Buy
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-gray-100">
-
-                <!-- Location + Budget -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">
-                            Location <span class="font-normal text-gray-400">(optional)</span>
-                        </label>
-                        <select name="city" id="cities"
-                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                            <option value="">Anywhere in Abuja</option>
-                            
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Budget (₦)</label>
-                        <div class="flex items-center gap-2">
-                            <select name="budget_min"
-                                    class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                <option value="">Min</option>
-                                <option value="500000">₦500k</option>
-                                <option value="1000000">₦1M</option>
-                                <option value="2000000">₦2M</option>
-                                <option value="5000000">₦5M</option>
-                                <option value="10000000">₦10M</option>
-                            </select>
-                            <span class="text-gray-400 text-sm flex-shrink-0">–</span>
-                            <select name="budget_max"
-                                    class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                <option value="">Max</option>
-                                <option value="1000000">₦1M</option>
-                                <option value="2000000">₦2M</option>
-                                <option value="5000000">₦5M</option>
-                                <option value="10000000">₦10M</option>
-                                <option value="20000000">₦20M+</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bedrooms & Bathrooms -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Bedrooms</label>
-                        <div class="flex items-center gap-2">
-                            <select name="bedrooms_min"
-                                    class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                <option value="">Min</option>
-                                <option>1</option><option>2</option><option>3</option>
-                                <option>4</option><option>5</option>
-                            </select>
-                            <span class="text-gray-400 text-sm flex-shrink-0">–</span>
-                            <select name="bedrooms_max"
-                                    class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                <option value="">Max</option>
-                                <option>1</option><option>2</option><option>3</option>
-                                <option>4</option><option>5+</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Bathrooms</label>
-                        <div class="flex items-center gap-2">
-                            <select name="bathrooms_min"
-                                    class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                <option value="">Min</option>
-                                <option>1</option><option>2</option><option>3</option><option>4</option>
-                            </select>
-                            <span class="text-gray-400 text-sm flex-shrink-0">–</span>
-                            <select name="bathrooms_max"
-                                    class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                <option value="">Max</option>
-                                <option>1</option><option>2</option><option>3</option><option>4+</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-gray-100">
-
-                <!-- Amenities — hardcoded from AMENITY_CHOICES, no context needed -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-2">
-                        Amenities <span class="font-normal text-gray-400">(pick any)</span>
-                    </label>
-                    <div class="flex flex-wrap gap-2" id="amenities">
-                    </div>
-                </div>
-
-                <!-- Notes -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Anything else?</label>
-                    <textarea name="notes" rows="2"
-                              placeholder="Proximity to schools, specific estate, ground floor…"
-                              class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50
-                                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white
-                                     resize-none transition"></textarea>
-                </div>
-
-                <button type="submit" id="reqSubmitBtn"
-                        class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold
-                               rounded-xl transition flex items-center justify-center gap-2">
-                    <i class="fas fa-paper-plane text-xs"></i>
-                    Submit Request
-                </button>
-
-            </form>
-        </div>
-
-        <!-- Success state -->
-        <div id="requestSuccess"
-             class="hidden flex-col items-center text-center p-12">
-            <div class="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center
-                        text-white text-2xl mb-4">
-                <i class="fas fa-check"></i>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Request Sent!</h3>
-            <p class="text-sm text-gray-500 max-w-xs leading-relaxed">
-                Our team will review your requirements and contact you within 24 hours.
-            </p>
-        </div>
-
+    <div class="flex items-start justify-between p-6 pb-4 border-b border-gray-100">
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">Property Request</h2>
+        <p class="text-sm text-gray-400 mt-0.5">We'll get back to you as soon as possible.</p>
+      </div>
+      <button onclick="closeRequestModal()" class="ml-4 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
+        <i class="fas fa-times text-sm text-gray-800"></i>
+      </button>
     </div>
+
+    <!-- Form -->
+    <div id="requestFormBody" class="p-6 py-2">
+      <form id="propertyRequestForm" method="POST" action="{% url 'property_request' %}" class="space-y-5">
+        {% csrf_token %}
+
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Your Details</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+              <input type="text" name="full_name" required placeholder="Ada Okonkwo" value="{{user.username}}"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Phone</label>
+              <input type="tel" name="phone" required placeholder="+234 800 000 0000" value="{{user.phone_number}}" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Email <span class="font-normal text-gray-400">(optional)</span>
+              </label>
+              <input type="email" name="email" placeholder="ada@email.com" value="{{user.email}}"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+            What are you looking for?
+          </p>
+          <div class="flex flex-wrap gap-2 mb-2" id="ptype">
+            
+          </div>
+
+          <hr class="my-4">
+          <div class="flex gap-2">
+            <div>
+              <input type="radio" name="purpose" id="req_rent" value="rent" class="hidden peer">
+              <label for="req_rent" class="cursor-pointer select-none text-sm font-medium px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white hover:border-blue-400 transition">
+                For Rent
+              </label>
+            </div>
+            <div>
+              <input type="radio" name="purpose" id="req_buy" value="sale" class="hidden peer">
+              <label for="req_buy" class="cursor-pointer select-none text-sm font-medium px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white hover:border-blue-400 transition">
+                To Buy
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <!-- Location + Budget -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">
+              Location <span class="font-normal text-gray-400">(optional)</span>
+            </label>
+            <select name="city" id="cities" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+              <option value="">Anywhere in Abuja</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Budget (₦)</label>
+            <div class="flex items-center gap-2">
+              <select name="budget_min"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Min</option>
+                <option value="500000">₦500k</option>
+                <option value="1000000">₦1M</option>
+                <option value="2000000">₦2M</option>
+                <option value="5000000">₦5M</option>
+                <option value="10000000">₦10M</option>
+              </select>
+              <span class="text-gray-400 text-sm flex-shrink-0">–</span>
+              <select name="budget_max"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Max</option>
+                <option value="1000000">₦1M</option>
+                <option value="2000000">₦2M</option>
+                <option value="5000000">₦5M</option>
+                <option value="10000000">₦10M</option>
+                <option value="20000000">₦20M+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Bedrooms</label>
+            <div class="flex items-center gap-2">
+              <select name="bedrooms_min"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Min</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+              </select>
+              <span class="text-gray-400 text-sm flex-shrink-0">–</span>
+              <select name="bedrooms_max"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Max</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10+</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Bathrooms</label>
+            <div class="flex items-center gap-2">
+              <select name="bathrooms_min"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Min</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10+</option>
+              </select>
+              <span class="text-gray-400 text-sm flex-shrink-0">–</span>
+              <select name="bathrooms_max"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Max</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-2">
+            Amenities <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="flex flex-wrap gap-2" id="amenities">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Anything else?</label>
+          <textarea name="notes" rows="2" placeholder="Proximity to schools, specific estate, ground floor…" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none transition"></textarea>
+        </div>
+
+        <button type="submit" id="reqSubmitBtn" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane text-xs"></i>
+          Submit Request
+        </button>
+
+      </form>
+    </div>
+
+    <div id="requestSuccess" class="hidden flex-col items-center text-center p-12">
+      <div class="w-14 h-14 rounded-full bg-accent flex items-center justify-center text-white text-2xl mb-4">
+        <i class="fas fa-check"></i>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">Request Sent!</h3>
+      <p class="text-sm text-gray-500 max-w-xs leading-relaxed">
+        Our team will review your requirements and get back to you.
+      </p>
+    </div>
+  </div>
 </div>
 
-<script>  
-    function openRequestModal() {
-        const modal = document.getElementById('requestModal')
-        const sheet = document.getElementById('requestSheet')
-        modal.classList.remove('opacity-0', 'pointer-events-none')
-        sheet.classList.remove('translate-y-4')
-        document.body.style.overflow = 'hidden'
-        document.getElementById('requestFormBody').classList.remove('hidden')
-        
-        get_details()
-        
+<script>
+  function openRequestModal() {
+    const modal = document.getElementById('requestModal')
+    const sheet = document.getElementById('requestSheet')
+    modal.classList.remove('opacity-0', 'pointer-events-none')
+    sheet.classList.remove('translate-y-4')
+    document.body.style.overflow = 'hidden'
+    document.getElementById('requestFormBody').classList.remove('hidden')
+
+    get_details()
+  }
+
+
+
+  function closeRequestModal() {
+    const modal = document.getElementById('requestModal')
+    const sheet = document.getElementById('requestSheet')
+    modal.classList.add('opacity-0', 'pointer-events-none')
+    sheet.classList.add('translate-y-4')
+    document.body.style.overflow = ''
+
+    const s = document.getElementById('requestSuccess')
+    s.classList.remove('flex')
+    s.classList.add('hidden')
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeRequestModal()
+  })
+
+  let amenities = document.getElementById("amenities")
+  let ptypebase = document.getElementById("ptype")
+  let cities = document.getElementById("cities")
+
+  async function get_details() {
+    let amenitiesList = JSON.parse(localStorage.getItem("amenitiesList"))
+    let citiesList = JSON.parse(localStorage.getItem("citiesList"))
+    let ptypeList = JSON.parse(localStorage.getItem("ptypeList"))
+
+    if (!amenitiesList || !citiesList || !ptypeList) {
+      res = await fetch('/api/get-details/')
+      data = await res.json()
+
+      amenitiesList = data.amenity_choices
+      citiesList = data.cities
+      ptypeList = data.property_type_choices
+
+      localStorage.setItem("amenitiesList", JSON.stringify(amenitiesList))
+      localStorage.setItem("citiesList", JSON.stringify(citiesList))
+      localStorage.setItem("ptypeList", JSON.stringify(ptypeList))
     }
-
-
-
-    function closeRequestModal() {
-        const modal = document.getElementById('requestModal')
-        const sheet = document.getElementById('requestSheet')
-        modal.classList.add('opacity-0', 'pointer-events-none')
-        sheet.classList.add('translate-y-4')
-        document.body.style.overflow = ''
-
-        const s = document.getElementById('requestSuccess')
-        s.classList.remove('flex')
-        s.classList.add('hidden')
-    }
-
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeRequestModal()
-    })
-
-    let amenities = document.getElementById("amenities")
-    let cities = document.getElementById("cities")
-
-    async function get_details () {
-      let amenitiesList = JSON.parse(localStorage.getItem("amenitiesList"))
-      let citiesList = JSON.parse(localStorage.getItem("citiesList"))
-
-      if (!amenitiesList||!citiesList) {
-        res = await fetch('/api/get-details/')
-        data = await res.json()
-
-        amenitiesList = data.amenity_choices
-        citiesList = data.cities
-
-        localStorage.setItem("amenitiesList", JSON.stringify(amenitiesList))
-        localStorage.setItem("citiesList", JSON.stringify(citiesList))
-      }
-      for (let i =0; i < amenitiesList.length; i++) {
-        let div = document.createElement("div")
-        v = amenitiesList[i]
-        div.innerHTML = `
+    for (let i = 0; i < amenitiesList.length; i++) {
+      let div = document.createElement("div")
+      v = amenitiesList[i]
+      div.innerHTML = `
           <div>
             <input type="checkbox"
                     id="ra_${v[0]}" name="amenities" value="${v[0]}"
@@ -604,920 +474,685 @@
             </label>
           </div>
         `
-        amenities.appendChild(div)
-      }
-      for (let i =0; i < citiesList.length; i++) {
-        let option= document.createElement("option")
-        v = citiesList[i]
-        option.value = v[0]
-        option.innerText = v[1]
-        cities.appendChild(option)
-      }
+      amenities.appendChild(div)
     }
+    
+    for (let i = 0; i < ptypeList.length; i++) {
+      let div = document.createElement("div")
+      v = ptypeList[i]
+      div.innerHTML = `
+            <div>
+              <input type="radio" name="property_type" id="rpt_${v[0]}" value="${v[0]}" class="hidden peer">
+              <label for="rpt_${v[0]}" class="cursor-pointer select-none text-sm font-medium px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white hover:border-blue-400 transition">
+                ${v[1]}
+              </label>
+            </div>
+        `
+      ptypebase.appendChild(div)
+    }
+    
+    for (let i = 0; i < citiesList.length; i++) {
+      let option = document.createElement("option")
+      v = citiesList[i]
+      option.value = v[0]
+      option.innerText = v[1]
+      cities.appendChild(option)
+    }
+  }
 
 
-    document.getElementById('propertyRequestForm').addEventListener('submit', async function (e) {
-        e.preventDefault()
-        const btn = document.getElementById('reqSubmitBtn')
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Sending…`
-        btn.disabled = true
+  document.getElementById('propertyRequestForm').addEventListener('submit', async function (e) {
+    e.preventDefault()
+    const btn = document.getElementById('reqSubmitBtn')
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Sending…`
+    btn.disabled = true
 
-        try {
-          const res = await fetch(this.action, {
-                method: 'POST',
-                body: new FormData(this),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            if (res.ok) {
-                document.getElementById('requestFormBody').classList.add('hidden')
-                const s = document.getElementById('requestSuccess')
-                s.classList.remove('hidden')
-                s.classList.add('flex')
-            } else {
-                btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`
-                btn.disabled = false
-                alert('Something went wrong, please try again.')
-            }
-        } catch {
-            btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`
-            btn.disabled = false
-            alert('Network error, please try again.')
-        }
-    })
+    try {
+      const res = await fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      if (res.ok) {
+        document.getElementById('requestFormBody').classList.add('hidden')
+        const s = document.getElementById('requestSuccess')
+        s.classList.remove('hidden')
+        s.classList.add('flex')
+      } else {
+        btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`
+        btn.disabled = false
+        alert('Something went wrong, please try again.')
+      }
+    } catch {
+      btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`
+      btn.disabled = false
+      alert('Network error, please try again.')
+    }
+  })
 </script>
 
 
 
-  <body class="font-sans bg-gray-50 text-gray-800">
-    {% include 'preloader.html' %}
+<body class="font-sans bg-gray-50 text-gray-800">
+  {% include 'preloader.html' %}
 
-    <!-- Navigation -->
   {% block navbar %}
-    <nav class="sticky top-0 z-50 bg-white border-b border-gray-100">
-      <div class="container mx-auto px-4 lg:px-8">
+  <nav class="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <div class="container mx-auto px-4 lg:px-8">
 
-        <div class="flex justify-between items-center h-[72px]">
+      <div class="flex justify-between items-center h-[72px]">
 
-      <!-- Logo -->
-          <a href="{% url 'home' %}" class="flex items-center gap-3 group">
+        <a href="{% url 'home' %}" class="flex items-center gap-3 group">
 
-            <div class="w-9 h-9 bg-primary rounded-lg
+          <div class="w-9 h-9 bg-primary rounded-lg
                         flex items-center justify-center
                         group-hover:rotate-3 transition">
-              <i class="fas fa-building text-white"></i>
+            <i class="fas fa-building text-white"></i>
+          </div>
+
+          <div class="leading-[1.1]">
+            <span class="text-xl font-bold text-gray-900">Abuja</span>
+            <span class="text-xl font-bold text-accent">Rentals</span>
+            <div class="text-[11px] text-gray-400 tracking-wide">
+              PREMIUM PROPERTIES
             </div>
+          </div>
 
-            <div class="leading-[1.1]">
-              <span class="text-xl font-bold text-gray-900">Abuja</span>
-              <span class="text-xl font-bold text-accent">Rentals</span>
-              <div class="text-[11px] text-gray-400 tracking-wide">
-                PREMIUM PROPERTIES
-              </div>
-            </div>
-
-          </a>
+        </a>
 
 
-      <!-- Desktop Nav -->
-          <div class="hidden lg:flex items-center gap-1">
+        <div class="hidden lg:flex items-center gap-1">
 
-            <a href="{% url 'home' %}"
-               class=" px-3 py-2 text-sm font-medium
+          <a href="{% url 'home' %}" class=" px-3 py-2 text-sm font-medium
                       text-gray-700 hover:text-accent
                       hover:bg-gray-50 rounded-lg transition">
-              Home
-            </a>
-              <a href="{% url 'properties' %}" class=" px-3 py-2 text-sm font-medium
-                                                            text-gray-700 hover:text-accent
-                                                            hover:bg-gray-50 rounded-lg transition">Properties</a>
+            Home
+          </a>
+          <a href="{% url 'properties' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg transition">Properties</a>
 
-            <a href="#about" class=" px-3 py-2 text-sm font-medium
-                                    text-gray-700 hover:text-accent
-                                    hover:bg-gray-50 rounded-lg transition">About</a>
+          <a href="#about" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg transition">About</a>
 
 
-        <!-- Install App - secondary -->
-            <button onclick="openRequestModal()"
-              class="px-5 py-2 bg-primary border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded">
-              Make a Request
-            </button>
-            <!-- <button id="installButton"
-                    class="ml-2 px-3 py-2 text-sm font-medium
-                           text-blue-700 bg-blue-50 rounded-lg
-                           hover:bg-blue-100 transition
-                           flex items-center gap-2">
-              <i class="fas fa-download"></i>
-              Install App
-            </button> -->
-
-          </div>
-
-
-
-      <!-- Right Actions -->
-          <div class="hidden lg:flex items-center gap-3">
-
-            {% if admin_messages %}
-              <button id="notificationBellBtn"
-                      class="relative p-2 rounded-lg
-                             text-gray-500 hover:text-accent
-                             hover:bg-gray-50 transition">
-
-                <i class="fas fa-bell text-lg"></i>
-
-                <span class="absolute -top-0.5 -right-0.5
-                             h-4 w-4 bg-red-500 text-white
-                             text-[10px] font-bold
-                             flex items-center justify-center
-                             rounded-full">
-                  {{ admin_messages|length }}
-                </span>
-              </button>
-            {% endif %}
-
-
-
-            {% if user.is_authenticated %}
-
-        <!-- User Menu -->
-              <div class="relative">
-
-                <button class="dropdown-toggle flex items-center gap-2
-                               px-3 py-2 rounded-lg hover:bg-gray-50">
-
-                  <div class="w-8 h-8 bg-primary/10 text-primary
-                              rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-sm"></i>
-                  </div>
-
-                  <span class="text-sm font-medium text-gray-700">
-                    {{ user.get_full_name|default:user.username }}
-                  </span>
-
-                  <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                </button>
-
-
-
-                <div id="user-dropdown" class="dropdown-menu">
-
-                  <a href="{% url 'dashboard' %}" class="dropdown-item">
-                    <i class="fas fa-th-large mr-2"></i>Dashboard
-                  </a>
-
-                  <a href="{% url 'profile' %}" class="dropdown-item">
-                    <i class="fas fa-user-circle mr-2"></i>Profile
-                  </a>
-
-                  <a href="{% url 'logout' %}"
-                     class="dropdown-item text-red-600">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
-                  </a>
-
-                </div>
-              </div>
-
-            {% else %}
-
-              <a href="{% url 'login' %}"
-                 class="text-sm text-gray-700 hover:text-accent px-3">
-                Sign In
-              </a>
-
-              <a href="{% url 'signup' %}"
-                 class="px-4 py-2 bg-primary text-white
-                        rounded-lg text-sm hover:bg-primary/90">
-                Join Now
-              </a>
-
-            {% endif %}
-
-          </div>
-
-
-
-      <!-- Mobile Button -->
-          <button id="mobile-menu-button"
-                  class="lg:hidden p-2 text-gray-600
-                         hover:bg-gray-100 rounded-lg">
-            <i class="fas fa-bars text-xl"></i>
+          <button onclick="openRequestModal()"
+            class="px-5 py-2 bg-primary border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded">
+            Make a Request
           </button>
-
         </div>
 
 
 
-    <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden lg:hidden pb-4">
-
-          <a href="{% url 'home' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-            <i class="fas fa-home mr-3"></i>Home
-          </a>
-
-       
-          <a href="{% url 'properties' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-            <i class="fas fa-shop mr-3"></i>Properties
-          </a>
-
-
+        <div class="hidden lg:flex items-center gap-3">
 
           {% if admin_messages %}
-            <button id="notificationBellBtnMobile" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg w-full text-left">
-              <i class="fas fa-bell mr-3"></i>
-              Notifications
-              <span class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {{ admin_messages|length }}
-              </span>
-            </button>
-          {% endif %}
+          <button id="notificationBellBtn" class="relative p-2 rounded-lg text-gray-500 hover:text-accent hover:bg-gray-50 transition">
 
+            <i class="fas fa-bell text-lg"></i>
 
-
-          <button id="installButtonMobile"
-                  class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-blue-700 bg-blue-50">
-            <i class="fas fa-download mr-3"></i>Install App
+            <span class="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+              {{ admin_messages|length }}
+            </span>
           </button>
+          {% endif %}
 
 
 
           {% if user.is_authenticated %}
 
-            <a href="{% url 'dashboard' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-              <i class="fas fa-th-large mr-3"></i>Dashboard
-            </a>
+          <!-- User Menu -->
+          <div class="relative">
 
-            <a href="{% url 'profile' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-              <i class="fas fa-user-circle mr-3"></i>Profile
-            </a>
+            <button class="dropdown-toggle flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50">
+              <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                <i class="fas fa-user text-sm"></i>
+              </div>
+              <span class="text-sm font-medium text-gray-700">
+                {{ user.get_full_name|default:user.username }}
+              </span>
+              <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+            </button>
 
-            <a href="{% url 'logout' %}" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-red-600">
-              <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
-            </a>
+            <div id="user-dropdown" class="dropdown-menu">
+              <a href="{% url 'dashboard' %}" class="dropdown-item">
+                <i class="fas fa-th-large mr-2"></i>Dashboard
+              </a>
+              <a href="{% url 'profile' %}" class="dropdown-item">
+                <i class="fas fa-user-circle mr-2"></i>Profile
+              </a>
+              <a href="{% url 'logout' %}" class="dropdown-item text-red-600">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+              </a>
+            </div>
+          </div>
 
           {% else %}
 
-            <a href="{% url 'login' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-              <i class="fas fa-sign-in-alt mr-3"></i>Sign In
-            </a>
+          <a href="{% url 'login' %}" class="text-sm text-gray-700 hover:text-accent px-3">
+            Sign In
+          </a>
 
-            <a href="{% url 'signup' %}" class="block mx-4 mt-2 py-3 text-center
-                                                bg-primary text-white rounded-lg">
-              Join Now
-            </a>
-
+          <a href="{% url 'signup' %}" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">
+            Join Now
+          </a>
           {% endif %}
 
         </div>
 
+
+
+        <!-- Mobile Button -->
+        <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+
       </div>
-    </nav>
+
+
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden lg:hidden pb-4">
+        <a href="{% url 'home' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-home mr-3"></i>Home
+        </a>
+        <a href="{% url 'properties' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-shop mr-3"></i>Properties
+        </a>
+
+        {% if admin_messages %}
+        <button id="notificationBellBtnMobile"
+          class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg w-full text-left">
+          <i class="fas fa-bell mr-3"></i>
+          Notifications
+          <span class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+            {{ admin_messages|length }}
+          </span>
+        </button>
+        {% endif %}
+
+        <button id="installButtonMobile" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-blue-700 bg-blue-50">
+          <i class="fas fa-download mr-3"></i>Install App
+        </button>
+
+        {% if user.is_authenticated %}
+
+        <a href="{% url 'dashboard' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-th-large mr-3"></i>Dashboard
+        </a>
+
+        <a href="{% url 'profile' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-user-circle mr-3"></i>Profile
+        </a>
+
+        <a href="{% url 'logout' %}" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-red-600">
+          <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+        </a>
+
+        {% else %}
+
+        <a href="{% url 'login' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-sign-in-alt mr-3"></i>Sign In
+        </a>
+
+        <a href="{% url 'signup' %}" class="block mx-4 mt-2 py-3 text-center
+                                                bg-primary text-white rounded-lg">
+          Join Now
+        </a>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+  </nav>
   {% endblock %}
 
 
-    <!-- Messages -->
-    {% if messages %}
-      <div class="fixed bottom-5 right-5 z-[999] space-y-3 max-w-sm w-full">
+  {% if messages %}
+  <div class="fixed bottom-5 right-5 z-[999] space-y-3 max-w-sm w-full">
 
-        {% for message in messages %}
-          <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border
-                      toast backdrop-blur bg-white animate-slide-up overflow-hidden
-
-                      {% if message.tags == 'error' %}
-                        border-red-200 text-red-700
-                      {% elif message.tags == 'success' %}
-                        border-green-200 text-green-700
-                      {% elif message.tags == 'warning' %}
-                        border-yellow-200 text-yellow-700
-                      {% else %}
-                        border-blue-200 text-blue-700
-                      {% endif %}">
-
-    <!-- Icon -->
-            <div class="mt-0.5">
-              <i class="
-                        {% if message.tags == 'error' %}
-                          fas fa-circle-xmark
-                        {% elif message.tags == 'success' %}
-                          fas fa-circle-check
-                        {% elif message.tags == 'warning' %}
-                          fas fa-triangle-exclamation
-                        {% else %}
-                          fas fa-circle-info
-                        {% endif %}"></i>
-            </div>
-
-    <!-- Content -->
-            <div class="flex-1 text-sm">
-              {{ message }}
-            </div>
-
-    <!-- Close -->
-            <button onclick="closeToast(this)"
-                    class="opacity-60 hover:opacity-100">
-              <i class="fas fa-xmark"></i>
-            </button>
-
-    <!-- Progress -->
-            <div class="absolute bottom-0 left-0 h-[2px] w-full
-                        {% if message.tags == 'error' %}
-                          bg-red-400
-                        {% elif message.tags == 'success' %}
-                          bg-green-400
-                        {% elif message.tags == 'warning' %}
-                          bg-yellow-400
-                        {% else %}
-                          bg-blue-400
-                        {% endif %}
-                        progress">
-            </div>
-
-          </div>
-        {% endfor %}
-
+    {% for message in messages %}
+    <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden {% if message.tags == 'error' %}border-red-200 text-red-700 {% elif message.tags == 'success' %} border-green-200 text-green-700 {% elif message.tags == 'warning' %} border-yellow-200 text-yellow-700 {% else %} border-blue-200 text-blue-700 {% endif %}">
+      <div class="mt-0.5">
+        <i class=" {% if message.tags == 'error' %} fas fa-circle-xmark {% elif message.tags == 'success' %} fas fa-circle-check {% elif message.tags == 'warning' %} fas fa-triangle-exclamation {% else %} fas fa-circle-info {% endif %}"></i>
       </div>
-    {% endif %}
 
-    {% comment %} {% load static %} {% endcomment %}
-
-    <!-- Admin Messages Modal -->
-    {% if user.userprofile.user_type == 'student' %}
-    <div id="adminMessagesModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
-
-            <!-- Modal panel -->
-        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-
-            <!-- Modal Header -->
-          <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-8 py-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-white bg-opacity-20 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-white" id="modal-title">Admin Messages</h3>
-                  <p class="text-sm text-gray-300 mt-0.5">Important notifications from administration</p>
-                </div>
-              </div>
-              <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-            <!-- Modal Body -->
-          <div class="bg-gray-50 px-8 py-6 max-h-[70vh] overflow-y-auto">
-                <!-- Messages Container -->
-            <div id="messagesContainer" class="space-y-5">
-              {% for message in admin_messages %}
-                <div class="message-item bg-white rounded-xl border shadow-sm overflow-hidden
-                            {% if message.message_type == 'info' %}border-l-4 border-l-blue-500
-                            {% elif message.message_type == 'warning' %}border-l-4 border-l-yellow-500
-                            {% elif message.message_type == 'success' %}border-l-4 border-l-green-500
-                            {% elif message.message_type == 'alert' or message.message_type == 'error' %}border-l-4 border-l-red-500
-                            {% elif message.message_type == 'maintenance' %}border-l-4 border-l-purple-500
-                            {% else %}border-l-4 border-l-gray-500{% endif %}">
-
-                  <div class="p-6">
-                    <div class="flex items-start gap-4">
-                        <!-- Icon -->
-                      <div class="flex-shrink-0">
-                        {% if message.message_type == 'info' %}
-                          <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                            </svg>
-                          </div>
-                        {% elif message.message_type == 'warning' %}
-                          <div class="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                          </div>
-                        {% elif message.message_type == 'success' %}
-                          <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                          </div>
-                        {% elif message.message_type == 'error' or message.message_type == 'alert' %}
-                          <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
-                          </div>
-                        {% elif message.message_type == 'maintenance' %}
-                          <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
-                            </svg>
-                          </div>
-                        {% else %}
-                          <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                            </svg>
-                          </div>
-                        {% endif %}
-                      </div>
-
-                        <!-- Content -->
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-start justify-between gap-3 mb-2">
-                          <h4 class="text-lg font-semibold text-gray-900">
-                            {{ message.title }}
-                          </h4>
-                          <span class="flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                                       {% if message.message_type == 'info' %}bg-blue-100 text-blue-700
-                                       {% elif message.message_type == 'warning' %}bg-yellow-100 text-yellow-700
-                                       {% elif message.message_type == 'success' %}bg-green-100 text-green-700
-                                       {% elif message.message_type == 'alert' or message.message_type == 'error' %}bg-red-100 text-red-700
-                                       {% elif message.message_type == 'maintenance' %}bg-purple-100 text-purple-700
-                                       {% else %}bg-gray-100 text-gray-700{% endif %}">
-                            {{ message.get_message_type_display }}
-                          </span>
-                        </div>
-
-                        <div class="text-gray-600 text-sm leading-relaxed mb-3">
-                          {{ message.message|linebreaks }}
-                        </div>
-
-                        <div class="flex items-center gap-2 text-xs text-gray-500">
-                          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                          </svg>
-                          <span>{{ message.created_at|date:"M d, Y" }} at {{ message.created_at|date:"g:i A" }}</span>
-                        </div>
-                      </div>
-
-                        <!-- Dismiss Button -->
-                      <button type="button"
-                              class="dismiss-btn flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors"
-                              data-message-id="{{ message.id }}">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              {% empty %}
-                <div class="text-center py-16 px-4">
-                  <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                    </svg>
-                  </div>
-                  <h3 class="text-lg font-semibold text-gray-700 mb-1">No Messages</h3>
-                  <p class="text-sm text-gray-500">
-                    You're all caught up! No new messages at this time.
-                  </p>
-                </div>
-              {% endfor %}
-            </div>
-          </div>
-
-            <!-- Modal Footer -->
-          <div class="bg-white border-t border-gray-200 px-8 py-4 flex items-center justify-end gap-3">
-            <button type="button"
-                    id="dismissAllBtn"
-                    class="px-5 py-2.5 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 transition-colors">
-              Dismiss All
-            </button>
-          </div>
-        </div>
+      <div class="flex-1 text-sm">
+        {{ message }}
       </div>
+
+      <button onclick="closeToast(this)" class="opacity-60 hover:opacity-100">
+        <i class="fas fa-xmark"></i>
+      </button>
+
+      <div class="absolute bottom-0 left-0 h-[2px] w-full {% if message.tags == 'error' %} bg-red-400 {% elif message.tags == 'success' %} bg-green-400 {% elif message.tags == 'warning' %} bg-yellow-400 {% else %} bg-blue-400 {% endif %} progress">
+      </div>
+
     </div>
-    {% endif %}
+    {% endfor %}
 
-    <!-- Main Content -->
-    <main>{% block content %} {% endblock %}</main>
+  </div>
+  {% endif %}
 
-    <!-- Footer -->
-     {%  block footer %}
-<footer style="background:#0a0f1e;" class="text-gray-400">
+  {% comment %} {% load static %} {% endcomment %}
 
-  <!-- Top divider accent -->
-  <div class="h-px w-full" style="background:linear-gradient(90deg,transparent,rgba(59,130,246,0.4),transparent);"></div>
+  <main>{% block content %} {% endblock %}</main>
 
-  <div class="container mx-auto px-4 lg:px-8 pt-14 pb-8">
+  {% block footer %}
+  <footer style="background:#0a0f1e;" class="text-gray-400">
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+    <!-- Top divider accent -->
+    <div class="h-px w-full" style="background:linear-gradient(90deg,transparent,rgba(59,130,246,0.4),transparent);">
+    </div>
 
-      <!-- Brand col -->
-      <div class="md:col-span-4">
-        <a href="{% url 'home' %}" class="inline-flex items-center gap-3 mb-5 group">
-          <div class="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center
+    <div class="container mx-auto px-4 lg:px-8 pt-14 pb-8">
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+
+        <!-- Brand col -->
+        <div class="md:col-span-4">
+          <a href="{% url 'home' %}" class="inline-flex items-center gap-3 mb-5 group">
+            <div class="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center
                       group-hover:bg-blue-600 transition">
-            <i class="fas fa-building text-white text-sm"></i>
-          </div>
-          <div class="leading-[1.1]">
-            <span class="text-lg font-bold text-white">Abuja</span><span class="text-lg font-bold text-blue-400">Rentals</span>
-            <div class="text-[10px] text-gray-600 tracking-widest uppercase">Premium Properties</div>
-          </div>
-        </a>
-
-        <p class="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
-          Premium property listings across Abuja — trusted, verified, and easy to book.
-        </p>
-
-        <div class="flex items-center gap-2">
-          {% for icon, label, href in social_links|default:"" %}
-          <a href="{{ href }}" aria-label="{{ label }}"
-             class="w-8 h-8 flex items-center justify-center rounded-lg
-                    bg-white/5 hover:bg-blue-500 text-gray-500 hover:text-white transition">
-            <i class="fab fa-{{ icon }} text-xs"></i>
+              <i class="fas fa-building text-white text-sm"></i>
+            </div>
+            <div class="leading-[1.1]">
+              <span class="text-lg font-bold text-white">Abuja</span><span
+                class="text-lg font-bold text-blue-400">Rentals</span>
+              <div class="text-[10px] text-gray-600 tracking-widest uppercase">Premium Properties</div>
+            </div>
           </a>
-          {% endfor %}
-        </div>
-      </div>
 
-      <!-- Links -->
-      <div class="md:col-span-5 grid grid-cols-2 gap-8">
-        <div>
-          <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Company</h5>
-          <ul class="space-y-2.5 text-sm">
-            <li><a href="/about/"   class="hover:text-white transition">About Us</a></li>
-            <li><a href="/careers/" class="hover:text-white transition">Careers</a></li>
-            <li><a href="/blog/"    class="hover:text-white transition">Blog</a></li>
-            <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Support</h5>
-          <ul class="space-y-2.5 text-sm">
-            <li><a href="/help/"    class="hover:text-white transition">Help Center</a></li>
-            <li><a href="/terms/"   class="hover:text-white transition">Terms &amp; Conditions</a></li>
-            <li><a href="/privacy/" class="hover:text-white transition">Privacy Policy</a></li>
-            <li><a href="/faq/"     class="hover:text-white transition">FAQ</a></li>
-          </ul>
-        </div>
-      </div>
+          <p class="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
+            Premium property listings across Abuja — trusted, verified, and easy to book.
+          </p>
 
-      <!-- Contact + newsletter -->
-      <div class="md:col-span-3">
-        <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Get in Touch</h5>
-
-        <ul class="space-y-2.5 text-sm mb-6">
-          <li class="flex items-center gap-2">
-            <i class="fas fa-envelope text-blue-500 text-xs w-4"></i>
-            <a href="mailto:info@abujarentals.com" class="hover:text-white transition truncate">
-              info@abujarentals.com
+          <div class="flex items-center gap-2">
+            {% for icon, label, href in social_links|default:"" %}
+            <a href="{{ href }}" aria-label="{{ label }}" class="w-8 h-8 flex items-center justify-center rounded-lg
+                    bg-white/5 hover:bg-blue-500 text-gray-500 hover:text-white transition">
+              <i class="fab fa-{{ icon }} text-xs"></i>
             </a>
-          </li>
-          <li class="flex items-center gap-2">
-            <i class="fas fa-phone text-blue-500 text-xs w-4"></i>
-            <a href="tel:+2349063504463" class="hover:text-white transition">
-              +234 906 350 4463
-            </a>
-          </li>
-          <li class="flex items-center gap-2">
-            <i class="fas fa-map-marker-alt text-blue-500 text-xs w-4"></i>
-            <span>Maitama, Abuja</span>
-          </li>
-        </ul>
+            {% endfor %}
+          </div>
+        </div>
 
-        <!-- Newsletter -->
-        <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-3">Newsletter</h5>
-        <form class="flex" onsubmit="return false;">
-          <input type="email" placeholder="Your email" required
-                 class="w-full px-3 py-2 text-sm rounded-l-lg
+        <!-- Links -->
+        <div class="md:col-span-5 grid grid-cols-2 gap-8">
+          <div>
+            <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Company</h5>
+            <ul class="space-y-2.5 text-sm">
+              <li><a href="/about/" class="hover:text-white transition">About Us</a></li>
+              <li><a href="/careers/" class="hover:text-white transition">Careers</a></li>
+              <li><a href="/blog/" class="hover:text-white transition">Blog</a></li>
+              <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Support</h5>
+            <ul class="space-y-2.5 text-sm">
+              <li><a href="/help/" class="hover:text-white transition">Help Center</a></li>
+              <li><a href="/terms/" class="hover:text-white transition">Terms &amp; Conditions</a></li>
+              <li><a href="/privacy/" class="hover:text-white transition">Privacy Policy</a></li>
+              <li><a href="/faq/" class="hover:text-white transition">FAQ</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Contact + newsletter -->
+        <div class="md:col-span-3">
+          <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Get in Touch</h5>
+
+          <ul class="space-y-2.5 text-sm mb-6">
+            <li class="flex items-center gap-2">
+              <i class="fas fa-envelope text-blue-500 text-xs w-4"></i>
+              <a href="mailto:info@abujarentals.com" class="hover:text-white transition truncate">
+                info@abujarentals.com
+              </a>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fas fa-phone text-blue-500 text-xs w-4"></i>
+              <a href="tel:+2349063504463" class="hover:text-white transition">
+                +234 906 350 4463
+              </a>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fas fa-map-marker-alt text-blue-500 text-xs w-4"></i>
+              <span>Maitama, Abuja</span>
+            </li>
+          </ul>
+
+          <!-- Newsletter -->
+          <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-3">Newsletter</h5>
+          <form class="flex" onsubmit="return false;">
+            <input type="email" placeholder="Your email" required class="w-full px-3 py-2 text-sm rounded-l-lg
                         bg-white/5 border border-white/10 text-gray-300
                         placeholder-gray-600
                         focus:outline-none focus:border-blue-500 focus:bg-white/8 transition">
-          <button type="submit"
-                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm
+            <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm
                          rounded-r-lg transition whitespace-nowrap">
-            <i class="fas fa-arrow-right text-xs"></i>
-          </button>
-        </form>
-        <p class="text-xs text-gray-600 mt-2">No spam. Unsubscribe anytime.</p>
+              <i class="fas fa-arrow-right text-xs"></i>
+            </button>
+          </form>
+          <p class="text-xs text-gray-600 mt-2">No spam. Unsubscribe anytime.</p>
+        </div>
+
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center
+                justify-between gap-3 text-xs text-gray-600">
+        <span>&copy; {% now "Y" %} Abuja Rentals. All rights reserved.</span>
+        <span>Designed with care — <a href="/" class="hover:text-gray-400 transition">Abuja Rentals</a></span>
       </div>
 
     </div>
+  </footer>
+  {% endblock %}
+  <!-- JavaScript -->
+  <script src="{% static 'pwa/pwa.js' %}"></script>
+  <script>
+    function closeToast(btn) {
+      const toast = btn.closest('.toast')
+      toast.classList.add('opacity-0', 'translate-x-10')
+      setTimeout(() => toast.remove(), 200)
+    }
 
-    <!-- Bottom bar -->
-    <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center
-                justify-between gap-3 text-xs text-gray-600">
-      <span>&copy; {% now "Y" %} Abuja Rentals. All rights reserved.</span>
-      <span>Designed with care — <a href="/" class="hover:text-gray-400 transition">Abuja Rentals</a></span>
-    </div>
+    // Auto remove after 4.5s
+    document.querySelectorAll('.toast').forEach(t => {
+      setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-x-10')
+        setTimeout(() => t.remove(), 200)
+      }, 4500)
+    })
+  </script>
 
-  </div>
-</footer>
-{% endblock %}
-    <!-- JavaScript -->
-    <script src="{% static 'pwa/pwa.js' %}"></script>
-    <script>
-      function closeToast(btn) {
-        const toast = btn.closest('.toast')
-        toast.classList.add('opacity-0', 'translate-x-10')
-        setTimeout(() => toast.remove(), 200)
-      }
-
-      // Auto remove after 4.5s
-      document.querySelectorAll('.toast').forEach(t => {
-        setTimeout(() => {
-          t.classList.add('opacity-0', 'translate-x-10')
-          setTimeout(() => t.remove(), 200)
-        }, 4500)
-      })
-    </script>
-
-    <script>
-      // Mobile menu toggle
-      document
-        .getElementById("mobile-menu-button")
-        .addEventListener("click", function () {
-          const mobileMenu = document.getElementById("mobile-menu");
-          mobileMenu.classList.toggle("hidden");
-        });
-
-      // Close mobile menu when clicking outside
-      document.addEventListener("click", function (event) {
+  <script>
+    // Mobile menu toggle
+    document
+      .getElementById("mobile-menu-button")
+      .addEventListener("click", function () {
         const mobileMenu = document.getElementById("mobile-menu");
-        const mobileButton = document.getElementById("mobile-menu-button");
+        mobileMenu.classList.toggle("hidden");
+      });
 
-        if (
-          mobileMenu &&
-          !mobileMenu.contains(event.target) &&
-          mobileButton &&
-          !mobileButton.contains(event.target)
-        ) {
-          mobileMenu.classList.add("hidden");
+    // Close mobile menu when clicking outside
+    document.addEventListener("click", function (event) {
+      const mobileMenu = document.getElementById("mobile-menu");
+      const mobileButton = document.getElementById("mobile-menu-button");
+
+      if (
+        mobileMenu &&
+        !mobileMenu.contains(event.target) &&
+        mobileButton &&
+        !mobileButton.contains(event.target)
+      ) {
+        mobileMenu.classList.add("hidden");
+      }
+    });
+
+    // User dropdown toggle
+    const userDropdownToggle = document.querySelector(".dropdown-toggle");
+    const userDropdown = document.getElementById("user-dropdown");
+
+    if (userDropdownToggle && userDropdown) {
+      userDropdownToggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        userDropdown.classList.toggle("show");
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function () {
+        userDropdown.classList.remove("show");
+      });
+
+      // Prevent dropdown from closing when clicking inside
+      userDropdown.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+    }
+
+    // Close dropdown when clicking on any dropdown item (optional)
+    const dropdownItems = document.querySelectorAll(".dropdown-item");
+    dropdownItems.forEach((item) => {
+      item.addEventListener("click", function () {
+        if (userDropdown) {
+          userDropdown.classList.remove("show");
         }
       });
+    });
 
-      // User dropdown toggle
-      const userDropdownToggle = document.querySelector(".dropdown-toggle");
-      const userDropdown = document.getElementById("user-dropdown");
+    // Handle both notification bell buttons
+    const bellBtn = document.getElementById('notificationBellBtn');
+    const bellBtnMobile = document.getElementById('notificationBellBtnMobile');
+    const modal = document.getElementById('adminMessagesModal');
 
-      if (userDropdownToggle && userDropdown) {
-        userDropdownToggle.addEventListener("click", function (e) {
-          e.stopPropagation();
-          userDropdown.classList.toggle("show");
-        });
+    function toggleModal() {
+      if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } else {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    }
 
-        // Close dropdown when clicking outside
-        document.addEventListener("click", function () {
-          userDropdown.classList.remove("show");
-        });
+    if (bellBtn && modal) {
+      bellBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleModal();
+      });
+    }
 
-        // Prevent dropdown from closing when clicking inside
-        userDropdown.addEventListener("click", function (e) {
-          e.stopPropagation();
+    if (bellBtnMobile && modal) {
+      bellBtnMobile.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleModal();
+        // Close mobile menu when opening modal
+        const mobileMenu = document.getElementById("mobile-menu");
+        mobileMenu.classList.add("hidden");
+      });
+    }
+
+    // Replace the admin messages script in base.html with this updated version
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const messagesContainer = document.getElementById('messagesContainer');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const dismissAllBtn = document.getElementById('dismissAllBtn');
+
+      // Check if there are messages to show
+      const messageItems = document.querySelectorAll('.message-item');
+
+      // Close modal button
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function () {
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
         });
       }
 
-      // Close dropdown when clicking on any dropdown item (optional)
-      const dropdownItems = document.querySelectorAll(".dropdown-item");
-      dropdownItems.forEach((item) => {
-        item.addEventListener("click", function () {
-          if (userDropdown) {
-            userDropdown.classList.remove("show");
-          }
+      // Dismiss individual message
+      document.querySelectorAll('.dismiss-btn').forEach(button => {
+        button.addEventListener('click', function () {
+          const messageId = this.getAttribute('data-message-id');
+          dismissMessage(messageId, this.closest('.message-item'), false); // false = single dismiss
         });
       });
 
-      // Handle both notification bell buttons
-      const bellBtn = document.getElementById('notificationBellBtn');
-      const bellBtnMobile = document.getElementById('notificationBellBtnMobile');
-      const modal = document.getElementById('adminMessagesModal');
+      // Dismiss all messages
+      if (dismissAllBtn) {
+        dismissAllBtn.addEventListener('click', function () {
+          // Disable button to prevent multiple clicks
+          dismissAllBtn.disabled = true;
+          dismissAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Dismissing...';
 
-      function toggleModal() {
-        if (modal.classList.contains('hidden')) {
-          modal.classList.remove('hidden');
-          document.body.style.overflow = 'hidden';
-        } else {
+          const messageElements = document.querySelectorAll('.message-item');
+          let dismissedCount = 0;
+
+          messageElements.forEach((item, index) => {
+            const messageId = item.querySelector('.dismiss-btn').getAttribute('data-message-id');
+
+            // Add slight delay between dismissals for smooth animation
+            setTimeout(() => {
+              item.style.transition = 'opacity 0.3s';
+              item.style.opacity = '0';
+
+              // Send dismiss request
+              fetch('/admin/messages/dismiss/', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                  message_id: messageId
+                })
+              })
+                .then(response => response.json())
+                .then(data => {
+                  dismissedCount++;
+
+                  // When all messages are dismissed, silently refresh the page
+                  if (dismissedCount === messageElements.length) {
+                    setTimeout(() => {
+                      // Silent refresh - reloads the page
+                      window.location.reload();
+                    }, 400);
+                  }
+                })
+                .catch(error => {
+                  console.error('Error dismissing message:', error);
+                  dismissedCount++;
+
+                  // Still refresh even if there's an error
+                  if (dismissedCount === messageElements.length) {
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 400);
+                  }
+                });
+            }, index * 100); // Stagger the animations
+          });
+        });
+      }
+
+      // Close modal when clicking on background
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal || event.target.classList.contains('bg-gray-900')) {
           modal.classList.add('hidden');
           document.body.style.overflow = 'auto';
         }
-      }
-
-      if (bellBtn && modal) {
-        bellBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          toggleModal();
-        });
-      }
-
-      if (bellBtnMobile && modal) {
-        bellBtnMobile.addEventListener('click', function(e) {
-          e.stopPropagation();
-          toggleModal();
-          // Close mobile menu when opening modal
-          const mobileMenu = document.getElementById("mobile-menu");
-          mobileMenu.classList.add("hidden");
-        });
-      }
-
-      // Replace the admin messages script in base.html with this updated version
-
-      document.addEventListener('DOMContentLoaded', function() {
-        const messagesContainer = document.getElementById('messagesContainer');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const dismissAllBtn = document.getElementById('dismissAllBtn');
-
-      // Check if there are messages to show
-        const messageItems = document.querySelectorAll('.message-item');
-
-      // Close modal button
-        if (closeModalBtn) {
-          closeModalBtn.addEventListener('click', function() {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-          });
-        }
-
-      // Dismiss individual message
-        document.querySelectorAll('.dismiss-btn').forEach(button => {
-          button.addEventListener('click', function() {
-            const messageId = this.getAttribute('data-message-id');
-            dismissMessage(messageId, this.closest('.message-item'), false); // false = single dismiss
-          });
-        });
-
-      // Dismiss all messages
-        if (dismissAllBtn) {
-          dismissAllBtn.addEventListener('click', function() {
-          // Disable button to prevent multiple clicks
-            dismissAllBtn.disabled = true;
-            dismissAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Dismissing...';
-
-            const messageElements = document.querySelectorAll('.message-item');
-            let dismissedCount = 0;
-
-            messageElements.forEach((item, index) => {
-              const messageId = item.querySelector('.dismiss-btn').getAttribute('data-message-id');
-
-              // Add slight delay between dismissals for smooth animation
-              setTimeout(() => {
-                item.style.transition = 'opacity 0.3s';
-                item.style.opacity = '0';
-
-              // Send dismiss request
-                fetch('/admin/messages/dismiss/', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                  },
-                  body: JSON.stringify({
-                    message_id: messageId
-                  })
-                })
-                  .then(response => response.json())
-                  .then(data => {
-                    dismissedCount++;
-
-                  // When all messages are dismissed, silently refresh the page
-                    if (dismissedCount === messageElements.length) {
-                      setTimeout(() => {
-                      // Silent refresh - reloads the page
-                        window.location.reload();
-                      }, 400);
-                    }
-                  })
-                  .catch(error => {
-                    console.error('Error dismissing message:', error);
-                    dismissedCount++;
-
-                  // Still refresh even if there's an error
-                    if (dismissedCount === messageElements.length) {
-                      setTimeout(() => {
-                        window.location.reload();
-                      }, 400);
-                    }
-                  });
-              }, index * 100); // Stagger the animations
-            });
-          });
-        }
-
-      // Close modal when clicking on background
-        modal.addEventListener('click', function(event) {
-          if (event.target === modal || event.target.classList.contains('bg-gray-900')) {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-          }
-        });
-
-      // Dismiss message function
-        function dismissMessage(messageId, messageElement, isAll) {
-          // Show loading state on the dismiss button
-          const dismissBtn = messageElement.querySelector('.dismiss-btn');
-          if (dismissBtn) {
-            dismissBtn.disabled = true;
-            dismissBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
-          }
-
-          // Send AJAX request to mark message as dismissed
-          fetch('/admin/messages/dismiss/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-              message_id: messageId
-            })
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-              // Fade out and remove message
-                messageElement.style.transition = 'opacity 0.3s, transform 0.3s';
-                messageElement.style.opacity = '0';
-                messageElement.style.transform = 'translateX(20px)';
-
-                setTimeout(() => {
-                  messageElement.remove();
-
-              // Check if no messages left
-                  const remainingMessages = document.querySelectorAll('.message-item');
-
-                  if (remainingMessages.length === 0) {
-                  // Close modal
-                    modal.classList.add('hidden');
-                    document.body.style.overflow = 'auto';
-
-                  // Silent refresh after a short delay
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 300);
-                  } else if (!isAll) {
-                  // For single dismiss, refresh immediately after animation
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 300);
-                  }
-                }, 300);
-              }
-            })
-            .catch(error => {
-              console.error('Error dismissing message:', error);
-
-          // Still remove the element from UI
-              messageElement.remove();
-
-          // Refresh the page to sync state
-              setTimeout(() => {
-                window.location.reload();
-              }, 300);
-            });
-        }
-
-      // Helper function to get CSRF token
-        function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-              }
-            }
-          }
-          return cookieValue;
-        }
       });
 
-      // Install button synchronization
-      const installBtn = document.getElementById('installButton');
-      const installBtnMobile = document.getElementById('installButtonMobile');
+      // Dismiss message function
+      function dismissMessage(messageId, messageElement, isAll) {
+        // Show loading state on the dismiss button
+        const dismissBtn = messageElement.querySelector('.dismiss-btn');
+        if (dismissBtn) {
+          dismissBtn.disabled = true;
+          dismissBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
+        }
 
-      if (installBtn && installBtnMobile) {
-        // Sync both buttons - when mobile button is clicked, trigger desktop button
-        installBtnMobile.addEventListener('click', function() {
-          installBtn.click();
-        });
+        // Send AJAX request to mark message as dismissed
+        fetch('/admin/messages/dismiss/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            message_id: messageId
+          })
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Fade out and remove message
+              messageElement.style.transition = 'opacity 0.3s, transform 0.3s';
+              messageElement.style.opacity = '0';
+              messageElement.style.transform = 'translateX(20px)';
+
+              setTimeout(() => {
+                messageElement.remove();
+
+                // Check if no messages left
+                const remainingMessages = document.querySelectorAll('.message-item');
+
+                if (remainingMessages.length === 0) {
+                  // Close modal
+                  modal.classList.add('hidden');
+                  document.body.style.overflow = 'auto';
+
+                  // Silent refresh after a short delay
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 300);
+                } else if (!isAll) {
+                  // For single dismiss, refresh immediately after animation
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 300);
+                }
+              }, 300);
+            }
+          })
+          .catch(error => {
+            console.error('Error dismissing message:', error);
+
+            // Still remove the element from UI
+            messageElement.remove();
+
+            // Refresh the page to sync state
+            setTimeout(() => {
+              window.location.reload();
+            }, 300);
+          });
       }
 
-       // Register service worker at root scope
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/serviceworker.js')
-            .then(registration => {
-              console.log('ServiceWorker registered with scope:', registration.scope);
-            })
-            .catch(error => {
-              console.error('ServiceWorker registration failed:', error);
-            });
-        });
+      // Helper function to get CSRF token
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
       }
-    </script>
+    });
 
-    {% block extra_js %}{% endblock %}
+    // Install button synchronization
+    const installBtn = document.getElementById('installButton');
+    const installBtnMobile = document.getElementById('installButtonMobile');
+
+    if (installBtn && installBtnMobile) {
+      // Sync both buttons - when mobile button is clicked, trigger desktop button
+      installBtnMobile.addEventListener('click', function () {
+        installBtn.click();
+      });
+    }
+
+    // Register service worker at root scope
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/serviceworker.js')
+          .then(registration => {
+            console.log('ServiceWorker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.error('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+  </script>
+
+  {% block extra_js %}{% endblock %}
 
 
-  </body>
+</body>
 
 </html>

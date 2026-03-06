@@ -321,6 +321,8 @@ def get_properties(request):
         }
         for p in result
     ]
+    
+    print(len(properties))
 
     return JsonResponse({
         "properties": data,

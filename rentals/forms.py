@@ -1,22 +1,26 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-# from .models import UserProfile, Property
-from django.core.exceptions import ValidationError
 from .models import UserProfile, Property
 from .models import Report
-from dateutil.relativedelta import relativedelta
-import json
 from django.utils import timezone
 
-from decimal import Decimal
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
         'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
         'placeholder': 'Email address'
     }))
+
     
+    phone_number = forms.CharField(
+        max_length=15,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'placeholder': 'Phone number'
+        })
+    )
     USER_TYPE_CHOICES = [
         ('tenant', 'Tenant/Looking to Rent'),
     ]
@@ -27,17 +31,8 @@ class CustomUserCreationForm(UserCreationForm):
         required=True,
         initial='tenant'
     )
+
     
-    phone_number = forms.CharField(
-        max_length=15,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
-            'placeholder': 'Phone number'
-        })
-    )
-    
-    # Add additional fields for profile
     address = forms.CharField(
         max_length=255,
         required=False,
@@ -83,24 +78,20 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        
-        user_type = self.cleaned_data.get('user_type', 'tenant')
-        print(f"DEBUG Form Save: user_type = {user_type}")
+        user_type = 'tenant'
         
         if commit:
             user.save()
             
             UserProfile.objects.filter(user=user).delete()
             
-            user_profile = UserProfile.objects.create(
+            UserProfile.objects.create(
                 user=user,
                 user_type=user_type,
                 phone_number=self.cleaned_data.get('phone_number', ''),
                 address=self.cleaned_data.get('address', ''),
                 bio=self.cleaned_data.get('bio', '')
-            )
-            
-            
+            )            
         return user
 
 class LoginForm(forms.Form):
@@ -154,9 +145,8 @@ class ProfileUpdateForm(forms.ModelForm):
     
     class Meta:
         model = UserProfile
-        fields = ['user_type', 'phone_number', 'whatsapp_link', 'address', 'bio']
+        fields = ['phone_number', 'whatsapp_link', 'address', 'bio']
         widgets = {
-            'user_type': forms.RadioSelect(attrs={'class': 'space-y-2'}),
             'phone_number': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
                 'placeholder': 'Phone Number'
@@ -202,46 +192,8 @@ class ProfileUpdateForm(forms.ModelForm):
     
 
 class PropertyForm(forms.ModelForm):
-    # Custom field for amenities as checkboxes
-    AMENITY_CHOICES = [
-        ('swimming_pool', 'Swimming Pool'),
-        ('gym', 'Gym/Fitness Center'),
-        ('parking', 'Parking Space'),
-        ('security', '24/7 Security'),
-        ('garden', 'Garden'),
-        ('balcony', 'Balcony/Terrace'),
-        ('elevator', 'Elevator'),
-        ('ac', 'Air Conditioning'),
-        ('heating', 'Heating System'),
-        ('laundry', 'Laundry Room'),
-        ('storage', 'Storage Space'),
-        ('concierge', 'Concierge Service'),
-        ('pet_friendly', 'Pet Friendly'),
-        ('furnished', 'Furnished'),
-        ('wifi', 'High-Speed Internet'),
-        ('cctv', 'CCTV Surveillance'),
-    ]
-    
-    CITIES = [
-                ('gwarinpa', 'Gwarinpa'),
-                ('jahi', 'Jahi'),
-                ('wuse', 'Wuse'),
-                ('wuye', 'Wuye'),
-                ('apo', 'Apo'),
-                ('dutse', 'Dutse'),
-                ('kubwa', 'Kubwa'),
-                ('bwari', 'Bwari'),
-                ('gwagwalada', 'Gwagwalada'),
-                ('lugbe', 'Lugbe'),
-                ('kuje', 'Kuje'),
-                ('kwali', 'Kwali'),
-                ('abaji', 'Abaji'),
-                ('maitama', 'Maitama'),
-                ('asokoro', 'Asokoro'),
-            ]
-    
     amenities = forms.MultipleChoiceField(
-        choices=AMENITY_CHOICES,
+        choices=Property.AMENITY_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'space-y-2'}),
         required=False
     )
@@ -452,21 +404,7 @@ class PropertySearchForm(forms.Form):
         required=False,
     )
     city = forms.ChoiceField(
-        choices=[('', 'All Locations')] + [
-            ('gwarinpa', 'Gwarinpa'),
-            ('jahi', 'Jahi'),
-            ('wuse', 'Wuse'),
-            ('wuye', 'Wuye'),
-            ('apo', 'Apo'),
-            ('dutse', 'Dutse'),
-            ('kubwa', 'Kubwa'),
-            ('bwari', 'Bwari'),
-            ('gwagwalada', 'Gwagwalada'),
-            ('lugbe', 'Lugbe'),
-            ('kuje', 'Kuje'),
-            ('kwali', 'Kwali'),
-            ('abaji', 'Abaji'),
-        ],
+        choices=[('', 'All Locations')] + Property.CITIES,
         required=False,
     )
     
@@ -475,7 +413,7 @@ class PropertySearchForm(forms.Form):
     )
     
     amenities = forms.MultipleChoiceField(
-        choices=PropertyForm.AMENITY_CHOICES,
+        choices=Property.AMENITY_CHOICES,
         required=False
     )
 

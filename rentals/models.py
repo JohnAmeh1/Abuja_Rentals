@@ -3,21 +3,21 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from decimal import Decimal
-import os
-from dateutil.relativedelta import relativedelta
-from django.db import transaction
+from django.core.mail import send_mail
 import random
 import string
+import bcrypt
+from django.conf import settings
+
 
 
 class OTP(models.Model):
-    """Model to store OTP for email verification"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp')
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
-    is_verified = models.BooleanField(default=False)
+    
+    
     
     def __str__(self):
         return f"OTP for {self.user.email}"
@@ -27,21 +27,20 @@ class OTP(models.Model):
         """Generate a 6-digit OTP code"""
         return ''.join(random.choices(string.digits, k=6))
     
+    
     @classmethod
     def create_otp(cls, user):
         """Create or update OTP for a user"""
         otp_code = cls.generate_code()
-        expires_at = timezone.now() + timezone.timedelta(minutes=10)  # OTP valid for 10 minutes
-        
+        expires_at = timezone.now() + timezone.timedelta(minutes=10)  
         otp, created = cls.objects.update_or_create(
             user=user,
             defaults={
-                'code': otp_code,
+                'code': bcrypt.hashpw(otp_code,  bcrypt.gensalt()),
                 'expires_at': expires_at,
-                'is_verified': False
             }
         )
-        return otp
+        return otp_code, created
     
     def is_valid(self):
         """Check if OTP is still valid"""
@@ -49,9 +48,8 @@ class OTP(models.Model):
     
     def verify(self, code):
         """Verify the OTP code"""
-        if self.is_valid() and self.code == code:
-            self.is_verified = True
-            self.save()
+        if self.is_valid() and bcrypt.checkpw(code, self.code):
+            self.delete()
             return True
         return False
 
@@ -60,7 +58,7 @@ class UserProfile(models.Model):
     USER_TYPE_CHOICES = [
         ('tenant', 'Tenant/Looking to Rent'),
         ('agent', 'Real Estate Agent'),
-        # ('admin', 'Administrator'),
+        ('admin', 'Administrator'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -70,12 +68,34 @@ class UserProfile(models.Model):
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True)
     address = models.CharField(max_length=255, blank=True)
-    email_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+        
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+
+class School(models.Model):
+    name = models.CharField(max_length=200)
+    short_name = models.CharField(max_length=200)
+    logo = models.URLField(blank=True, null=True)
+    description = models.TextField()
+    next_resumption = models.DateField(blank=True)
+    other_names = models.JSONField(default=list, blank=True)    
+    
+    address = models.CharField(max_length=255, blank=True, default='')
+    city = models.CharField(max_length=100, default='Abuja')
+    state = models.CharField(max_length=100, default='FCT')
+    zip_code = models.CharField(max_length=20, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    
+    class Meta:
+        indexes= [
+            models.Index(fields=["next_resumption"]),
+            models.Index(fields=["short_name"]),
+            models.Index(fields=["name"]),
+        ]
 
 class Property(models.Model):
     PROPERTY_TYPE_CHOICES = [
@@ -118,27 +138,26 @@ class Property(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
         ('pending', 'Pending'),
-        ('sold', 'Sold/Rented'),
         ('draft', 'Draft'),
     ]
     
     CITIES = [
-                ('gwarinpa', 'Gwarinpa'),
-                ('jahi', 'Jahi'),
-                ('wuse', 'Wuse'),
-                ('wuye', 'Wuye'),
-                ('apo', 'Apo'),
-                ('dutse', 'Dutse'),
-                ('kubwa', 'Kubwa'),
-                ('bwari', 'Bwari'),
-                ('gwagwalada', 'Gwagwalada'),
-                ('lugbe', 'Lugbe'),
-                ('kuje', 'Kuje'),
-                ('kwali', 'Kwali'),
-                ('abaji', 'Abaji'),
-                ('maitama', 'Maitama'),
-                ('asokoro', 'Asokoro'),
-            ]
+        ('gwarinpa', 'Gwarinpa'),
+        ('jahi', 'Jahi'),
+        ('wuse', 'Wuse'),
+        ('wuye', 'Wuye'),
+        ('apo', 'Apo'),
+        ('dutse', 'Dutse'),
+        ('kubwa', 'Kubwa'),
+        ('bwari', 'Bwari'),
+        ('gwagwalada', 'Gwagwalada'),
+        ('lugbe', 'Lugbe'),
+        ('kuje', 'Kuje'),
+        ('kwali', 'Kwali'),
+        ('abaji', 'Abaji'),
+        ('maitama', 'Maitama'),
+        ('asokoro', 'Asokoro'),
+    ]
     
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
     title = models.CharField(max_length=200)
@@ -147,11 +166,8 @@ class Property(models.Model):
     purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
     
+    school = models.ForeignKey(School, on_delete=models.SET_NULL, related_name="properties", null=True, blank=True)
     
-    nearby_school = models.CharField(max_length=255, blank=True, default='')
-    student = models.BooleanField(default=False)
-    
-    # Location
     address = models.CharField(max_length=255, blank=True, default='')
     city = models.CharField(max_length=100, default='Abuja')
     state = models.CharField(max_length=100, default='FCT')
@@ -159,25 +175,23 @@ class Property(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     
-    # Property Details
     bedrooms = models.PositiveIntegerField(default=0, blank=True, null=True)
     bathrooms = models.PositiveIntegerField(default=0, blank=True, null=True)
     area_sqft = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     
-    # Financial Details
     price = models.DecimalField(max_digits=12, decimal_places=2)
         
-    # Rent duration field
     rent_duration_months = models.PositiveIntegerField(default=12, blank=True, null=True)
     
-    # Amenities
     amenities = models.JSONField(default=list,blank=True)
     
     main_image = models.URLField(blank=True, null=True)
     images = models.JSONField(default=list, blank=True)
 
+    furnished = models.BooleanField(default=False)
+    shared = models.BooleanField(default=False)
+    serviced = models.BooleanField(default=False)
     
-    # Metadata
     is_featured = models.BooleanField(default=False)
     views = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -196,15 +210,15 @@ class Property(models.Model):
             models.Index(fields=['created_at']),
             models.Index(fields=['created_at', "-id"]),
             models.Index(fields=['status']),
+            models.Index(fields=['school']),
+            # models.Index(fields=['available']),
         ]
 
     
     def save(self, *args, **kwargs):        
-        # Set default rent duration for rental properties
         if self.purpose == 'rent' and not self.rent_duration_months:
             self.rent_duration_months = 12
         
-        # If property is being published for the first time
         if self.status == 'available' and not self.published_at:
             self.published_at = timezone.now()
         
@@ -229,6 +243,7 @@ def save_user_profile(sender, instance, **kwargs):
         UserProfile.objects.create(user=instance)
     else:
         instance.userprofile.save()
+
 
 
 class PropertyVisit(models.Model):
@@ -259,48 +274,43 @@ class PropertyVisit(models.Model):
         return f"{self.visitor.username} - {self.property.title} on {self.visit_date}"
 
 
-
 class Inquiry(models.Model):
 
-    # Contact
-    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquires')
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquires', null=True, blank=True)
     full_name   = models.CharField(max_length=150)
     phone       = models.CharField(max_length=30)
     email       = models.EmailField(blank=True)
 
-    # What they want
     property_type = models.CharField(max_length=20, choices=Property.PROPERTY_TYPE_CHOICES, blank=True)
     purpose       = models.CharField(max_length=10, choices=Property.PURPOSE_CHOICES, blank=True)
 
-    # Location
     city = models.CharField(max_length=100, blank=True)
 
-    # Budget range
     budget_min = models.PositiveIntegerField(null=True, blank=True)
     budget_max = models.PositiveIntegerField(null=True, blank=True)
 
-    # Bedrooms range
     bedrooms_min = models.PositiveSmallIntegerField(null=True, blank=True)
     bedrooms_max = models.PositiveSmallIntegerField(null=True, blank=True)
 
-    # Bathrooms range
     bathrooms_min = models.PositiveSmallIntegerField(null=True, blank=True)
     bathrooms_max = models.PositiveSmallIntegerField(null=True, blank=True)
 
-    # Amenities stored as comma-separated values e.g. "parking,wifi,gym"
     amenities = models.TextField(blank=True)
 
-    # Free-text notes
     notes = models.TextField(blank=True)
 
-    # Meta
     created_at = models.DateTimeField(auto_now_add=True)
     is_resolved = models.BooleanField(default=False)
+
 
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Inquiry'
         verbose_name_plural = 'Inquiries'
+        indexes = [
+            models.Index(fields=['created_at']),
+        ]
+
 
     def __str__(self):
         return f"{self.full_name} — {self.property_type or 'any'} ({self.created_at:%d %b %Y})"
@@ -308,6 +318,22 @@ class Inquiry(models.Model):
     def amenities_list(self):
         """Return amenities as a Python list."""
         return [a.strip() for a in self.amenities.split(',') if a.strip()]
+
+
+
+class InquiryResponse(models.Model):
+    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="inquires_responses")
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="inquires_responses")
+    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name="inquires_responses")
+    created_at = models.DateTimeField(auto_now=True)
+    opened = models.BooleanField(default=False)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['inquiry']),
+            models.Index(fields=['agent']),
+        ]
+
 
 class SavedProperty(models.Model):
     """Model to track properties saved by users"""

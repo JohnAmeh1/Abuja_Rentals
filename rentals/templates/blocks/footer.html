@@ -1,0 +1,105 @@
+ <footer style="background:#0a0f1e;" class="text-gray-400">
+
+    <!-- Top divider accent -->
+    <div class="h-px w-full" style="background:linear-gradient(90deg,transparent,rgba(59,130,246,0.4),transparent);">
+    </div>
+
+    <div class="container mx-auto px-4 lg:px-8 pt-14 pb-8">
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+
+        <!-- Brand col -->
+        <div class="md:col-span-4">
+          <a href="{% url 'home' %}" class="inline-flex items-center gap-3 mb-5 group">
+            <div class="leading-[1.1]">
+              <span class="text-lg font-bold text-white">Abuja</span> <span
+                class="text-lg font-bold text-blue-400">Rentals</span>
+              <div class="text-[10px] text-gray-600 tracking-widest uppercase">Premium Properties</div>
+            </div>
+          </a>
+
+          <p class="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
+            Premium property listings across Abuja — trusted, verified, and easy to book.
+          </p>
+
+          <div class="flex items-center gap-2">
+            {% for icon, label, href in social_links|default:"" %}
+            <a href="{{ href }}" aria-label="{{ label }}" class="w-8 h-8 flex items-center justify-center rounded-lg
+                    bg-white/5 hover:bg-blue-500 text-gray-500 hover:text-white transition">
+              <i class="fab fa-{{ icon }} text-xs"></i>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="md:col-span-5 grid grid-cols-2 gap-8">
+          <div>
+            <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Company</h5>
+            <ul class="space-y-2.5 text-sm">
+              <li><a href="/about/" class="hover:text-white transition">About Us</a></li>
+              <li><a href="/careers/" class="hover:text-white transition">Careers</a></li>
+              <li><a href="/blog/" class="hover:text-white transition">Blog</a></li>
+              <li><a href="/contact/" class="hover:text-white transition">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Support</h5>
+            <ul class="space-y-2.5 text-sm">
+              <li><a href="/help/" class="hover:text-white transition">Help Center</a></li>
+              <li><a href="/terms/" class="hover:text-white transition">Terms &amp; Conditions</a></li>
+              <li><a href="/privacy/" class="hover:text-white transition">Privacy Policy</a></li>
+              <li><a href="/faq/" class="hover:text-white transition">FAQ</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Contact + newsletter -->
+        <div class="md:col-span-3">
+          <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-4">Get in Touch</h5>
+
+          <ul class="space-y-2.5 text-sm mb-6">
+            <li class="flex items-center gap-2">
+              <i class="fas fa-envelope text-xs w-4"></i>
+              <a href="mailto:info@abujarentals.com" class="hover:text-white transition truncate">
+                info@abujarentals.com
+              </a>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fas fa-phone text-xs w-4"></i>
+              <a href="tel:+2349063504463" class="hover:text-white transition">
+                +234 906 350 4463
+              </a>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fas fa-map-marker-alt text-xs w-4"></i>
+              <span>Maitama, Abuja</span>
+            </li>
+          </ul>
+
+          <!-- Newsletter -->
+          <h5 class="text-white text-xs font-semibold uppercase tracking-widest mb-3">Newsletter</h5>
+          <form class="flex" onsubmit="return false;">
+            <input type="email" placeholder="Your email" required class="w-full px-3 py-2 text-sm rounded-l-lg
+                        bg-white/5 border border-white/10 text-gray-300
+                        placeholder-gray-600
+                        focus:outline-none focus:border-blue-500 focus:bg-white/8 transition">
+            <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm
+                         rounded-r-lg transition whitespace-nowrap">
+              <i class="fas fa-arrow-right text-xs"></i>
+            </button>
+          </form>
+          <p class="text-xs text-gray-600 mt-2">No spam. Unsubscribe anytime.</p>
+        </div>
+
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center
+                justify-between gap-3 text-xs text-gray-600">
+        <span>&copy; {% now "Y" %} Abuja Rentals. All rights reserved.</span>
+        <span>Designed with care — <a href="/" class="hover:text-gray-400 transition">Abuja Rentals</a></span>
+      </div>
+
+    </div>
+  </footer>

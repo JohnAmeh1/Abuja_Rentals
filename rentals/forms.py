@@ -6,6 +6,7 @@ from .models import Report
 from django.utils import timezone
 
 
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
         'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
@@ -21,17 +22,7 @@ class CustomUserCreationForm(UserCreationForm):
             'placeholder': 'Phone number'
         })
     )
-    USER_TYPE_CHOICES = [
-        ('tenant', 'Tenant/Looking to Rent'),
-    ]
     
-    user_type = forms.ChoiceField(
-        choices=USER_TYPE_CHOICES,
-        widget=forms.RadioSelect(attrs={'class': 'space-y-2'}),
-        required=True,
-        initial='tenant'
-    )
-
     
     address = forms.CharField(
         max_length=255,
@@ -53,7 +44,7 @@ class CustomUserCreationForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'user_type', 'phone_number', 'address', 'bio', 'password1', 'password2')
+        fields = ('username', 'email', 'first_name', 'last_name', 'phone_number', 'address', 'bio', 'password1', 'password2')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,7 +69,6 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user_type = 'tenant'
         
         if commit:
             user.save()
@@ -87,7 +77,6 @@ class CustomUserCreationForm(UserCreationForm):
             
             UserProfile.objects.create(
                 user=user,
-                user_type=user_type,
                 phone_number=self.cleaned_data.get('phone_number', ''),
                 address=self.cleaned_data.get('address', ''),
                 bio=self.cleaned_data.get('bio', '')
@@ -104,8 +93,9 @@ class LoginForm(forms.Form):
         'placeholder': 'Password'
     }))
     
-    remember_me = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
-        'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500'
+    remember_me = forms.BooleanField(required=False , widget=forms.CheckboxInput(attrs={
+        'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500',
+        'checked': True
     }))
 
 class ProfileUpdateForm(forms.ModelForm):

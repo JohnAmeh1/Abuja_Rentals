@@ -1,0 +1,146 @@
+  <nav class="fixed top-0 z-[10] right-0 left-0 bg-white/50 backdrop-blur-md shadow-sm">
+    <div class="container mx-auto px-4 lg:px-8">
+
+      <div class="flex justify-between items-center h-[72px]">
+
+        <a href="{% url 'home' %}" class="flex items-center gap-3 group">
+
+          <div class="leading-[1.1]">
+            <span class="text-xl font-bold text-gray-900">Abuja</span>
+            <span class="text-xl font-bold text-accent">Rentals</span>
+            <div class="text-[11px] text-gray-400 tracking-wide">
+              PREMIUM PROPERTIES
+            </div>
+          </div>
+
+        </a>
+
+
+        <div class="hidden lg:flex items-center gap-1">
+          <a href="{% url 'home' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Home</a>
+          <a href="{% url 'properties' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Properties</a>
+          <a href="#about" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">About</a>
+          <a href="/signup" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Sign up</a>
+          <a href="/login" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Login</a>
+        </div>
+
+
+
+        <div class="hidden lg:flex items-center gap-3">
+
+          {% if admin_messages %}
+          <button id="notificationBellBtn" class="relative p-2 rounded-lg text-gray-500 hover:text-accent hover:bg-gray-50 transition">
+
+            <i class="fas fa-bell text-lg"></i>
+
+            <span class="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+              {{ admin_messages|length }}
+            </span>
+          </button>
+          {% endif %}
+
+
+
+          {% if user.is_authenticated %}
+
+          <!-- User Menu -->
+          <div class="relative">
+
+            <button class="dropdown-toggle flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50">
+              <div class="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                <i class="fas fa-user text-sm"></i>
+              </div>
+              <span class="text-sm font-medium text-gray-700">
+                {{ user.get_full_name|default:user.username }}
+              </span>
+              <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+            </button>
+
+            <div id="user-dropdown" class="dropdown-menu">
+              <a href="{% url 'dashboard' %}" class="dropdown-item">
+                <i class="fas fa-th-large mr-2"></i>Dashboard
+              </a>
+              <a href="{% url 'profile' %}" class="dropdown-item">
+                <i class="fas fa-user-circle mr-2"></i>Profile
+              </a>
+              <a href="{% url 'logout' %}" class="dropdown-item text-red-600">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+              </a>
+            </div>
+          </div>
+
+          {% endif %}
+          
+          <button onclick="openRequestModal()"
+          class="px-5 py-2 bg-primary hover:bg-primary/90 duration-200 text-white text-sm font-semibold rounded">
+          Make a Request
+        </button>
+
+        </div>
+
+
+
+        <!-- Mobile Button -->
+        <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+
+      </div>
+
+
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden lg:hidden pb-4">
+        <a href="{% url 'home' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-home mr-3"></i>Home
+        </a>
+        <a href="{% url 'properties' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-shop mr-3"></i>Properties
+        </a>
+
+        {% if admin_messages %}
+        <button id="notificationBellBtnMobile"
+          class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg w-full text-left">
+          <i class="fas fa-bell mr-3"></i>
+          Notifications
+          <span class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+            {{ admin_messages|length }}
+          </span>
+        </button>
+        {% endif %}
+
+        <button id="installButtonMobile" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-blue-700 bg-blue-50">
+          <i class="fas fa-download mr-3"></i>Install App
+        </button>
+
+        {% if user.is_authenticated %}
+
+        <a href="{% url 'dashboard' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-th-large mr-3"></i>Dashboard
+        </a>
+
+        <a href="{% url 'profile' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-user-circle mr-3"></i>Profile
+        </a>
+
+        <a href="{% url 'logout' %}" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-red-600">
+          <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+        </a>
+
+        {% else %}
+
+        <a href="{% url 'login' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
+          <i class="fas fa-sign-in-alt mr-3"></i>Sign In
+        </a>
+
+        <a href="{% url 'signup' %}" class="block mx-4 mt-2 py-3 text-center
+                                                bg-primary text-white rounded-lg">
+          Join Now
+        </a>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+  </nav>

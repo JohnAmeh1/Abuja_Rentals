@@ -15,11 +15,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core import signing
-
 from datetime import datetime
 from decimal import Decimal
 
-from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit, Inquiry, OTP)
+from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit, Inquiry, OTP, School)
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm)
 from .recommendations import get_property_recommendations
 
@@ -31,12 +30,11 @@ import json
 
 
 
+
 def is_admin(user):
-    """Check if user is an admin"""
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
 
 def send_otp_email(user, otp_code):
-    """Send OTP code to user's email"""
     try:
         subject = 'Your OTP for Email Verification - Abuja Rentals'
         message = f"""
@@ -66,25 +64,26 @@ def send_otp_email(user, otp_code):
         print(f"Error sending OTP email: {e}")
         return False
 
+
 def verify_otp_view(request, user_id):
     """View to verify OTP code"""
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
-        return redirect('login')
+        return redirect('signup')
     
-    # Check if OTP exists
+    if user.email_is_verified:
+        messages.info(request, 'Email already verified.')
+        login(request, user)
+        return redirect('home')
+    
     try:
         otp = OTP.objects.get(user=user)
     except OTP.DoesNotExist:
         messages.error(request, 'OTP not found. Please request a new one.')
-        return redirect('signup')
+        request.method = "GET"
     
-    if otp.is_verified:
-        messages.info(request, 'Email already verified.')
-        login(request, user)
-        return redirect('home')
     
     if request.method == 'POST':
         form = OTPVerificationForm(request.POST)
@@ -93,19 +92,13 @@ def verify_otp_view(request, user_id):
             
             if not otp.is_valid():
                 messages.error(request, 'OTP has expired. Please request a new one.')
-                return redirect('signup')
+                return redirect('verify_otp', user_id)
             
             if otp.verify(otp_code):
-                # Mark email as verified in UserProfile
-                user_profile = user.userprofile
-                user_profile.email_verified = True
-                user_profile.save()
-                # Activate the user account so they can authenticate normally
-                user.is_active = True
+                user.email_is_verified = True
                 user.save()
 
                 messages.success(request, 'Email verified successfully!')
-                # Log the user in
                 login(request, user)
                 return redirect('home')
             else:
@@ -120,18 +113,18 @@ def verify_otp_view(request, user_id):
     })
 
 def resend_otp(request, user_id):
-    """Resend OTP to user's email"""
     try:
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
-        return redirect('login')
+        return redirect('signup')
     
-    # Create new OTP
-    otp = OTP.create_otp(user)
-    
-    # Send email
-    if send_otp_email(user, otp.code):
+    otp, created = OTP.create_otp(user)
+    if not created:
+        messages.error(request, 'Failed to create OTP. Please try again.')
+        
+    success = send_otp_email(user, otp)
+    if success:
         messages.success(request, f'OTP sent to {user.email}')
     else:
         messages.error(request, 'Failed to send OTP. Please try again.')
@@ -179,21 +172,16 @@ def forgot_password(request):
             email = form.cleaned_data['email']
             try:
                 user = User.objects.get(email=email)
+                otp, created = OTP.create_otp(user)
                 
-                # Create OTP for password reset
-                otp = OTP.create_otp(user)
-                
-                # Send email with OTP
                 if send_forgot_password_email(user, otp.code):
-                    # Store the user_id in session for the next step
                     request.session['password_reset_user_id'] = user.id
                     messages.success(request, f'OTP sent to {user.email}. Please check your email.')
                     return redirect('verify_forgot_password_otp')
                 else:
                     messages.error(request, 'Failed to send OTP. Please try again later.')
             except User.DoesNotExist:
-                # Don't reveal if email exists for security
-                messages.info(request, f'If an account exists with {email}, you will receive an OTP.')
+                messages.info(request, f'Please check the email "{email}"')
                 return redirect('login')
     else:
         form = ForgotPasswordForm()
@@ -202,7 +190,6 @@ def forgot_password(request):
 
 def verify_forgot_password_otp(request):
     """Verify OTP during forgot password process"""
-    # Get user_id from session
     user_id = request.session.get('password_reset_user_id')
     
     if not user_id:
@@ -215,7 +202,6 @@ def verify_forgot_password_otp(request):
         messages.error(request, 'User not found.')
         return redirect('login')
     
-    # Check if OTP exists
     try:
         otp = OTP.objects.get(user=user)
     except OTP.DoesNotExist:
@@ -232,7 +218,6 @@ def verify_forgot_password_otp(request):
                 return redirect('forgot_password')
             
             if otp.verify(otp_code):
-                # Mark as ready for password reset
                 request.session['password_reset_verified'] = True
                 messages.success(request, 'OTP verified successfully. Please set your new password.')
                 return redirect('reset_password')
@@ -249,12 +234,10 @@ def verify_forgot_password_otp(request):
 
 def reset_password(request):
     """Reset password after OTP verification"""
-    # Check if OTP was verified
     if not request.session.get('password_reset_verified'):
         messages.error(request, 'Please verify your OTP first.')
         return redirect('forgot_password')
     
-    # Get user_id from session
     user_id = request.session.get('password_reset_user_id')
     
     if not user_id:
@@ -272,18 +255,9 @@ def reset_password(request):
         if form.is_valid():
             new_password = form.cleaned_data['password']
             
-            # Set new password
             user.set_password(new_password)
             user.save()
             
-            # Clear OTP verification
-            try:
-                otp = OTP.objects.get(user=user)
-                otp.delete()
-            except OTP.DoesNotExist:
-                pass
-            
-            # Clear session data
             request.session.pop('password_reset_user_id', None)
             request.session.pop('password_reset_verified', None)
             
@@ -305,10 +279,8 @@ def resend_forgot_password_otp(request, user_id):
         messages.error(request, 'User not found.')
         return redirect('login')
     
-    # Create new OTP
     otp = OTP.create_otp(user)
     
-    # Send email
     if send_forgot_password_email(user, otp.code):
         messages.success(request, f'OTP resent to {user.email}')
     else:
@@ -317,49 +289,52 @@ def resend_forgot_password_otp(request, user_id):
     return redirect('verify_forgot_password_otp')
 
 
-def check_expired_rentals():
-    """
-    Check and update expired rentals and their property statuses.
-    Call this function at key points where property status matters.
-    """
-    from django.utils import timezone
-    today = timezone.now().date()
-    
-    # Get all active rentals
-    active_rentals = PropertyRental.objects.filter(is_active=True).select_related('property')
-    
-    for rental in active_rentals:
-        # This will update rental status and property status if needed
-        rental.check_and_update_status()
+from django.db.models import Count
+import random
 
 def home(request):
-        
-    # Try to use featured properties if set, otherwise sample available properties
-    featured_qs = Property.objects.filter(status='available', is_featured=True)
-    if featured_qs.exists():
-        featured_properties = featured_qs.order_by('?')[:3]
-    else:
-        featured_properties = Property.objects.filter(status='available').order_by('views')[:3]
+    available = Property.objects.filter(status='available')
 
-    total_properties = Property.objects.filter(status='available').count()
+    featured_ids = list(
+        available.filter(is_featured=True).values_list('id', flat=True)
+    )
+    
+    if featured_ids:
+        chosen_ids = random.sample(featured_ids, min(3, len(featured_ids)))
+        featured_properties = available.filter(id__in=chosen_ids)
+    else:
+        featured_properties = available.order_by('-views')[:3]
+
+    type_counts = (
+        available
+        .values('property_type')
+        .annotate(count=Count('id'))
+        .order_by()
+    )
+
+    type_choices = dict(Property.PROPERTY_TYPE_CHOICES)
+    categories_raw = [
+        {
+            'code': row['property_type'],
+            'label': type_choices.get(row['property_type'], row['property_type'].replace('_', ' ').title()),
+            'count': f"{(row['count'] // 100) * 100}",
+        }
+        for row in type_counts
+    ]
+    random.shuffle(categories_raw)
 
     context = {
         'featured_properties': featured_properties,
-        'total_properties': total_properties,
+        'total_properties': available.count(),
+        'categories': categories_raw[:9],
+        'categories_full': categories_raw,
         'page_title': 'Home',
+        'amenity_choices' : Property.AMENITY_CHOICES,
+        'schools' : School.objects.all().order_by('name'),
+        'cities': Property.CITIES,
     }
-    
-    type_choices = dict(Property.PROPERTY_TYPE_CHOICES)
-    types_qs = list(Property.objects.filter(status='available').values_list('property_type', flat=True).distinct())
-    random.shuffle(types_qs)
-    categories = []
-    for t in types_qs:
-        label = type_choices.get(t, t.replace('_', ' ').title())
-        count = Property.objects.filter(property_type=t, status='available').count()
-        categories.append({'code': t, 'label': label, 'count': f"{ (count // 100) * 100 }"})
-
-    context['categories'] = categories[:9]
     return render(request, "home.html", context)
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -383,7 +358,6 @@ def login_view(request):
             
             if user is not None:
                 login(request, user)
-                
                 if not remember_me:
                     request.session.set_expiry(0)  
                 else:
@@ -408,41 +382,36 @@ def signup_view(request):
         if form.is_valid():
             
             user = form.save(commit=False)
-            user.is_active = False  # Deactivate user until email is verified
+            user.email_is_verified = False
             user.save()
+            
+            user_type=form.cleaned_data.get('user_type', 'user'),
+            
+            UserProfile.objects.create(
+                user=user,
+                user_type=user_type,
+                phone_number=form.cleaned_data.get('phone_number', ''),
+                address=form.cleaned_data.get('address', ''),
+                bio=form.cleaned_data.get('bio', '')
+            )
+            next_url = request.GET.get('next', 'home')
 
-            # Double-check that user_type was saved correctly
-            try:
-                profile = UserProfile.objects.get(user=user)
-                # Force update if needed
-                selected_type = "tenant"
-                if selected_type and profile.user_type != selected_type:
-                    profile.user_type = selected_type
-                    profile.save()
-                    print(f"DEBUG View: Updated user_type to {selected_type}")
-            except Exception as e:
-                print(f"DEBUG View: Error checking profile: {e}")
-                # Create profile if it doesn't exist
-                UserProfile.objects.create(
-                    user=user,
-                    user_type=form.cleaned_data.get('user_type', 'tenant'),
-                    phone_number=form.cleaned_data.get('phone_number', ''),
-                    address=form.cleaned_data.get('address', ''),
-                    bio=form.cleaned_data.get('bio', '')
-                )
-
-            # Create OTP and send email
-            otp = OTP.create_otp(user)
-            if send_otp_email(user, otp.code):
-                messages.success(request, f'Account created! Please check your email ({user.email}) for the OTP code.')
-                return redirect('verify_otp', user_id=user.id)
-            else:
-                # Delete user if email sending fails
-                user.delete()
+            otp, created = OTP.create_otp(user)
+            if not created:
                 messages.error(request, 'Failed to send OTP email. Please try again.')
-                return redirect('signup')
+                return redirect(next_url)
+                
+            if send_otp_email(user, otp):
+                if user_type == "agent":
+                    messages.success(request, f'Account created! Please check your email ({user.email}) for the OTP code.')
+                    return redirect('verify_otp', user_id=user.id)
+                else:
+                    messages.success(request, f'Account created! Please check your email for the OTP code.\nYou can verify in the dashboard')
+                    return redirect(next_url)
+            else:
+                messages.error(request, 'Failed to send OTP email. Please try again.')
+                return redirect(next_url)
         else:
-            # Show form errors for debugging
             print(f"DEBUG: Form errors: {form.errors}")
     else:
         form = CustomUserCreationForm()
@@ -473,20 +442,14 @@ def dashboard_view(request):
     user = request.user
     user_profile = get_object_or_404(UserProfile, user=user)
     
+    
     if user_profile.user_type == 'admin':
-        # Admin dashboard logic
-        # Get platform fees from transactions
-        total_platform_fees = 0
-        
-
-        # Add pending properties count
         pending_properties = Property.objects.filter(status='pending').count()
         
         context = {
             'page_title': 'Admin Dashboard',
             'total_users': UserProfile.objects.count(),
             'total_properties': Property.objects.count(),
-            'total_platform_fees': total_platform_fees,
             'pending_properties': pending_properties,
         }
         
@@ -889,7 +852,7 @@ def saved_properties_view(request):
         'page_title': 'Saved Properties'
     }
     
-    return render(request, 'saved_properties.html', context)
+    return render(request, 'tenant/saved_properties.html', context)
 
 @login_required
 def book_property_visit(request, property_id):

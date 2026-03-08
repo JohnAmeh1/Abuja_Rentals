@@ -1,0 +1,337 @@
+
+<div id="requestModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRequestModal()"></div>
+
+  <div id="requestSheet" class="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto translate-y-4 transition-transform duration-300 ease-out">
+
+    <div class="flex items-start justify-between p-6 pb-4 border-b border-gray-100">
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">Property Request</h2>
+        <p class="text-sm text-gray-400 mt-0.5">We'll get back to you as soon as possible.</p>
+      </div>
+      <button onclick="closeRequestModal()" class="ml-4 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
+        <i class="fas fa-times text-sm text-gray-800"></i>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <div id="requestFormBody" class="p-6 py-2">
+      <form id="propertyRequestForm" method="POST" action="{% url 'property_request' %}" class="space-y-5">
+        {% csrf_token %}
+
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Your Details</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
+              <input type="text" name="full_name" required placeholder="Ada Okonkwo" value="{{user.username}}"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Phone</label>
+              <input type="tel" name="phone" required placeholder="+234 800 000 0000" value="{{user.phone_number}}" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">
+                Email <span class="font-normal text-gray-400">(optional)</span>
+              </label>
+              <input type="email" name="email" placeholder="ada@email.com" value="{{user.email}}"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+            What are you looking for?
+          </p>
+          <div class="flex flex-wrap gap-2 mb-2" id="ptype">
+            
+          </div>
+
+          <hr class="my-4">
+          <div class="flex gap-2">
+            <div>
+              <input type="radio" name="purpose" id="req_rent" value="rent" class="hidden peer">
+              <label for="req_rent" class="cursor-pointer select-none text-sm font-medium px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white hover:border-blue-400 transition">
+                For Rent
+              </label>
+            </div>
+            <div>
+              <input type="radio" name="purpose" id="req_buy" value="sale" class="hidden peer">
+              <label for="req_buy" class="cursor-pointer select-none text-sm font-medium px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white hover:border-blue-400 transition">
+                To Buy
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <!-- Location + Budget -->
+        <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-2">
+        Locations <span class="font-normal text-gray-400">(pick any)</span>
+        </label>
+
+        <div id="cities" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Budget Range (₦)</label>
+
+          <div class="flex items-center gap-2">
+
+          <input
+          type="number"
+          name="budget_min"
+          placeholder="Min"
+          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+
+          <span class="text-gray-400 text-sm flex-shrink-0">–</span>
+
+          <input
+          type="number"
+          name="budget_max"
+          placeholder="Max"
+          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+
+          </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Bedrooms</label>
+            <div class="flex items-center gap-2">
+              <select name="bedrooms_min"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Min</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+              </select>
+              <span class="text-gray-400 text-sm flex-shrink-0">–</span>
+              <select name="bedrooms_max"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Max</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10+</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Bathrooms</label>
+            <div class="flex items-center gap-2">
+              <select name="bathrooms_min"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Min</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10+</option>
+              </select>
+              <span class="text-gray-400 text-sm flex-shrink-0">–</span>
+              <select name="bathrooms_max"
+                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                <option value="">Max</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-2">
+            Amenities <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="flex flex-wrap gap-2" id="amenities">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Anything else?</label>
+          <textarea name="notes" rows="2" placeholder="Proximity to schools, specific estate, ground floor…" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none transition"></textarea>
+        </div>
+
+        <button type="submit" id="reqSubmitBtn" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane text-xs"></i>
+          Submit Request
+        </button>
+
+      </form>
+    </div>
+
+    <div id="requestSuccess" class="hidden flex-col items-center text-center p-12">
+      <div class="w-14 h-14 rounded-full bg-accent flex items-center justify-center text-white text-2xl mb-4">
+        <i class="fas fa-check"></i>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">Request Sent!</h3>
+      <p class="text-sm text-gray-500 max-w-xs leading-relaxed">
+        Our team will review your requirements and get back to you.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openRequestModal() {
+    const modal = document.getElementById('requestModal')
+    const sheet = document.getElementById('requestSheet')
+    modal.classList.remove('opacity-0', 'pointer-events-none')
+    sheet.classList.remove('translate-y-4')
+    document.body.style.overflow = 'hidden'
+    document.getElementById('requestFormBody').classList.remove('hidden')
+  }
+
+
+
+  function closeRequestModal() {
+    const modal = document.getElementById('requestModal')
+    const sheet = document.getElementById('requestSheet')
+    modal.classList.add('opacity-0', 'pointer-events-none')
+    sheet.classList.add('translate-y-4')
+    document.body.style.overflow = ''
+
+    const s = document.getElementById('requestSuccess')
+    s.classList.remove('flex')
+    s.classList.add('hidden')
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeRequestModal()
+  })
+
+  let amenities = document.getElementById("amenities")
+  let ptypebase = document.getElementById("ptype")
+  let cities = document.getElementById("cities")
+
+  async function get_details() {
+    let amenitiesList = JSON.parse(localStorage.getItem("amenitiesList"))
+    let citiesList = JSON.parse(localStorage.getItem("citiesList"))
+    let ptypeList = JSON.parse(localStorage.getItem("ptypeList"))
+
+    if (!amenitiesList || !citiesList || !ptypeList) {
+      res = await fetch('/api/get-details/')
+      data = await res.json()
+
+      amenitiesList = data.amenity_choices
+      citiesList = data.cities
+      ptypeList = data.property_type_choices
+
+      localStorage.setItem("amenitiesList", JSON.stringify(amenitiesList))
+      localStorage.setItem("citiesList", JSON.stringify(citiesList))
+      localStorage.setItem("ptypeList", JSON.stringify(ptypeList))
+    }
+    for (let i = 0; i < amenitiesList.length; i++) {
+      let div = document.createElement("div")
+      v = amenitiesList[i]
+      div.innerHTML = `
+          <div>
+            <input type="checkbox" id="ra_${v[0]}" name="amenities" value="${v[0]}" class="hidden peer">
+            <label for="ra_${v[0]}" class="cursor-pointer select-none text-xs font-medium px-3 py-1.5 rounded-full border border-gray-300 text-gray-600 bg-white peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 hover:border-blue-300 hover:text-blue-500 transition">
+              ${v[1]}
+            </label>
+          </div>
+        `
+      amenities.appendChild(div)
+    }
+    
+    for (let i = 0; i < ptypeList.length; i++) {
+      let div = document.createElement("div")
+      v = ptypeList[i]
+      div.innerHTML = `
+            <div>
+              <input type="checkbox" name="property_type" id="rpt_${v[0]}" value="${v[0]}" class="hidden peer">
+              <label for="rpt_${v[0]}" class="cursor-pointer select-none text-sm font-medium px-4 py-1.5 rounded-full border border-gray-300 text-gray-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white hover:border-blue-400 transition">
+                ${v[1]}
+              </label>
+            </div>
+        `
+      ptypebase.appendChild(div)
+    }
+    
+    for (let i = 0; i < citiesList.length; i++) {
+
+      let div = document.createElement("div")
+      let v = citiesList[i]
+
+      div.innerHTML = `
+        <div>
+          <input type="checkbox" id="city_${v[0]}" name="cities" value="${v[0]}" class="hidden peer">
+
+          <label for="city_${v[0]}" class="cursor-pointer select-none text-xs font-medium px-3 py-1.5 rounded-full border border-gray-300 text-gray-600 bg-white peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 hover:border-blue-300 hover:text-blue-500 transition">
+            ${v[1]}
+          </label>
+        </div>
+      `
+
+  cities.appendChild(div)
+}
+  }
+
+  get_details()
+
+  document.getElementById('propertyRequestForm').addEventListener('submit', async function (e) {
+    e.preventDefault()
+    const btn = document.getElementById('reqSubmitBtn')
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Sending…`
+    btn.disabled = true
+
+    try {
+      const res = await fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      if (res.ok) {
+        document.getElementById('requestFormBody').classList.add('hidden')
+        const s = document.getElementById('requestSuccess')
+        s.classList.remove('hidden')
+        s.classList.add('flex')
+      } else {
+        btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`
+        btn.disabled = false
+        alert('Something went wrong, please try again.')
+      }
+    } catch {
+      btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`
+      btn.disabled = false
+      alert('Network error, please try again.')
+    }
+  })
+</script>

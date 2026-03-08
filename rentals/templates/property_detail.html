@@ -88,6 +88,26 @@
         font-size: .825rem;
         border: 1px solid rgba(2, 6, 23, 0.03);
     }
+    .status-available {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-sold {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-draft {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
 </style>
 {% endblock %}
 
@@ -146,7 +166,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start mb-4 space-y-4 md:space-y-0">
                     <div>
                         <div class="flex flex-wrap gap-2 items-center mb-3">
-                            <span class="property-status status-{{ property.status }}">{{ property.get_status_display }}</span>
+                            <span class="property-status status-{{property.status}}">{{ property.get_status_display }}</span>
                             <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                                 {{ property.get_property_type_display }}
                             </span>
@@ -215,8 +235,8 @@
                 <h2 class="text-2xl font-bold text-primary mb-4">
                     <i class="fas fa-info-circle mr-2 text-accent"></i>Description
                 </h2>
-                <p class="text-gray-700 leading-relaxed whitespace-pre-line text-[15px] max-w-prose">{{
-                    property.description }}</p>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line text-[15px] max-w-prose">
+                    {{ property.description }}</p>
             </div>
 
             <!-- Amenities -->
@@ -254,9 +274,9 @@
                     <i class="fas fa-star mr-2 text-accent"></i>Recommendations
                 </h2>
                 <div
-                    class="overflow-x-scroll flex gap-3 overflow-y-hidden p-2 lg:p-0 scrollbar scrollbar-thumb-sky-700 scrollbar-track-sky-300 ">
+                    class="overflow-x-scroll flex gap-3 overflow-y-hidden p-2 lg:p-0 pb-2">
                     {% for prop in recommendations %}
-                    {% include "property.html" %}
+                    {% include "blocks/property.html" %}
                     {% empty %}
                     <div class="col-span-3 text-center text-gray-500 py-10">
                         No featured properties available.
@@ -392,7 +412,6 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
                 <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                    <option value="payment_issue">Payment / Refund Issue</option>
                     <option value="fake_listing">Fake / Misleading Listing</option>
                     <option value="harassment">Harassment / Abusive Behavior</option>
                     <option value="other">Other</option>
@@ -415,7 +434,6 @@
 
 <script>
     function openReportModal(id, title) {
-        alert("CLicked")
         const form = document.getElementById('reportFormDetail') || document.getElementById('reportForm');
         if (form) {
             form.action = `/property/${id}/report/`;
@@ -432,7 +450,6 @@
         }
     }
 
-    // Close when clicking outside
     const modalDetail = document.getElementById('reportModalDetail');
     if (modalDetail) {
         modalDetail.addEventListener('click', function (e) { if (e.target === this) closeReportModalDetail(); });

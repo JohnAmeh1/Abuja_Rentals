@@ -89,10 +89,66 @@
 
 
       {% include "blocks/search.html" %}
+      <div class="bg-white rounded-2xl p-5 lg:p-7 max-w-3xl mx-auto shadow-2xl max-sm:mt-20">
+        <div class="mb-6">
+          <h3 class="text-base font-semibold text-gray-900">Quick Property Search</h3>
+          <p class="text-sm text-gray-500">Filter by location and property type</p>
+        </div>
+
+        <form method="GET" action="{% url 'properties' %}" id="basicForm">
+          <div class="grid lg:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">Location</label>
+              <div class="relative" id="autocomplete-wrapper">
+                <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+                <input
+                  id="basic_search"
+                  name="search"
+                  type="text"
+                  autocomplete="off"
+                  placeholder="Maitama, Wuse, Gwarinpa..."
+                  class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                />
+                <ul id="autocomplete-list"
+                    class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] overflow-hidden max-h-52 overflow-y-auto">
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-600 mb-2">Property Type</label>
+              <div class="relative">
+                <i class="fas fa-home absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <select id="basic_property_type" name="property_type"
+                  class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                  <option value="">All Types</option>
+                  {% for cat in categories_full %}
+                    <option value="{{ cat.code }}">{{ cat.label }}</option>
+                  {% endfor %}
+                </select>
+                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:flex justify-between items-center mt-4">
+            <button type="submit"
+              class="text-[13px] px-4 py-2 text-primary border-primary border hover:bg-primary hover:text-white duration-200 rounded-lg transition flex items-center justify-center gap-2">
+              <i class="fas fa-search"></i>
+              Search Properties
+            </button>
+
+            <button type="button" onclick="openAdvancedModal()"
+              class="text-sm text-accent flex items-center gap-1 hover:text-accent/70 transition mt-3 lg:mt-0">
+              More Options <i class="fa fa-chevron-down text-xs"></i>
+            </button>
+          </div>
+        </form>
+      </div>
 
 
 
-      <!-- Realistic Trust -->
+
       <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
 
         <div class="text-center">

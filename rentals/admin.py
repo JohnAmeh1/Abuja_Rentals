@@ -40,9 +40,9 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Inquiry)
 class InquiryAdmin(admin.ModelAdmin):
-    list_display  = ('full_name', 'phone', 'email', 'property_type', 'purpose', 'city', 'is_resolved', 'created_at')
-    list_filter   = ('property_type', 'purpose', 'is_resolved', 'city')
-    search_fields = ('full_name', 'phone', 'email', 'notes')
-    list_editable = ('is_resolved',)
+    list_display  = ('user__username', 'user__email', 'property_type', 'purpose', 'cities', 'closed', 'created_at')
+    list_filter   = ('property_type', 'purpose', 'closed', 'cities')
+    search_fields = ('user__username', 'user__email', 'notes')
+    list_editable = ('closed',)
     readonly_fields = ('created_at',)
 

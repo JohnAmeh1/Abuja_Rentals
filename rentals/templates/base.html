@@ -191,7 +191,6 @@
 
 </head>
 
-{% include 'blocks/requestForm.html' %}
 
 
 <body class="font-sans bg-gray-50 text-gray-800">
@@ -445,7 +444,6 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
           },
           body: JSON.stringify({
             message_id: messageId

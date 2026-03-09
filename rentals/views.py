@@ -18,16 +18,14 @@ from django.core import signing
 from datetime import datetime
 from decimal import Decimal
 
-from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit, Inquiry, OTP, School)
+from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,  SavedProperty, PropertyVisit, Inquiry, School, OTP)
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, PropertySearchForm, AdminMessageForm, ReportForm, OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm)
 from .recommendations import get_property_recommendations
 
+from .services.otp_service import create_otp, verify, is_valid
+
 import random
 import json
-
-
-
-
 
 
 
@@ -35,34 +33,60 @@ def is_admin(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
 
 def send_otp_email(user, otp_code):
+    subject = 'Your OTP for Email Verification - Abuja Rentals'
+    message = f"""
+    Hello {user.first_name or user.username},
+    
+    Your One-Time Password (OTP) for email verification is:
+    
+    {otp_code}
+    
+    This code will expire in 10 minutes.
+    
+    If you did not request this code, please ignore this email.
+    
+    Best regards,
+    Abuja Rentals Team
+    """
+    
+    return send_mail_(user, subject, message)
+
+def send_mail_(user, subject, message):
+    print(message)
+    return True
     try:
-        subject = 'Your OTP for Email Verification - Abuja Rentals'
-        message = f"""
-        Hello {user.first_name or user.username},
-        
-        Your One-Time Password (OTP) for email verification is:
-        
-        {otp_code}
-        
-        This code will expire in 10 minutes.
-        
-        If you did not request this code, please ignore this email.
-        
-        Best regards,
-        Abuja Rentals Team
-        """
-        
         send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
-            [user.email],
-            fail_silently=False,
-        )
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
+        [user.email],
+        fail_silently=False,
+    )
         return True
     except Exception as e:
-        print(f"Error sending OTP email: {e}")
+        print(f"Error sending email: {e}")
         return False
+    
+    
+def send_forgot_password_email(user, otp_code):
+    subject = 'Password Reset Request - Abuja Rentals'
+    message = f"""
+    Hello {user.first_name or user.username},
+    
+    We received a request to reset your password. 
+    
+    Please use the OTP code below to verify your identity and reset your password:
+    
+    Your One-Time Password (OTP): {otp_code}
+    
+    This code will expire in 10 minutes.
+    
+    If you did not request this password reset, please ignore this email and your password will remain unchanged.
+    
+    Best regards,
+    Abuja Rentals Team
+    """
+    return send_mail_(user, subject, message)
 
 
 def verify_otp_view(request, user_id):
@@ -90,11 +114,11 @@ def verify_otp_view(request, user_id):
         if form.is_valid():
             otp_code = form.cleaned_data['otp_code']
             
-            if not otp.is_valid():
+            if not is_valid(otp):
                 messages.error(request, 'OTP has expired. Please request a new one.')
                 return redirect('verify_otp', user_id)
             
-            if otp.verify(otp_code):
+            if verify(otp, otp_code):
                 user.email_is_verified = True
                 user.save()
 
@@ -119,50 +143,14 @@ def resend_otp(request, user_id):
         messages.error(request, 'User not found.')
         return redirect('signup')
     
-    otp, created = OTP.create_otp(user)
-    if not created:
-        messages.error(request, 'Failed to create OTP. Please try again.')
-        
-    success = send_otp_email(user, otp)
-    if success:
+    otp = create_otp(OTP, user) 
+    if send_otp_email(user, otp.code):
         messages.success(request, f'OTP sent to {user.email}')
     else:
+        otp.delete()
         messages.error(request, 'Failed to send OTP. Please try again.')
     
     return redirect('verify_otp', user_id=user.id)
-
-def send_forgot_password_email(user, otp_code):
-    """Send OTP code for password reset to user's email"""
-    try:
-        subject = 'Password Reset Request - Abuja Rentals'
-        message = f"""
-        Hello {user.first_name or user.username},
-        
-        We received a request to reset your password. 
-        
-        Please use the OTP code below to verify your identity and reset your password:
-        
-        Your One-Time Password (OTP): {otp_code}
-        
-        This code will expire in 10 minutes.
-        
-        If you did not request this password reset, please ignore this email and your password will remain unchanged.
-        
-        Best regards,
-        Abuja Rentals Team
-        """
-        
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
-            [user.email],
-            fail_silently=False,
-        )
-        return True
-    except Exception as e:
-        print(f"Error sending forgot password email: {e}")
-        return False
 
 def forgot_password(request):
     """Handle forgot password request - submit email"""
@@ -172,14 +160,15 @@ def forgot_password(request):
             email = form.cleaned_data['email']
             try:
                 user = User.objects.get(email=email)
-                otp, created = OTP.create_otp(user)
-                
+                otp = create_otp(OTP, user)
+
                 if send_forgot_password_email(user, otp.code):
                     request.session['password_reset_user_id'] = user.id
                     messages.success(request, f'OTP sent to {user.email}. Please check your email.')
                     return redirect('verify_forgot_password_otp')
                 else:
                     messages.error(request, 'Failed to send OTP. Please try again later.')
+                    otp.delete()
             except User.DoesNotExist:
                 messages.info(request, f'Please check the email "{email}"')
                 return redirect('login')
@@ -213,12 +202,16 @@ def verify_forgot_password_otp(request):
         if form.is_valid():
             otp_code = form.cleaned_data['otp_code']
             
-            if not otp.is_valid():
+            if not is_valid(otp):
                 messages.error(request, 'OTP has expired. Please request a new one.')
                 return redirect('forgot_password')
             
-            if otp.verify(otp_code):
+            if verify(otp, otp_code):
                 request.session['password_reset_verified'] = True
+                if user.email_is_verified == False :
+                    user.email_is_verified = True
+                    user.save()
+                    
                 messages.success(request, 'OTP verified successfully. Please set your new password.')
                 return redirect('reset_password')
             else:
@@ -279,8 +272,8 @@ def resend_forgot_password_otp(request, user_id):
         messages.error(request, 'User not found.')
         return redirect('login')
     
-    otp = OTP.create_otp(user)
-    
+    otp = create_otp(OTP, user)
+
     if send_forgot_password_email(user, otp.code):
         messages.success(request, f'OTP resent to {user.email}')
     else:
@@ -396,12 +389,8 @@ def signup_view(request):
             )
             next_url = request.GET.get('next', 'home')
 
-            otp, created = OTP.create_otp(user)
-            if not created:
-                messages.error(request, 'Failed to send OTP email. Please try again.')
-                return redirect(next_url)
-                
-            if send_otp_email(user, otp):
+            otp = create_otp(OTP, user)
+            if send_otp_email(user, otp.code):
                 if user_type == "agent":
                     messages.success(request, f'Account created! Please check your email ({user.email}) for the OTP code.')
                     return redirect('verify_otp', user_id=user.id)
@@ -410,6 +399,7 @@ def signup_view(request):
                     return redirect(next_url)
             else:
                 messages.error(request, 'Failed to send OTP email. Please try again.')
+                otp.delete()
                 return redirect(next_url)
         else:
             print(f"DEBUG: Form errors: {form.errors}")
@@ -504,72 +494,162 @@ def dashboard_view(request):
     
     return render(request, 'auth/dashboard.html', context)
 
+
 def encode_cursor(created_at, id):
-    return signing.dumps({
-        "created_at": created_at.isoformat(),
-        "id": id
-    })
+    return signing.dumps({"created_at": created_at.isoformat(), "id": id})
+
 
 def decode_cursor(cursor):
     data = signing.loads(cursor)
-    return (
-        data["created_at"],
-        data["id"]
-    )
+    return data["created_at"], data["id"]
+
 
 def get_user_is_admin(request):
-    """Helper to avoid repeating admin-check logic."""
     if request.user.is_authenticated:
         try:
-            return request.user.userprofile.user_type == 'admin'
+            return request.user.userprofile.user_type == "admin"
         except Exception:
             pass
     return False
 
 
-def get_properties(request):
-    search_form = PropertySearchForm(request.GET or None)
-    user_is_admin = get_user_is_admin(request)
+def _apply_filters(qs, params, user_is_admin=False):
+    """
+    Apply all search/filter params to a queryset.
+    `params` is any dict-like object (request.GET works directly).
+    Returns the filtered queryset.
+    """
 
-    if user_is_admin:
-        properties = Property.objects.all()
-    else:
-        properties = Property.objects.filter(status='available')
-
-    if search_form.is_valid():
-        if search_form.cleaned_data.get('property_type'):
-            properties = properties.filter(property_type=search_form.cleaned_data['property_type'])
-        if search_form.cleaned_data.get('purpose'):
-            properties = properties.filter(purpose=search_form.cleaned_data['purpose'])
-        if search_form.cleaned_data.get('city'):
-            properties = properties.filter(city=search_form.cleaned_data['city'])
-        if search_form.cleaned_data.get('status') and user_is_admin:
-            properties = properties.filter(status=search_form.cleaned_data['status'])
-        if search_form.cleaned_data.get('search'):
-            search_term = search_form.cleaned_data['search']
-            properties = properties.filter(
-                Q(title__icontains=search_term) |
-                Q(city__icontains=search_term) |
-                Q(description__icontains=search_term)
-            )
-        if search_form.cleaned_data.get("amenities"):
-            
-            amenities = request.GET.getlist('amenities')
-            for amenity in amenities:
-                properties = properties.filter(amenities__contains=amenity)
-
-    properties = properties.order_by("-created_at", "-id")
-    cursor = request.GET.get("cursor")
-
-    if cursor:
-        created_at, id = decode_cursor(cursor)
-        properties = properties.filter(
-            Q(created_at__lt=created_at) |
-            Q(created_at=created_at, id__lt=id)
+    search = params.get("search", "").strip()
+    if search:
+        qs = qs.filter(
+            Q(title__icontains=search)
+            | Q(city__icontains=search)
+            | Q(description__icontains=search)
+            | Q(address__icontains=search)
         )
 
+    property_type = params.get("property_type", "").strip()
+    if property_type:
+        qs = qs.filter(property_type=property_type)
+
+    purpose = params.get("purpose", "").strip()
+    if purpose:
+        qs = qs.filter(purpose=purpose)
+
+    city = params.get("city", "").strip()
+    if city:
+        qs = qs.filter(city=city)
+
+    school = params.get("school", "").strip()
+    if school:
+        qs = qs.filter(school_id=school)
+
+    status = params.get("status", "").strip()
+    if status and user_is_admin:
+        qs = qs.filter(status=status)
+
+    min_price = params.get("min_price", "").strip()
+    if min_price:
+        try:
+            qs = qs.filter(price__gte=min_price)
+        except (ValueError, TypeError):
+            pass
+
+    max_price = params.get("max_price", "").strip()
+    if max_price:
+        try:
+            qs = qs.filter(price__lte=max_price)
+        except (ValueError, TypeError):
+            pass
+
+    min_bedrooms = params.get("min_bedrooms", "").strip()
+    if min_bedrooms:
+        try:
+            qs = qs.filter(bedrooms__gte=int(min_bedrooms))
+        except (ValueError, TypeError):
+            pass
+
+    max_bedrooms = params.get("max_bedrooms", "").strip()
+    if max_bedrooms:
+        try:
+            val = int(max_bedrooms)
+            if val < 10:
+                qs = qs.filter(bedrooms__lte=val)
+        except (ValueError, TypeError):
+            pass
+
+    min_bathrooms = params.get("min_bathrooms", "").strip()
+    if min_bathrooms:
+        try:
+            qs = qs.filter(bathrooms__gte=int(min_bathrooms))
+        except (ValueError, TypeError):
+            pass
+
+    max_bathrooms = params.get("max_bathrooms", "").strip()
+    if max_bathrooms:
+        try:
+            val = int(max_bathrooms)
+            if val < 10:
+                qs = qs.filter(bathrooms__lte=val)
+        except (ValueError, TypeError):
+            pass
+
+    if params.get("furnished") == "true":
+        qs = qs.filter(furnished=True)
+
+    if params.get("serviced") == "true":
+        qs = qs.filter(serviced=True)
+
+    if params.get("shared") == "true":
+        qs = qs.filter(shared=True)
+
+    if hasattr(params, "getlist"):
+        amenities = params.getlist("amenities")
+    else:
+        amenities = params.get("amenities") or []
+        if isinstance(amenities, str):
+            amenities = [amenities]
+
+    for amenity in amenities:
+        if amenity:
+            qs = qs.filter(amenities__contains=amenity)
+
+    return qs
+
+
+SORT_MAP = {
+    "price_asc":  "price",
+    "price_desc": "-price",
+    "newest":     "-created_at",
+}
+
+def get_properties(request):
+    user_is_admin = get_user_is_admin(request)
+
+    qs = Property.objects.all() if user_is_admin else Property.objects.filter(status="available")
+    qs = _apply_filters(qs, request.GET, user_is_admin=user_is_admin)
+
+    sort_key = SORT_MAP.get(request.GET.get("sort", ""), None)
+    if sort_key:
+        qs = qs.order_by(sort_key, "-id")
+    else:
+        qs = qs.order_by("-created_at", "-id")
+
+    total = qs.count()
+
+    cursor = request.GET.get("cursor")
+    if cursor:
+        try:
+            created_at, pid = decode_cursor(cursor)
+            qs = qs.filter(
+                Q(created_at__lt=created_at) | Q(created_at=created_at, id__lt=pid)
+            )
+        except Exception:
+            pass 
+
     page_size = 21
-    result = list(properties[:page_size])
+    result = list(qs[:page_size])
 
     next_cursor = None
     if len(result) == page_size:
@@ -578,84 +658,74 @@ def get_properties(request):
 
     data = [
         {
-            "title": p.title,
-            "main_image": p.main_image if p.main_image else None,
-            "price": p.price,
-            "purpose": p.purpose,
-            "id": p.id,
-            "city": p.city,
-            "bedrooms": p.bedrooms,
-            "bathrooms": p.bathrooms,
-            "area_sqft": p.area_sqft,
+            "id":          p.id,
+            "title":       p.title,
+            "main_image":  p.main_image or None,
+            "price":       str(p.price),
+            "purpose":     p.purpose,
+            "city":        p.city,
+            "bedrooms":    p.bedrooms,
+            "bathrooms":   p.bathrooms,
+            "area_sqft":   str(p.area_sqft) if p.area_sqft else None,
             "description": p.description,
-            "owner": p.owner.id,
+            "is_featured": p.is_featured,
+            "furnished":   p.furnished,
+            "serviced":    p.serviced,
+            "owner":       p.owner_id,
         }
         for p in result
     ]
-    
-    print(len(properties))
 
     return JsonResponse({
         "properties": data,
         "next_cursor": next_cursor,
-        "has_next": next_cursor is not None,
-        "total": len(properties)
+        "has_next":    next_cursor is not None,
+        "total":       total,
     })
-
 
 def properties_view(request):
     user_is_admin = get_user_is_admin(request)
 
-    purposes = "All Purposes"
-    status = ""
-    ptype = "All Types"
+    type_choices   = [("", "All Types")]   + list(Property.PROPERTY_TYPE_CHOICES)
+    purpose_choices= [("", "All Purposes")]+ list(Property.PURPOSE_CHOICES)
+    city_choices   = [("", "All Locations")]+ list(Property.CITIES)
+    status_choices = list(Property.STATUS_CHOICES) if user_is_admin else []
 
-    for v in Property.PURPOSE_CHOICES:
-        purposes += ',' + v[0]
-
-    for v in Property.STATUS_CHOICES:
-        status += ',' + v[0]
-
-    for v in Property.PROPERTY_TYPE_CHOICES:
-        ptype += ',' + v[0]
-
-    search_form_options = {
-        "search": "",
-        "purpose": purposes,
-        "status": status,
-        "city": 'All Locations,Gwarinpa,Jahi,Wuse,Wuye,Apo,Dutse,Kubwa,Bwari,Gwagwalada,Lugbe,Kuje,Kwali,Abaji',
-        "property_type": ptype,
+    active = {
+        "search":        request.GET.get("search", ""),
+        "property_type": request.GET.get("property_type", ""),
+        "purpose":       request.GET.get("purpose", ""),
+        "city":          request.GET.get("city", ""),
+        "status":        request.GET.get("status", ""),
+        "min_price":     request.GET.get("min_price", ""),
+        "max_price":     request.GET.get("max_price", ""),
+        "min_bedrooms":  request.GET.get("min_bedrooms", ""),
+        "max_bedrooms":  request.GET.get("max_bedrooms", ""),
+        "min_bathrooms": request.GET.get("min_bathrooms", ""),
+        "max_bathrooms": request.GET.get("max_bathrooms", ""),
+        "furnished":     request.GET.get("furnished", ""),
+        "serviced":      request.GET.get("serviced", ""),
+        "shared":        request.GET.get("shared", ""),
+        "school":        request.GET.get("school", ""),
+        "sort":          request.GET.get("sort", ""),
+        "amenities":     request.GET.getlist("amenities"),
     }
-
-    search_form = PropertySearchForm(request.GET or None)
-    search_form_data = {}
-
-    if search_form.is_valid():
-        if search_form.cleaned_data.get('property_type'):
-            search_form_data["ptype"] = str(search_form.cleaned_data.get('property_type'))
-        if search_form.cleaned_data.get('purpose'):
-            search_form_data["purpose"] = str(search_form.cleaned_data.get('purpose'))
-        if search_form.cleaned_data.get('city'):
-            search_form_data["city"] = str(search_form.cleaned_data.get('city'))
-        if search_form.cleaned_data.get('status') and user_is_admin:
-            search_form_data["status"] = str(search_form.cleaned_data.get('status'))
-        if search_form.cleaned_data.get('search'):
-            search_form_data["search"] = str(search_form.cleaned_data.get('search'))
-        if search_form.cleaned_data.get('amenities'):
-            search_form_data["amenities"] = str(search_form.cleaned_data.get('amenities'))
 
     context = {
-        'search_form_options': search_form_options,
-        'search_form_data': search_form_data,
-        'page_title': 'Available Properties',
-        'property_type_choices':  Property.PROPERTY_TYPE_CHOICES,
-        'amenity_choices':Property.AMENITY_CHOICES
+        "page_title":        "Available Properties",
+        "user_is_admin":     user_is_admin,
+        "type_choices":      type_choices,
+        "purpose_choices":   purpose_choices,
+        "city_choices":      city_choices,
+        "status_choices":    status_choices,
+        "amenity_choices":   Property.AMENITY_CHOICES,
+        "schools":           School.objects.order_by("name"),
+        "active":            active,
+        "categories_full":   [{"code": k, "label": v} for k, v in Property.PROPERTY_TYPE_CHOICES],
+        "cities":            Property.CITIES,
     }
 
-    return render(request, 'properties.html', context)
-
-
-
+    return render(request, "properties.html", context)
 
 def owner_can_publish_more(user):
     """Return True if the owner is allowed to publish another property.
@@ -687,6 +757,7 @@ def add_property_view(request):
             property_obj = form.save(commit=False)
             property_obj.owner = request.user
             property_obj.status = 'pending'
+            from .services.property_service import save
             property_obj.save()
             
             messages.success(request, 'Property submitted for review. An admin will review your listing shortly.')
@@ -777,31 +848,6 @@ def book_property_visit(request, property_id):
     
     return redirect('property_detail', property_id=property_id)
 
-@login_required
-def contact_property_owner(request, property_id):
-    """
-    Handle contact form submission to property owner
-    """
-    if request.method == 'POST':
-        property_obj = get_object_or_404(Property, id=property_id)
-        
-        # Ensure user is not the owner
-        if property_obj.owner == request.user:
-            messages.error(request, 'You cannot contact yourself.')
-            return redirect('property_detail', property_id=property_id)
-        
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        message = request.POST.get('message')
-        
-        # Here you would send an email or create a message record
-        # For now, just show success message
-        messages.success(request, 'Your message has been sent to the property owner. They will contact you soon.')
-        
-        return redirect('property_detail', property_id=property_id)
-    
-    return redirect('property_detail', property_id=property_id)
 
 @login_required
 def update_property_status(request, property_id):
@@ -1087,101 +1133,6 @@ def property_bookings_api(request, property_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-@login_required
-@require_http_methods(["GET"])
-def booking_details_api(request, booking_id):
-    """API endpoint to get booking details"""
-    try:
-        booking = Booking.objects.get(id=booking_id)
-        
-        # Check if user owns the property
-        if booking.property.owner != request.user:
-            return JsonResponse({'error': 'Access denied'}, status=403)
-        
-        data = {
-            'id': booking.id,
-            'visitor_name': booking.visitor.get_full_name() or booking.visitor.username,
-            'visitor_email': booking.visitor.email,
-            'visitor_phone': booking.visitor.userprofile.phone_number if hasattr(booking.visitor, 'userprofile') else None,
-            'visit_date': booking.visit_date.strftime('%Y-%m-%d') if booking.visit_date else None,
-            'visit_time': booking.visit_time,
-            'status': booking.status,
-            'status_display': booking.get_status_display(),
-            'notes': booking.notes,
-            'created_at': booking.created_at.strftime('%Y-%m-%d %H:%M') if booking.created_at else None,
-            'owner_response': booking.owner_response,
-            'property_title': booking.property.title,
-            'property_address': f"{booking.property.address or booking.property.city}",
-        }
-        
-        return JsonResponse({'success': True, **data})
-        
-    except Booking.DoesNotExist:
-        return JsonResponse({'error': 'Booking not found'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@login_required
-@require_http_methods(["POST"])
-@csrf_exempt
-def booking_respond_api(request, booking_id):
-    """API endpoint to respond to a booking"""
-    try:
-        booking = Booking.objects.get(id=booking_id)
-        
-        # Check if user owns the property
-        if booking.property.owner != request.user:
-            return JsonResponse({'error': 'Access denied'}, status=403)
-        
-        data = json.loads(request.body)
-        action = data.get('action')
-        response_message = data.get('response_message', '')
-        
-        if action not in ['confirm', 'decline']:
-            return JsonResponse({'error': 'Invalid action'}, status=400)
-        
-        # Update booking
-        booking.status = action + 'ed'  # 'confirmed' or 'declined'
-        booking.owner_response = response_message
-        booking.save()
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'Booking {action}ed successfully'
-        })
-        
-    except Booking.DoesNotExist:
-        return JsonResponse({'error': 'Booking not found'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@login_required
-@require_http_methods(["POST"])
-@csrf_exempt
-def booking_complete_api(request, booking_id):
-    """API endpoint to mark booking as complete"""
-    try:
-        booking = Booking.objects.get(id=booking_id)
-        
-        # Check if user owns the property
-        if booking.property.owner != request.user:
-            return JsonResponse({'error': 'Access denied'}, status=403)
-        
-        booking.status = 'completed'
-        booking.save()
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Booking marked as completed'
-        })
-        
-    except Booking.DoesNotExist:
-        return JsonResponse({'error': 'Booking not found'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-# In your admin views.py
 def admin_dashboard_view(request):
     user = request.user
     user_profile = get_object_or_404(UserProfile, user=user)
@@ -1575,15 +1526,15 @@ def property_request(request):
             return None
 
     amenities = ','.join(request.POST.getlist('amenities'))
+    if (request.POST.get("school")):
+        school = get_object_or_404(School, id=request.POST.get('school'))
+
 
     obj = Inquiry.objects.create(
         user          = request.user,
-        full_name     = request.POST.get('full_name', '').strip(),
-        phone         = request.POST.get('phone', '').strip(),
-        email         = request.POST.get('email', '').strip(),
         property_type = request.POST.get('property_type', ''),
         purpose       = request.POST.get('purpose', ''),
-        city          = request.POST.get('city', ''),
+        cities        = request.POST.get('cities', ''),
         budget_min    = to_int(request.POST.get('budget_min')),
         budget_max    = to_int(request.POST.get('budget_max')),
         bedrooms_min  = to_int(request.POST.get('bedrooms_min')),
@@ -1591,19 +1542,56 @@ def property_request(request):
         bathrooms_min = to_int(request.POST.get('bathrooms_min')),
         bathrooms_max = to_int(request.POST.get('bathrooms_max')),
         amenities     = amenities,
+        school        = school,
+        furnished     = request.POST.get("furnished"),
+        shared        = request.POST.get("shared"),
+        serviced      = request.POST.get("serviced"),
         notes         = request.POST.get('notes', '').strip(),
     )
     
-    print(obj)
+    messages.success(request, "Request Sent!\nOur team will review your requirements and get back to you.")
 
     return JsonResponse({'ok': True})
 
 
 
 def get_details(request):
+    schools = School.objects.all().order_by('name')
+    data = [
+        {
+            "id": p.id,
+            "name": p.name,
+            "short_name": p.short_name,
+            "city": p.city,
+            "state": p.state,
+        }
+        for p in list(schools)
+    ]
+    
     return JsonResponse({
         'property_type_choices': list(Property.PROPERTY_TYPE_CHOICES),
         'amenity_choices':Property.AMENITY_CHOICES,
         'purpose_choices':Property.PURPOSE_CHOICES,
         'cities':Property.CITIES,
+        'schools': data,
     })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_message(request):
+
+    data = json.loads(request.body)
+    
+    message = data.get("message")
+    m_type = data.get("type")
+    
+    if message:
+        if m_type == "succcess":
+            messages.success(request, message)
+        if m_type == "info":
+            messages.info(request, message)
+        if m_type == "error":
+            messages.error(request, message)
+            
+    return JsonResponse({})

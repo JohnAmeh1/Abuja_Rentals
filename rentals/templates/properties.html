@@ -36,6 +36,9 @@
         </div>
     </div>
 
+    {% include "blocks/search.html" %}
+
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
         <div class="z-10 bg-black/10 backdrop-blur-sm fixed inset-0 max-lg:hidden lg:hidden" id="bg"></div>
         <aside class="lg:col-span-3 lg:order-1 z-50">
@@ -54,62 +57,86 @@
 
                     <form method="GET" class="space-y-2" id="filterFormSidebar">
 
-                        <!-- Property Type -->
-                        <div class="space-y-.5">
+                        <div class="space-y-0.5">
                             <label class="text-sm text-gray-700">Property Type</label>
-                            <select name="property_type" id="property_type"
-                                class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
+                            <select name="property_type" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            {% for code, label in type_choices %}
+                                <option value="{{ code }}" {% if active.property_type == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Purpose -->
-                        <div class="space-y-.5">
+                        <div class="space-y-0.5">
                             <label class="text-sm text-gray-700">Purpose</label>
-                            <select name="purpose" id="purpose"
-                                class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
+                            <select name="purpose" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            {% for code, label in purpose_choices %}
+                                <option value="{{ code }}" {% if active.purpose == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Location -->
-                        <div class="space-y-.5">
+
+                        <div class="space-y-0.5">
                             <label class="text-sm text-gray-700">Location</label>
-                            <select name="city" id="city"
-                                class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"></select>
+                            <select name="city" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            {% for code, label in city_choices %}
+                                <option value="{{ code }}" {% if active.city == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                            </select>
                         </div>
 
+                        {% if user_is_admin %}
+                        <div class="space-y-0.5">
+                            <label class="text-sm text-gray-700">Status</label>
+                            <select name="status" class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                            <option value="">All Statuses</option>
+                            {% for code, label in status_choices %}
+                                <option value="{{ code }}" {% if active.status == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
 
-                        <!-- Search -->
-                        <div class="space-y-.5">
+
+                        <div class="space-y-0.5">
                             <label class="text-sm text-gray-700">Search</label>
                             <div class="relative">
-                                <input id="search" name="search" type="text"
-                                    class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                                    placeholder="Search by title or address...">
-                                <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                            <input name="search" type="text" value="{{ active.search }}"
+                                class="w-full px-4 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                                placeholder="Search by title or address...">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                             </div>
+                        </div>
+
+                         <div class="space-y-0.5">
+                            <label class="text-sm text-gray-700">Amenities</label>
+                            <div class="flex flex-wrap gap-1.5 gap-y-2">
+                            {% for value, label in amenity_choices %}
+                            <div>
+                                <input type="checkbox" id="af_{{ value }}" name="amenities" value="{{ value }}" class="hidden peer"
+                                {% if value in active.amenities %}checked{% endif %}>
+                                <label for="af_{{ value }}" class="cursor-pointer select-none text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-600 bg-white peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 hover:border-blue-300 hover:text-blue-500 transition-all">
+                                {{ label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+
+                        <button type="button" onclick="openAdvancedModal()" class="text-sm text-accent flex items-center gap-1 hover:underline">
+                            <i class="fas fa-sliders-h"></i> More Filters
+                        </button>
+
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button type="submit" class="px-4 py-2.5 bg-accent text-white rounded-lg hover:opacity-90 transition font-medium text-sm">Apply</button>
+                            <a href="{% url 'properties' %}" class="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-center hover:bg-gray-50 transition text-sm">Reset</a>
                         </div>
 
                         <div class="space-y-.5">
 
-                            <div class="space-y-.5">
-                                <label class="text-sm text-gray-700">Amenities</label>
-                                <div class="flex flex-wrap gap-1.5 gap-y-2">
-
-                                    {% for value, label in amenity_choices %}
-                                    <div>
-                                        <input type="checkbox" id="af_{{ value }}" name="amenities" value="{{ value }}"
-                                            class="hidden peer" {% if value in search_form_data.selected_amenities%} checked {% endif %}>
-                                        <label for="af_{{ value }}" class="cursor-pointer select-none text-xs px-3 py-1.5
-                                                    rounded-full border border-gray-300 text-gray-600 bg-white
-                                                    peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600
-                                                    hover:border-blue-300 hover:text-blue-500 transition-all">
-                                            {{ label }}
-                                        </label>
-                                    </div>
-                                    {% endfor %}
-
-                                </div>
-                            </div>
-
-                            <!-- FIX: buttons are now inside the <form> tag -->
+                            <button type="button" onclick="openAdvancedModal()" class="...">
+                            <i class="fas fa-sliders-h"></i> More Filters
+                            </button>
                             <div class="grid grid-cols-2 gap-2 pt-2">
                                 <button type="submit"
                                     class="px-4 py-2.5 bg-accent text-white rounded-lg hover:opacity-90 transition font-medium text-sm">
@@ -138,22 +165,22 @@
                         Found <span class="font-semibold text-gray-900" id="total"></span> properties
                     </div>
 
-                    <select name="sort" onchange="document.getElementById('filterFormSidebar').submit()"
-                        class="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent outline-none">
-                        <option value="">Sort: Recommended</option>
-                        <option value="price_asc">Price: Low → High</option>
-                        <option value="price_desc">Price: High → Low</option>
-                        <option value="newest">Newest</option>
+                    <select id="sortSelect" name="sort" class="...">
+                        <option value="" {% if active.sort == "" %}selected{% endif %}>Sort: Recommended</option>
+                        <option value="price_asc"  {% if active.sort == "price_asc" %}selected{% endif %}>Price: Low → High</option>
+                        <option value="price_desc" {% if active.sort == "price_desc" %}selected{% endif %}>Price: High → Low</option>
+                        <option value="newest"     {% if active.sort == "newest" %}selected{% endif %}>Newest</option>
                     </select>
                 </div>
             </div>
 
-            <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2  gap-5"></div>
             <div id="empty"></div>
             <div id="sentinel"></div>
             <div id="loadmorebtn"
                 class="w-full p-10 bg-white rounded-xl border border-gray-200 shadow-sm my-10 flex justify-center items-center cursor-pointer hover:bg-gray-100 duration-200 text-gray-600">
             </div>
+            <div id="sidebtns" class="fixed top-1/2 -translate-y-1/2 right-5 z-50 flex flex-col gap-1 w-5"></div>
 
         </main>
     </div>
@@ -199,232 +226,238 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <script>
+let cursor   = null;
+let loading  = false;
+let hasNext  = true;
+let total    = 0;
+let initialised = false;
+let i = 1
 
-    const tips = document.getElementById("tips")
-    
-    if (localStorage.getItem("shown") != "true") {
-        tips.classList.remove("hidden")
-        setTimeout(removeTips, 3000)
-        let tiplist = tips.addEventListener("click", removeTips)
-        let doclist = document.addEventListener("scroll", removeTips)
+const active = {
+  search:        "{{ active.search|escapejs }}",
+  property_type: "{{ active.property_type|escapejs }}",
+  purpose:       "{{ active.purpose|escapejs }}",
+  city:          "{{ active.city|escapejs }}",
+  status:        "{{ active.status|escapejs }}",
+  min_price:     "{{ active.min_price|escapejs }}",
+  max_price:     "{{ active.max_price|escapejs }}",
+  min_bedrooms:  "{{ active.min_bedrooms|escapejs }}",
+  max_bedrooms:  "{{ active.max_bedrooms|escapejs }}",
+  min_bathrooms: "{{ active.min_bathrooms|escapejs }}",
+  max_bathrooms: "{{ active.max_bathrooms|escapejs }}",
+  furnished:     "{{ active.furnished|escapejs }}",
+  serviced:      "{{ active.serviced|escapejs }}",
+  shared:        "{{ active.shared|escapejs }}",
+  school:        "{{ active.school|escapejs }}",
+  sort:          "{{ active.sort|escapejs }}",
+  amenities:     {{ active.amenities|default:"[]"|safe }},  {# list rendered as JSON #}
+};
 
-        function removeTips() {
-            tips.classList.add("opacity-0")
-            tips.addEventListener("transitionend", () => {
-                tips.classList.add("hidden")
-            })
-            document.removeEventListener("scroll", doclist)
-            tips.removeEventListener("scroll", tiplist)
+const container    = document.getElementById("properties_grid");
+const emptyEl      = document.getElementById("empty");
+const totalEl      = document.getElementById("total");
+const loadMoreBtn  = document.getElementById("loadmorebtn");
+const sentinel     = document.getElementById("sentinel");
+
+const spinner = document.createElement("div");
+spinner.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full";
+
+const formatter = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
+
+function buildParams() {
+  const p = new URLSearchParams();
+
+  const plain = ["search","property_type","purpose","city","status", "min_price","max_price","min_bedrooms","max_bedrooms", "min_bathrooms","max_bathrooms","furnished","serviced", "shared","school","sort"];
+
+  plain.forEach(k => { if (active[k]) p.set(k, active[k]); });
+  active.amenities.forEach(a => { if (a) p.append("amenities", a); });
+  if (cursor) p.set("cursor", cursor);
+
+  return p.toString();
+}
+
+function buildCard(p) {
+  const safeTitle = p.title.replace(/'/g, "\\'");
+  const badges = [];
+  if (p.furnished) badges.push("Furnished");
+  if (p.serviced)  badges.push("Serviced");
+
+  return `
+  <article class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition">
+    <a href="/property/${p.id}/">
+      <div class="relative h-52 overflow-hidden bg-gray-100">
+        ${p.main_image
+          ? `<img src="${p.main_image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300">`
+          : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-home text-gray-300 text-4xl"></i></div>`
         }
-        localStorage.setItem("shown", "true")
+        <div class="absolute bottom-2.5 left-2.5">
+          <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
+            ${formatter.format(p.price)}
+            ${p.purpose === "rent" ? `<span class="font-normal text-xs">/yr</span>` : ""}
+          </span>
+        </div>
+        ${badges.length ? `<div class="absolute top-3 left-3 flex gap-1">${badges.map(b => `<span class="text-[10px] bg-white/90 backdrop-blur px-2 py-0.5 rounded-full text-gray-600">${b}</span>`).join("")}</div>` : ""}
+        <button onclick="event.preventDefault()" class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 transition">
+          <i class="fas fa-heart"></i>
+        </button>
+      </div>
+      <div class="p-5 flex flex-col gap-3">
+        <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">${p.title}</h3>
+        <div class="flex items-center text-sm text-gray-500">
+          <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+          <span class="capitalize">${p.city}</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-gray-600">
+          ${p.bedrooms  ? `<span><i class="fas fa-bed text-gray-400 mr-1"></i>${p.bedrooms}</span>` : ""}
+          ${p.bathrooms ? `<span><i class="fas fa-bath text-gray-400 mr-1"></i>${p.bathrooms}</span>` : ""}
+          ${p.area_sqft ? `<span><i class="fas fa-ruler-combined text-gray-400 mr-1"></i>${p.area_sqft} sqft</span>` : ""}
+        </div>
+        <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">${p.description}</p>
+        <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+          <span class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition">View Details</span>
+          <button onclick="event.preventDefault(); openReportModal(${p.id}, '${safeTitle}')"
+            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition" title="Report">
+            <i class="fas fa-flag"></i>
+          </button>
+        </div>
+      </div>
+    </a>
+  </article>`;
+}
+
+async function loadMore() {
+  if (loading || !hasNext) return;
+  loading = true;
+  loadMoreBtn.appendChild(spinner);
+
+  try {
+    const res  = await fetch(`/api/properties/?${buildParams()}`);
+    const data = await res.json();
+
+    const line = document.createElement("div")
+    line.id = `line-${i}`
+    line.classList.add("col-span-3", 'h-0')
+    container.append(line)
+
+    data.properties.forEach(p => {
+      const div = document.createElement("div");
+      div.innerHTML = buildCard(p);
+      container.appendChild(div);
+    });
+
+        
+    renderline(i)
+    i = i + 1
+
+
+    cursor  = data.next_cursor;
+    hasNext = data.has_next;
+    total   = data.total;
+    totalEl.textContent = total.toLocaleString();
+
+    if (!hasNext) {
+      loadMoreBtn.textContent = "All properties loaded";
+      loadMoreBtn.classList.add("cursor-not-allowed", "bg-gray-100");
+      loadMoreBtn.onclick = null;
     }
 
-    let cursor = null
-    let loading = false
-    let hasNext = true
-    let totalLoaded = 0
-    let initialised = false
-
-    let purpose = ''
-    let city = ''
-    let search = ''
-    let ptype = ''
-    let status = ''
-    let total = 0
-
-    const purposeElement = document.getElementById("purpose")
-    const searchElement = document.getElementById("search")
-    const ptypeElement = document.getElementById("property_type")
-    const cityElement = document.getElementById("city")
-    const amenitiesList = []
-
-    const loader = document.createElement("div")
-    loader.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full duration-700 cursor-not-allowed"
-
-    const formatter = new Intl.NumberFormat("en-NG", { style: 'currency', currency: 'NGN' })
-    const container = document.getElementById("properties_grid")
-
-    function buildCard(property) {
-        const safeTitle = property.title.replace(/'/g, "\\'")
-
-        return `
-        <article class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition">
-
-            <a href="/property/${property.id}/">
-
-                <div class="relative h-52 overflow-hidden bg-gray-100">
-                    ${property.main_image
-                ? `<img src="${property.main_image}" alt="${property.title}"
-                                class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-300">`
-                : `<div class="w-full h-full flex items-center justify-center">
-                                <i class="fas fa-home text-gray-300 text-4xl"></i>
-                           </div>`
-            }
-
-                    <div class="absolute bottom-2.5 left-2.5">
-                        <span class="bg-white/90 backdrop-blur-sm text-primary font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                            ${formatter.format(property.price)}
-                            ${property.purpose === 'rent'
-                ? `<span class="font-normal text-xs">(per annum)</span>`
-                : ''}
-                        </span>
-                    </div>
-
-                    <div onclick=(saveproperty) class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur rounded-lg
-                                flex items-center justify-center text-gray-400 hover:text-red-500 transition">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                </div>
-
-                <div class="p-5 flex flex-col gap-4">
-
-                    <h3 class="font-semibold text-lg text-gray-900 line-clamp-1 group-hover:text-accent transition">
-                        ${property.title}
-                    </h3>
-
-                    <div class="flex items-center text-sm text-gray-500">
-                        <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
-                        <span class="first-letter:capitalize">${property.city}</span>
-                    </div>
-
-                    <div class="flex items-center gap-6 text-sm text-gray-600 my-1.5">
-                        ${property.bedrooms ? `<div class="flex items-center gap-1.5"><i class="fas fa-bed text-gray-400"></i><span>${property.bedrooms}</span></div>` : ''}
-                        ${property.bathrooms ? `<div class="flex items-center gap-1.5"><i class="fas fa-bath text-gray-400"></i><span>${property.bathrooms}</span></div>` : ''}
-                        ${property.area_sqft ? `<div class="flex items-center gap-1.5"><i class="fas fa-ruler-combined text-gray-400"></i><span>${property.area_sqft} sqft</span></div>` : ''}
-                    </div>
-
-                    <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">${property.description}</p>
-
-                    <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
-                        <span class="flex-1 text-center py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 transition">
-                            View Details
-                        </span>
-                        <button
-                            onclick="event.preventDefault(); openReportModal(${property.id}, '${safeTitle}')"
-                            class="w-9 h-9 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
-                            title="Report">
-                            <i class="fas fa-flag"></i>
-                        </button>
-                    </div>
-
-                </div>
-            </a>
-        </article>`
+    if (total === 0) {
+      loadMoreBtn.innerHTML = "";
+      emptyEl.innerHTML = `
+        <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
+          <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-home text-gray-400 text-3xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">No Properties Found</h3>
+          <p class="text-gray-500 mb-5 text-sm">Try adjusting your filters.</p>
+        </div>`;
     }
+  } catch (err) {
+    console.error("Failed to load properties:", err);
+  }
 
-    async function loadMore() {
-        if (loading || !hasNext) return
-        loading = true
+  if (loadMoreBtn.contains(spinner)) loadMoreBtn.removeChild(spinner);
+  loading = false;
+}
 
-        const btn = document.getElementById("loadmorebtn")
-        btn.appendChild(loader)
+function renderline(i) {
+    const sidebtns = document.getElementById("sidebtns")
+    let line = document.createElement("a")
+    line.classList.add("w-full", "h-1", "rounded", "bg-gray-700", "hover:bg-gray-500", "duration-200", "hover:scale-105")
+    line.href = `#line-${i}`
+    sidebtns.appendChild(line)
+}
 
-        const effectiveAmmenities = amenitiesList.map((amenity) => {
-            return "&amenities=" + amenity
-        })
-        const effectivePtype = (ptype.toLowerCase().startsWith("all")) ? "" : ptype.toLowerCase()
-        const effectivePurpose = (purpose.toLowerCase().startsWith("all")) ? "" : purpose.toLowerCase()
-        const effectiveCity = (city.toLowerCase().startsWith("all")) ? "" : city.toLowerCase()
+function reloadProperties() {
+  cursor  = null;
+  hasNext = true;
+  total   = 0;
+  container.innerHTML = "";
+  emptyEl.innerHTML   = "";
+  loadMoreBtn.textContent = "";
+  loadMoreBtn.classList.remove("cursor-not-allowed", "bg-gray-100");
+  loadMoreBtn.onclick = loadMore;
+  loadMore();
+}
 
-        const params = new URLSearchParams({
-            property_type: effectivePtype,
-            purpose: effectivePurpose,
-            city: effectiveCity,
-            search: search.toLowerCase(),
-        })
-        if (cursor) params.set("cursor", cursor)
 
-        const res = await fetch(`/api/properties/?${params}${effectiveAmmenities.join("")}`)
-        const data = await res.json()
 
-        data.properties.forEach(property => {
-            totalLoaded++
-            const wrapper = document.createElement("div")
-            wrapper.innerHTML = buildCard(property)
-            container.appendChild(wrapper)
-        })
+document.getElementById("filterFormSidebar").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const fd = new FormData(this);
 
-        cursor = data.next_cursor
-        hasNext = data.has_next
-        loading = false
-        total = data.total
+  active.search        = fd.get("search")        || "";
+  active.property_type = fd.get("property_type") || "";
+  active.purpose       = fd.get("purpose")       || "";
+  active.city          = fd.get("city")           || "";
+  active.status        = fd.get("status")         || "";
+  active.amenities     = fd.getAll("amenities");
 
-        if (btn.contains(loader)) btn.removeChild(loader)
+  const params = new URLSearchParams();
+  for (const [k, v] of fd.entries()) {
+    if (v) params.append(k, v);
+  }
+  history.pushState(null, "", `?${params.toString()}`);
 
-        if (!hasNext) {
-            btn.textContent = "No more properties with this filter"
-            btn.classList.add("cursor-not-allowed", "bg-gray-100")
-            btn.onclick = null
-        }
+  reloadProperties();
+});
 
-        if (totalLoaded === 0) {
-            btn.innerHTML = ''
-            document.getElementById("empty").innerHTML = `
-                <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
-                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-home text-gray-400 text-3xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-1">No Properties Found</h3>
-                    <p class="text-gray-500 mb-5 max-w-md mx-auto text-sm">No properties match your search. Try adjusting filters.</p>
-                </div>`
-        }
-    }
+document.getElementById("sortSelect").addEventListener("change", function() {
+  active.sort = this.value;
+  reloadProperties();
+});
 
-    function populateSelect(el, items, selectedValue) {
-        items.forEach(item => {
-            const option = document.createElement("option")
-            const isAll = item.toLowerCase().startsWith("all")
-            option.value = isAll ? "" : item.toLowerCase()
-            option.text = item
-            if (!isAll && option.value === selectedValue.toLowerCase()) {
-                option.selected = true
-            }
-            el.appendChild(option)
-        })
-    }
+loadMoreBtn.onclick = loadMore;
 
-    async function loadFirst() {
-        const pd = "{{ search_form_options.purpose }}".split(",")
-        const ptd = "{{ search_form_options.property_type }}".split(",")
-        const cd = "{{ search_form_options.city }}".split(",")
+const observer = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && initialised) loadMore();
+});
+observer.observe(sentinel);
 
-        purpose = "{{ search_form_data.purpose|default:'' }}"
-        city = "{{ search_form_data.city|default:'' }}"
-        search = "{{ search_form_data.search|default:'' }}"
-        ptype = "{{ search_form_data.ptype|default:'' }}"
-        status = "{{ search_form_data.status|default:'' }}"
-        a = "{{ search_form_data.selected_amenities|default:''}}"
-        ammenities = a.slice(1, a.length - 1).split(',')
+(async function init() {
+  initialised = true;
+  await loadMore();
+  let div = document.createElement("div")
+  div.classList.add("col-span-3")
+  div.innerHTML =  `{% include 'blocks/cta.html' %}`
+  container.appendChild(div)
+})();
 
-        populateSelect(purposeElement, pd, purpose)
-        populateSelect(ptypeElement, ptd, ptype)
-        populateSelect(cityElement, cd, city)
-
-        if (search) searchElement.value = search
-        for (let i = 0; i < ammenities.length; i++) {
-            amenitiesList.push(ammenities[i].replaceAll("&#x27;", "").trimStart())
-        }
-
-        initialised = true
-        await loadMore()
-
-        let div = document.createElement("div")
-        div.classList.value ="lg:col-span-3 my-5"
-        div.innerHTML = `{% include 'blocks/cta.html' %}`
-        container.appendChild(div)
-        document.getElementById("total").innerText = total.toString()
-    }
-
-    const observer = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && initialised) {
-            loadMore()
-        }
-    })
-    observer.observe(document.getElementById("sentinel"))
-
-    loadFirst()
-
+const tips = document.getElementById("tips");
+if (tips && localStorage.getItem("tips_shown") !== "true") {
+  tips.classList.remove("hidden");
+  function removeTips() {
+    tips.classList.add("opacity-0");
+    tips.addEventListener("transitionend", () => tips.classList.add("hidden"), { once: true });
+    document.removeEventListener("scroll", removeTips);
+    localStorage.setItem("tips_shown", "true");
+  }
+  setTimeout(removeTips, 3000);
+  tips.addEventListener("click", removeTips);
+  document.addEventListener("scroll", removeTips);
+}
 </script>
 
 <script>

@@ -1,7 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 from django.views.generic import TemplateView
-from django.views.static import serve
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -18,6 +17,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('redirect/', views.send_message, name='redirect'),
     
     path('properties/', views.properties_view, name='properties'),
     path('api/properties/', views.get_properties, name='properties_api'),
@@ -63,12 +63,6 @@ urlpatterns = [
     path('api/get-details/', views.get_details, name='get_details'),
 
     path('api/property/<int:property_id>/bookings/', views.property_bookings_api, name='property_bookings_api'),
-    
-    path('api/bookings/<int:booking_id>/details/', views.booking_details_api, name='booking_details_api'),
-    path('api/bookings/<int:booking_id>/respond/', views.booking_respond_api, name='booking_respond_api'),
-    path('api/bookings/<int:booking_id>/complete/', views.booking_complete_api, name='booking_complete_api'),
-    
-    # Rental actions
 
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),

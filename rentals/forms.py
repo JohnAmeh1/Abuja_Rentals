@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from .models import UserProfile, Property
 from .models import Report
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+
 
 
 
@@ -74,13 +76,6 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
             
             UserProfile.objects.filter(user=user).delete()
-            
-            UserProfile.objects.create(
-                user=user,
-                phone_number=self.cleaned_data.get('phone_number', ''),
-                address=self.cleaned_data.get('address', ''),
-                bio=self.cleaned_data.get('bio', '')
-            )            
         return user
 
 class LoginForm(forms.Form):
@@ -533,7 +528,7 @@ class ForgotPasswordForm(forms.Form):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'class': 'w-full px-8 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
             'placeholder': 'Enter your email address',
             'autocomplete': 'email'
         }),

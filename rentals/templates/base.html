@@ -227,7 +227,7 @@
   </div>
   {% endif %}
 
-  {% comment %} {% load static %} {% endcomment %}
+  {% load static %}
 
   <main>{% block content %} {% endblock %}</main>
 
@@ -236,9 +236,6 @@
   {% endblock %}
   <!-- JavaScript -->
   <script src="{% static 'pwa/pwa.js' %}"></script>
-  <script>
-   
-  </script>
   <script>
     function closeToast(btn) {
       const toast = btn.closest('.toast')
@@ -253,10 +250,8 @@
         setTimeout(() => t.remove(), 200)
       }, 4500)
     })
-  </script>
+    
 
-  <script>
-    // Mobile menu toggle
     document
       .getElementById("mobile-menu-button")
       .addEventListener("click", function () {
@@ -264,7 +259,6 @@
         mobileMenu.classList.toggle("hidden");
       });
 
-    // Close mobile menu when clicking outside
     document.addEventListener("click", function (event) {
       const mobileMenu = document.getElementById("mobile-menu");
       const mobileButton = document.getElementById("mobile-menu-button");
@@ -352,7 +346,6 @@
       // Check if there are messages to show
       const messageItems = document.querySelectorAll('.message-item');
 
-      // Close modal button
       if (closeModalBtn) {
         closeModalBtn.addEventListener('click', function () {
           modal.classList.add('hidden');
@@ -426,12 +419,14 @@
       }
 
       // Close modal when clicking on background
-      modal.addEventListener('click', function (event) {
-        if (event.target === modal || event.target.classList.contains('bg-gray-900')) {
-          modal.classList.add('hidden');
-          document.body.style.overflow = 'auto';
-        }
-      });
+      if (modal) {
+          modal.addEventListener('click', function (event) {
+          if (event.target === modal || event.target.classList.contains('bg-gray-900')) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+          }
+        });
+      }
 
       // Dismiss message function
       function dismissMessage(messageId, messageElement, isAll) {

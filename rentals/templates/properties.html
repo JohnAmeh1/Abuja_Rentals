@@ -142,7 +142,7 @@
       </div>
     </div>
 
-    <div id="properties_grid" class="grid gap-4"></div>
+    <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     <div id="empty"></div>
     <div id="sentinel" class="h-4"></div>
     <div id="loadmorebtn"
@@ -206,7 +206,6 @@ let total    = 0;
 let initialised = false;
 let i = 1
 let loaded = 0
-let grid_cols = [1, 2, 3]
 
 
 const active = {
@@ -234,8 +233,6 @@ const emptyEl      = document.getElementById("empty");
 const totalEl      = document.getElementById("total");
 const loadMoreBtn  = document.getElementById("loadmorebtn");
 const sentinel     = document.getElementById("sentinel");
-
-container.classList.add(`grid-cols-${grid_cols[0]}`, `sm:grid-cols-${grid_cols[1]}`, `lg:grid-cols-${grid_cols[2]}`)
 
 const spinner = document.createElement("div");
 spinner.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full";
@@ -287,11 +284,13 @@ function buildCard(p) {
     ? `<span class="px-2 py-0.5 rounded-full pointer-events-none bg-black/30 text-white backdrop-blur-sm">${p.property_type}</span>`
     : "";
 
+  
+
   return `
   <article class="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden
                   hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col">
 
-    <div class="relative h-44 overflow-hidden bg-gray-100 shrink-0">
+    <div class="relative h44 aspect-[16/8] overflow-hidden bg-gray-100 shrink-0">
 
       ${p.main_image
         ? `<img src="${p.main_image}" alt="${safeTitle}" loading="lazy"
@@ -308,11 +307,17 @@ function buildCard(p) {
 
         ${typeBadge}
 
+        ${p.is_featured ? `
+        <span class="px-2 py-0.5 rounded-full pointer-events-none">
+          Featured
+        </span>`: ''}
+
         ${p.school_short_name ? `
         <span class="px-2 py-0.5 rounded-full pointer-events-none bg-amber-50 text-amber-700 border border-amber-200">
           ${p.school_short_name}
         </span>`: ''}
-      </div>
+
+        </div>
 
       <button
         data-id="${p.id}"
@@ -345,7 +350,7 @@ function buildCard(p) {
       </p>
 
       ${specs ? `<div class="flex items-center gap-2.5 text-xs text-gray-500">${specs}</div>` : ""}
-
+      ${p.verified ? `<i class="fa fa-star text-yellow-300 text-sm"></i>` : ''}
       ${featurePills ? `<div class="flex flex-wrap gap-1 mt-0.5">${featurePills}</div>` : ""}
 
       <div class="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between">
@@ -371,17 +376,17 @@ async function loadMore() {
   loadMoreBtn.appendChild(spinner);
 
   try {
-    const res  = await fetch(`/api/properties/?${buildParams()}`);
+    const res  = await fetch(`/api/properties/?page_size=21&${buildParams()}`);
     const data = await res.json();
     
     const anchor = document.createElement("div")
     anchor.id = `line-${i}`
-    anchor.classList.add(`col-span-${grid_cols[0]}`, `md:col-span-${grid_cols[1]}`, `lg:col-span-${grid_cols[2]}`)
+    anchor.classList.add('col-span-full')
     container.appendChild(anchor)
     
     
     data.properties.forEach(p => {
-      if (loaded == 6 || loaded == 27) {
+      if (loaded == 6 || loaded == 30) {
         addad(container, `{% include 'blocks/ads/v1.html' %}`)
       }
       const div = document.createElement("div");
@@ -398,7 +403,6 @@ async function loadMore() {
     if (i % 2 == 0) {
         addad(container, `{% include 'blocks/cta.html' %}`)
     }
-
 
     cursor  = data.next_cursor;
     hasNext = data.has_next;
@@ -510,7 +514,7 @@ observer.observe(sentinel);
 
 function addad(container, ad) {
   let div = document.createElement("div")
-  div.classList.add(`col-span-${grid_cols[0]}`, `sm:col-span-${grid_cols[1]}`, `lg:col-span-${grid_cols[2]}`)
+  div.classList.add('col-span-full')
   div.innerHTML =  ad
   container.appendChild(div)
 }
@@ -539,20 +543,20 @@ if (tips && localStorage.getItem("tips_shown") !== "true") {
             console.warn('Report form not found in DOM.');
         }
 
-        let modal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        let rmodal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+        if (rmodal) {
+            rmodal.classList.remove('hidden');
+            rmodal.classList.add('flex');
         } else {
             console.warn('Report modal not found in DOM.');
         }
     }
 
     function closeReportModal() {
-        let modal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+        let rmodal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+        if (rmodal) {
+            rmodal.classList.add('hidden');
+            rmodal.classList.remove('flex');
         }
     }
 

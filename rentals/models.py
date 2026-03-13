@@ -97,6 +97,7 @@ class Property(models.Model):
     furnished = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
     serviced = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False)
     
     is_featured = models.BooleanField(default=False)
     views = models.PositiveIntegerField(default=0)
@@ -118,7 +119,6 @@ class Property(models.Model):
             models.Index(fields=['created_at', "-id"]),
             models.Index(fields=['status']),
             models.Index(fields=['school']),
-            # models.Index(fields=['available']),
         ]
 
     
@@ -259,13 +259,13 @@ class Report(models.Model):
         return f"Report #{self.id} by {self.reporter.username} - {self.get_reason_display()}"
 
 class Amenity(models.Model):
-    name = models.CharField(max_length=20)
+    name         = models.CharField(max_length=20)
     display_name = models.CharField(max_length=30)
 
 class PropertyAmenities(models.Model):
-    amenity = models.ForeignKey(Amenity, on_delete=models.CASCADE, related_name="property_amenities")
+    amenity  = models.ForeignKey(Amenity, on_delete=models.CASCADE, related_name="property_amenities")
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="property_amenities", null=True)
-    inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name="inquiry_amenities", null=True)
+    inquiry  = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name="inquiry_amenities", null=True)
     
     class Meta:
         constraints = [
@@ -279,6 +279,21 @@ class PropertyAmenities(models.Model):
             ),
         ]
 
+class PropertyImage(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to="property_images/")
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order']
+        indexes = [
+            models.Index(fields=['property'])
+        ]
+
+class Image(models.Model):
+    image = models.ImageField(upload_to="images/")
+
+
 class AgentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent_profile')
     verified = models.BooleanField(default=False)
@@ -289,9 +304,13 @@ class AgentProfile(models.Model):
     preferred_types   = models.JSONField(default=list, blank=True, null=True)
     preferred_purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES, blank=True, null=True)
 
-    bio     = models.TextField(blank=True)
-    phone   = models.CharField(max_length=20, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    bio            = models.TextField(blank=True)
+    image          = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
+    phone          = models.CharField(max_length=20, blank=True)
+    website        = models.CharField(max_length=20, blank=True)
+    other_phones   = models.JSONField(default=list, blank=True, null=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
+    location       = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Agent: {self.user.get_full_name() or self.user.username}"
@@ -324,14 +343,26 @@ class AgentApplication(models.Model):
     def __str__(self):
         return f"{self.user.username} — {self.get_status_display()}"
 
-class PropertyImage(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    # image_url = models.URLField(blank=True, null=True)
-    image = models.ImageField(upload_to="property_images/")
-    order = models.IntegerField(default=0)
+class Notification(models.Model):
     
-    class Meta:
-        ordering = ['order']
-        indexes = [
-            models.Index(fields=['property'])
-        ]
+    message_type_list = [
+        ("inquiry_sent", "Inquiry Sent"),
+        ("inquiry_responded", "Inquiry Responded"),
+        ("inquiries", "Inquiries"),
+        ("agent_application_sent", "Agent Application Sent"),
+        ("agent_application_reviewed", "Agent Application Reviewed"),
+        ("agent_applications", "Agent Applications"),
+        ("agent_verification_request", "Agent Verification Request"),
+        ("agent_verification_requests", "Agent Verification Requests"),
+    ]
+    
+    mode_list=[
+        ("email", "Email"),
+        ("whatsapp", "Whatsapp"),
+        ("phone", "Phone"),
+    ]
+    
+    message_type = models.CharField(choices=message_type_list)
+    mode         = models.CharField(choices=mode_list,default='phone')
+    user         = models.ForeignKey(User, on_delete=models.CASCADE)
+    message      = models.TextField()

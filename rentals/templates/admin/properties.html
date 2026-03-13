@@ -525,7 +525,6 @@
         // Set current status as selected
         document.querySelector('#statusSelect').value = currentStatus;
 
-        // Show modal
         document.getElementById('statusModal').classList.remove('hidden');
         document.getElementById('statusModal').classList.add('flex');
     }
@@ -536,9 +535,9 @@
     }
 
     // Close modal when clicking outside
-    let modal = document.getElementById('statusModal');
-    if (modal) {
-        modal.addEventListener('click', function (e) {
+    let smodal = document.getElementById('statusModal');
+    if (smodal) {
+        smodal.addEventListener('click', function (e) {
             if (e.target === this) {
                 closeStatusModal();
             }

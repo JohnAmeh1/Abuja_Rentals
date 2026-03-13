@@ -26,6 +26,7 @@ from .recommendations import get_property_recommendations
 
 from .services.otp_service import create_otp, verify, is_valid
 from .services.property_service import serialize_property
+from .services.notification_service import notify_user
 
 import random
 import json
@@ -699,8 +700,8 @@ def get_properties(request):
 
         except Exception:
             pass
-
-    page_size = 21
+    print(request.GET.get('page_size'))
+    page_size = int(request.GET.get('page_size')) | 21
     result = list(qs[:page_size])
     next_cursor = None
     if len(result) == page_size:
@@ -1894,6 +1895,7 @@ def review_agent_application(request, application_id):
             application.save()
             messages.success(request, f'Application from {application.user.username} rejected.')
 
+    notify_user(application.user.id, 'agent_application_reviewed', f"Your agent application request has been {'Declined' if action == "reject" else 'Approved'} ", "email")
     return redirect('admin_users')
 
 @login_required
@@ -2054,6 +2056,19 @@ def agent_update_preferences(request):
 
     return JsonResponse({'ok': True})
 
+@login_required
+@user_passes_test(is_admin)
+@require_http_methods(["POST"])
+def verify_agent(request, agent_id):
+    agent = AgentProfile.objects.get(id=agent_id)
+    if not agent:
+        return JsonResponse({'ok': False, 'message': "Agent not found"})
+    
+    agent.verified = True
+    agent.save()
+
+    return JsonResponse({'ok': True})
+
 
 @login_required
 def agent_apply(request):
@@ -2066,6 +2081,9 @@ def agent_apply(request):
         pass
 
     existing = getattr(user, 'agent_application', None)
+    if existing and existing.status == 'rejected':
+        existing.delete()
+
     if existing:
         return render(request, 'auth/agent_apply.html', {
             'page_title':  'Agent Application',

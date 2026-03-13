@@ -221,7 +221,7 @@
 </div>
 
 <div id="agentApplicationsModal"
-     class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+     class="hidden  inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
 
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
@@ -338,11 +338,11 @@
 <script>
   function openModal(id) {
     const m = document.getElementById(id);
-    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
   }
   function closeModal(id) {
     const m = document.getElementById(id);
-    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); document.body.style.overflow = ''; }
+    if (m) { m.classList.add('hidden'); m.classList.remove('flex');  }
   }
   function showRejectForm(id) {
     document.getElementById(`rejectForm-${id}`).classList.remove('hidden');

@@ -354,7 +354,6 @@
         dropdown.classList.add('hidden');
         return;
       }
-      console.log(CITIES)
       const startsWith = CITIES.filter(c => c.label.toLowerCase().startsWith(query));
       const contains   = CITIES.filter(c => !c.label.toLowerCase().startsWith(query) && c.label.toLowerCase().includes(query));
       renderSuggestions([...startsWith, ...contains].slice(0, 8));
@@ -415,7 +414,6 @@
       dropdown.classList.add('hidden');
       return;
     }
-    console.log(CITIES)
     const startsWith = CITIES.filter(c => c.label.toLowerCase().startsWith(query));
     const contains   = CITIES.filter(c => !c.label.toLowerCase().startsWith(query) && c.label.toLowerCase().includes(query));
     renderSuggestions([...startsWith, ...contains].slice(0, 8));

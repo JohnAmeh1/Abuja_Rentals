@@ -700,7 +700,6 @@ def get_properties(request):
 
         except Exception:
             pass
-    print(request.GET.get('page_size'))
     page_size = int(request.GET.get('page_size')) | 21
     result = list(qs[:page_size])
     next_cursor = None

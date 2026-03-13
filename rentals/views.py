@@ -22,7 +22,7 @@ from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminM
                     SavedProperty, PropertyVisit, Inquiry, School, OTP, InquiryResponse, AgentProfile,
                     AgentApplication, PropertyType, Amenity, City, Area, PropertyImage, Location, PropertyAmenities)
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, AdminMessageForm, ReportForm, OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm)
-from .recommendations import get_property_recommendations
+from .services.recommendations import get_property_recommendations
 
 from .services.otp_service import create_otp, verify, is_valid
 from .services.property_service import serialize_property
@@ -1864,34 +1864,14 @@ def review_agent_application(request, application_id):
         application = get_object_or_404(AgentApplication, id=application_id)
         action = request.POST.get('action')
         rejection_reason = request.POST.get('rejection_reason', '')
+        from .services.agent_application_service import approve, reject
 
         if action == 'approve':
-            application.status = 'approved'
-            application.reviewed_by = request.user
-            application.reviewed_at = timezone.now()
-            application.save()
-
-            profile = application.user.userprofile
-            profile.user_type = 'agent'
-            profile.save()
-
-            AgentProfile.objects.get_or_create(
-                user=application.user,
-                defaults={
-                    'phone': application.phone,
-                    'bio': application.bio,
-                    'assigned_cities': application.areas_of_focus,
-                    'verified': True,
-                }
-            )
+            approve(application, request.user)
             messages.success(request, f'{application.user.username} approved as agent.')
 
         elif action == 'reject':
-            application.status = 'rejected'
-            application.rejection_reason = rejection_reason
-            application.reviewed_by = request.user
-            application.reviewed_at = timezone.now()
-            application.save()
+            reject(application, request.user, rejection_reason)
             messages.success(request, f'Application from {application.user.username} rejected.')
 
     notify_user(application.user.id, 'agent_application_reviewed', f"Your agent application request has been {'Declined' if action == "reject" else 'Approved'} ", "email")

@@ -9,8 +9,8 @@ from django.db.models import (
 )
 from django.db.models.functions import Abs, Coalesce
 from django.core.cache import cache
-from .models import Property, PropertyImage
-from .services.property_service import serialize_property
+from ..models import Property, PropertyImage
+from .property_service import serialize_property
 
 
 def get_property_recommendations(property_obj, limit=6):

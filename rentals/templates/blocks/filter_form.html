@@ -1,0 +1,192 @@
+
+<form method="GET" id="{{ form_id }}" class="space-y-3 z-50">
+
+  <div class="relative">
+    <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
+    <input name="search" type="text" value="{{ active.search }}" placeholder="Search…" id="basic_search"
+      class="w-full pl-7 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs
+                  focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+  </div>
+
+  <div>
+    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Purpose</p>
+    <div class="grid grid-cols-3 gap-1">
+
+      <label>
+        <input type="radio" name="purpose" value="" class="hidden peer"
+          {% if not active.purpose %}checked id="basic_property_type"{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold hover:border-gray-300 transition">Any</span>
+      </label>
+      <label>
+        <input type="radio" name="purpose" value="rent" class="hidden peer"
+               {% if active.purpose == 'rent' %}checked id="basic_property_type"{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">For Rent</span>
+      </label>
+      <label>
+        <input type="radio" name="purpose" value="sale" class="hidden peer"
+               {% if active.purpose == 'sale' %}checked id="basic_property_type"{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">For Sale</span>
+      </label>
+
+    </div>
+  </div>
+
+  <div class="relative">
+    <select name="property_type"
+            class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
+                   focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+      <option {% if not active.property_type %}selected{% endif %} value="">All Types</option>
+      {% for p in property_types %}
+      <option value="{{ p.id }}" {% if active.property_type == p.id %}selected{% endif %}>{{ p.display_name }}</option>
+      {% endfor %}
+    </select>
+    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+  </div>
+
+  <div class="relative">
+    <select name="city"
+            class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
+                   focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+      <option {% if not active.city %}selected{% endif %} value="">All Locations</option>
+      {% for city in cities %}
+      <option value="{{ city.id }}" {% if active.city == city.id %}selected{% endif %}>{{ city.name|capfirst }}</option>
+      {% endfor %}
+    </select>
+    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+  </div>
+
+  {% if user_is_admin %}
+  <div class="relative">
+    <select name="status"
+            class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
+                   focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+      <option value="">All Statuses</option>
+      {% for code, label in status_choices %}
+      <option value="{{ code }}" {% if active.status == code %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+  </div>
+  {% endif %}
+
+  <div>
+    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Price (₦)</p>
+    <div class="grid grid-cols-2 gap-1.5">
+      <input name="min_price" type="text" value="{{ active.min_price }}" placeholder="Min"
+             class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs price-fmt
+                    focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+      <input name="max_price" type="text" value="{{ active.max_price }}" placeholder="Max"
+             class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs
+                    focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt">
+    </div>
+  </div>
+
+  <div>
+    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Bedrooms (min)</p>
+    <div class="grid grid-cols-5 gap-1">
+
+      <label>
+        <input type="radio" name="min_bedrooms" value="1" class="hidden peer"
+               {% if active.min_bedrooms == "1" %}checked{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">1+</span>
+      </label>
+
+      <label>
+        <input type="radio" name="min_bedrooms" value="2" class="hidden peer"
+               {% if active.min_bedrooms == "2" %}checked{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">2+</span>
+      </label>
+
+      <label>
+        <input type="radio" name="min_bedrooms" value="3" class="hidden peer"
+               {% if active.min_bedrooms == "3" %}checked{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">3+</span>
+      </label>
+
+      <label>
+        <input type="radio" name="min_bedrooms" value="4" class="hidden peer"
+               {% if active.min_bedrooms == "4" %}checked{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">4+</span>
+      </label>
+
+      <label>
+        <input type="radio" name="min_bedrooms" value="5" class="hidden peer"
+               {% if active.min_bedrooms == "5" %}checked{% endif %}>
+        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                     hover:border-gray-300 transition">5+</span>
+      </label>
+
+    </div>
+  </div>
+
+  <div>
+    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Features</p>
+    <div class="space-y-1.5">
+
+      <label class="flex items-center gap-2 cursor-pointer group">
+        <input type="checkbox" name="furnished" value="true" class="hidden peer"
+               {% if active.furnished %}checked{% endif %}>
+        <span class="w-3.5 h-3.5 rounded border border-gray-300 shrink-0 flex items-center justify-center
+                     peer-checked:bg-primary peer-checked:border-primary transition">
+          <i class="fas fa-check text-white text-[7px]"></i>
+        </span>
+        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition">Furnished</span>
+      </label>
+
+      <label class="flex items-center gap-2 cursor-pointer group">
+        <input type="checkbox" name="serviced" value="true" class="hidden peer"
+               {% if active.serviced %}checked{% endif %}>
+        <span class="w-3.5 h-3.5 rounded border border-gray-300 shrink-0 flex items-center justify-center
+                     peer-checked:bg-primary peer-checked:border-primary transition">
+          <i class="fas fa-check text-white text-[7px]"></i>
+        </span>
+        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition">Serviced</span>
+      </label>
+
+      <label class="flex items-center gap-2 cursor-pointer group">
+        <input type="checkbox" name="shared" value="true" class="hidden peer"
+          {% if active.shared %}checked{% endif %}>
+        <span class="w-3.5 h-3.5 rounded border border-gray-300 shrink-0 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition">
+          <i class="fas fa-check text-white text-[7px]"></i>
+        </span>
+        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition">Shared</span>
+      </label>
+
+    </div>
+  </div>
+
+  {% if amenity_choices %}
+  <div>
+    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Amenities</p>
+    <div class="flex flex-wrap gap-1">
+      {% for amenity in amenity_choices %}
+      <label>
+        <input type="checkbox" name="amenities" value="{{ amenity.id }}" class="hidden peer"
+          {% if amenity.id in active.amenities %}checked{% endif %}>
+        <span class="block px-2 py-0.5 border border-gray-200 rounded-md text-[11px] cursor-pointer peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-gray-300 transition">{{ amenity.display_name }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <button type="button" onclick="openAdvancedModal()"
+          class="flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
+    <i class="fas fa-sliders-h text-[9px]"></i> More filters
+  </button>
+
+</form>
+

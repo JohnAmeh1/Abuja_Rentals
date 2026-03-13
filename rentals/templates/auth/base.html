@@ -2,27 +2,187 @@
 {% load humanize %}
 
 {% block title %}Dashboard | Abuja Rentals{% endblock %}
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8 ">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-2">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+
+<div id="sidebarBackdrop"
+     onclick="closeSidebar()"
+     class="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
+
+<div class="flex h-screen bg-[#f7f7f5] overflow-hidden">
+
+  <aside id="dashSidebar"
+         class="fixed lg:static inset-y-0 left-0 z-50
+                w-64 xl:w-72 flex flex-col shrink-0
+                bg-white border-r border-gray-100
+                -translate-x-full lg:translate-x-0
+                transition-transform duration-300 ease-out will-change-transform">
+
+    <div class="flex items-center gap-2.5 px-5 h-14 border-b border-gray-100 shrink-0">
+      <div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
+        <i class="fas fa-home text-white text-xs"></i>
+      </div>
+      <span class="font-bold text-gray-900 text-sm tracking-tight">Abuja Rentals</span>
+      <button onclick="closeSidebar()"
+              class="ml-auto lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition">
+        <i class="fas fa-times text-xs"></i>
+      </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {% include "auth/sidebar.html" %}
-
-        <div class="lg:col-span-3">
-            {% block content %} {% endblock %}
+    <div class="px-3 pt-4 pb-2 shrink-0">
+      <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm shrink-0 uppercase select-none">
+          {{ user.get_full_name|default:user.username|slice:":1" }}
         </div>
-
-          
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-gray-900 truncate leading-none">{{ user.get_full_name|default:user.username }}</p>
+          <p class="text-[11px] text-gray-400 capitalize mt-0.5 leading-none">{{ user.userprofile.get_user_type_display }}</p>
+        </div>
+      </div>
     </div>
-</div>
-{% endblock %}
 
-{% block footer %}
-{% endblock %}
-{% block navbar %}
+    <nav class="flex-1 overflow-y-auto px-3 py-1">
+
+      <a href="{% url 'dashboard' %}" class="db-link {% if request.resolver_match.url_name == 'dashboard' %}db-active{% endif %}">
+        <i class="fas fa-th-large db-icon"></i>Dashboard
+      </a>
+      <a href="{% url 'profile' %}" class="db-link {% if request.resolver_match.url_name == 'profile' %}db-active{% endif %}">
+        <i class="fas fa-user-circle db-icon"></i>My Profile
+      </a>
+
+      {% if user.userprofile.user_type == 'tenant' %}
+        <p class="db-section">Renting</p>
+        <a href="{% url 'saved_properties' %}" class="db-link {% if request.resolver_match.url_name == 'saved_properties' %}db-active{% endif %}">
+          <i class="fas fa-heart db-icon"></i>Saved Properties
+        </a>
+        <a href="{% url 'my_bookings' %}" class="db-link {% if request.resolver_match.url_name == 'my_bookings' %}db-active{% endif %}">
+          <i class="fas fa-calendar-check db-icon"></i>My Bookings
+        </a>
+        <a href="{% url 'dashboard_requests' %}" class="db-link {% if request.resolver_match.url_name == 'dashboard_requests' %}db-active{% endif %}">
+          <i class="fas fa-inbox db-icon"></i>My Requests
+        </a>
+        <p class="db-section">Account</p>
+        {% if not user.agent_application %}
+          <a href="{% url 'agent_apply' %}" class="db-link {% if request.resolver_match.url_name == 'agent_apply' %}db-active{% endif %}">
+            <i class="fas fa-id-badge db-icon"></i>Become an Agent
+          </a>
+        {% else %}
+          <a href="{% url 'agent_apply' %}" class="db-link {% if request.resolver_match.url_name == 'agent_apply' %}db-active{% endif %}">
+            <i class="fas fa-id-badge db-icon"></i>
+            Application
+            <span class="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full
+              {% if user.agent_application.status == 'pending' %}bg-amber-100 text-amber-600
+              {% elif user.agent_application.status == 'approved' %}bg-green-100 text-green-600
+              {% else %}bg-red-100 text-red-500{% endif %}">
+              {{ user.agent_application.get_status_display }}
+            </span>
+          </a>
+        {% endif %}
+
+      {% elif user.userprofile.user_type == 'agent' %}
+        <p class="db-section">Listings</p>
+        <a href="{% url 'agent_properties' %}" class="db-link {% if request.resolver_match.url_name == 'student_properties' %}db-active{% endif %}">
+          <i class="fas fa-home db-icon"></i>My Properties
+        </a>
+        <a href="{% url 'create_property' %}" class="db-link {% if request.resolver_match.url_name == 'create_property' %}db-active{% endif %}">
+          <i class="fas fa-plus-circle db-icon"></i>Add Property
+        </a>
+        <p class="db-section">Clients</p>
+        <a href="{% url 'agent_inquiries' %}" class="db-link {% if request.resolver_match.url_name == 'agent_inquiries' %}db-active{% endif %}">
+          <i class="fas fa-inbox db-icon"></i>Client Requests
+        </a>
+
+      {% elif user.userprofile.user_type == 'admin' %}
+        <p class="db-section">Admin</p>
+        <a href="{% url 'admin_dashboard' %}" class="db-link {% if request.resolver_match.url_name == 'admin_dashboard' %}db-active{% endif %}">
+          <i class="fas fa-tachometer-alt db-icon"></i>Admin Dashboard
+        </a>
+        <a href="{% url 'admin_users' %}" class="db-link {% if request.resolver_match.url_name == 'admin_users' %}db-active{% endif %}">
+          <i class="fas fa-users-cog db-icon"></i>Manage Users
+        </a>
+        <a href="{% url 'admin_properties' %}" class="db-link {% if request.resolver_match.url_name == 'admin_properties' %}db-active{% endif %}">
+          <i class="fas fa-home db-icon"></i>Manage Properties
+        </a>
+        <a href="{% url 'admin_settings' %}" class="db-link {% if request.resolver_match.url_name == 'admin_settings' %}db-active{% endif %}">
+          <i class="fas fa-cogs db-icon"></i>Site Settings
+        </a>
+      {% endif %}
+
+    </nav>
+
+    <div class="px-3 py-3 border-t border-gray-100 space-y-0.5 shrink-0">
+      <a href="#" class="db-link"><i class="fas fa-cog db-icon"></i>Settings</a>
+      <a href="{% url 'logout' %}" class="db-link !text-red-500 hover:!bg-red-50">
+        <i class="fas fa-sign-out-alt db-icon !text-red-400"></i>Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+    <header class="h-14 shrink-0 bg-white border-b border-gray-100 flex items-center gap-3 px-4 lg:px-6">
+      <button onclick="openSidebar()"
+              class="lg:hidden w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-500 transition shrink-0">
+        <i class="fas fa-bars text-sm"></i>
+      </button>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-gray-900 truncate">{{ page_title|default:"Dashboard" }}</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="/" class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400 transition" title="Back to site">
+          <i class="fas fa-arrow-left text-xs"></i>
+        </a>
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold uppercase select-none">
+          {{ user.get_full_name|default:user.username|slice:":1" }}
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto">
+      <div class="p-4 sm:p-6 lg:p-8">
+        {% block subcontent %}{% endblock %}
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<style>
+  .db-link {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.5rem 0.75rem; border-radius: 0.75rem;
+    font-size: 0.8125rem; font-weight: 500; color: #4b5563;
+    transition: background 120ms ease, color 120ms ease;
+    text-decoration: none; white-space: nowrap;
+  }
+  .db-link + .db-link, .db-link { margin-top: 1px; }
+  .db-link:hover { background: #f3f4f6; color: #111827; }
+  .db-active { background: rgb(from var(--color-primary, #1a6b4a) r g b / 0.08) !important; color: var(--color-primary, #1a6b4a) !important; font-weight: 600; }
+  .db-active .db-icon { color: var(--color-primary, #1a6b4a) !important; }
+  .db-icon { font-size: 0.75rem; width: 1rem; text-align: center; color: #9ca3af; flex-shrink: 0; transition: color 120ms; }
+  .db-section { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #d1d5db; padding: 0.875rem 0.75rem 0.25rem; }
+</style>
+
+<script>
+  function openSidebar() {
+    const s = document.getElementById('dashSidebar');
+    const b = document.getElementById('sidebarBackdrop');
+    b.classList.remove('hidden');
+    requestAnimationFrame(() => { b.classList.remove('opacity-0'); });
+    s.classList.remove('-translate-x-full');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    const s = document.getElementById('dashSidebar');
+    const b = document.getElementById('sidebarBackdrop');
+    s.classList.add('-translate-x-full');
+    b.classList.add('opacity-0');
+    setTimeout(() => b.classList.add('hidden'), 300);
+    document.body.style.overflow = '';
+  }
+  window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeSidebar(); });
+</script>
+
 {% endblock %}

@@ -32,7 +32,7 @@ def should_show_to_user(self, user):
     # Check user type permissions
     if hasattr(user, 'userprofile'):
         user_type = user.userprofile.user_type
-        if user_type == 'agent' and not self.show_to_owners:
+        if user_type == 'agent' and not self.show_to_agents:
             return False
         if user_type == 'tenant' and not self.show_to_tenants:
             return False

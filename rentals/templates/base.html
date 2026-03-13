@@ -93,7 +93,7 @@
 
     .hero-background {
       background-image: 
-        url("/media/properties/cats/home-bg.webp");
+        url("/media/abstract/home-bg.webp");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -237,6 +237,9 @@
   <!-- JavaScript -->
   <script src="{% static 'pwa/pwa.js' %}"></script>
   <script>
+   
+  </script>
+  <script>
     function closeToast(btn) {
       const toast = btn.closest('.toast')
       toast.classList.add('opacity-0', 'translate-x-10')
@@ -310,7 +313,7 @@
     // Handle both notification bell buttons
     const bellBtn = document.getElementById('notificationBellBtn');
     const bellBtnMobile = document.getElementById('notificationBellBtnMobile');
-    const modal = document.getElementById('adminMessagesModal');
+    let modal = document.getElementById('adminMessagesModal');
 
     function toggleModal() {
       if (modal.classList.contains('hidden')) {
@@ -535,9 +538,37 @@
       });
     }
   </script>
+  
+    <script>
+     function formatCurrency(amount) {
+        const number = parseFloat(amount);
+        if (isNaN(number)) {
+          return "";
+        }
+  
+        const formatter = new Intl.NumberFormat('en-NG', {
+          style: 'currency',
+          currency: 'NGN',
+          maximumFractionDigits: 0
+        });
+  
+        return formatter.format(number);
+      }
+
+      function cleanInput(value) {
+        return value.replace(/[^\d.]/g, '');
+      }
+
+      const buttons = document.getElementsByClassName("price-fmt");
+      Array.from(buttons).forEach((btn) => {
+          btn.addEventListener("input", (e) => {
+            let rawValue = cleanInput(e.target.value);
+            e.target.value = formatCurrency(rawValue);
+          });
+      });
+  </script>
 
   {% block extra_js %}{% endblock %}
-
 
 </body>
 

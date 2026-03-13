@@ -124,12 +124,12 @@
                                 {% if msg.show_to_all %}<span
                                     class="inline-block px-2 py-1 text-xs bg-gray-100 rounded mr-1 mb-1">All
                                     Users</span>{% endif %}
-                                {% if msg.show_to_owners %}<span
-                                    class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded mr-1 mb-1">Owners</span>{%
-                                endif %}
+                                {% if msg.show_to_agents %}<span
+                                    class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded mr-1 mb-1">Owners</span>
+                                    {% endif %}
                                 {% if msg.show_to_tenants %}<span
-                                    class="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded mr-1 mb-1">Tenants</span>{%
-                                endif %}
+                                    class="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded mr-1 mb-1">Tenants</span>
+                                    {% endif %}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">

@@ -177,152 +177,53 @@ class ProfileUpdateForm(forms.ModelForm):
     
 
 class PropertyForm(forms.ModelForm):
-    amenities = forms.MultipleChoiceField(
-        choices=Property.AMENITY_CHOICES,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'space-y-2'}),
-        required=False
-    )
-    
-    rent_duration_display = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed',
-            'readonly': 'readonly',
-            'id': 'rent-duration-display'
-        }),
-        label='Rent Duration'
-    )
-    # Hidden numeric field to store months for the backend
-    rent_duration_months = forms.IntegerField(
-        required=False,
-        widget=forms.HiddenInput(attrs={'id': 'rent-duration-input'})
-    )
-    
-    images = forms.CharField(
-    required=False,
-    widget=forms.Textarea(attrs={
-        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg',
-        'placeholder': 'Enter one image URL per line'
-        })
-    )
 
-    
     class Meta:
         model = Property
         fields = [
-            'title', 'description', 'property_type', 'purpose',
-            'city', 'state', 'zip_code', 'latitude', 'longitude',
-            'bedrooms', 'bathrooms', 'area_sqft', 'price',
-            'rent_duration_display',  # Add this field
-            'rent_duration_months',
-            'main_image', 'images',
+            "title",
+            "description",
+            "property_type",
+            "purpose",
+            "bedrooms",
+            "bathrooms",
+            "area_sqft",
+            "price",
+            "rent_duration_months",
+            "furnished",
+            "shared",
+            "serviced",
         ]
+
         widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'e.g., Luxury 3-Bedroom Apartment in Maitama'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'Describe your property in detail...',
-                'rows': 4
-            }),
-            'property_type': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent property-type-select',
-                'id': 'property-type-select'
-            }),
-            'purpose': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-            }),
-            'status': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-            }),
-            'address': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'Full address'
-            }),
-            'city': forms.Select(choices=[
-                ('gwarinpa', 'Gwarinpa'),
-                ('jahi', 'Jahi'),
-                ('wuse', 'Wuse'),
-                ('wuye', 'Wuye'),
-                ('apo', 'Apo'),
-                ('dutse', 'Dutse'),
-                ('kubwa', 'Kubwa'),
-                ('bwari', 'Bwari'),
-                ('gwagwalada', 'Gwagwalada'),
-                ('lugbe', 'Lugbe'),
-                ('kuje', 'Kuje'),
-                ('kwali', 'Kwali'),
-                ('abaji', 'Abaji'),
-                ('maitama', 'Maitama'),
-                ('asokoro', 'Asokoro'),
-            ], attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent'
-            }),
-            'state': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'value': 'FCT'
-            }),
-            'zip_code': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'Postal code'
-            }),
-            'latitude': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'Latitude (optional)',
-                'step': 'any'
-            }),
-            'longitude': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'Longitude (optional)',
-                'step': 'any'
-            }),
-            'bedrooms': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent bedrooms-input',
-                'id': 'bedrooms-input',
-                'min': '0'
-            }),
-            'bathrooms': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'min': '0'
-            }),
-            'area_sqft': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-                'placeholder': 'Area in square feet',
-                'step': '0.01'
-            }),
-            'price': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent price-input',
-                'id': 'price-input',
-                'placeholder': 'e.g., 500000',
-                'step': '0.01'
-            }),
-            'main_image': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
-            }),
+            "title": forms.TextInput(attrs={"class": "input"}),
+            "description": forms.Textarea(attrs={"class": "input"}),
+
+            "property_type": forms.Select(attrs={"class": "input"}),
+            "purpose": forms.Select(attrs={"class": "input"}),
+
+            "bedrooms": forms.NumberInput(attrs={"class": "input"}),
+            "bathrooms": forms.NumberInput(attrs={"class": "input"}),
+
+            "area_sqft": forms.NumberInput(attrs={"class": "input"}),
+            "price": forms.NumberInput(attrs={"class": "input"}),
+
+            "rent_duration_months": forms.NumberInput(attrs={"class": "input"}),
         }
-    
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Make bedrooms, bathrooms, and area_sqft optional
         self.fields['bedrooms'].required = False
         self.fields['bathrooms'].required = False
         self.fields['area_sqft'].required = False
         
-        if self.instance and self.instance.amenities:
-            self.fields['amenities'].initial = self.instance.get_amenities_list()
-        
-        # Set initial value for rent_duration_display based on purpose
         if self.initial.get('purpose') == 'rent':
             self.fields['rent_duration_display'].initial = '1 Year (Standard)'
             self.fields['rent_duration_display'].widget.attrs['value'] = '1 Year (Standard)'
-            # default months
             if 'rent_duration_months' in self.fields:
                 self.fields['rent_duration_months'].initial = 12
 
-        # If instance exists, prefill rent_duration_months
         if self.instance and getattr(self.instance, 'rent_duration_months', None):
             if 'rent_duration_months' in self.fields:
                 self.fields['rent_duration_months'].initial = self.instance.rent_duration_months
@@ -331,7 +232,6 @@ class PropertyForm(forms.ModelForm):
         cleaned_data = super().clean()
         purpose = cleaned_data.get('purpose')
         
-        # Auto-set rent duration display based on purpose
         if purpose == 'rent':
             cleaned_data['rent_duration_display'] = '1 Year (Standard)'
         
@@ -339,12 +239,7 @@ class PropertyForm(forms.ModelForm):
     
     def save(self, commit=True):
         property_obj = super().save(commit=False)
-        
-        # Handle amenities
-        if 'amenities' in self.cleaned_data:
-            property_obj.set_amenities(self.cleaned_data['amenities'])
-        
-        # Save rent duration months if provided
+
         months = self.cleaned_data.get('rent_duration_months')
         if months:
             try:
@@ -372,36 +267,6 @@ class ReportForm(forms.ModelForm):
                 'placeholder': 'Describe the issue in detail (optional)'
             })
         }
-
-class PropertySearchForm(forms.Form):
-    property_type = forms.ChoiceField(
-        choices=[('', 'All Types')] + Property.PROPERTY_TYPE_CHOICES,
-        required=False,
-    )
-    
-    purpose = forms.ChoiceField(
-        choices=[('', 'All Purposes')] + Property.PURPOSE_CHOICES,
-        required=False,
-    )
-    
-    status = forms.ChoiceField(
-        choices=[('', 'All Status')] + Property.STATUS_CHOICES,
-        required=False,
-    )
-    city = forms.ChoiceField(
-        choices=[('', 'All Locations')] + Property.CITIES,
-        required=False,
-    )
-    
-    search = forms.CharField(
-        required=False,
-    )
-    
-    amenities = forms.MultipleChoiceField(
-        choices=Property.AMENITY_CHOICES,
-        required=False
-    )
-
 
 
 
@@ -471,7 +336,7 @@ class AdminMessageForm(forms.Form):
         })
     )
     
-    show_to_owners = forms.BooleanField(
+    show_to_agents = forms.BooleanField(
         required=False,
         initial=True,
         label="Show to property owners",
@@ -573,7 +438,7 @@ class ResetPasswordForm(forms.Form):
     """Form for resetting password after OTP verification"""
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'class': 'w-full px-8 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
             'placeholder': 'Enter new password',
             'autocomplete': 'new-password'
         }),
@@ -583,7 +448,7 @@ class ResetPasswordForm(forms.Form):
     
     password_confirm = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'class': 'w-full px-8 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
             'placeholder': 'Confirm new password',
             'autocomplete': 'new-password'
         }),

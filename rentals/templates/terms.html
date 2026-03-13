@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Terms & Conditions | Abuja Rentals{% endblock %}
+
+{% block content %}
+
+{# ── Hero ─────────────────────────────────────────────────────────────────── #}
+<section class="relative overflow-hidden bg-gray-950 pt-32 pb-20">
+  <div class="absolute inset-0 opacity-[0.04]"
+       style="background-image: linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:48px 48px;"></div>
+
+  <div class="container mx-auto px-4 lg:px-20 relative text-center">
+    <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-primary mb-4">
+      <span class="w-5 h-px bg-primary inline-block"></span>
+      Legal
+      <span class="w-5 h-px bg-primary inline-block"></span>
+    </span>
+    <h1 class="text-4xl lg:text-5xl font-black text-white mb-4">Terms & Conditions</h1>
+    <p class="text-gray-400 max-w-md mx-auto text-sm">
+      Last updated: {% now "F j, Y" %} &nbsp;·&nbsp; We've written this to be readable, not just legal.
+    </p>
+  </div>
+</section>
+
+{# ── Content ──────────────────────────────────────────────────────────────── #}
+<section class="py-20 bg-[#f7f7f5]">
+  <div class="container mx-auto px-4 lg:px-20">
+    <div class="max-w-3xl mx-auto">
+
+      {# Quick nav #}
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 mb-10">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">On this page</p>
+        <div class="grid sm:grid-cols-2 gap-y-2 gap-x-6 text-sm">
+          <a href="#who-we-are"         class="text-primary hover:underline">1. Who We Are</a>
+          <a href="#using-the-platform" class="text-primary hover:underline">2. Using the Platform</a>
+          <a href="#accounts"           class="text-primary hover:underline">3. Accounts</a>
+          <a href="#listings"           class="text-primary hover:underline">4. Listings & Content</a>
+          <a href="#bookings"           class="text-primary hover:underline">5. Bookings & Requests</a>
+          <a href="#agents"             class="text-primary hover:underline">6. Agents</a>
+          <a href="#prohibited"         class="text-primary hover:underline">7. Prohibited Conduct</a>
+          <a href="#liability"          class="text-primary hover:underline">8. Limitation of Liability</a>
+          <a href="#termination"        class="text-primary hover:underline">9. Termination</a>
+          <a href="#changes"            class="text-primary hover:underline">10. Changes to These Terms</a>
+          <a href="#contact"            class="text-primary hover:underline">11. Contact</a>
+        </div>
+      </div>
+
+      {# Terms content #}
+      <div class="space-y-8 terms-body">
+
+        <div id="who-we-are" class="terms-section">
+          <h2>1. Who We Are</h2>
+          <p>Abuja Rentals ("we", "us", "our") is an online property platform connecting tenants, buyers, landlords,
+             and real estate agents across the Federal Capital Territory of Nigeria. By using our website or services,
+             you agree to these Terms & Conditions.</p>
+          <p>These terms apply to all visitors, registered users, agents, and anyone who interacts with our platform
+             in any way.</p>
+        </div>
+
+        <div id="using-the-platform" class="terms-section">
+          <h2>2. Using the Platform</h2>
+          <p>You may use Abuja Rentals to browse property listings, save properties, make enquiries, book viewings,
+             and — if approved — list properties and respond to client requests.</p>
+          <p>You must be at least 18 years old to create an account or enter into any agreement facilitated through
+             our platform. By registering, you confirm you meet this requirement.</p>
+          <p>We provide the platform as a connection service only. We are not a party to any tenancy agreement,
+             sale agreement, or transaction between landlords, agents, and tenants. All such agreements are made
+             directly between those parties.</p>
+        </div>
+
+        <div id="accounts" class="terms-section">
+          <h2>3. Accounts</h2>
+          <p>You are responsible for keeping your account credentials secure. Do not share your password.
+             Any activity that takes place under your account is your responsibility.</p>
+          <p>You must provide accurate and truthful information when registering. We reserve the right to suspend
+             or delete accounts we believe contain false information.</p>
+          <p>You may delete your account at any time from your dashboard settings. On deletion, your personal data
+             will be permanently removed within 30 days, subject to any legal obligations we may have to retain
+             certain records.</p>
+        </div>
+
+        <div id="listings" class="terms-section">
+          <h2>4. Listings & Content</h2>
+          <p>Agents and landlords who list properties on Abuja Rentals confirm that:</p>
+          <ul>
+            <li>They have the legal right to advertise the property.</li>
+            <li>All information, photos, and pricing provided are accurate and up to date.</li>
+            <li>The property will be available as described when a tenant enquires.</li>
+          </ul>
+          <p>We reserve the right to remove listings that are inaccurate, misleading, duplicate, or otherwise
+             in violation of these terms without prior notice.</p>
+          <p>By uploading content (photos, descriptions, etc.) to our platform, you grant us a non-exclusive,
+             royalty-free licence to display that content for the purpose of operating and marketing the platform.</p>
+        </div>
+
+        <div id="bookings" class="terms-section">
+          <h2>5. Bookings & Requests</h2>
+          <p>A booking request submitted through the platform is a request for a viewing only — it does not
+             constitute a reservation, offer to rent, or legally binding agreement of any kind.</p>
+          <p>Landlords and agents may confirm, reschedule, or decline bookings at their discretion. Abuja Rentals
+             is not responsible for missed viewings, cancellations, or disputes arising from bookings.</p>
+          <p>Client requests (enquiries about property types and preferences) are shared with agents who match
+             your criteria. By submitting a request, you consent to relevant agents contacting you through
+             the platform.</p>
+        </div>
+
+        <div id="agents" class="terms-section">
+          <h2>6. Agents</h2>
+          <p>To become an agent on Abuja Rentals, you must apply and receive approval from our team. Approval
+             is at our sole discretion. We may revoke agent status at any time if we believe the agent has
+             violated these terms or is not acting in the best interests of users.</p>
+          <p>Agents agree not to use the platform to promote properties they do not have authorisation to market,
+             or to solicit users outside the platform for competing services.</p>
+          <p>Agents may only respond to client requests using properties they own or have been authorised to
+             market. Misrepresentation of property ownership or authorisation is grounds for immediate removal.</p>
+        </div>
+
+        <div id="prohibited" class="terms-section">
+          <h2>7. Prohibited Conduct</h2>
+          <p>You must not use Abuja Rentals to:</p>
+          <ul>
+            <li>Post false, misleading, or fraudulent listings or information.</li>
+            <li>Scam, deceive, or defraud other users in any way.</li>
+            <li>Collect or harvest other users' data without consent.</li>
+            <li>Send spam, unsolicited commercial messages, or phishing attempts.</li>
+            <li>Attempt to reverse-engineer, scrape, or otherwise extract data from our platform at scale.</li>
+            <li>Use the platform for any illegal purpose under Nigerian law.</li>
+          </ul>
+          <p>Violations may result in immediate account suspension and, where appropriate, referral to
+             relevant authorities.</p>
+        </div>
+
+        <div id="liability" class="terms-section">
+          <h2>8. Limitation of Liability</h2>
+          <p>Abuja Rentals is a marketplace connecting parties. We do not verify every property in person,
+             guarantee tenancy outcomes, or take responsibility for the accuracy of listings beyond the
+             review process we carry out.</p>
+          <p>We are not liable for any loss, damage, or harm arising from transactions, agreements, or
+             interactions facilitated through our platform — including loss of rent, deposit disputes,
+             or property damage.</p>
+          <p>Our platform is provided "as is". We make no guarantees about uptime, availability, or
+             the suitability of any property for your needs.</p>
+        </div>
+
+        <div id="termination" class="terms-section">
+          <h2>9. Termination</h2>
+          <p>We reserve the right to suspend or terminate your access to Abuja Rentals at any time,
+             with or without notice, if we believe you have violated these terms or are causing harm
+             to other users or the platform.</p>
+          <p>You may stop using the platform at any time. Sections of these terms that should
+             reasonably survive termination (such as liability limits) will continue to apply.</p>
+        </div>
+
+        <div id="changes" class="terms-section">
+          <h2>10. Changes to These Terms</h2>
+          <p>We may update these Terms & Conditions from time to time. When we do, we'll update the
+             "last updated" date at the top of this page. For significant changes, we'll notify registered
+             users by email.</p>
+          <p>Continued use of the platform after changes are posted means you accept the updated terms.</p>
+        </div>
+
+        <div id="contact" class="terms-section">
+          <h2>11. Contact</h2>
+          <p>If you have any questions about these terms or want to raise a concern, please contact us:</p>
+          <div class="mt-4 p-5 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-700 space-y-1">
+            <p><strong>Abuja Rentals</strong></p>
+            <p>Abuja, Federal Capital Territory, Nigeria</p>
+            <p>Email: <a href="mailto:legal@abujarentals.com" class="text-primary hover:underline">legal@abujarentals.com</a></p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .terms-section h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.875rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .terms-body .terms-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.75rem;
+  }
+  .terms-section p {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.75;
+    margin-bottom: 0.875rem;
+  }
+  .terms-section p:last-child { margin-bottom: 0; }
+  .terms-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0.875rem;
+    space-y: 0.5rem;
+  }
+  .terms-section ul li {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.7;
+    padding-left: 1.25rem;
+    position: relative;
+    margin-bottom: 0.4rem;
+  }
+  .terms-section ul li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--color-primary, #1a6b4a);
+    font-weight: 700;
+  }
+</style>
+
+{% endblock %}

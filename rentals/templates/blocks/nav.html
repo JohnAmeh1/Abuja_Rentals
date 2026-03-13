@@ -1,7 +1,7 @@
 {% include 'blocks/requestForm.html' %}
 
 
-<nav class="fixed top-0 z-[10] right-0 left-0 bg-white/50 backdrop-blur-md shadow-sm">
+<nav class="fixed top-0 z-[11] right-0 left-0 bg-white/50 backdrop-blur-md shadow-sm">
     <div class="container mx-auto px-4 lg:px-8">
 
       <div class="flex justify-between items-center h-[72px]">
@@ -22,13 +22,13 @@
         <div class="hidden lg:flex items-center gap-1">
           <a href="{% url 'home' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Home</a>
           <a href="{% url 'properties' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Properties</a>
-          <a href="#about" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">About</a>
+          <a href="{% url 'about' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">About</a>
           {% if user.is_authenticated %}
-          <a href="/dashboard" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Dashboard</a>
+          <a href="{% url 'dashboard' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Dashboard</a>
 
           {% else %}
-           <a href="/signup" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Sign up</a>
-          <a href="/login" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Login</a>
+           <a href="{% url 'signup' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Sign up</a>
+          <a href="{% url 'login' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Login</a>
           {% endif %}
         </div>
 

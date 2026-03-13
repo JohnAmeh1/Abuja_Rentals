@@ -3,780 +3,527 @@
 
 {% block title %}{{ property.title }} | Abuja Rentals{% endblock %}
 
-{% block extra_css %}
-<style>
-    .property-status {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .amenity-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        background: #f3f4f6;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        color: #374151;
-    }
-
-    .amenity-badge i {
-        margin-right: 0.5rem;
-        color: #3b82f6;
-    }
-
-    .property-status {
-        padding: 0.4rem 0.9rem;
-        border-radius: 9999px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        font-size: 0.75rem;
-        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
-    }
-
-    .btn-gradient {
-        background: linear-gradient(90deg, #7c3aed, #4f46e5);
-        color: #fff;
-        padding: .65rem 1rem;
-        border-radius: .75rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        font-weight: 600;
-        border: none;
-    }
-
-    .btn-gradient:hover {
-        opacity: .95;
-    }
-
-    .btn-outline {
-        background: transparent;
-        border: 1.5px solid rgba(15, 23, 42, 0.06);
-        color: #0f172a;
-        padding: .6rem .9rem;
-        border-radius: .7rem;
-        font-weight: 600;
-    }
-
-    .btn-outline:hover {
-        background: rgba(15, 23, 42, 0.02);
-    }
-
-    .btn-primary {
-        background: linear-gradient(90deg, #2563eb, #1e40af);
-        color: #fff;
-        padding: .6rem .9rem;
-        border-radius: .7rem;
-        font-weight: 700;
-        border: none;
-    }
-
-    .meta-badge {
-        display: inline-block;
-        padding: .35rem .7rem;
-        border-radius: .6rem;
-        background: #f8fafc;
-        color: #374151;
-        font-weight: 600;
-        font-size: .825rem;
-        border: 1px solid rgba(2, 6, 23, 0.03);
-    }
-    .status-available {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-    
-    .status-pending {
-        background-color: #fef3c7;
-        color: #92400e;
-    }
-    
-    .status-sold {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .status-draft {
-        background-color: #e5e7eb;
-        color: #374151;
-    }
-
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8 pt-20">
-    <nav class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600">
-            <li><a href="{% url 'home' %}" class="hover:text-accent">Home</a></li>
-            <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li><a href="{% url 'properties' %}" class="hover:text-accent">Properties</a></li>
-            <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li class="text-gray-900 font-medium line-clamp-1">{{ property.title|truncatewords:5 }}</li>
-        </ol>
-    </nav>
+<div class="container mx-auto px-4 lg:px-8 pt-24 pb-28 lg:pb-16">
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 space-y-6">
-            <div class="w-full max-w-6xl mx-auto">
-                <div class="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
-                    <div id="sliderTrack" class="flex transition-transform duration-500 ease-in-out">
-                        {% for image in all_images %}
-                        <div class="min-w-full">
-                            <img src="{{ image }}" class="w-full aspect-[16/10] lg:aspect-[16/9] object-cover"
-                                alt="Property Image {{ forloop.counter }}">
-                        </div>
-                        {% endfor %}
-                    </div>
+  <nav class="mb-5">
+    <ol class="flex items-center gap-2 text-xs text-gray-500">
+      <li><a href="{% url 'home' %}" class="hover:text-primary transition">Home</a></li>
+      <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+      <li><a href="{% url 'properties' %}" class="hover:text-primary transition">Properties</a></li>
+      <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+      <li class="text-gray-900 font-medium truncate max-w-[200px]">{{ property.title|truncatewords:6 }}</li>
+    </ol>
+  </nav>
 
-                    <button onclick="prevImage()"
-                        class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/90 p-3 rounded-full shadow-lg transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    <button onclick="nextImage()"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/90 p-3 rounded-full shadow-lg transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
+    <div class="lg:col-span-2 space-y-5">
 
-                </div>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 bg-gray-100">
+        <div class="relative overflow-hidden">
+          <div id="sliderTrack" class="flex transition-transform duration-500 ease-out">
+            {% for image in all_images %}
+            <div class="min-w-full">
+              <img src="{{ image.image }}" class="w-full aspect-[16/10] object-cover"
+              alt="Property image {{ forloop.counter }}">
+              </div>
+            {% endfor %}
+          </div>
 
-                <div class="flex gap-1 lg:gap-2 mt-4 overflow-x-auto pb-2 thumbnails-container ">
-                    {% for image in all_images %}
-                    <img src="{{ image }}" onclick="goToSlide({{ forloop.counter0 }})"
-                        class="thumb w-28  object-cover rounded-lg cursor-pointer border-2 border-transparent hover:opacity-80 transition"
-                        data-index="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
-                    {% endfor %}
-                </div>
-            </div>
+          <button onclick="prevImage()"
+                  class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow flex items-center justify-center transition">
+            <i class="fas fa-chevron-left text-gray-700 text-xs"></i>
+          </button>
+          <button onclick="nextImage()"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow flex items-center justify-center transition">
+            <i class="fas fa-chevron-right text-gray-700 text-xs"></i>
+          </button>
 
-
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="flex flex-col md:flex-row justify-between items-start mb-4 space-y-4 md:space-y-0">
-                    <div>
-                        <div class="flex flex-wrap gap-2 items-center mb-3">
-                            <span class="property-status status-{{property.status}}">{{ property.get_status_display }}</span>
-                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                                {{ property.get_property_type_display }}
-                            </span>
-                            <span class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full">
-                                {{ property.get_purpose_display }}
-                            </span>
-                        </div>
-                        <h1 class="text-3xl font-bold text-primary mb-2 leading-tight">{{ property.title }}</h1>
-                        <a href="#map" class="text-gray-600 flex items-center text-sm">
-                            <i class="fas fa-map-marker-alt mr-2 text-accent"></i>
-                            {{ property.city|capfirst }}, <span class="uppercase ml-1"> {{ property.state }}</span>
-                        </a>
-                    </div>
-
-                    {% if is_owner %}
-                    <div class="flex space-x-2">
-                        <a href="{% url 'edit_property' property.id %}"
-                            class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center hover:bg-yellow-200 transition"
-                            title="Edit Property">
-                            <i class="fas fa-edit text-sm"></i>
-                        </a>
-                        <button onclick="openDeleteModal()"
-                            class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 transition"
-                            title="Delete Property">
-                            <i class="fas fa-trash text-sm"></i>
-                        </button>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
-                    {% if property.bedrooms %}
-                    <div class="text-center bg-gray-50 rounded-lg p-3">
-                        <div class="text-3xl text-accent mb-1"><i class="fas fa-bed"></i></div>
-                        <div class="font-semibold text-gray-900">{{ property.bedrooms }}</div>
-                        <div class="text-sm text-gray-600">Bedrooms</div>
-                    </div>
-                    {% endif %}
-
-                    {% if property.bathrooms %}
-                    <div class="text-center bg-gray-50 rounded-lg p-3">
-                        <div class="text-3xl text-accent mb-1"><i class="fas fa-bath"></i></div>
-                        <div class="font-semibold text-gray-900">{{ property.bathrooms }}</div>
-                        <div class="text-sm text-gray-600">Bathrooms</div>
-                    </div>
-                    {% endif %}
-
-                    {% if property.area_sqft %}
-                    <div class="text-center bg-gray-50 rounded-lg p-3">
-                        <div class="text-3xl text-accent mb-1"><i class="fas fa-ruler-combined"></i></div>
-                        <div class="font-semibold text-gray-900">{{ property.area_sqft|floatformat:0 }}</div>
-                        <div class="text-sm text-gray-600">Sq Ft</div>
-                    </div>
-                    {% endif %}
-
-                    <div class="text-center bg-gray-50 rounded-lg p-3">
-                        <div class="text-3xl text-accent mb-1"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="font-semibold text-gray-900">{{ property.created_at|date:"Y" }}</div>
-                        <div class="text-sm text-gray-600">Listed</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Description -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h2 class="text-2xl font-bold text-primary mb-4">
-                    <i class="fas fa-info-circle mr-2 text-accent"></i>Description
-                </h2>
-                <p class="text-gray-700 leading-relaxed whitespace-pre-line text-[15px] max-w-prose">
-                    {{ property.description }}</p>
-            </div>
-
-            <!-- Amenities -->
-            {% if property.amenities %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h2 class="text-2xl font-bold text-primary mb-4">
-                    <i class="fas fa-star mr-2 text-accent"></i>Amenities & Features
-                </h2>
-                <div class="grid grid-cols-2 md:grid-cols-2 gap-3">
-                    {% for amenity in property.amenities %}
-                    <div
-                        class="amenity-badge p-2.5 rounded-lg bg-gray-50 border border-gray-100 hover:bg-accent/5 transition">
-                        <i class="fas fa-check-circle mr-1 text-accent"></i>{{ amenity|title }}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Map -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6" id="map">
-                <h2 class="text-2xl font-bold text-primary mb-4">
-                    <i class="fas fa-map-marked-alt mr-2 text-accent"></i>Location
-                </h2>
-                <div class="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <iframe class="w-full lg:min-h-[500px] rounded-lg overflow-hidden border-0" loading="lazy"
-                        allowFullScreen referrerPolicy='no-referrer-when-downgrade'
-                        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q={{property.city}}+{{property.state}}">
-                    </iframe>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 lg:p-6 py-6">
-                <h2 class="text-2xl font-bold text-primary mb-4 px-6 lg:p-0">
-                    <i class="fas fa-star mr-2 text-accent"></i>Recommendations
-                </h2>
-                <div
-                    class="overflow-x-scroll flex gap-3 overflow-y-hidden p-2 lg:p-0 pb-2">
-                    {% for prop in recommendations %}
-                    {% include "blocks/property.html" %}
-                    {% empty %}
-                    <div class="col-span-3 text-center text-gray-500 py-10">
-                        No featured properties available.
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+          <div class="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
+            <span id="slideCounter">1</span> / {{ all_images|length }}
+          </div>
         </div>
 
-        <!-- Contact / Action Sidebar -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-6 sticky top-24">
+        {% if all_images.count > 1 %}
+        <div class="flex gap-2 p-3 overflow-x-auto bg-gray-50 border-t border-gray-100 thumbnails-container">
+          {% for image in all_images %}
+          <img src="{% if image.image.name|slice:':4' == 'http' %}{{ image.image.name }}{% else %}{{ image.image.url }}{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"
+               class="thumb h-14 w-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:opacity-80 transition shrink-0"
+               data-index="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
 
-                <!-- Price -->
-                <div>
-                    <div class="text-3xl font-bold text-gray-900">
-                        ₦{{ property.price|floatformat:2|intcomma }}
-                    </div>
-
-                    <div class="text-sm text-gray-500 mt-1">
-                        {% if property.purpose == 'rent' %}
-                        {% if property.rent_duration_months == 1 %}
-                        Per Month
-                        {% elif property.rent_duration_months == 12 %}
-                        Per Year
-                        {% elif property.rent_duration_months %}
-                        {{ property.rent_duration_months }} Months
-                        {% else %}
-                        Duration: N/A
-                        {% endif %}
-                        {% else %}
-                        Total Price
-                        {% endif %}
-                    </div>
-                </div>
-
-                <hr>
-
-                <!-- Seller Info -->
-                <div class="flex items-center space-x-4">
-                    {% if property.owner.userprofile.profile_picture %}
-                    <img src="{{ property.owner.userprofile.profile_picture }}"
-                        class="w-14 h-14 rounded-full object-cover border">
-                    {% else %}
-                    <div
-                        class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                        {{ property.owner.first_name|first|upper }}
-                    </div>
-                    {% endif %}
-
-                    <div>
-                        <div class="font-semibold text-gray-900">
-                            {{ property.owner.get_full_name|default:property.owner.username }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            Property Owner
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contact Buttons -->
-                <div class="space-y-3">
-
-                    <!-- WhatsApp Primary CTA -->
-                    <button onclick="openWhatsApp()"
-                        class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition"
-                        {% if not property.owner.userprofile.whatsapp_link and not property.owner.userprofile.phone_number %}disabled{% endif %}>
-                        <i class="fab fa-whatsapp mr-2"></i>
-                        Contact on WhatsApp
-                    </button>
-
-                    <!-- Call Button -->
-                    <button onclick="callOwner()"
-                        class="w-full border border-gray-300 hover:bg-gray-50 py-3 rounded-lg font-medium transition" {% if not property.owner.userprofile.phone_number %}disabled{% endif %}>
-                        <i class="fas fa-phone mr-2"></i>
-                        Call {{ property.owner.userprofile.phone_number }}
-                    </button>
-
-                </div>
-
-                <hr>
-
-                <div class="flex items-center justify-between gap-2">
-
-                    <a href="{% url 'save_property' property.id %}"
-                        class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-lg text-sm text-center transition">
-                        <i class="far fa-heart mr-1"></i>
-                        {% if is_saved %}Unsave{% else %}Save{% endif %}
-                    </a>
-
-                    <button onclick="copyPropertyLink()"
-                        class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-lg text-sm transition">
-                        <i class="fas fa-link mr-1"></i>
-                        Copy Link
-                    </button>
-
-                    <button onclick="shareProperty()"
-                        class="px-3 border border-gray-300 hover:bg-gray-50 py-2 rounded-lg text-sm transition">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
-                </div>
-
-                <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
-                    class="w-full text-sm text-red-600 hover:underline">
-                    Report Listing
-                </button>
-                <hr>
-
-                <div class="text-xs text-gray-500 leading-relaxed">
-                    <strong>Safety Tip:</strong><br>
-                    Never send money before inspecting the property.
-                    Always verify documents and meet the owner in person.
-                </div>
-
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              <span class="text-[11px] font-bold px-2.5 py-1 rounded-full
+                {% if property.status == 'available' %}bg-green-50 text-green-700 border border-green-200
+                {% elif property.status == 'pending' %}bg-amber-50 text-amber-700 border border-amber-200
+                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                {{ property.get_status_display }}
+              </span>
+              <span class="text-[11px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                {{ property.property_type.display_name }}
+              </span>
+              <span class="text-[11px] font-bold px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
+                {{ property.get_purpose_display }}
+              </span>
+              {% if property.school %}
+              <span class="text-[11px] font-bold px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                <i class="fas fa-graduation-cap mr-1"></i>Student Housing
+              </span>
+              {% endif %}
             </div>
+            <h1 class="text-2xl lg:text-3xl font-black text-gray-900 leading-tight mb-2">{{ property.title }} </h1>
+            <a href="#map" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition">
+              <i class="fas fa-map-marker-alt text-primary/70 text-xs"></i>
+              {{ property.location.address }}, {{ property.location.city.name|capfirst }}, {{ property.location.city.state.name|upper }}
+            </a>
+          </div>
+
+          {% if is_owner %}
+          <div class="flex gap-2 shrink-0">
+            <a href="{% url 'edit_property' property.id %}"
+               class="w-8 h-8 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-100 transition"
+               title="Edit">
+              <i class="fas fa-edit text-xs"></i>
+            </a>
+            <button onclick="openDeleteModal()"
+                    class="w-8 h-8 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-100 transition"
+                    title="Delete">
+              <i class="fas fa-trash text-xs"></i>
+            </button>
+          </div>
+          {% endif %}
         </div>
 
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-gray-100">
+          {% if property.bedrooms %}
+          <div class="text-center bg-gray-50 rounded-xl p-3">
+            <i class="fas fa-bed text-primary/60 mb-1 text-lg block"></i>
+            <p class="font-bold text-gray-900">{{ property.bedrooms }}</p>
+            <p class="text-xs text-gray-400">Bedrooms</p>
+          </div>
+          {% endif %}
+          {% if property.bathrooms %}
+          <div class="text-center bg-gray-50 rounded-xl p-3">
+            <i class="fas fa-bath text-primary/60 mb-1 text-lg block"></i>
+            <p class="font-bold text-gray-900">{{ property.bathrooms }}</p>
+            <p class="text-xs text-gray-400">Bathrooms</p>
+          </div>
+          {% endif %}
+          {% if property.area_sqft %}
+          <div class="text-center bg-gray-50 rounded-xl p-3">
+            <i class="fas fa-ruler-combined text-primary/60 mb-1 text-lg block"></i>
+            <p class="font-bold text-gray-900">{{ property.area_sqft|floatformat:0 }}</p>
+            <p class="text-xs text-gray-400">Sq Ft</p>
+          </div>
+          {% endif %}
+          <div class="text-center bg-gray-50 rounded-xl p-3">
+            <i class="fas fa-calendar-alt text-primary/60 mb-1 text-lg block"></i>
+            <p class="font-bold text-gray-900">{{ property.created_at|date:"Y" }}</p>
+            <p class="text-xs text-gray-400">Listed</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 class="text-base font-bold text-gray-900 mb-4">Description</h2>
+        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ property.description }}</p>
+        {% if property.school %}
+<div class="p-2">
+  <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-6">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+      <i class="fas fa-graduation-cap text-amber-600"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Near Campus</p>
+      <p class="font-bold text-gray-900 text-sm">{{ property.school.name }}</p>
+      {% if property.school.location %}
+      <p class="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+        <i class="fas fa-map-marker-alt text-[9px]"></i>
+        {{ property.school.location.city.name|capfirst }}, {{ property.school.location.city.state.name }}
+      </p>
+      {% endif %}
+    </div>
+    {% if property.rent_duration_months == 3 %}
+    <span class="text-[10px] font-bold px-2 py-1 bg-amber-200 text-amber-800 rounded-lg shrink-0">
+      Per Semester
+    </span>
+    {% endif %}
+  </div>
+
+  {% if property.school.next_resumption_start %}
+  <div class="mt-4 pt-4 border-t border-amber-200 grid grid-cols-2 gap-3">
+    <div class="bg-white/60 rounded-xl p-3 text-center">
+      <p class="text-xs text-gray-400 mb-0.5">Resumption Starts</p>
+      <p class="text-sm font-bold text-gray-900">{{ property.school.next_resumption_start|date:"M d" }}</p>
+    </div>
+    <div class="bg-white/60 rounded-xl p-3 text-center">
+      <p class="text-xs text-gray-400 mb-0.5">Resumption Ends</p>
+      <p class="text-sm font-bold text-gray-900">{{ property.school.next_resumption_end|date:"M d, Y" }}</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+</div>
+{% endif %}
+      </div>
+
+      {% if amenities %}
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 class="text-base font-bold text-gray-900 mb-4">Amenities & Features</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {% for amenity in amenities %}
+          <div class="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm text-gray-700 hover:bg-primary/5 hover:border-primary/20 transition">
+            <i class="fas fa-check-circle text-primary/60 text-xs shrink-0"></i>
+            {{ amenity.display_name }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if property.furnished or property.serviced or property.shared %}
+      <div class="flex flex-wrap gap-2">
+        {% if property.furnished %}
+        <span class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700">
+          <i class="fas fa-couch text-primary/60 mr-1.5"></i>Furnished
+        </span>
+        {% endif %}
+        {% if property.serviced %}
+        <span class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700">
+          <i class="fas fa-concierge-bell text-primary/60 mr-1.5"></i>Serviced
+        </span>
+        {% endif %}
+        {% if property.shared %}
+        <span class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700">
+          <i class="fas fa-users text-primary/60 mr-1.5"></i>Shared
+        </span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="bg-white rounded-2xl border border-gray-200 p-6" id="map">
+        <h2 class="text-base font-bold text-gray-900 mb-4">Location</h2>
+        <div class="rounded-xl overflow-hidden border border-gray-100">
+          <iframe class="w-full h-72 lg:h-96 border-0" loading="lazy" allowfullscreen
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q= {{ property.location.address }}, {{ property.location.city.name|capfirst }}, {{ property.location.city.state.name|upper }}">
+          </iframe>
+        </div>
+      </div>
+
+      {% if recommendations %}
+      <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 class="text-base font-bold text-gray-900 mb-4">Similar Properties</h2>
+        <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+          {% for prop in recommendations %}
+          {% include "blocks/property.html" %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
 
     </div>
-</div>
 
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 sticky top-24 space-y-5">
+
+        <div>
+          <p class="text-3xl font-black text-gray-900">₦{{ property.price|floatformat:0|intcomma }}</p>
+          <p class="text-xs text-gray-400 mt-1">
+            {% if property.purpose == 'rent' %}
+            {% if property.school %}
+              {% if property.rent_duration_months == 3 %}Per semester
+              {% else %}{{ property.rent_duration_months }} months
+              {% endif %}
+            {% elif property.rent_duration_months == 1 %}Per month
+            {% elif property.rent_duration_months == 12 %}Per year
+            {% elif property.rent_duration_months %}{{ property.rent_duration_months }} months
+            {% endif %}
+          {% else %}Total price{% endif %}
+          </p>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div class="flex items-center gap-3">
+          {% if property.owner.userprofile.profile_picture %}
+          <img src="{{ property.owner.userprofile.profile_picture }}"
+               class="w-12 h-12 rounded-xl object-cover border border-gray-100">
+          {% else %}
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/80 to-accent flex items-center justify-center text-white font-bold uppercase">
+            {{ property.owner.first_name|first|default:property.owner.username|first|upper }}
+          </div>
+          {% endif %}
+          <div>
+            <p class="text-sm font-semibold text-gray-900">{{ property.owner.get_full_name|default:property.owner.username }}</p>
+            <p class="text-xs text-gray-400">Property Owner</p>
+          </div>
+        </div>
+
+        {# Contact buttons #}
+        <div class="space-y-2.5">
+          <button onclick="openWhatsApp()"
+                  class="w-full flex items-center justify-center gap-2 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition
+                         {% if not property.owner.userprofile.whatsapp_link and not property.owner.userprofile.phone_number %}opacity-40 cursor-not-allowed{% endif %}">
+            <i class="fab fa-whatsapp"></i> Contact on WhatsApp
+          </button>
+
+          <button onclick="callOwner()"
+                  class="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-xl transition
+                         {% if not property.owner.userprofile.phone_number %}opacity-40 cursor-not-allowed{% endif %}">
+            <i class="fas fa-phone text-xs"></i>
+            {% if property.owner.userprofile.phone_number %}
+              {{ property.owner.userprofile.phone_number }}
+            {% else %}No phone listed{% endif %}
+          </button>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div class="flex items-center gap-2">
+          <a href="{% url 'save_property' property.id %}"
+             class="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-200 hover:bg-gray-50 rounded-xl text-xs font-medium text-gray-600 transition">
+            <i class="{% if is_saved %}fas{% else %}far{% endif %} fa-heart {% if is_saved %}text-red-500{% endif %}"></i>
+            {% if is_saved %}Saved{% else %}Save{% endif %}
+          </a>
+          <button onclick="copyPropertyLink()"
+                  class="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-200 hover:bg-gray-50 rounded-xl text-xs font-medium text-gray-600 transition">
+            <i class="fas fa-link"></i> Copy Link
+          </button>
+          <button onclick="shareProperty()"
+                  class="w-9 h-9 flex items-center justify-center border border-gray-200 hover:bg-gray-50 rounded-xl text-xs text-gray-600 transition">
+            <i class="fas fa-share-alt"></i>
+          </button>
+        </div>
+
+        <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
+                class="w-full text-xs text-red-400 hover:text-red-600 hover:underline transition">
+          Report this listing
+        </button>
+
+        <hr class="border-gray-100">
+
+        <p class="text-xs text-gray-400 leading-relaxed">
+          <i class="fas fa-shield-alt text-green-500 mr-1"></i>
+          <strong class="text-gray-600">Safety tip:</strong>
+          Never send money before inspecting. Always verify documents and meet the owner in person.
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
 
 {% if user.is_authenticated %}
-<div id="reportModalDetail" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
-        <div class="text-center mb-4">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Report Property Owner</h3>
-            <p class="text-gray-600 text-sm">Describe the issue and our admin team will review and act accordingly.</p>
-        </div>
-
-        <form id="reportFormDetail" method="POST" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
-                <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                    <option value="fake_listing">Fake / Misleading Listing</option>
-                    <option value="harassment">Harassment / Abusive Behavior</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
-                <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                    placeholder="Describe the issue"></textarea>
-            </div>
-
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeReportModalDetail()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Submit Report</button>
-            </div>
-        </form>
+<div id="reportModalDetail"
+     class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-base font-bold text-gray-900">Report Listing</h3>
+      <button onclick="closeReportModalDetail()"
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+        <i class="fas fa-times text-xs"></i>
+      </button>
     </div>
+    <p class="text-sm text-gray-500 mb-5">Describe the issue and our team will review it promptly.</p>
+    <form id="reportFormDetail" method="POST" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Reason</label>
+        <select name="reason" required
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+          <option value="fake_listing">Fake / Misleading Listing</option>
+          <option value="harassment">Harassment / Abusive Behaviour</option>
+          <option value="scam">Suspected Scam</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Details <span class="font-normal text-gray-400 normal-case tracking-normal">(optional)</span></label>
+        <textarea name="message" rows="3" placeholder="Describe what happened…"
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none"></textarea>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="closeReportModalDetail()"
+                class="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">Cancel</button>
+        <button type="submit"
+                class="flex-1 py-2.5 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition">Submit Report</button>
+      </div>
+    </form>
+  </div>
 </div>
-
-<script>
-    function openReportModal(id, title) {
-        const form = document.getElementById('reportFormDetail') || document.getElementById('reportForm');
-        if (form) {
-            form.action = `/property/${id}/report/`;
-        }
-        const modal = document.getElementById('reportModalDetail') || document.getElementById('reportModal');
-        if (modal) {
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-        }
-    }
-    function closeReportModalDetail() {
-        const modal = document.getElementById('reportModalDetail') || document.getElementById('reportModal');
-        if (modal) {
-            modal.classList.add('hidden'); modal.classList.remove('flex');
-        }
-    }
-
-    const modalDetail = document.getElementById('reportModalDetail');
-    if (modalDetail) {
-        modalDetail.addEventListener('click', function (e) { if (e.target === this) closeReportModalDetail(); });
-    }
-</script>
 {% endif %}
 
+{% if is_owner %}
+<div id="deleteModal"
+     class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+    <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-trash text-red-500"></i>
+    </div>
+    <h3 class="font-bold text-gray-900 mb-2">Delete this property?</h3>
+    <p class="text-sm text-gray-500 mb-6">This action cannot be undone. All data for this listing will be permanently removed.</p>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()"
+              class="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">Cancel</button>
+      <form method="POST" action="{% url 'delete_property' property.id %}" class="flex-1">
+        {% csrf_token %}
+        <button type="submit"
+                class="w-full py-2.5 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
+  const track      = document.getElementById('sliderTrack');
+  const thumbs     = document.querySelectorAll('.thumb');
+  const thumbWrap  = document.querySelector('.thumbnails-container');
+  const counter    = document.getElementById('slideCounter');
+  const total      = track ? track.children.length : 0;
+  let current      = 0;
+  let autoPlay;
 
-    const track = document.getElementById("sliderTrack");
-    const slides = track.children;
-    const thumbnails = document.querySelectorAll(".thumb");
-    const thumbContainer = document.querySelector(".thumbnails-container");
-
-    let currentIndex = 0;
-    const totalSlides = slides.length;
-    let autoPlayInterval;
-
-    function updateSlider() {
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
-
-        thumbnails.forEach(thumb => thumb.classList.remove("border-black"));
-        thumbnails[currentIndex].classList.add("border-black");
-
-        const activeThumb = thumbnails[currentIndex];
-        const containerRect = thumbContainer.getBoundingClientRect();
-        const thumbRect = activeThumb.getBoundingClientRect();
-
-        if (thumbRect.left < containerRect.left) {
-            thumbContainer.scrollBy({ left: thumbRect.left - containerRect.left - 8, behavior: 'smooth' });
-        } else if (thumbRect.right > containerRect.right) {
-            thumbContainer.scrollBy({ left: thumbRect.right - containerRect.right + 8, behavior: 'smooth' });
-        }
+  function updateSlider() {
+    if (!track) return;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    if (counter) counter.textContent = current + 1;
+    thumbs.forEach((t, i) => t.classList.toggle('border-gray-900', i === current));
+    if (thumbWrap && thumbs[current]) {
+      const tw = thumbWrap.getBoundingClientRect();
+      const th = thumbs[current].getBoundingClientRect();
+      if (th.left < tw.left) thumbWrap.scrollBy({ left: th.left - tw.left - 8, behavior: 'smooth' });
+      else if (th.right > tw.right) thumbWrap.scrollBy({ left: th.right - tw.right + 8, behavior: 'smooth' });
     }
+  }
+  function nextImage()        { current = (current + 1) % total; updateSlider(); }
+  function prevImage()        { current = (current - 1 + total) % total; updateSlider(); }
+  function goToSlide(i)       { current = i; updateSlider(); }
+  function startAuto()        { stopAuto(); autoPlay = setInterval(nextImage, 5000); }
+  function stopAuto()         { clearInterval(autoPlay); }
 
-    function nextImage() {
-        currentIndex = (currentIndex + 1) % totalSlides;
-        updateSlider();
-    }
-
-    function prevImage() {
-        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-        updateSlider();
-    }
-
-    function goToSlide(index) {
-        currentIndex = index;
-        updateSlider();
-    }
-
-    function startAutoPlay() {
-        stopAutoPlay();
-        autoPlayInterval = setInterval(nextImage, 5000);
-    }
-
-    function stopAutoPlay() {
-        clearInterval(autoPlayInterval);
-    }
-
-    track.addEventListener("mouseenter", stopAutoPlay);
-    track.addEventListener("mouseleave", startAutoPlay);
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "ArrowRight") nextImage();
-        if (e.key === "ArrowLeft") prevImage();
+  if (track) {
+    track.addEventListener('mouseenter', stopAuto);
+    track.addEventListener('mouseleave', startAuto);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft')  prevImage();
     });
-
     updateSlider();
-    startAutoPlay();
+    startAuto();
+  }
 
-    function getCsrfToken() {
-        // Try multiple ways to get CSRF token
-        const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (tokenInput) return tokenInput.value;
+  function openModal(id)  {
+    const m = document.getElementById(id);
+    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+  }
+  function closeModal(id) {
+    const m = document.getElementById(id);
+    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); document.body.style.overflow = ''; }
+  }
+  function openDeleteModal()         { openModal('deleteModal'); }
+  function closeDeleteModal()        { closeModal('deleteModal'); }
+  function openReportModal(id)       {
+    const f = document.getElementById('reportFormDetail');
+    if (f) f.action = `/property/${id}/report/`;
+    openModal('reportModalDetail');
+  }
+  function closeReportModalDetail()  { closeModal('reportModalDetail'); }
 
-        const metaToken = document.querySelector('meta[name="csrf-token"]');
-        if (metaToken) return metaToken.getAttribute('content');
+  ['deleteModal', 'reportModalDetail'].forEach(id => {
+    const m = document.getElementById(id);
+    if (m) m.addEventListener('click', e => { if (e.target === m) closeModal(id); });
+  });
 
-        const csrfCookie = document.cookie.split('; ')
-            .find(row => row.startsWith('csrftoken='));
-        if (csrfCookie) return csrfCookie.split('=')[1];
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal('deleteModal'); closeModal('reportModalDetail'); }
+  });
 
-        console.warn('CSRF token not found');
-        return '';
+  function showNotification(msg, type = 'success') {
+    document.querySelectorAll('.site-notif').forEach(n => n.remove());
+    const el = document.createElement('div');
+    el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
+                    transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
+    el.textContent = msg;
+    el.style.cssText = 'opacity:0;transform:translateY(-12px)';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+    setTimeout(() => {
+      el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
+      setTimeout(() => el.remove(), 300);
+    }, 3000);
+  }
+
+  function copyPropertyLink() {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => showNotification('Link copied!'))
+      .catch(() => showNotification('Could not copy link', 'error'));
+  }
+  function shareProperty() {
+    if (navigator.share) {
+      navigator.share({ title: '{{ property.title|escapejs }}', url: window.location.href })
+        .catch(() => {});
+    } else {
+      copyPropertyLink();
     }
+  }
 
-    function parseJsonResponse(response) {
-        return response.text().then(text => {
-            // Check if response looks like HTML
-            if (text.trim().startsWith('<!DOCTYPE') ||
-                text.trim().startsWith('<html') ||
-                text.includes('<head>') ||
-                text.includes('<body>')) {
-
-                console.warn('Server returned HTML instead of JSON. This usually means:');
-                console.warn('1. The API endpoint does not exist');
-                console.warn('2. User is not authenticated');
-                console.warn('3. Server returned an error page');
-
-                let errorMessage = 'Server error';
-                const match = text.match(/<title>(.*?)<\/title>/i);
-                if (match) {
-                    errorMessage = match[1];
-                }
-
-                throw new Error(errorMessage);
-            }
-
-            try {
-                // Try to parse as JSON
-                const data = JSON.parse(text);
-                return data;
-            } catch (e) {
-                console.error('Invalid JSON response:', text.substring(0, 200));
-                throw new Error('Invalid server response format');
-            }
-        });
-    }
-
-    function showNotification(message, type = 'success') {
-        const existingNotifications = document.querySelectorAll('.custom-notification');
-        existingNotifications.forEach(n => n.remove());
-
-        const notification = document.createElement('div');
-        notification.className = `custom-notification fixed top-4 right-4 z-[99999] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-            }`;
-        notification.textContent = message;
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateY(-20px)';
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateY(0)';
-        }, 10);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateY(-20px)';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-
-
-
-    // ============================================
-    // MODAL FUNCTIONS
-    // ============================================
-
-    // Generic modal functions
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        }
-    }
-
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = ''; // Restore scrolling
-        }
-
-    }
-
-    // Specific modal functions
-    function openBookingModal() { openModal('bookingModal'); }
-    function closeBookingModal() { closeModal('bookingModal'); }
-
-    function openDeleteModal() { openModal('deleteModal'); }
-    function closeDeleteModal() { closeModal('deleteModal'); }
-
-
-    ['bookingModal', 'deleteModal', 'propertyBookingsModal', 'bookingDetailModal'].forEach(modalId => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.addEventListener('click', function (e) {
-                if (e.target === this) {
-                    closeModal(modalId);
-                }
-            });
-        }
-    });
-
-    document.getElementById('bookingForm')?.addEventListener('submit', function (e) {
-
-        const submitBtn = this.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
-            submitBtn.disabled = true;
-
-            setTimeout(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }, 5000);
-        }
-
-    });
-
-    document.getElementById('savePropertyBtn')?.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = this.href;
-        form.style.display = 'none';
-
-        const csrfToken = getCsrfToken();
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = csrfToken;
-        form.appendChild(csrfInput);
-
-        document.body.appendChild(form);
-        form.submit();
-
-        const btn = this;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
-        btn.disabled = true;
-
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }, 2000);
-    });
-
-    function shareOnFacebook() {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent("Check out this property: {{ property.title }}");
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
-    }
-
-    function shareOnTwitter() {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent("Check out this property: {{ property.title }}");
-        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-    }
-
-    function shareOnWhatsApp() {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent("Check out this property: {{ property.title }}");
-        window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
-    }
-
-    function copyLink() {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url).then(() => {
-            showNotification('Link copied to clipboard!', 'success');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            showNotification('Failed to copy link', 'error');
-        });
-    }
-
-    function shareProperty() {
-        const url = window.location.href;
-        const title = "{{ property.title|escapejs }}";
-        if (navigator.share) {
-            navigator.share({ title: title, url: url }).catch(err => {
-                console.warn('Web Share failed:', err);
-                showNotification('Unable to share on this device', 'error');
-            });
-        } else {
-            navigator.clipboard.writeText(url).then(() => {
-                showNotification('Share link copied to clipboard!', 'success');
-            }).catch(() => {
-                showNotification('Unable to copy share link', 'error');
-            });
-        }
-    }
-
-    function copyPropertyLink() {
-        copyLink();
-    }
-
-    function openWhatsApp(waLink) {
-        const profileLink = (waLink || "{{ property.owner.userprofile.whatsapp_link|default:''|escapejs }}").trim();
-        const phone = "{{ property.owner.userprofile.phone_number|default:''|escapejs }}".trim();
-
-        if (profileLink) {
-            window.open(profileLink, '_blank');
-            return;
-        }
-
-        if (!phone) {
-            showNotification('WhatsApp contact not available', 'error');
-            return;
-        }
-
-        const normalized = phone.replace(/[^0-9]/g, '');
-        if (!normalized) {
-            showNotification('Invalid phone number for WhatsApp', 'error');
-            return;
-        }
-
-        const text = encodeURIComponent('Hello, I saw your property on Abuja Rentals: ' + window.location.href);
-        const waUrl = `https://wa.me/${normalized}?text=${text}`;
-        window.open(waUrl, '_blank');
-    }
-
-
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            closeBookingModal();
-            closePaymentModal();
-            closeContactModal();
-            closeDeleteModal();
-        }
-    });
-
+  function openWhatsApp() {
+    const link  = '{{ property.owner.userprofile.whatsapp_link|default:""| escapejs }}'.trim();
+    const phone = '{{ property.owner.userprofile.phone_number|default:""| escapejs }}'.trim();
+    if (link)  { window.open(link, '_blank'); return; }
+    if (!phone){ showNotification('WhatsApp not available', 'error'); return; }
+    const num  = phone.replace(/\D/g, '');
+    const text = encodeURIComponent('Hello, I saw your property on Abuja Rentals: ' + window.location.href);
+    window.open(`https://wa.me/${num}?text=${text}`, '_blank');
+  }
+  function callOwner() {
+    const phone = '{{ property.owner.userprofile.phone_number|default:""| escapejs }}'.trim();
+    if (phone) window.location.href = `tel:${phone}`;
+    else showNotification('No phone number available', 'error');
+  }
 </script>
+
+<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 px-4 py-3 flex items-center gap-3"
+     style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
+
+  <div class="flex-1 min-w-0">
+    <p class="text-lg font-black text-gray-900 leading-none">₦{{ property.price|floatformat:0|intcomma }}</p>
+    <p class="text-xs text-gray-400 mt-0.5">
+      {% if property.purpose == 'rent' %}
+        {% if property.rent_duration_months == 1 %}per month
+        {% elif property.rent_duration_months == 12 %}per year
+        {% elif property.rent_duration_months %}{{ property.rent_duration_months }} months
+        {% endif %}
+      {% else %}total price{% endif %}
+    </p>
+  </div>
+
+  <button onclick="callOwner()"
+          class="w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition shrink-0
+                 {% if not property.owner.userprofile.phone_number %}opacity-40 pointer-events-none{% endif %}">
+    <i class="fas fa-phone text-sm"></i>
+  </button>
+
+  <button onclick="openWhatsApp()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition shrink-0
+                 {% if not property.owner.userprofile.whatsapp_link and not property.owner.userprofile.phone_number %}opacity-40 pointer-events-none{% endif %}">
+    <i class="fab fa-whatsapp"></i> WhatsApp
+  </button>
+
+</div>
 
 {% endblock %}

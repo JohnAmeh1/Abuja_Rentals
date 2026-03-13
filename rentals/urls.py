@@ -19,9 +19,10 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('redirect/', views.send_message, name='redirect'),
     
+    path('agent/properties/', views.properties_view, name='agent_properties'),
     path('properties/', views.properties_view, name='properties'),
     path('api/properties/', views.get_properties, name='properties_api'),
-    path('properties/add/', views.add_property_view, name='add_property'),
+    path('properties/add/', views.add_property_view, name='create_property'),
     path('properties/edit/<int:property_id>/', views.edit_property_view, name='edit_property'),
     path('properties/status/<int:property_id>/', views.update_property_status, name='update_property_status'),
     path('properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
@@ -43,12 +44,14 @@ urlpatterns = [
     
     path('admin/dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
     path('admin/users/', views.admin_users_view, name='admin_users'),
+    path('admin/applications/<int:application_id>/review/', views.review_agent_application, name='review_agent_application'),
     path('admin/properties/', views.admin_properties_view, name='admin_properties'),
     path('admin/settings/', views.admin_settings_view, name='admin_settings'),
     path('admin/users/update/<int:user_id>/', views.update_user_status, name='update_user_status'),
     path('admin/properties/update/<int:property_id>/', views.update_property_status_admin, name='update_property_status_admin'),
     
     path('admin/messages/', views.admin_messages_view, name='admin_messages'),
+    path('admin/messages/create', views.create_admin_message, name='create_admin_message'),
     path('admin/messages/edit/<int:message_id>/', views.edit_admin_message, name='edit_admin_message'),
     path('admin/messages/toggle/<int:message_id>/', views.toggle_admin_message, name='toggle_admin_message'),
     path('admin/messages/delete/<int:message_id>/', views.delete_admin_message, name='delete_admin_message'),
@@ -67,7 +70,22 @@ urlpatterns = [
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     path('serviceworker.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='serviceworker'),
 
+    path('dashboard/apply/', views.agent_apply, name='agent_apply'),
+    path('dashboard/apply/withdraw/', views.agent_application_withdraw, name='agent_application_withdraw'),
+    path('dashboard/requests/', views.dashboard_requests, name='dashboard_requests'),
+    path('dashboard/requests/<int:inquiry_id>/close/', views.close_inquiry, name='close_inquiry'),
+    path('api/inquiries/<int:inquiry_id>/mark-opened/', views.mark_responses_opened, name='mark_responses_opened'),
 
+    path('dashboard/requests/agent/', views.agent_inquiries,          name='agent_inquiries'),
+    path('dashboard/agent/preferences/', views.agent_update_preferences, name='agent_update_preferences'),
+
+    path('api/agent/properties/',            views.agent_property_search,  name='agent_property_search'),
+    path('api/inquiries/<int:inquiry_id>/respond/', views.agent_respond_inquiry, name='agent_respond_inquiry'),
+    
+    path('about/',   views.AboutView.as_view(),   name='about'),
+    path('careers/', views.CareersView.as_view(), name='careers'),
+    path('faq/',     views.FAQView.as_view(),     name='faq'),
+    path('terms/',   views.TermsView.as_view(),   name='terms'),
 ]
 
 if settings.DEBUG:

@@ -122,8 +122,8 @@
                 <select id="basic_property_type" name="property_type"
                   class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
                   <option value="">All Types</option>
-                  {% for cat in categories_full %}
-                    <option value="{{ cat.code }}">{{ cat.label }}</option>
+                  {% for cat in property_types %}
+                    <option value="{{ cat.id }}">{{ cat.display_name }}</option>
                   {% endfor %}
                 </select>
                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
@@ -191,7 +191,6 @@
       </div>
 
 
-      <!-- Scroll -->
       <div class="mt-8 text-center">
         <a href="#featured" class="text-white/80 hover:text-white text-sm">
           Browse listings ↓
@@ -241,15 +240,13 @@
           <div class="absolute top-3 left-3 flex gap-2">
 
             {% if prop.is_featured %}
-            <span class="bg-primary text-white text-xs
-                                 font-medium px-3 py-1 rounded-lg">
+            <span class="bg-primary text-white text-xs font-medium px-3 py-1 rounded-lg">
               Featured
             </span>
             {% endif %}
 
-            <span class="bg-white/90 backdrop-blur
-                               text-gray-800 text-xs px-3 py-1 rounded-lg">
-              {{ prop.get_purpose_display }}
+            <span class="bg-white/90 backdrop-blur text-gray-800 text-xs px-3 py-1 rounded-lg">
+              For {{ prop.purpose|capfirst }}
             </span>
           </div>
 
@@ -261,8 +258,7 @@
           </a>
 
           <div class="absolute bottom-3 left-3">
-            <span class="bg-white text-gray-900
-                               font-semibold py-2 px-3 rounded-lg shadow-sm">
+            <span class="bg-white text-gray-900 font-semibold py-2 px-3 rounded-lg shadow-sm">
               ₦{{ prop.price|floatformat:0|intcomma }}
             </span>
           </div>
@@ -327,7 +323,6 @@
 
     </div>
 
-    <!-- Bottom CTA -->
     <div class="text-center">
       <a href="{% url 'properties' %}" class="inline-flex items-center gap-3
                     bg-primary text-white font-semibold
@@ -364,22 +359,18 @@
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-1 lg:gap-3">
       {% for cat in categories %}
-      <a href="{% url 'properties' %}?property_type={{ cat.code }}"
+      <a href="{% url 'properties' %}?property_type={{ cat.id }}"
         class='group relative overflow-hidden transition-all duration-300 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
 
-        <img src="/media/properties/cats/{{cat.code}}_high_quality.webp"
+        <img src="/media/abstract/{{cat.name}}_high_quality.webp"
           class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 brightness-[.70] group-hover:brightness-[.35]"
-          alt="{{cat.label}}" />
+          alt="{{cat.display_name}}" />
 
-        <!-- Content -->
         <div class="relative p-2.5 lg:p-5 h-48 flex items-end lg:justify-between text-white gap-2">
 
           <div class="flex items-center gap-3">
-            <!-- <div class="hidden lg:flex w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm items-center justify-center">
-              <i class="fas fa-building text-white text-lg"></i>
-            </div> -->
             <h3 class="font-semibold text-lg">
-              {{ cat.label }}
+              {{ cat.display_name }}
               <p class="text-xs lg:text-sm text-white/80 font-light">
                 {{cat.count}}+ available listings
               </p>

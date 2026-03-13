@@ -52,8 +52,8 @@
                 <select id="modal_property_type" name="property_type"
                     class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
                     <option value="">All Types</option>
-                    {% for cat in categories_full %}
-                    <option value="{{ cat.code }}" >{{ cat.label }}</option>
+                    {% for type in property_types %}
+                    <option value="{{ type.id }}" >{{ type.display_name }}</option>
                     {% endfor %}
                 </select>
                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
@@ -86,11 +86,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
-              <input type="number" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}" class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <input type="text" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}" class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt">
             </div>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
-              <input type="number" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}" class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <input type="text" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}" class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt">
             </div>
           </div>
         </div>
@@ -228,10 +228,10 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">Amenities</label>
           <div class="grid grid-cols-2 gap-2">
-            {% for val, label in amenity_choices %}
+            {% for amenity in amenity_choices %}
             <label class="flex items-center gap-2 p-2.5 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition">
-              <input type="checkbox" name="amenities" value="{{ val }}" class="accent-primary">
-              <span class="text-sm text-gray-700">{{ label }}</span>
+              <input type="checkbox" name="amenities" value="{{ amenity.id }}" class="accent-primary">
+              <span class="text-sm text-gray-700">{{ amenity.display_name }}</span>
             </label>
             {% endfor %}
           </div>
@@ -253,26 +253,21 @@
   </div>
 </div>
 
-<!-- Basic Search Card — NO z-index set, stays in normal flow below fixed layers -->
 
 <script>
-  const overlay = document.getElementById('overlay');
-  const modal   = document.getElementById('advancedModal');
+  let overlay = document.getElementById('overlay');
+  let modal   = document.getElementById('advancedModal');
   const box     = document.getElementById('modalBox');
 
   function openAdvancedModal() {
-    // Sync basic → hidden fields
     document.getElementById('modal_search').value        = document.getElementById('basic_search').value;
     document.getElementById('modal_property_type').value = document.getElementById('basic_property_type').value;
 
-    // 1. Make elements visible (display) BEFORE animating opacity/scale
     overlay.classList.remove('hidden');
     modal.classList.remove('hidden');
 
-    // 2. Force a reflow so the browser registers the starting state
     void overlay.offsetHeight;
 
-    // 3. Now apply visible styles — CSS transition will animate from the start state
     overlay.style.opacity = '1';
     box.style.transform   = 'scale(1)';
 
@@ -280,15 +275,13 @@
   }
 
   function closeAdvancedModal() {
-    // 1. Animate out
     overlay.style.opacity = '0';
     box.style.transform   = 'scale(0.95)';
 
-    // 2. After transition ends, hide with display:none (only once)
     overlay.addEventListener('transitionend', function handler() {
       overlay.classList.add('hidden');
       modal.classList.add('hidden');
-      overlay.removeEventListener('transitionend', handler); // ← remove so it doesn't fire again
+      overlay.removeEventListener('transitionend', handler);
     });
 
     document.body.style.overflow = '';
@@ -306,9 +299,9 @@
 </script>
 
 <script>
-  const CITIES = [
-    {% for code, label in cities %}
-    { code: "{{ code }}", label: "{{ label }}" },
+  let CITIES = [
+    {% for city in cities %}
+    { code: "{{ city.id }}", label: "{{ city.name|capfirst }}" },
     {% endfor %}
   ];
 
@@ -334,7 +327,6 @@
         '<span>' + city.label + '</span>';
 
       li.addEventListener('mousedown', function(e) {
-        // mousedown fires before blur — use preventDefault to stop blur closing dropdown first
         e.preventDefault();
         selectCity(city.label);
       });
@@ -400,7 +392,6 @@
     }
   });
 
-  // Simpler Enter handler — just grab the highlighted text directly
   searchInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && activeIndex >= 0) {
       const highlighted = dropdown.querySelectorAll('li')[activeIndex];
@@ -412,14 +403,12 @@
   });
 
   searchInput.addEventListener('blur', function() {
-    // Small delay so mousedown on a list item fires first
     setTimeout(function() {
       dropdown.classList.add('hidden');
     }, 150);
   });
 
   searchInput.addEventListener('focus', function() {
-    // Re-show suggestions if there's already a value
     if (this.value.trim()) {
       this.dispatchEvent(new Event('input'));
     }

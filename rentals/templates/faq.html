@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}FAQ | Abuja Rentals{% endblock %}
+
+{% block content %}
+
+{# ── Hero ─────────────────────────────────────────────────────────────────── #}
+<section class="relative overflow-hidden bg-gray-950 pt-32 pb-20">
+  <div class="absolute inset-0 opacity-[0.04]"
+       style="background-image: linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:48px 48px;"></div>
+
+  <div class="container mx-auto px-4 lg:px-20 relative text-center">
+    <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-primary mb-4">
+      <span class="w-5 h-px bg-primary inline-block"></span>
+      Got Questions?
+      <span class="w-5 h-px bg-primary inline-block"></span>
+    </span>
+    <h1 class="text-4xl lg:text-5xl font-black text-white mb-4">Frequently Asked Questions</h1>
+    <p class="text-gray-400 max-w-md mx-auto">Everything you might want to know about finding, renting, or listing
+       a property on Abuja Rentals.</p>
+  </div>
+</section>
+
+{# ── FAQ Body ─────────────────────────────────────────────────────────────── #}
+<section class="py-20 bg-[#f7f7f5]">
+  <div class="container mx-auto px-4 lg:px-20">
+    <div class="max-w-3xl mx-auto space-y-12">
+
+      {# Category: For Renters #}
+      <div>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+            <i class="fas fa-user text-blue-500 text-sm"></i>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">For Renters</h2>
+        </div>
+        <div class="space-y-2" id="renters-group">
+
+          {% for q, a in renter_faqs %}
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)"
+                    class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">{{ q }}</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">{{ a }}</p>
+            </div>
+          </div>
+          {% empty %}
+          {# Fallback static FAQs #}
+          {% for item in faq_renters_static %}{% endfor %}
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">Is it free to search for properties?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Yes, completely free. Browsing listings, saving properties, making requests, and booking viewings costs nothing. We're paid by agents and landlords — not by renters.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">How do I know a listing is genuine?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Every listing on Abuja Rentals is reviewed before going live. Agents and landlords must verify their identity. If you ever spot something suspicious, use the report button on any listing and we'll investigate within 24 hours.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">Can I make a request for a property type I haven't seen listed?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Absolutely. Use the "Make a Request" button to tell us exactly what you're looking for — location, budget, size, amenities. Our agents will send you matching properties directly to your dashboard.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">How do I book a property viewing?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Open any property listing and click "Book a Viewing". Pick your preferred date and time, leave any notes for the owner, and submit. You'll see the booking status update in your dashboard, and the owner will confirm or suggest a new time.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">What happens after I find a property I like?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">You can book a viewing, save it to your list, or contact the agent directly via WhatsApp if provided. Once you've inspected and agreed to terms with the landlord, the lease is handled directly between you — we don't take a cut of rent.</p>
+            </div>
+          </div>
+
+          {% endfor %}
+        </div>
+      </div>
+
+      {# Category: For Agents & Landlords #}
+      <div>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+            <i class="fas fa-id-badge text-green-600 text-sm"></i>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">For Agents & Landlords</h2>
+        </div>
+        <div class="space-y-2">
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">How do I list a property?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Create an account and apply to become an agent from your dashboard. Once approved (usually within 1–2 business days), you can list unlimited properties. We review each listing before it goes live to maintain quality.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">How long does agent approval take?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">We aim to review all applications within 1–2 working days. You'll get an email as soon as a decision is made. If approved, you'll gain immediate access to agent features including client request matching and property listing tools.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">Can I respond to client requests with any property?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">You can only respond to client requests with your own listed properties. This keeps accountability clear and ensures the renter is dealing with a verified listing you actually manage.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">Is there a cost to list properties?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">We're currently free for agents in our early access phase. Premium features — like featured placement and priority matching — will be introduced later. You'll always get advance notice before anything changes.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {# Category: Account & Privacy #}
+      <div>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+            <i class="fas fa-lock text-purple-500 text-sm"></i>
+          </div>
+          <h2 class="text-lg font-bold text-gray-900">Account & Privacy</h2>
+        </div>
+        <div class="space-y-2">
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">Do you sell my data?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Never. Your personal information is used only to operate your account and connect you with relevant properties. We don't sell it to third parties, period. See our Privacy Policy for the full picture.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">How do I delete my account?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Go to Settings in your dashboard and select "Delete Account". Your data will be permanently removed within 30 days. If you're an agent with active listings, those will be unpublished first.</p>
+            </div>
+          </div>
+
+          <div class="faq-item bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 text-left px-6 py-5">
+              <span class="font-semibold text-gray-900 text-sm">I forgot my password. What do I do?</span>
+              <i class="fas fa-plus text-gray-400 text-xs shrink-0 faq-icon transition-transform duration-200"></i>
+            </button>
+            <div class="faq-answer hidden px-6 pb-5">
+              <p class="text-sm text-gray-600 leading-relaxed">Click "Forgot password" on the login page. We'll send a reset link to your registered email address. If you don't see it in a few minutes, check your spam folder or email us at support@abujarentals.com.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {# Still have questions #}
+      <div class="bg-gray-950 rounded-2xl px-8 py-10 text-center">
+        <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-comments text-primary text-lg"></i>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2">Still have a question?</h3>
+        <p class="text-gray-400 text-sm mb-6 max-w-xs mx-auto">
+          We're a real team and we actually respond. Drop us a message and we'll get back to you within a day.
+        </p>
+        <a href="mailto:hello@abujarentals.com"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:opacity-90 transition">
+          <i class="fas fa-envelope text-xs"></i>
+          Email Us
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  function toggleFaq(btn) {
+    const item   = btn.closest('.faq-item');
+    const answer = item.querySelector('.faq-answer');
+    const icon   = btn.querySelector('.faq-icon');
+    const isOpen = !answer.classList.contains('hidden');
+
+    // Close all others in the same group
+    btn.closest('.space-y-2').querySelectorAll('.faq-item').forEach(el => {
+      el.querySelector('.faq-answer').classList.add('hidden');
+      el.querySelector('.faq-icon').style.transform = '';
+    });
+
+    if (!isOpen) {
+      answer.classList.remove('hidden');
+      icon.style.transform = 'rotate(45deg)';
+    }
+  }
+</script>
+
+{% endblock %}

@@ -1,975 +1,329 @@
-{% extends "base.html" %}
-{% load humanize %} <!-- Add this line -->
+{% extends "auth/base.html" %}
+{% load humanize %}
 
 {% block title %}Dashboard | Abuja Rentals{% endblock %}
 
-{% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-primary">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-2">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Sidebar -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="text-center mb-6">
-                    <div
-                        class="w-24 h-24 bg-gradient-to-r from-accent to-accent-dark rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <h3 class="font-bold text-lg text-primary">{{ user.get_full_name|default:user.username }}</h3>
-                    <p class="text-gray-600 text-sm capitalize">{{ user.userprofile.get_user_type_display }}</p>
-                </div>
-
-                <nav class="space-y-1">
-                    <a href="{% url 'dashboard' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium {% if request.path == '/dashboard/' %}bg-blue-50 text-accent{% endif %}">
-                        <i class="fas fa-th-large mr-3"></i>Dashboard
-                    </a>
-                    <a href="{% url 'profile' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-user-circle mr-3"></i>My Profile
-                    </a>
-
-                    {% if user.userprofile.user_type == 'owner' %}
-                    <a href="{% url 'properties' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-home mr-3"></i>My Properties
-                    </a>
-                    <a href="{% url 'add_property' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-plus-circle mr-3"></i>Add New Property
-                    </a>
-                    {% elif user.userprofile.user_type == 'tenant' %}
-                    <a href="{% url 'saved_properties' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-heart mr-3"></i>Saved Properties
-                    </a>
-                    <a href="{% url 'my_bookings' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-clock mr-3"></i>My Bookings
-                    </a>
-
-                    <!-- Student Navigation -->
-                    {% elif user.userprofile.user_type == 'student' %}
-                    <a href="{% url 'student_properties' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium">
-                        <i class="fas fa-graduation-cap mr-3"></i>Student Properties
-                    </a>
-                    <a href="{% url 'saved_properties' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium">
-                        <i class="fas fa-heart mr-3"></i>Saved Properties
-                    </a>
-                    <a href="{% url 'my_bookings' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium">
-                        <i class="fas fa-clock mr-3"></i>My Bookings
-                    </a>
-
-                    <!-- In the navigation sidebar section of dashboard.html: -->
-                    {% elif user.userprofile.user_type == 'agent' %}
-                    <a href="{% url 'student_properties' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-home mr-3"></i>My Properties
-                    </a>
-                    <a href="{% url 'create_property' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-plus-circle mr-3"></i>Add New Property
-                    </a>
-
-
-                    {% elif user.userprofile.user_type == 'admin' %}
-                    <!-- Admin Navigation -->
-                    <a href="{% url 'admin_dashboard' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-tachometer-alt mr-3"></i>Admin Dashboard
-                    </a>
-                    <a href="{% url 'admin_users' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-users-cog mr-3"></i>Manage Users
-                    </a>
-                    <a href="{% url 'admin_properties' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-home mr-3"></i>Manage Properties
-                    </a>
-                    <a href="{% url 'admin_transactions' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-money-check-alt mr-3"></i>Transactions
-                    </a>
-                    <a href="{% url 'admin_platform_fees' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-percentage mr-3"></i>Platform Fees
-                    </a>
-                    <a href="{% url 'admin_settings' %}"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-cogs mr-3"></i>Site Settings
-                    </a>
-                    {% endif %}
-
-                    <a href="#"
-                        class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
-                        <i class="fas fa-cog mr-3"></i>Settings
-                    </a>
-                    <a href="{% url 'logout' %}"
-                        class="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium">
-                        <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
-                    </a>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="lg:col-span-3">
-            {% if user.userprofile.user_type == 'owner' %}
-            <!-- Owner Dashboard Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Total Properties</h4>
-                            <p class="text-3xl font-bold text-blue-600 mt-2">{{ total_properties }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-home text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Available</h4>
-                            <p class="text-3xl font-bold text-green-600 mt-2">{{ available_properties }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check-circle text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Total Value</h4>
-                            <p class="text-3xl font-bold text-purple-600 mt-2">₦{{ total_value|floatformat:2|intcomma }}
-                            </p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-chart-line text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <a href="{% url 'add_property' %}"
-                        class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Add New Property</h4>
-                                <p class="text-sm opacity-90 mt-2">List your property for rent or sale</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-plus text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Add this new View Bookings card -->
-                    <a href="{% url 'manage_bookings' %}"
-                        class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">View Bookings</h4>
-                                <p class="text-sm opacity-90 mt-2">Manage property visit requests</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-calendar-check text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-
-                    <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-6 text-white">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Potential Earnings</h4>
-                                <p class="text-2xl font-bold mt-2">₦{{ potential_earnings|floatformat:2|intcomma }}</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-money-bill-wave text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {% elif user.userprofile.user_type == 'tenant' %}
-            <!-- Tenant Dashboard Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Saved Properties</h4>
-                            <p class="text-3xl font-bold text-blue-600 mt-2">{{ saved_properties_count }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-heart text-white text-xl"></i>
-                        </div>
-                    </div>
-                    <a href="{% url 'saved_properties' %}"
-                        class="block text-center text-accent font-medium mt-4 hover:text-accent-dark">
-                        View Saved Properties →
-                    </a>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">My Bookings</h4>
-                            <p class="text-3xl font-bold text-green-600 mt-2">{{ booking_count }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-calendar-alt text-white text-xl"></i>
-                        </div>
-                    </div>
-                    <a href="{% url 'my_bookings' %}"
-                        class="block text-center text-accent font-medium mt-4 hover:text-accent-dark">
-                        View My Bookings →
-                    </a>
-                </div>
-
-
-            </div>
-
-            <!-- Quick Actions for Tenant -->
-            <div class="mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <a href="{% url 'properties' %}"
-                        class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Browse Properties</h4>
-                                <p class="text-sm opacity-90 mt-2">Find your perfect home in Abuja</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-search text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'saved_properties' %}"
-                        class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Saved Properties</h4>
-                                <p class="text-sm opacity-90 mt-2">View your favorite listings</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-heart text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-
-                </div>
-            </div>
-            {% if active_rentals %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-                <h3 class="text-xl font-bold text-primary mb-4">Active Rentals</h3>
-                <div class="grid grid-cols-1 gap-4">
-                    {% for item in active_rentals %}
-                    <div
-                        class="rental-card bg-gradient-to-r from-white to-gray-50 border border-gray-100 rounded-lg p-4 flex flex-col md:flex-row items-start md:items-center justify-between">
-                        <div class="flex items-start space-x-4">
-                            <div
-                                class="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
-                                <i class="fas fa-building text-xl"></i>
-                            </div>
-                            <div>
-                                <a href="{% url 'property_detail' item.rental.property.id %}"
-                                    class="font-semibold text-primary text-lg">{{ item.rental.property.title }}</a>
-                                <div class="text-sm text-gray-600 mt-1">
-                                    Owner: {{
-                                    item.rental.property.owner.get_full_name|default:item.rental.property.owner.username
-                                    }}
-                                </div>
-                                <div class="text-sm text-gray-600 mt-1">
-                                    Ends: {{ item.rental.end_date }} &middot;
-                                    {% comment %} Term: {% if item.total_days %}{{ item.total_days }} days{% else
-                                    %}N/A{% endif %} {% endcomment %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 md:mt-0 flex items-center space-x-4">
-                            <div class="text-right">
-                                {% if item.starts_in is not None and item.starts_in > 0 %}
-                                <div class="text-sm text-blue-600 font-semibold">Starts in {{ item.starts_in }} days
-                                </div>
-                                {% elif item.days_remaining is not None %}
-                                {% if item.days_remaining > 1 %}
-                                <div class="text-sm text-gray-500">{{ item.days_remaining }} days remaining</div>
-                                {% elif item.days_remaining == 1 %}
-                                <div class="text-sm text-yellow-600 font-semibold">1 day remaining</div>
-                                {% elif item.days_remaining == 0 %}
-                                <div class="text-sm text-yellow-600 font-semibold">Ends today</div>
-                                {% else %}
-                                <div class="text-sm text-red-600 font-semibold">Expired {% if item.expired_days %}{{
-                                    item.expired_days }}{% else %}0{% endif %} days ago</div>
-                                {% endif %}
-                                {% else %}
-                                <div class="text-sm text-gray-500">N/A</div>
-                                {% endif %}
-                                <div class="text-sm text-gray-700 font-medium mt-2">Price: ₦{{
-                                    item.rental.total_amount|floatformat:2|intcomma }}</div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            {% elif user.userprofile.user_type == 'agent' %}
-            <!-- Agent Dashboard Cards -->
-            {% comment %} <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Total Properties</h4>
-                            <p class="text-3xl font-bold text-blue-600 mt-2">{{ total_properties }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-home text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Available</h4>
-                            <p class="text-3xl font-bold text-green-600 mt-2">{{ available_properties }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check-circle text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Student-Friendly</h4>
-                            <p class="text-3xl font-bold text-purple-600 mt-2">{{ student_friendly_properties }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-graduation-cap text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div> {% endcomment %}
-
-            <!-- Quick Actions for Agent -->
-            <div class="mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <a href="{% url 'create_property' %}"
-                        class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Add New Property</h4>
-                                <p class="text-sm opacity-90 mt-2">List student-friendly properties</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-plus text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'student_properties' %}?my_properties=true"
-                        class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">My Properties</h4>
-                                <p class="text-sm opacity-90 mt-2">View all your listings</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-list text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-
-                </div>
-            </div>
-
-
-            {% elif user.userprofile.user_type == 'student' %}
-            <!-- STUDENT DASHBOARD SECTION -->
-
-            <!-- Student Welcome Banner -->
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 mb-8 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-2">🎓 Welcome, Student!</h2>
-                        <p class="opacity-90">Find student-friendly housing with exclusive benefits and discounts</p>
-                    </div>
-                    <div class="hidden md:block">
-                        <i class="fas fa-graduation-cap text-6xl opacity-20"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Student Dashboard Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Saved Properties</h4>
-                            <p class="text-3xl font-bold text-blue-600 mt-2">{{ saved_properties_count }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-heart text-white text-xl"></i>
-                        </div>
-                    </div>
-                    <a href="{% url 'saved_properties' %}"
-                        class="block text-center text-blue-600 font-medium mt-4 hover:text-blue-800">
-                        View Saved →
-                    </a>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">My Bookings</h4>
-                            <p class="text-3xl font-bold text-green-600 mt-2">{{ booking_count }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-calendar-alt text-white text-xl"></i>
-                        </div>
-                    </div>
-                    <a href="{% url 'my_bookings' %}"
-                        class="block text-center text-green-600 font-medium mt-4 hover:text-green-800">
-                        View Bookings →
-                    </a>
-                </div>
-
-
-            </div>
-
-            <!-- Student Quick Actions -->
-            <div class="mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <a href="{% url 'student_properties' %}"
-                        class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Find Student Housing</h4>
-                                <p class="text-sm opacity-90 mt-2">Browse student-friendly properties</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-graduation-cap text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'saved_properties' %}"
-                        class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Saved Properties</h4>
-                                <p class="text-sm opacity-90 mt-2">View your favorite listings</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-heart text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-
-                </div>
-            </div>
-
-            <!-- Student Benefits -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-                <h3 class="text-xl font-bold text-primary mb-4">🎓 Student Benefits</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div
-                                class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mr-4">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">Budget-Friendly Options</h4>
-                                <p class="text-gray-600 text-sm mt-1">Find properties within student budget ranges</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div
-                                class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mr-4">
-                                <i class="fas fa-wifi"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">Essential Amenities</h4>
-                                <p class="text-gray-600 text-sm mt-1">Filter for WiFi, laundry, and other student needs
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div
-                                class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 mr-4">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">Flexible Terms</h4>
-                                <p class="text-gray-600 text-sm mt-1">Rental terms that match academic calendars</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            {% if active_rentals %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-xl font-bold text-gray-900 mb-4">Active Rentals</h3>
-
-                <div class="space-y-4">
-                    {% for rental_info in active_rentals %}
-                    <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
-                        <!-- Property Title and Type Badge -->
-                        <div class="flex items-start justify-between mb-3">
-                            <div>
-                                <h4 class="text-lg font-semibold text-gray-900">
-                                    {{ rental_info.rental.property.title }}
-                                </h4>
-                                <p class="text-sm text-gray-600">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    {{ rental_info.rental.property.city }}
-                                </p>
-                            </div>
-                            {% if rental_info.type == 'student' %}
-                            <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
-                                Student Property
-                            </span>
-                            {% else %}
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                                Regular Property
-                            </span>
-                            {% endif %}
-                        </div>
-
-                        <!-- Rental Status -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                            <div class="text-center bg-gray-50 rounded-lg p-2">
-                                <p class="text-xs text-gray-600">Start Date</p>
-                                <p class="font-semibold text-sm">{{ rental_info.rental.start_date|date:"M d, Y" }}</p>
-                            </div>
-                            <div class="text-center bg-gray-50 rounded-lg p-2">
-                                <p class="text-xs text-gray-600">End Date</p>
-                                <p class="font-semibold text-sm">{{ rental_info.rental.end_date|date:"M d, Y" }}</p>
-                            </div>
-                            <div class="text-center bg-gray-50 rounded-lg p-2">
-                                <p class="text-xs text-gray-600">Status</p>
-                                <p class="font-semibold text-sm capitalize">{{ rental_info.status }}</p>
-                            </div>
-                            <div class="text-center bg-gray-50 rounded-lg p-2">
-                                <p class="text-xs text-gray-600">Total Days</p>
-                                <p class="font-semibold text-sm">{{ rental_info.total_days|default:"N/A" }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        {% if rental_info.days_remaining is not None and rental_info.total_days %}
-                        <div class="mb-3">
-                            <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                <span>Progress</span>
-                                <span>{{ rental_info.days_remaining }} days remaining</span>
-                            </div>
-                            {% widthratio rental_info.days_passed rental_info.total_days 100 as progress_percent %}
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ progress_percent }}%"></div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Renewal Section -->
-                        {% if rental_info.renewal_allowed %}
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-semibold text-yellow-800">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>
-                                        Renewal Available
-                                    </p>
-                                    <p class="text-xs text-yellow-700 mt-1">
-                                        Your rental {% if rental_info.status == 'expired' %}has expired{% else %}is
-                                        expiring soon{% endif %}. Renew now to continue.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Renewal Details -->
-                            <div class="mt-3 bg-white rounded p-2 text-xs space-y-1">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Renewal Amount:</span>
-                                    <span class="font-semibold">₦{{
-                                        rental_info.rental.total_amount|floatformat:0|intcomma }}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Duration:</span>
-                                    <span class="font-semibold">{{ rental_info.rental.property.rent_duration_months }}
-                                        months</span>
-                                </div>
-                                {% if rental_info.type == 'student' %}
-                                <div class="flex justify-between text-purple-600">
-                                    <span>Platform Fee (2%):</span>
-                                    <span class="font-semibold">Included (Paid to Platform)</span>
-                                </div>
-                                {% endif %}
-                            </div>
-
-                            <!-- Renewal Button -->
-                            <form method="POST"
-                                action="{% if rental_info.type == 'student' %}{% url 'renew_student_rental' rental_info.rental.id %}{% else %}{% url 'renew_rental' rental_info.rental.id %}{% endif %}"
-                                onsubmit="return confirm('Renew this rental for ₦{{ rental_info.rental.total_amount|floatformat:0|intcomma }}?');"
-                                class="mt-3">
-                                {% csrf_token %}
-                                <button type="submit"
-                                    class="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-semibold">
-                                    <i class="fas fa-redo mr-2"></i>
-                                    Renew for ₦{{ rental_info.rental.total_amount|floatformat:0|intcomma }}
-                                </button>
-                            </form>
-                        </div>
-                        {% endif %}
-
-                        <!-- Rental Amount Display -->
-                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                            <span class="text-sm text-gray-600">Rental Amount</span>
-                            <span class="text-lg font-bold text-blue-600">
-                                ₦{{ rental_info.rental.total_amount|floatformat:0|intcomma }}
-                            </span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% else %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-                <div class="text-center">
-                    <i class="fas fa-home text-gray-300 text-5xl mb-3"></i>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Active Rentals</h3>
-                    <p class="text-gray-600 mb-4">You don't have any active property rentals yet.</p>
-                    <a href="{% url 'student_properties' %}"
-                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-search mr-2"></i>
-                        Browse Properties
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Student Tips -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-100 rounded-xl p-6 border border-green-200 mb-8">
-                <h3 class="text-xl font-bold text-green-800 mb-4">💡 Student Tips</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex items-start">
-                        <div
-                            class="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center text-green-700 mr-3">
-                            <i class="fas fa-lightbulb"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-green-800">Book Early</h4>
-                            <p class="text-green-700 text-sm">Student housing fills up fast - start your search early!
-                            </p>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            {% elif user.userprofile.user_type == 'admin' %}
-            <!-- Admin Dashboard Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Total Users</h4>
-                            <p class="text-3xl font-bold text-blue-600 mt-2">{{ total_users }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-users text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                {% comment %} <div
-                    class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-lg font-bold text-primary">Total Properties</h4>
-                            <p class="text-3xl font-bold text-green-600 mt-2">{{ total_properties }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-home text-white text-xl"></i>
-                        </div>
-                    </div>
-                </div> {% endcomment %}
-
-
-            </div>
-
-            <!-- Admin Quick Actions -->
-            <div class="mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <a href="{% url 'admin_users' %}"
-                        class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Manage Users</h4>
-                                <p class="text-sm opacity-90 mt-2">View and manage all users</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-users-cog text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'admin_properties' %}"
-                        class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Manage Properties</h4>
-                                <p class="text-sm opacity-90 mt-2">Approve, edit, or delete properties</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-home text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- In templates/auth/dashboard.html or admin/dashboard.html -->
-                    {% if pending_student_properties %}
-
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-yellow-700">
-                                    You have <strong>{{ pending_student_properties }}</strong> student properties
-                                    awaiting review.
-                                    <a href="{% url 'admin_student_properties' %}"
-                                        class="font-medium underline text-yellow-700 hover:text-yellow-600">
-                                        Review them now
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-
-
-
-                    <a href="{% url 'admin_transactions' %}"
-                        class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Transactions</h4>
-                                <p class="text-sm opacity-90 mt-2">View all platform transactions</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-exchange-alt text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-                    <!-- Broadcast Messages Card -->
-                    <a href="{% url 'admin_messages' %}"
-                        class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">Broadcast Messages</h4>
-                                <p class="text-sm opacity-90 mt-2">Send messages to all users</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-bullhorn text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Reports Card -->
-                    <a href="{% url 'admin_reports' %}"
-                        class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-lg font-bold">User Reports</h4>
-                                <p class="text-sm opacity-90 mt-2">Review and act on user reports</p>
-                            </div>
-                            <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-flag text-xl"></i>
-                            </div>
-                        </div>
-                    </a>
-
-                </div>
-            </div>
-            {% endif %}
-
-
-            <!-- Recent Properties (For Owners) -->
-            {% if user.userprofile.user_type == 'owner' and recent_properties %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-primary">Recent Properties</h3>
-                    <a href="{% url 'properties' %}" class="text-accent font-medium hover:text-accent-dark">
-                        View All →
-                    </a>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for property in recent_properties %}
-                    <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-                        <div class="relative h-48 bg-gray-200">
-                            {% if property.main_image %}
-                            <img src="{{ property.main_image.url }}" alt="{{ property.title }}"
-                                class="w-full h-full object-cover">
-                            {% else %}
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="fas fa-home text-gray-400 text-4xl"></i>
-                            </div>
-                            {% endif %}
-                            <div class="absolute bottom-4 left-4">
-                                <span class="bg-white/90 backdrop-blur-sm text-primary font-bold py-2 px-4 rounded-lg">
-                                    ₦{{ property.price|floatformat:2|intcomma }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="p-4">
-                            <h4 class="font-bold text-primary mb-2 truncate">{{ property.title }}</h4>
-                            <div class="flex items-center text-gray-600 text-sm mb-3">
-                                <span class="mr-4"><i class="fas fa-map-marker-alt mr-1"></i>{{ property.city }}</span>
-                                <span><i class="fas fa-ruler-combined mr-1"></i>{{ property.area_sqft }} sqft</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span
-                                    class="px-3 py-1 text-xs rounded-full {% if property.status == 'available' %}bg-green-100 text-green-800{% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif property.status == 'sold' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                    {{ property.get_status_display }}
-                                </span>
-                                <!-- In dashboard.html, around line 240 -->
-                                <a href="{% url 'edit_property' property.id %}"
-                                    class="text-accent text-sm font-medium hover:text-accent-dark">
-                                    Edit
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Recent Activity -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-xl font-bold text-primary mb-6">Recent Activity</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white mr-4">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">Welcome to Abuja Rentals!</p>
-                            <p class="text-sm text-gray-600">Your account has been successfully created.</p>
-                        </div>
-                        <span class="text-sm text-gray-500">Just now</span>
-                    </div>
-
-                    {% if user.userprofile.user_type == 'owner' %}
-                    <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                        <div
-                            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white mr-4">
-                            <i class="fas fa-home"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">Ready to list your first property?</p>
-                            <p class="text-sm text-gray-600">Start listing your properties to find tenants or buyers.
-                            </p>
-                        </div>
-                        <a href="{% url 'add_property' %}" class="text-accent font-medium">Add Property →</a>
-                    </div>
-                    {% elif user.userprofile.user_type == 'agent' %}
-                    <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                        <div
-                            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white mr-4">
-                            <i class="fas fa-home"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">Ready to list your first property?</p>
-                            <p class="text-sm text-gray-600">Start listing your properties to find tenants or buyers.
-                            </p>
-                        </div>
-                        <a href="{% url 'create_property' %}" class="text-accent font-medium">Create Property →</a>
-                    </div>
-
-                    {% elif user.userprofile.user_type == 'student' %}
-                    <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                        <div
-                            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white mr-4">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">Find student-friendly housing</p>
-                            <p class="text-sm text-gray-600">Browse properties with student discounts and essential
-                                amenities.</p>
-                        </div>
-                        <a href="{% url 'student_properties' %}" class="text-accent font-medium">Browse Student
-                            Properties →</a>
-                    </div>
-
-                    {% elif user.userprofile.user_type == 'tenant' %}
-                    <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                        <div
-                            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white mr-4">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">Start your property search</p>
-                            <p class="text-sm text-gray-600">Browse thousands of properties in Abuja.</p>
-                        </div>
-                        <a href="{% url 'properties' %}" class="text-accent font-medium">Browse Properties →</a>
-                    </div>
-                    {% elif user.userprofile.user_type == 'admin' %}
-                    <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                        <div
-                            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white mr-4">
-                            <i class="fas fa-cogs"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">Platform Administration</p>
-                            <p class="text-sm text-gray-600">Manage users, properties, and platform settings.</p>
-                        </div>
-                        <a href="{% url 'admin_dashboard' %}" class="text-accent font-medium">Admin Panel →</a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+{% block subcontent %}
+
+<div class="mb-6">
+  <h2 class="text-xl font-bold text-gray-900">
+    Welcome back, {{ user.get_full_name|default:user.username }}
+  </h2>
+  <p class="text-sm text-gray-400 mt-0.5">Here's what's happening with your account.</p>
 </div>
+
+{% if user.userprofile.user_type == 'tenant' %}
+
+  <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-heart text-red-400 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-gray-900 leading-none">{{ saved_properties_count|default:"0" }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">Saved Properties</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-calendar-check text-green-500 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-gray-900 leading-none">{{ booking_count|default:"0" }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">Bookings</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4 col-span-2 lg:col-span-1">
+      <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-inbox text-blue-500 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-gray-900 leading-none">{{ requests_count|default:"0" }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">Active Requests</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+    <a href="{% url 'properties' %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition">
+        <i class="fas fa-search text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">Browse Properties</p>
+        <p class="text-xs text-gray-400">Find your next home</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+
+    <a href="{% url 'saved_properties' %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-red-50 text-red-400 flex items-center justify-center shrink-0 group-hover:bg-red-400 group-hover:text-white transition">
+        <i class="fas fa-heart text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">Saved Properties</p>
+        <p class="text-xs text-gray-400">Your favourites</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+
+    <a href="{% url 'my_bookings' %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center shrink-0 group-hover:bg-green-500 group-hover:text-white transition">
+        <i class="fas fa-calendar-check text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">My Bookings</p>
+        <p class="text-xs text-gray-400">Scheduled viewings</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+
+    <a href="{% url 'dashboard_requests' %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white transition">
+        <i class="fas fa-inbox text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">My Requests</p>
+        <p class="text-xs text-gray-400">Property enquiries</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+  </div>
+
+{% elif user.userprofile.user_type == 'agent' %}
+
+  <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-home text-blue-500 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-gray-900 leading-none">{{ total_properties|default:"0" }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">My Listings</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-check-circle text-green-500 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-gray-900 leading-none">{{ available_properties|default:"0" }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">Available</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4 col-span-2 lg:col-span-1">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-inbox text-amber-500 text-sm"></i>
+      </div>
+      <div>
+        <p class="text-2xl font-black text-gray-900 leading-none">{{ pending_requests|default:"0" }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">Pending Requests</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+    <a href="{% url 'create_property' %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition">
+        <i class="fas fa-plus text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">Add New Property</p>
+        <p class="text-xs text-gray-400">List a new property</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+
+    <a href="{% url 'agent_properties' %}?my_properties=true"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center shrink-0 group-hover:bg-green-500 group-hover:text-white transition">
+        <i class="fas fa-list text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">My Properties</p>
+        <p class="text-xs text-gray-400">View all your listings</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+
+    <a href="{% url 'agent_inquiries' %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition sm:col-span-2">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-white transition">
+        <i class="fas fa-inbox text-sm"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-900">Client Requests</p>
+        <p class="text-xs text-gray-400">View and respond to open enquiries</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs group-hover:text-primary transition"></i>
+    </a>
+  </div>
+
+{% elif user.userprofile.user_type == 'admin' %}
+
+  {% if pending_agent_applications %}
+  <div class="flex items-center gap-3 p-4 mb-5 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-800">
+    <i class="fas fa-exclamation-circle text-amber-500 shrink-0"></i>
+    <p>
+      <span class="font-semibold">{{ pending_agent_applications }} agent application{{ pending_agent_applications|pluralize }}</span>
+      waiting for review.
+      <a href="{% url 'admin_users' %}" class="underline font-semibold ml-1">Review now →</a>
+    </p>
+  </div>
+  {% endif %}
+
+  {% if pending_student_properties %}
+  <div class="flex items-center gap-3 p-4 mb-5 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-800">
+    <i class="fas fa-exclamation-circle text-amber-500 shrink-0"></i>
+    <p>
+      <span class="font-semibold">{{ pending_student_properties }} propert{{ pending_student_properties|pluralize:"y,ies" }}</span>
+      awaiting review.
+      <a href="{% url 'admin_student_properties' %}" class="underline font-semibold ml-1">Review now →</a>
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+        <i class="fas fa-users text-blue-500 text-sm"></i>
+      </div>
+      <p class="text-2xl font-black text-gray-900 leading-none">{{ total_users|default:"0"|intcomma }}</p>
+      <p class="text-xs text-gray-400 mt-1">Total Users</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center mb-3">
+        <i class="fas fa-home text-green-500 text-sm"></i>
+      </div>
+      <p class="text-2xl font-black text-gray-900 leading-none">{{ total_properties|default:"0"|intcomma }}</p>
+      <p class="text-xs text-gray-400 mt-1">Properties</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
+        <i class="fas fa-id-badge text-amber-500 text-sm"></i>
+      </div>
+      <p class="text-2xl font-black text-gray-900 leading-none">{{ pending_agent_applications|default:"0" }}</p>
+      <p class="text-xs text-gray-400 mt-1">Pending Applications</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center mb-3">
+        <i class="fas fa-flag text-red-400 text-sm"></i>
+      </div>
+      <p class="text-2xl font-black text-gray-900 leading-none">{{ open_reports|default:"0" }}</p>
+      <p class="text-xs text-gray-400 mt-1">Open Reports</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    {% for icon, color_cls, label, sublabel, url_name in admin_actions %}
+    <a href="{% url url_name %}"
+       class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl {{ color_cls }} flex items-center justify-center shrink-0 transition">
+        <i class="fas {{ icon }} text-sm text-white"></i>
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-gray-900 truncate">{{ label }}</p>
+        <p class="text-xs text-gray-400 truncate">{{ sublabel }}</p>
+      </div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs shrink-0 group-hover:text-primary transition"></i>
+    </a>
+    {% empty %}
+    <a href="{% url 'admin_users' %}" class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center shrink-0"><i class="fas fa-users-cog text-white text-sm"></i></div>
+      <div><p class="text-sm font-semibold text-gray-900">Manage Users</p><p class="text-xs text-gray-400">View all users</p></div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs"></i>
+    </a>
+    <a href="{% url 'admin_properties' %}" class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shrink-0"><i class="fas fa-home text-white text-sm"></i></div>
+      <div><p class="text-sm font-semibold text-gray-900">Properties</p><p class="text-xs text-gray-400">Approve & manage</p></div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs"></i>
+    </a>
+    <a href="{% url 'admin_messages' %}" class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center shrink-0"><i class="fas fa-bullhorn text-white text-sm"></i></div>
+      <div><p class="text-sm font-semibold text-gray-900">Broadcasts</p><p class="text-xs text-gray-400">Message all users</p></div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs"></i>
+    </a>
+    <a href="{% url 'admin_reports' %}" class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center shrink-0"><i class="fas fa-flag text-white text-sm"></i></div>
+      <div><p class="text-sm font-semibold text-gray-900">User Reports</p><p class="text-xs text-gray-400">Review & act</p></div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs"></i>
+    </a>
+    <a href="{% url 'admin_settings' %}" class="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 hover:shadow-md transition">
+      <div class="w-10 h-10 rounded-xl bg-gray-600 flex items-center justify-center shrink-0"><i class="fas fa-cogs text-white text-sm"></i></div>
+      <div><p class="text-sm font-semibold text-gray-900">Settings</p><p class="text-xs text-gray-400">Platform config</p></div>
+      <i class="fas fa-arrow-right text-gray-300 ml-auto text-xs"></i>
+    </a>
+    {% endfor %}
+  </div>
+
+{% endif %}
+
+<div class="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100">
+    <p class="text-sm font-semibold text-gray-800">Recent Activity</p>
+  </div>
+  <div class="divide-y divide-gray-100">
+
+    <div class="flex items-center gap-4 px-6 py-4">
+      <div class="w-9 h-9 rounded-xl bg-primary/5 text-primary flex items-center justify-center shrink-0">
+        <i class="fas fa-bell text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-900">Welcome to Abuja Rentals!</p>
+        <p class="text-xs text-gray-400">Your account has been successfully set up.</p>
+      </div>
+      <span class="text-xs text-gray-400 shrink-0">Just now</span>
+    </div>
+
+    {% if user.userprofile.user_type == 'tenant' %}
+    <div class="flex items-center gap-4 px-6 py-4">
+      <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+        <i class="fas fa-search text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-900">Start your property search</p>
+        <p class="text-xs text-gray-400">Browse hundreds of verified listings across Abuja.</p>
+      </div>
+      <a href="{% url 'properties' %}" class="text-xs font-semibold text-primary hover:underline shrink-0">Browse →</a>
+    </div>
+
+    {% elif user.userprofile.user_type == 'agent' %}
+    <div class="flex items-center gap-4 px-6 py-4">
+      <div class="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center shrink-0">
+        <i class="fas fa-home text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-900">Ready to list your first property?</p>
+        <p class="text-xs text-gray-400">Add a listing and start connecting with clients.</p>
+      </div>
+      <a href="{% url 'create_property' %}" class="text-xs font-semibold text-primary hover:underline shrink-0">Add →</a>
+    </div>
+
+    {% elif user.userprofile.user_type == 'admin' %}
+    <div class="flex items-center gap-4 px-6 py-4">
+      <div class="w-9 h-9 rounded-xl bg-gray-100 text-gray-500 flex items-center justify-center shrink-0">
+        <i class="fas fa-cogs text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-900">Platform Administration</p>
+        <p class="text-xs text-gray-400">Manage users, properties, and platform settings.</p>
+      </div>
+      <a href="{% url 'admin_dashboard' %}" class="text-xs font-semibold text-primary hover:underline shrink-0">Open →</a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
 {% endblock %}

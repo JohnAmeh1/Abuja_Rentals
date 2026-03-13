@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile, Inquiry
+from .models import UserProfile, Inquiry, AgentApplication
 
 # Inline for UserProfile
 class UserProfileInline(admin.StackedInline):
@@ -40,9 +40,49 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Inquiry)
 class InquiryAdmin(admin.ModelAdmin):
-    list_display  = ('full_name', 'phone', 'email', 'property_type', 'purpose', 'city', 'is_resolved', 'created_at')
-    list_filter   = ('property_type', 'purpose', 'is_resolved', 'city')
-    search_fields = ('full_name', 'phone', 'email', 'notes')
-    list_editable = ('is_resolved',)
+    list_display  = ('user__username', 'user__email', 'property_type', 'purpose', 'cities', 'closed', 'created_at')
+    list_filter   = ('property_type', 'purpose', 'closed', 'cities')
+    search_fields = ('user__username', 'user__email', 'notes')
+    list_editable = ('closed',)
     readonly_fields = ('created_at',)
 
+
+
+@admin.register(AgentApplication)
+class AgentApplicationAdmin(admin.ModelAdmin):
+    list_display  = ('user', 'status', 'phone', 'created_at', 'reviewed_by', 'reviewed_at')
+    list_filter   = ('status',)
+    search_fields = ('user__username', 'user__email', 'phone')
+    readonly_fields = ('created_at', 'updated_at', 'reviewed_at', 'reviewed_by')
+    ordering      = ('-created_at',)
+
+    fieldsets = (
+        ('Applicant', {
+            'fields': ('user', 'phone', 'bio', 'experience', 'areas_of_focus')
+        }),
+        ('Review', {
+            'fields': ('status', 'rejection_reason', 'reviewed_by', 'reviewed_at')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    actions = ['approve_applications', 'reject_applications']
+
+    @admin.action(description='Approve selected applications')
+    def approve_applications(self, request, queryset):
+        count = 0
+        for application in queryset.filter(status='pending').select_related('user', 'user__userprofile'):
+            application.approve(reviewed_by=request.user)
+            count += 1
+        self.message_user(request, f'{count} application(s) approved.')
+
+    @admin.action(description='Reject selected applications')
+    def reject_applications(self, request, queryset):
+        count = 0
+        for application in queryset.filter(status='pending').select_related('user'):
+            application.reject(reviewed_by=request.user, reason='Did not meet current requirements.')
+            count += 1
+        self.message_user(request, f'{count} application(s) rejected.')

@@ -178,14 +178,6 @@
                         class="block w-full text-center px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition">
                         <i class="fas fa-home mr-2"></i>Manage Properties
                     </a>
-                    <a href="{% url 'admin_platform_fees' %}"
-                        class="block w-full text-center px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition">
-                        <i class="fas fa-percentage mr-2"></i>Platform Fees
-                    </a>
-                    <a href="{% url 'admin_transactions' %}"
-                        class="block w-full text-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition">
-                        <i class="fas fa-exchange-alt mr-2"></i>Transactions
-                    </a>
                 </div>
             </div>
 
@@ -285,7 +277,7 @@
     }
 
     // Close modal when clicking outside
-    const modal = document.getElementById('resetModal');
+    let modal = document.getElementById('resetModal');
     if (modal) {
         modal.addEventListener('click', function (e) {
             if (e.target === this) {

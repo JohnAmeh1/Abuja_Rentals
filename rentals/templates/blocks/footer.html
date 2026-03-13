@@ -1,0 +1,115 @@
+{# templates/blocks/footer.html #}
+{# {% include "blocks/footer.html" %} at bottom of base.html #}
+
+<footer class="bg-gray-950 text-gray-400">
+
+  {# ── Top band ────────────────────────────────────────────────────────────── #}
+  <div class="border-b border-white/5">
+    <div class="container mx-auto px-4 lg:px-20 py-16">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+
+        {# Brand col #}
+        <div class="lg:col-span-2">
+          <div class="flex items-center gap-2.5 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+              <i class="fas fa-home text-white text-sm"></i>
+            </div>
+            <span class="font-bold text-white text-lg tracking-tight">Abuja Rentals</span>
+          </div>
+
+          <p class="text-sm leading-relaxed text-gray-500 mb-6 max-w-xs">
+            Helping people find homes they love across Abuja's finest neighbourhoods —
+            from Maitama to Gwarinpa, Asokoro to Wuse.
+          </p>
+
+          {# Social links #}
+          <div class="flex gap-3">
+            {% for icon, url, label in social_links|default:'' %}
+            <a href="{{ url }}" aria-label="{{ label }}"
+               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary
+                      flex items-center justify-center transition text-gray-500">
+              <i class="fab {{ icon }} text-sm"></i>
+            </a>
+            {% empty %}
+            <a href="#" aria-label="Facebook"
+               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+              <i class="fab fa-facebook-f text-sm"></i>
+            </a>
+            <a href="#" aria-label="Instagram"
+               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+              <i class="fab fa-instagram text-sm"></i>
+            </a>
+            <a href="#" aria-label="X / Twitter"
+               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+              <i class="fab fa-x-twitter text-sm"></i>
+            </a>
+            <a href="#" aria-label="WhatsApp"
+               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+              <i class="fab fa-whatsapp text-sm"></i>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Company #}
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Company</p>
+          <ul class="space-y-3">
+            <li><a href="{% url 'about' %}" class="footer-link">About Us</a></li>
+            <li><a href="{% url 'careers' %}" class="footer-link">Careers</a></li>
+            <li><a href="#" class="footer-link">Blog</a></li>
+            <li><a href="#" class="footer-link">Contact</a></li>
+          </ul>
+        </div>
+
+        {# Support #}
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Support</p>
+          <ul class="space-y-3">
+            <li><a href="{% url 'faq' %}" class="footer-link">FAQ</a></li>
+            <li><a href="#" class="footer-link">Help Center</a></li>
+            <li><a href="{% url 'terms' %}" class="footer-link">Terms & Conditions</a></li>
+            <li><a href="#" class="footer-link">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        {# Find a home #}
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Find a Home</p>
+          <ul class="space-y-3">
+            <li><a href="{% url 'properties' %}?purpose=rent" class="footer-link">Properties for Rent</a></li>
+            <li><a href="{% url 'properties' %}?purpose=sale" class="footer-link">Properties for Sale</a></li>
+            <li><a href="{% url 'properties' %}?city=maitama" class="footer-link">Maitama</a></li>
+            <li><a href="{% url 'properties' %}?city=asokoro" class="footer-link">Asokoro</a></li>
+            <li><a href="{% url 'properties' %}?city=gwarinpa" class="footer-link">Gwarinpa</a></li>
+            <li><a href="{% url 'properties' %}?city=wuse" class="footer-link">Wuse</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {# ── Bottom bar ───────────────────────────────────────────────────────────── #}
+  <div class="container mx-auto px-4 lg:px-20 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="text-xs text-gray-600">
+      &copy; {% now "Y" %} Abuja Rentals. All rights reserved.
+    </p>
+    <div class="flex items-center gap-1 text-xs text-gray-600">
+      <i class="fas fa-map-marker-alt text-primary/60 text-[10px]"></i>
+      Built with care in Abuja, Nigeria
+    </div>
+  </div>
+
+</footer>
+
+<style>
+  .footer-link {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 150ms;
+    display: inline-block;
+  }
+  .footer-link:hover { color: #fff; }
+</style>

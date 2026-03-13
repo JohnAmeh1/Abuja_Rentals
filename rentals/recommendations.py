@@ -4,11 +4,13 @@ from django.db.models import (
     ExpressionWrapper,
     Case,
     When,
-    Value
+    Value,
+    Prefetch
 )
 from django.db.models.functions import Abs, Coalesce
 from django.core.cache import cache
-from .models import Property
+from .models import Property, PropertyImage
+from .services.property_service import serialize_property
 
 
 def get_property_recommendations(property_obj, limit=6):
@@ -20,11 +22,15 @@ def get_property_recommendations(property_obj, limit=6):
 
     base_queryset = Property.objects.filter(
         purpose=property_obj.purpose,
-        city=property_obj.city,
         status='available'
     ).exclude(
         id=property_obj.id
     ).select_related('owner')
+
+    if property_obj.location and property_obj.location.city:
+        base_queryset = base_queryset.filter(
+            location__city=property_obj.location.city
+        )
 
     if not base_queryset.exists():
         return Property.objects.none()
@@ -91,11 +97,19 @@ def get_property_recommendations(property_obj, limit=6):
             status='available'
         ).exclude(
             id=property_obj.id
+        ).select_related(
+            'owner', 'location', 'location__area',
+            'location__area__city', 'property_type',
+        ).prefetch_related(
+            Prefetch('images', queryset=PropertyImage.objects.order_by('order'))
         ).order_by('-is_featured', '-views')[:limit]
 
-        return fallback
+        return [serialize_property(p) for p in fallback]
 
     # Cache for 10 minutes
     cache.set(cache_key, results, timeout=600)
 
-    return results
+    return [
+        serialize_property(p)
+        for p in results
+    ]

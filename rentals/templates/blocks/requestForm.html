@@ -1,0 +1,340 @@
+<div style="display:none" id="requestModal"
+     class="fixed inset-0 z-[9999] items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRequestModal()"></div>
+
+  <div id="requestSheet"
+       class="relative z-10 w-full max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto translate-y-4 transition-transform duration-300 ease-out">
+
+    <!-- Header -->
+    <div class="flex items-start justify-between p-6 pb-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+      <div>
+        <h2 class="text-base font-semibold text-gray-900">Property Request</h2>
+        <p class="text-sm text-gray-500">Tell us what you need and we'll find it for you.</p>
+      </div>
+      <button onclick="closeRequestModal()"
+        class="ml-4 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <form id="propertyRequestForm" method="POST" action="{% url 'property_request' %}">
+      {% csrf_token %}
+      <div class="p-6 space-y-6">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            What type of property? <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="flex flex-wrap gap-2" id="req_ptype_container">
+            <div class="w-5 h-5 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+          </div>
+        </div>
+
+        <!-- Purpose -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Listing Purpose</label>
+          <div class="flex gap-3">
+            <label class="flex-1">
+              <input type="radio" name="purpose" value="" class="peer hidden" checked>
+              <span class="block text-center py-2 px-4 border border-gray-200 rounded-xl text-sm cursor-pointer peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-gray-300 transition">Any</span>
+            </label>
+            <label class="flex-1">
+              <input type="radio" name="purpose" value="rent" class="peer hidden">
+              <span class="block text-center py-2 px-4 border border-gray-200 rounded-xl text-sm cursor-pointer peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-gray-300 transition">For Rent</span>
+            </label>
+            <label class="flex-1">
+              <input type="radio" name="purpose" value="sale" class="peer hidden">
+              <span class="block text-center py-2 px-4 border border-gray-200 rounded-xl text-sm cursor-pointer peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-gray-300 transition">To Buy</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Locations -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Preferred Locations <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="flex flex-wrap gap-2" id="req_cities_container">
+            <div class="w-5 h-5 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Budget Range (₦)</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
+              <input type="number" name="budget_min" placeholder="Min"
+                class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
+              <input type="number" name="budget_max" placeholder="Max"
+                class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bedrooms -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Bedrooms</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-400 mb-1.5">Minimum</p>
+              <div class="relative">
+                <i class="fas fa-bed absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <select name="bedrooms_min" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                  <option value="">Any</option>
+                  <option>1</option><option>2</option><option>3</option><option>4</option>
+                  <option>5</option><option>6</option><option>7</option><option>8</option>
+                  <option>9</option><option>10</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-1.5">Maximum</p>
+              <div class="relative">
+                <i class="fas fa-bed absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <select name="bedrooms_max" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                  <option value="">Any</option>
+                  <option>1</option><option>2</option><option>3</option><option>4</option>
+                  <option>5</option><option>6</option><option>7</option><option>8</option>
+                  <option>9</option><option value="10">10+</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bathrooms -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Bathrooms</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-400 mb-1.5">Minimum</p>
+              <div class="relative">
+                <i class="fas fa-bath absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <select name="bathrooms_min" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                  <option value="">Any</option>
+                  <option>1</option><option>2</option><option>3</option><option>4</option>
+                  <option>5</option><option>6</option><option>7</option><option>8</option>
+                  <option>9</option><option>10</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-1.5">Maximum</p>
+              <div class="relative">
+                <i class="fas fa-bath absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <select name="bathrooms_max" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                  <option value="">Any</option>
+                  <option>1</option><option>2</option><option>3</option><option>4</option>
+                  <option>5</option><option>6</option><option>7</option><option>8</option>
+                  <option>9</option><option value="10">10+</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Features -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Property Features</label>
+          <div class="grid grid-cols-3 gap-3">
+            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition">
+              <input type="checkbox" name="furnished" value="true" class="accent-primary">
+              <span class="text-sm text-gray-700">Furnished</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition">
+              <input type="checkbox" name="serviced" value="true" class="accent-primary">
+              <span class="text-sm text-gray-700">Serviced</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition">
+              <input type="checkbox" name="shared" value="true" class="accent-primary">
+              <span class="text-sm text-gray-700">Shared</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Amenities -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Amenities <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2" id="req_amenities_container">
+            <div class="col-span-2 flex items-center gap-2 text-sm text-gray-400">
+              <div class="w-4 h-4 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+              Loading...
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Anything else?</label>
+          <textarea name="notes" rows="2"
+            placeholder="Proximity to schools, specific estate, ground floor…"
+            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="flex gap-3 p-6 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
+        <button type="button" onclick="clearRequestForm()"
+          class="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">
+          Clear All
+        </button>
+        <button type="submit" id="reqSubmitBtn"
+          class="flex-1 py-2.5 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane text-xs"></i>
+          Submit Request
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ── Cache layer ──────────────────────────────────────────────────────────────
+  const CACHE_KEY     = "site_details";
+  const CACHE_VERSION = "v2";
+
+  async function getSiteDetails() {
+    const raw     = localStorage.getItem(CACHE_KEY);
+    const version = localStorage.getItem(CACHE_KEY + "_v");
+
+    if (raw && version === CACHE_VERSION) {
+      return JSON.parse(raw);
+    }
+
+    const res  = await fetch('/api/get-details/');
+    const data = await res.json();
+
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(CACHE_KEY + "_v", CACHE_VERSION);
+
+    return data;
+  }
+
+
+  function pillCheckbox({ name, value, label, idPrefix }) {
+    const id  = `${idPrefix}_${value}`;
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <input type="checkbox" id="${id}" name="${name}" value="${value}" class="hidden peer">
+      <label for="${id}"
+        class="cursor-pointer select-none text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-600 bg-white peer-checked:bg-primary/5 peer-checked:border-primary peer-checked:text-primary hover:border-gray-400 transition">
+        ${label}
+      </label>`;
+    return div;
+  }
+
+  // Amenity row — matches advanced search grid style
+  function amenityCheckbox({ value, label }) {
+    const id  = `req_am_${value}`;
+    const lbl = document.createElement("label");
+    lbl.className = "flex items-center gap-2 p-2.5 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition";
+    lbl.innerHTML = `
+      <input type="checkbox" id="${id}" name="amenities" value="${value}" class="accent-primary">
+      <span class="text-sm text-gray-700">${label}</span>`;
+    return lbl;
+  }
+
+  async function populateRequestForm() {
+    const data = await getSiteDetails();
+
+    console.log(data.property_type_choices)
+    // Property types
+    const ptypeEl = document.getElementById("req_ptype_container");
+    ptypeEl.innerHTML = "";
+    data.property_type_choices.forEach(([value, label]) => {
+      ptypeEl.appendChild(pillCheckbox({ name: "property_type", value, label, idPrefix: "rpt" }));
+    });
+
+    // Cities
+    const citiesEl = document.getElementById("req_cities_container");
+    citiesEl.innerHTML = "";
+    data.cities.forEach(([value, label]) => {
+      citiesEl.appendChild(pillCheckbox({ name: "cities", value, label, idPrefix: "rcity" }));
+    });
+
+    // Amenities
+    const amenitiesEl = document.getElementById("req_amenities_container");
+    amenitiesEl.innerHTML = "";
+    data.amenity_choices.forEach(([value, label]) => {
+      amenitiesEl.appendChild(amenityCheckbox({ value, label }));
+    });
+  }
+
+  // Populate on page load (cache makes this essentially instant on repeat visits)
+  populateRequestForm();
+
+  // ── Modal open/close ─────────────────────────────────────────────────────────
+  function openRequestModal() {
+    {% if user.is_authenticated %}
+      let modal = document.getElementById('requestModal');
+      const sheet = document.getElementById('requestSheet');
+      modal.style.display = "flex";
+      void modal.offsetHeight; // force reflow before animating
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      sheet.classList.remove('translate-y-4');
+      document.body.style.overflow = 'hidden';
+    {% else %}
+      window.location.href = "{% url 'login' %}?next={{ request.path }}";
+    {% endif %}
+  }
+
+  function closeRequestModal() {
+    let modal = document.getElementById('requestModal');
+    const sheet = document.getElementById('requestSheet');
+    modal.classList.add('opacity-0', 'pointer-events-none');
+    sheet.classList.add('translate-y-4');
+    document.body.style.overflow = '';
+    setTimeout(() => { modal.style.display = "none"; }, 200);
+  }
+
+  function clearRequestForm() {
+    document.getElementById('propertyRequestForm').reset();
+    // also uncheck all dynamic checkboxes
+    document.querySelectorAll('#req_ptype_container input, #req_cities_container input, #req_amenities_container input')
+      .forEach(el => el.checked = false);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeRequestModal();
+  });
+
+  // ── Form submit ──────────────────────────────────────────────────────────────
+  document.getElementById('propertyRequestForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('reqSubmitBtn');
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Sending…`;
+    btn.disabled  = true;
+
+    try {
+      const res = await fetch(this.action, {
+        method:  'POST',
+        body:    new FormData(this),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+
+      if (res.ok) {
+        closeRequestModal();
+        location.reload();
+      } else {
+        throw new Error("bad response");
+      }
+    } catch {
+      btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`;
+      btn.disabled  = false;
+      alert('Something went wrong, please try again.');
+    }
+  });
+</script>

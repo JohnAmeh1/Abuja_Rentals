@@ -5,7 +5,7 @@
 {% block title %}Manage Properties | Abuja Rentals{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-8 py-8">
+<div class="container mx-auto px-4 lg:px-8 py-8 pt-20">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-primary">Manage Properties</h1>
         <p class="text-gray-600 mt-2">View and manage all property listings on the platform</p>
@@ -158,11 +158,7 @@
 
                     <!-- Status Badge -->
                     <div class="absolute top-3 left-3">
-                        <span class="px-3 py-1 text-xs rounded-full font-semibold
-                                                 {% if property.status == 'available' %}bg-green-100 text-green-800
-                                                 {% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800
-                                                 {% elif property.status == 'sold' %}bg-red-100 text-red-800
-                                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <span class="px-3 py-1 text-xs rounded-full font-semibold {% if property.status == 'available' %}bg-green-100 text-green-800 {% elif property.status == 'pending' %}bg-yellow-100 text-yellow-800 {% elif property.status == 'sold' %}bg-red-100 text-red-800 {% else %}bg-gray-100 text-gray-800{% endif %}">
                             {{ property.get_status_display }}
                         </span>
                     </div>
@@ -202,7 +198,7 @@
                         </div>
                         <div class="flex justify-between text-gray-600">
                             <span>Type:</span>
-                            <span>{{ property.get_property_type_display }}</span>
+                            <span>{{ property.property_type.display_name }}</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
                             <span>Purpose:</span>
@@ -375,7 +371,7 @@
                         </div>
                         <div class="flex justify-between text-gray-600">
                             <span>Type:</span>
-                            <span>{{ property.get_property_type_display }}</span>
+                            <span>{{ property.property_type.display_name }}</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
                             <span>Duration:</span>
@@ -540,7 +536,7 @@
     }
 
     // Close modal when clicking outside
-    const modal = document.getElementById('statusModal');
+    let modal = document.getElementById('statusModal');
     if (modal) {
         modal.addEventListener('click', function (e) {
             if (e.target === this) {

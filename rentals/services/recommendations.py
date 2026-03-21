@@ -25,11 +25,11 @@ def get_property_recommendations(property_obj, limit=6):
         status='available'
     ).exclude(
         id=property_obj.id
-    ).select_related('owner')
+    ).select_related('agent')
 
-    if property_obj.location and property_obj.location.city:
+    if property_obj.location and property_obj.location.area:
         base_queryset = base_queryset.filter(
-            location__city=property_obj.location.city
+            location__area=property_obj.location.area
         )
 
     if not base_queryset.exists():
@@ -83,13 +83,10 @@ def get_property_recommendations(property_obj, limit=6):
             output_field=FloatField()
         )
 
-    ).order_by('-score', '-created_at')
+    ).select_related('location__area', 'property_type',
+    ).prefetch_related(Prefetch('images', queryset=PropertyImage.objects.order_by('order'))).order_by('-score', '-created_at')
 
     results = list(queryset[:limit])
-
-    # -------------------------
-    # FALLBACK STRATEGY
-    # -------------------------
 
     if len(results) < 3:
         fallback = Property.objects.filter(
@@ -97,18 +94,15 @@ def get_property_recommendations(property_obj, limit=6):
             status='available'
         ).exclude(
             id=property_obj.id
-        ).select_related(
-            'owner', 'location', 'location__area',
-            'location__area__city', 'property_type',
+        ).select_related('location__area', 'property_type',
         ).prefetch_related(
             Prefetch('images', queryset=PropertyImage.objects.order_by('order'))
         ).order_by('-is_featured', '-views')[:limit]
 
         return [serialize_property(p) for p in fallback]
 
-    # Cache for 10 minutes
     cache.set(cache_key, results, timeout=600)
-
+    print("results")
     return [
         serialize_property(p)
         for p in results

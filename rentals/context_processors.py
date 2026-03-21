@@ -18,3 +18,65 @@ def admin_messages_context(request):
         
         return {'admin_messages': messages_to_show}
     return {'admin_messages': []}
+
+
+
+# rentals/context_processors.py
+#
+# Register in settings.py:
+# TEMPLATES[0]['OPTIONS']['context_processors'] += ['rentals.context_processors.nav_context']
+
+from django.db.models import Count, Q
+from .models import PropertyType, City, Property
+
+
+def nav_context(request):
+    # FIX: Property.property_type FK has no explicit related_name in the model,
+    # so Django auto-generates it as 'property_set'. But looking at the Property
+    # model, the field is `property_type = ForeignKey(PropertyType, ...)` with no
+    # related_name, so the reverse accessor is 'property_set'.
+    # However, using the model name lowercase 'property' also works in annotations.
+    # The safest approach is to filter Property directly and build a lookup dict.
+    available_type_ids = (
+        Property.objects
+        .filter(status='available')
+        .values('property_type_id')
+        .annotate(cnt=Count('id'))
+    )
+    count_map = {row['property_type_id']: row['cnt'] for row in available_type_ids}
+
+    property_types = []
+    i = 0
+    for pt in PropertyType.objects.order_by('display_name'):
+        if i == 10:
+            break
+        cnt = count_map.get(pt.id, 0)
+        if cnt > 0:
+            pt.property_count = cnt
+            property_types.append(pt)
+        i += 1
+
+    # Cities — chain: City ← area_set (Area.city, no related_name)
+    #                       ← locations (Location.area, related_name='locations')
+    #                       ← properties (Property.location, related_name='properties')
+    nav_cities = (
+        City.objects
+        .annotate(
+            listing_count=Count(
+                'area__locations__properties',
+                filter=Q(area__locations__properties__status='available'),
+                distinct=True,
+            )
+        )
+        .filter(listing_count__gt=0)
+        .order_by('-listing_count')[:8]
+    )
+
+    total_properties = Property.objects.filter(status='available').count()
+
+    return {
+        'nav_property_types': property_types,
+        'nav_cities':         nav_cities,
+        'total_properties':   total_properties,
+        'nav_fallback_areas': ['Maitama', 'Wuse II', 'Asokoro', 'Gwarinpa', 'Jabi', 'Garki', 'Lugbe', 'Kado'],
+    }

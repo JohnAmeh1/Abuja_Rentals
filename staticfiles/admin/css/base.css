@@ -99,7 +99,7 @@ body {
     font-family: var(--font-family-primary);
     color: var(--body-fg);
     background: var(--body-bg);
-    aspect-ratio: ;
+    transform-style: ;
 }
 
 /* LINKS */

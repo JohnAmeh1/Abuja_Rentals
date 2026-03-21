@@ -1,13 +1,11 @@
 // static/sw.js - Service Worker for Abuja Rentals
-const CACHE_NAME = 'abuja-rentals-v2';
+const CACHE_NAME = 'abuja-rentals-v3';
 
 const PRECACHE_ASSETS = [
   '/',
   '/static/pwa/manifest.json',
   '/static/pwa/icons/icon-192x192.png',
-  'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap',
 ];
 
 
@@ -42,7 +40,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch event
-self.addEventListener('fetch', (event) => {
+{% comment %} self.addEventListener('fetch', (event) => {
   // Skip non-GET requests and cross-origin requests
   if (event.request.method !== 'GET') return;
   
@@ -88,6 +86,46 @@ self.addEventListener('fetch', (event) => {
             return null;
           });
       })
+  );
+}); {% endcomment %}
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // Skip external/CDN requests
+  if (url.origin !== self.location.origin) return;
+
+  if (url.pathname.startsWith('/admin/') ||
+      url.pathname.startsWith('/api/') ||
+      url.pathname.startsWith('/logout')) {
+    return;
+  }
+
+  // Network-first for CSS/JS — always get fresh styles
+  if (url.pathname.match(/\.(css|js)$/)) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request)) // fallback to cache if offline
+    );
+    return;
+  }
+
+  // Cache-first for everything else (images, fonts, etc.)
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).then(networkResponse => {
+        const clone = networkResponse.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+        return clone;
+      });
+    })
   );
 });
 

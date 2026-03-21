@@ -5,180 +5,193 @@
 
 {% block content %}
 
-<section class="relative overflow-hidden pt-32 pb-24 hero-background">
+  <style>
 
-  <div class="container mx-auto px-4 lg:px-20 relative">
-    <div class="max-w-3xl mx-auto text-center">
-      <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-primary mb-4">
-        <span class="w-5 h-px bg-primary inline-block"></span>
-        Our Story
-        <span class="w-5 h-px bg-primary inline-block"></span>
-      </span>
-      <h1 class="text-4xl lg:text-6xl font-black text-white leading-tight mb-6">
-        Finding home shouldn't<br>
-        <span class="text-primary italic font-serif">feel like work</span>
-      </h1>
-      <p class="text-gray-300 tracki leading-relaxed max-w-xl mx-auto">
-        We started Abuja Rentals because we've been there — spending weekends
-        on wild goose chases, calling numbers that go nowhere, and renting places
-        that looked nothing like the photos. There's a better way.
-      </p>
-    </div>
-  </div>
-</section>
+    .pic {
+      transform:
+      perspective(75em)
+      rotateX(18deg);
+      box-shadow:
+      rgba(22, 31, 39, 0.42) 0px 60px 123px -25px,
+      rgba(19, 26, 32, 0.08) 0px 35px 75px -35px;
 
-<section class="py-24 bg-white">
-  <div class="container mx-auto px-4 lg:px-20">
-    <div class="grid lg:grid-cols-2 gap-16 items-center max-w-5xl mx-auto">
+    }
+  </style>
 
-      <div>
-        <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-4">
-          <span class="w-5 h-px bg-blue-500 inline-block"></span>
-          Where We Started
-        </span>
-        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-          Born out of a frustrating apartment hunt in Maitama
-        </h2>
-        <div class="space-y-4 text-gray-600 leading-relaxed">
-          <p>
-            In 2022, our founder spent three months searching for a two-bedroom apartment
-            near the diplomatic zone. He visited dozens of properties. Half were already
-            taken. A quarter didn't match the descriptions. A few were outright scams.
-          </p>
-          <p>
-            He wasn't alone. Everyone in Abuja had the same story. So he built the thing
-            he wished existed — a platform where listings are real, owners are verified,
-            and renters can filter for exactly what they need without the runaround.
-          </p>
-          <p>
-            Today, Abuja Rentals connects thousands of tenants with landlords and agents
-            across the FCT, from student housing near UNIABUJA to executive properties
-            in Asokoro and Wuse II.
+  <div class="overflow-x-hidden relative">
+    <section class="relative overflow-hidden pt-32 pb-24 hero-background ">
+
+
+      <div class="container mx-auto px-4 lg:px-20 relative">
+        <div class="max-w-3xl mx-auto text-center">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-primary mb-4">
+            <span class="w-5 h-px bg-primary inline-block"></span>
+            Our Story
+            <span class="w-5 h-px bg-primary inline-block"></span>
+          </span>
+          <h1 class="text-4xl lg:text-6xl font-black text-white leading-tight mb-6">
+            Finding home shouldn't<br>
+            <span class="text-primary italic font-serif">feel like work</span>
+          </h1>
+          <p class="text-gray-300 tracki leading-relaxed max-w-xl mx-auto">
+            We started Abuja Rentals because we've been there — spending weekends
+            on wild goose chases, calling numbers that go nowhere, and renting places
+            that looked nothing like the photos. There's a better way.
           </p>
         </div>
       </div>
 
-      <div class="relative">
-        <div class="rounded-2xl overflow-hidden aspect-[4/5] bg-gray-100 skew-x-1 -skew-y-1 hover:skew-y-0 duration-200 shadow-lg">
-          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80" alt="Abuja cityscape" class="w-full h-full object-cover">
-        </div>
-        <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl border border-gray-100 px-6 py-5">
-          <p class="text-3xl font-black text-gray-900">{{ total_properties|default:"500" }}+</p>
-          <p class="text-sm text-gray-500 mt-0.5">Verified listings across Abuja</p>
+    </section>
+
+    <section class="py-24 bg-white relative overflow-x-hiden">
+      <div class="bg-white z-10 w-[120%] h-20 absolute bottom-[96%] -rotate-6 lg:-rotate-3"></div>
+      <div class="bg-white z-0 w-[120%] -right-2 h-20 absolute top-[96%] -rotate-6 lg:-rotate-3"></div>
+      <div class="container mx-auto px-4 lg:px-20">
+        <div class="grid lg:grid-cols-2 gap-16 items-center max-w-5xl mx-auto">
+
+          <div>
+            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-4">
+              <span class="w-5 h-px bg-blue-500 inline-block"></span>
+              Where We Started
+            </span>
+            <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+              Born out of a frustrating apartment hunt in Maitama
+            </h2>
+            <div class="space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                In 2022, our founder spent three months searching for a two-bedroom apartment
+                near the diplomatic zone. He visited dozens of properties. Half were already
+                taken. A quarter didn't match the descriptions. A few were outright scams.
+              </p>
+              <p>
+                He wasn't alone. Everyone in Abuja had the same story. So he built the thing
+                he wished existed — a platform where listings are real, owners are verified,
+                and renters can filter for exactly what they need without the runaround.
+              </p>
+              <p>
+                Today, Abuja Rentals connects thousands of tenants with landlords and agents
+                across the FCT, from student housing near UNIABUJA to executive properties
+                in Asokoro and Wuse II.
+              </p>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="rounded-2xl overflow-hidden aspect-4/5 bg-gray-100 duration-200 shadow-lg pic">
+              <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80" alt="Abuja cityscape" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl border border-gray-100 px-6 py-5">
+              <p class="text-3xl font-black text-gray-900">{{ total_properties|default:"5000" }}+</p>
+              <p class="text-sm text-gray-500 mt-0.5">Verified listings across Abuja</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <section class="py-24 bg-[#f7f7f5]">
+      <div class="container mx-auto px-4 lg:px-20">
+        <div class="text-center mb-16">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-4">
+            <span class="w-5 h-px bg-blue-500 inline-block"></span>
+            What We Stand For
+          </span>
+          <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">The things we don't compromise on</h2>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div class="bg-white rounded-2xl p-7 border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
+              <i class="fas fa-check-circle text-blue-500"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">Verified Listings Only</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">Every property on our platform has been reviewed. No ghost listings, no bait-and-switch.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-7 border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
+              <i class="fas fa-eye text-blue-500"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">Radical Transparency</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">Real photos, honest pricing, and clear terms. What you see is what you get.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-7 border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
+              <i class="fas fa-heart text-blue-500"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">People First</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">We're building for the renter who's tired of runarounds, not for landlords who want to inflate prices.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-7 border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
+              <i class="fas fa-map-marker-alt text-blue-500"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">Abuja-Focused</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">We only do Abuja. That means deeper knowledge, better coverage, and listings that actually matter to you.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-7 border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
+              <i class="fas fa-shield-alt text-blue-500"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">Your Data is Yours</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">We don't sell your information or spam you. Simple as that.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-7 border border-gray-100">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
+              <i class="fas fa-bolt text-blue-500"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">Always Improving</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">We ship new features, fix bugs fast, and listen when something doesn't work. This is a living product.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 bg-gray-950 relative z-10">
+
+      <div class="bg-gray-950 z-0 w-[120%] h-20 absolute bottom-[83%] -rotate-6 lg:-rotate-3"></div>
+      <div class="bg-gray-950 z-0 w-[120%] -right-2 h-20 absolute top-[83%] -rotate-6 lg:-rotate-3"></div>
+
+      <div class="container mx-auto px-4 lg:px-20 relative z-20">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          <div class="text-center">
+            <p class="text-4xl font-black text-white mb-1">{{ total_properties|default:"500" }}+</p>
+            <p class="text-base text-gray-500">Active Listings</p>
+          </div>
+          <div class="text-center">
+          {# Derive neighbourhood count from DB if possible, else honest static copy #}
+            <p class="text-4xl font-black text-white mb-1">{{ neighbourhood_count|default:"15" }}+</p>
+            <p class="text-base text-gray-500">Neighbourhoods</p>
+          </div>
+          <div class="text-center">
+            <p class="text-4xl font-black text-white mb-1">{{ tenant_count|default:"2,000" }}+</p>
+            <p class="text-base text-gray-500">Happy Tenants</p>
+          </div>
+          <div class="text-center">
+            <p class="text-4xl font-black text-white mb-1">2022</p>
+            <p class="text-base text-gray-500">Founded in Abuja</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-24 bg-white relative z-0 overflow-hidden">
+      <div class="bg-gray-950 -right-2 z-10 w-[120%] h-20 absolute top-[91.5%] -rotate-6 lg:-rotate-3"></div>
+
+      <div class="container mx-auto px-4 lg:px-20 text-center">
+        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Ready to find your next home?</h2>
+        <p class="text-gray-500 mb-8 max-w-md mx-auto">Browse hundreds of verified listings across Abuja — no stress, no middlemen.</p>
+        <div class="flex items-center justify-center gap-4 flex-wrap">
+          <a href="{% url 'properties' %}"
+             class="px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition">
+            Browse Properties
+          </a>
+          <a href="{% url 'careers' %}"
+             class="px-7 py-3.5 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">
+            Join Our Team →
+          </a>
+        </div>
+      </div>
+    </section>
+
   </div>
-</section>
-
-<section class="py-24 bg-[#f7f7f5]">
-  <div class="container mx-auto px-4 lg:px-20">
-    <div class="text-center mb-16">
-      <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-4">
-        <span class="w-5 h-px bg-blue-500 inline-block"></span>
-        What We Stand For
-      </span>
-      <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">The things we don't compromise on</h2>
-    </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-      {% for icon, title, desc in values %}
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center mb-5
-                    group-hover:bg-primary group-hover:text-white transition">
-          <i class="fas {{ icon }} text-primary group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">{{ title }}</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">{{ desc }}</p>
-      </div>
-      {% empty %}
-      {# Fallback static values #}
-      {% for item in "123456"|make_list %}{% endfor %}
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-primary transition">
-          <i class="fas fa-check-circle text-blue-500 group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">Verified Listings Only</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">Every property on our platform has been reviewed. No ghost listings, no bait-and-switch.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-primary transition">
-          <i class="fas fa-eye text-blue-500 group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">Radical Transparency</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">Real photos, honest pricing, and clear terms. What you see is what you get.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-primary transition">
-          <i class="fas fa-heart text-blue-500 group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">People First</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">We're building for the renter who's tired of runarounds, not for landlords who want to inflate prices.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-primary transition">
-          <i class="fas fa-map-marker-alt text-blue-500 group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">Abuja-Focused</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">We only do Abuja. That means deeper knowledge, better coverage, and listings that actually matter to you.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-primary transition">
-          <i class="fas fa-shield-alt text-blue-500 group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">Your Data is Yours</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">We don't sell your information or spam you. Simple as that.</p>
-      </div>
-      <div class="bg-white rounded-2xl p-7 border border-gray-100 hover:shadow-md transition group">
-        <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-primary transition">
-          <i class="fas fa-bolt text-blue-500 group-hover:text-white transition"></i>
-        </div>
-        <h3 class="font-bold text-gray-900 mb-2">Always Improving</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">We ship new features, fix bugs fast, and listen when something doesn't work. This is a living product.</p>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<section class="py-16 bg-gray-950">
-  <div class="container mx-auto px-4 lg:px-20">
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-      <div class="text-center">
-        <p class="text-3xl font-black text-white mb-1">{{ total_properties|default:"500" }}+</p>
-        <p class="text-sm text-gray-500">Active Listings</p>
-      </div>
-      <div class="text-center">
-        <p class="text-3xl font-black text-white mb-1">15+</p>
-        <p class="text-sm text-gray-500">Neighbourhoods</p>
-      </div>
-      <div class="text-center">
-        <p class="text-3xl font-black text-white mb-1">2,000+</p>
-        <p class="text-sm text-gray-500">Happy Tenants</p>
-      </div>
-      <div class="text-center">
-        <p class="text-3xl font-black text-white mb-1">2022</p>
-        <p class="text-sm text-gray-500">Founded in Abuja</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="py-24 bg-white">
-  <div class="container mx-auto px-4 lg:px-20 text-center">
-    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Ready to find your next home?</h2>
-    <p class="text-gray-500 mb-8 max-w-md mx-auto">Browse hundreds of verified listings across Abuja — no stress, no middlemen.</p>
-    <div class="flex items-center justify-center gap-4 flex-wrap">
-      <a href="{% url 'properties' %}"
-         class="px-7 py-3.5 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition">
-        Browse Properties
-      </a>
-      <a href="{% url 'careers' %}"
-         class="px-7 py-3.5 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">
-        Join Our Team →
-      </a>
-    </div>
-  </div>
-</section>
-
 {% endblock %}

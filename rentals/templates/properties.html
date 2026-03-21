@@ -5,299 +5,299 @@
 
 
 {% block content %}
-<div class="container mx-auto px-4 lg:px-10 py-8 pt-20 duration-200 max-lg:overflow-hidden">
+  <div class="container mx-auto px-4 lg:px-13 py-8 pt-20 duration-200 max-lg:overflow-hidden">
+
     <div id="tips" class="fixed inset-0 bg-black/30 duration-200 z-10 lg:z-50 hidden">
-        <div class="fixed bottom-28 lg:bottom-10 right-5 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
-            <ul class="text-sm text-gray-600 space-y-2.5">
-                <li class="flex gap-2">
-                    <i class="fas fa-filter text-accent mt-1"></i>
-                    Use filters to narrow results quickly
-                </li>
-                <li class="flex gap-2">
-                    <i class="fas fa-eye text-accent mt-1"></i>
-                    Click a card to view full details
-                </li>
-            </ul>
-        </div>
+      <div class="fixed bottom-28 lg:bottom-10 right-5 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
+        <ul class="text-sm text-gray-600 space-y-2.5">
+          <li class="flex gap-2">
+            <i class="fas fa-filter text-accent mt-1"></i>
+            Use filters to narrow results quickly
+          </li>
+          <li class="flex gap-2">
+            <i class="fas fa-eye text-accent mt-1"></i>
+            Click a card to view full details
+          </li>
+        </ul>
+      </div>
     </div>
 
-{% include "blocks/search.html" %}
+    {% include "blocks/search.html" %}
 
 
-    
-<div class="lg:hidden flex items-center gap-2 mb-4">
 
-  <button onclick="openMobileFilters()"
-          class="flex items-center gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:border-gray-300 shadow-sm transition">
-    <i class="fas fa-sliders-h text-gray-400 text-[10px]"></i>
-    Filters
-    {% if request.GET %}
-    <span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
-    {% endif %}
-  </button>
+    <div class="lg:hidden flex items-center gap-2 mb-4">
 
-  <div class="relative ml-auto">
-    <select id="sortSelectMobile"
-            class="pl-3 pr-7 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-600  focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none shadow-sm">
-      <option value=""           {% if active.sort == "" %}selected{% endif %}>Recommended</option>
-      <option value="price_asc"  {% if active.sort == "price_asc" %}selected{% endif %}>Price ↑</option>
-      <option value="price_desc" {% if active.sort == "price_desc" %}selected{% endif %}>Price ↓</option>
-      <option value="newest"     {% if active.sort == "newest" %}selected{% endif %}>Newest</option>
-    </select>
-    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-  </div>
-
-  <p class="text-xs text-gray-400 shrink-0 hidden sm:block">
-    <span id="totalMobile" class="font-semibold text-gray-600"></span> found
-  </p>
-</div>
-
-<div id="filterBackdrop"
-     onclick="closeMobileFilters()"
-     class="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
-
-<div id="filterDrawer"
-     class="fixed inset-y-0 left-0 z-50 w-72 bg-white -translate-x-full
-            transition-transform duration-300 ease-out flex flex-col lg:hidden shadow-2xl">
-
-  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
-    <p class="text-sm font-bold text-gray-900">Filters</p>
-    <div class="flex items-center gap-3">
-      {% if request.GET %}
-      <a href="{% url 'properties' %}" class="text-xs text-primary hover:underline">Clear all</a>
-      {% endif %}
-      <button onclick="closeMobileFilters()"
-              class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
-        <i class="fas fa-times text-xs"></i>
+      <button onclick="openMobileFilters()"
+              class="flex items-center gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:border-gray-300 shadow-sm transition">
+        <i class="fas fa-sliders-h text-gray-400 text-[10px]"></i>
+        Filters
+        {% if request.GET %}
+          <span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+        {% endif %}
       </button>
-    </div>
-  </div>
 
-  <div class="flex-1 overflow-y-auto px-4 py-3">
-    {% include "blocks/filter_form.html" with form_id="filterFormMobile" %}
-  </div>
-
-  <div class="px-4 py-3 border-t border-gray-100 grid grid-cols-2 gap-2 shrink-0">
-    <a href="{% url 'properties' %}"
-       class="py-2 border border-gray-200 text-gray-600 text-xs font-semibold rounded-xl text-center hover:bg-gray-50 transition">Reset</a>
-    <button type="submit" form="filterFormMobile"
-            class="py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">Apply</button>
-  </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-  <aside class="hidden lg:block lg:col-span-3">
-    <div class="sticky top-24">
-
-      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-
-        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center">
-              <i class="fas fa-sliders-h text-primary text-[10px]"></i>
-            </div>
-            <p class="text-sm font-bold text-gray-900">Filters</p>
-          </div>
-          {% if request.GET %}
-          <a href="{% url 'properties' %}" class="text-[11px] text-primary hover:underline font-medium">Clear all</a>
-          {% endif %}
-        </div>
-
-        <div class="overflow-y-auto px-4 py-3" style="max-height: calc(100vh - 13rem);">
-          {% include "blocks/filter_form.html" with form_id="filterFormSidebar" %}
-        </div>
-
-        <div class="px-4 py-3 border-t border-gray-100 grid grid-cols-2 gap-2">
-          <a href="{% url 'properties' %}"
-             class="py-2 border border-gray-200 text-gray-500 text-xs font-semibold rounded-xl text-center hover:bg-gray-50 transition">Reset</a>
-          <button type="submit" form="filterFormSidebar"
-                  class="py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">Apply</button>
-        </div>
-
-      </div>
-    </div>
-  </aside>
-
-   <main class="lg:col-span-9" id="content">
-
-    <div class="hidden lg:flex items-center justify-between mb-4">
-      <div>
-        <h1 class="text-lg font-bold text-gray-900">{{ page_title }}</h1>
-        <p class="text-xs text-gray-400 mt-0.5">
-          <span class="font-semibold text-gray-600" id="total"></span> properties found in Abuja
-        </p>
-      </div>
-      <div class="relative">
-        <select id="sortSelect"
-                class="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-600
-                       focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+      <div class="relative ml-auto">
+        <select id="sortSelectMobile"
+                class="pl-3 pr-7 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-600  focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none shadow-sm">
           <option value=""           {% if active.sort == "" %}selected{% endif %}>Recommended</option>
-          <option value="price_asc"  {% if active.sort == "price_asc" %}selected{% endif %}>Price: Low → High</option>
-          <option value="price_desc" {% if active.sort == "price_desc" %}selected{% endif %}>Price: High → Low</option>
+          <option value="price_asc"  {% if active.sort == "price_asc" %}selected{% endif %}>Price ↑</option>
+          <option value="price_desc" {% if active.sort == "price_desc" %}selected{% endif %}>Price ↓</option>
           <option value="newest"     {% if active.sort == "newest" %}selected{% endif %}>Newest</option>
         </select>
         <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
       </div>
+
+      <p class="text-xs text-gray-400 shrink-0 hidden sm:block">
+        <span id="totalMobile" class="font-semibold text-gray-600"></span> found
+      </p>
     </div>
 
-    <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    <div id="empty"></div>
-    <div id="sentinel" class="h-4"></div>
-    <div id="loadmorebtn"
-         class="hidden w-full py-8 bg-white rounded-2xl border border-gray-200 my-4
-                flex justify-center items-center cursor-pointer hover:bg-gray-50 transition text-xs text-gray-400 gap-2">
-      <i class="fas fa-chevron-down text-[10px]"></i> Load more
+    <div id="filterBackdrop"
+         onclick="closeMobileFilters()"
+         class="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
+
+    <div id="filterDrawer"
+         class="fixed inset-y-0 left-0 z-50 w-72 bg-white -translate-x-full
+                transition-transform duration-300 ease-out flex flex-col lg:hidden shadow-2xl">
+
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
+        <p class="text-sm font-bold text-gray-900">Filters</p>
+        <div class="flex items-center gap-3">
+          {% if request.GET %}
+            <a href="{% url 'properties' %}" class="text-xs text-primary hover:underline">Clear all</a>
+          {% endif %}
+          <button onclick="closeMobileFilters()"
+                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-4 py-3">
+        {% include "blocks/filter_form.html" with form_id="filterFormMobile" %}
+      </div>
+
+      <div class="px-4 py-3 border-t border-gray-100 grid grid-cols-2 gap-2 shrink-0">
+        <a href="{% url 'properties' %}"
+           class="py-2 border border-gray-200 text-gray-600 text-xs font-semibold rounded-xl text-center hover:bg-gray-50 transition">Reset</a>
+        <button type="submit" form="filterFormMobile"
+                class="py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">Apply</button>
+      </div>
     </div>
-    <div id="sidebtns"
-         class="hidden fixed top-1/2 -translate-y-1/2 right-2 z-50 lg:flex flex-col gap-1.5 p-2
-                hover:scale-125 duration-200 rounded-xl hover:bg-black/20 hover:backdrop-blur-sm group"></div>
-  </main>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <aside class="hidden lg:block lg:col-span-3">
+        <div class="sticky top-24">
+
+          <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-sliders-h text-primary text-[10px]"></i>
+                </div>
+                <p class="text-sm font-bold text-gray-900">Filters</p>
+              </div>
+              {% if request.GET %}
+                <a href="{% url 'properties' %}" class="text-[11px] text-primary hover:underline font-medium">Clear all</a>
+              {% endif %}
+            </div>
+
+            <div class="overflow-y-auto px-4 py-3" style="max-height: calc(100vh - 13rem);">
+              {% include "blocks/filter_form.html" with form_id="filterFormSidebar" %}
+            </div>
+
+            <div class="px-4 py-3 border-t border-gray-100 grid grid-cols-2 gap-2">
+              <a href="{% url 'properties' %}"
+                 class="py-2 border border-gray-200 text-gray-500 text-xs font-semibold rounded-xl text-center hover:bg-gray-50 transition">Reset</a>
+              <button type="submit" form="filterFormSidebar"
+                      class="py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">Apply</button>
+            </div>
+
+          </div>
+        </div>
+      </aside>
+
+      <main class="lg:col-span-9" id="content">
+
+        <div class="hidden lg:flex items-center justify-between mb-4">
+          <div>
+            <h1 class="text-lg font-bold text-gray-900">{{ page_title }}</h1>
+            <p class="text-xs text-gray-400 mt-0.5">
+              <span class="font-semibold text-gray-600" id="total"></span> properties found in Abuja
+            </p>
+          </div>
+          <div class="relative">
+            <select id="sortSelect"
+                    class="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-600
+                           focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+              <option value=""           {% if active.sort == "" %}selected{% endif %}>Recommended</option>
+              <option value="price_asc"  {% if active.sort == "price_asc" %}selected{% endif %}>Price: Low → High</option>
+              <option value="price_desc" {% if active.sort == "price_desc" %}selected{% endif %}>Price: High → Low</option>
+              <option value="newest"     {% if active.sort == "newest" %}selected{% endif %}>Newest</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div id="container_" class="fixed bottom-5 right-5 z-999 space-y-3 max-w-sm w-full duration-200"></div>
+        <div id="properties_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="empty"></div>
+        <div id="sentinel" class="h-4"></div>
+        <div id="loadmorebtn"
+             class="hidden w-full py-8 bg-white rounded-2xl border border-gray-200 my-4
+                    flex justify-center items-center cursor-pointer hover:bg-gray-50 transition text-xs text-gray-400 gap-2">
+          <i class="fas fa-chevron-down text-[10px]"></i> Load more
+        </div>
+        <div id="sidebtns"
+             class="hidden fixed top-1/2 -translate-y-1/2 right-2 z-50 lg:flex flex-col gap-1.5 p-2
+                    hover:scale-125 duration-200 rounded-xl hover:bg-black/20 hover:backdrop-blur-sm group"></div>
+      </main>
 
 
-  </div>
+    </div>
 
 
-{% if user.is_authenticated %}
-<div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl p-6 max-w-lg w-full">
-        <div class="text-center mb-4">
+    {% if user.is_authenticated %}
+      <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-lg w-full">
+          <div class="text-center mb-4">
             <h3 class="text-xl font-bold text-gray-900 mb-2">Report Property Owner</h3>
             <p class="text-gray-600 text-sm">Describe the issue and our admin team will review and act accordingly.</p>
-        </div>
-        <form id="reportForm" method="POST" class="space-y-4">
+          </div>
+          <form id="reportForm" method="POST" class="space-y-4">
             {% csrf_token %}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
-                <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                    <option value="fake_listing">Fake / Misleading Listing</option>
-                    <option value="harassment">Harassment / Abusive Behavior</option>
-                    <option value="other">Other</option>
-                </select>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+              <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                <option value="fake_listing">Fake / Misleading Listing</option>
+                <option value="harassment">Harassment / Abusive Behavior</option>
+                <option value="other">Other</option>
+              </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
-                <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                    placeholder="Describe the issue"></textarea>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Message (optional)</label>
+              <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                        placeholder="Describe the issue"></textarea>
             </div>
             <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeReportModal()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">Submit Report</button>
+              <button type="button" onclick="closeReportModal()"
+                      class="px-4 py-2 border border-gray-300 rounded-lg cursor-pointer">Cancel</button>
+              <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg cursor-pointer">Submit Report</button>
             </div>
-        </form>
-    </div>
-</div>
-{% endif %}
+          </form>
+        </div>
+      </div>
+    {% endif %}
 
-{% include 'blocks/ads/v4.html' %}
+    {% include 'blocks/ads/v4.html' %}
 
 
 {% endblock %}
 
 {% block extra_js %}
 
-<script>
-let cursor   = null;
-let loading  = false;
-let hasNext  = true;
-let total    = 0;
-let initialised = false;
-let i = 1
-let loaded = 0
+  <script>
+    let cursor   = null;
+    let loading  = false;
+    let hasNext  = true;
+    let total    = 0;
+    let initialised = false;
+    let i = 1
+    let loaded = 0
 
 
-const active = {
-  search:        "{{ active.search|escapejs }}",
-  property_type: "{{ active.property_type|escapejs }}",
-  purpose:       "{{ active.purpose|escapejs }}",
-  city:          "{{ active.city|escapejs }}",
-  status:        "{{ active.status|escapejs }}",
-  min_price:     "{{ active.min_price|escapejs }}",
-  max_price:     "{{ active.max_price|escapejs }}",
-  min_bedrooms:  "{{ active.min_bedrooms|escapejs }}",
-  max_bedrooms:  "{{ active.max_bedrooms|escapejs }}",
-  min_bathrooms: "{{ active.min_bathrooms|escapejs }}",
-  max_bathrooms: "{{ active.max_bathrooms|escapejs }}",
-  furnished:     "{{ active.furnished|escapejs }}",
-  serviced:      "{{ active.serviced|escapejs }}",
-  shared:        "{{ active.shared|escapejs }}",
-  school:        "{{ active.school|escapejs }}",
-  sort:          "{{ active.sort|escapejs }}",
-  amenities:     {{ active.amenities|default:"[]"|safe }},  {# list rendered as JSON #}
-};
+    const active = {
+      search:        "{{ active.search|escapejs }}",
+      property_type: "{{ active.property_type|escapejs }}",
+      purpose:       "{{ active.purpose|escapejs }}",
+      city:          "{{ active.city|escapejs }}",
+      status:        "{{ active.status|escapejs }}",
+      min_price:     "{{ active.min_price|escapejs }}",
+      max_price:     "{{ active.max_price|escapejs }}",
+      min_bedrooms:  "{{ active.min_bedrooms|escapejs }}",
+      max_bedrooms:  "{{ active.max_bedrooms|escapejs }}",
+      min_bathrooms: "{{ active.min_bathrooms|escapejs }}",
+      max_bathrooms: "{{ active.max_bathrooms|escapejs }}",
+      furnished:     "{{ active.furnished|escapejs }}",
+      serviced:      "{{ active.serviced|escapejs }}",
+      shared:        "{{ active.shared|escapejs }}",
+      school:        "{{ active.school|escapejs }}",
+      sort:          "{{ active.sort|escapejs }}",
+      amenities:     {{ active.amenities|default:"[]"|safe }},  {# list rendered as JSON #}
+    };
 
-const container    = document.getElementById("properties_grid");
-const emptyEl      = document.getElementById("empty");
-const totalEl      = document.getElementById("total");
-const loadMoreBtn  = document.getElementById("loadmorebtn");
-const sentinel     = document.getElementById("sentinel");
+    const container    = document.getElementById("properties_grid");
+    const emptyEl      = document.getElementById("empty");
+    const totalEl      = document.getElementById("total");
+    const loadMoreBtn  = document.getElementById("loadmorebtn");
+    const sentinel     = document.getElementById("sentinel");
 
-const spinner = document.createElement("div");
-spinner.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full";
+    const spinner = document.createElement("div");
+    spinner.className = "animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full";
 
-const formatter = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
+    const formatter = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
 
-function buildParams() {
-  const p = new URLSearchParams();
+    function buildParams() {
+      const p = new URLSearchParams();
+      const plain = ["search","property_type","purpose","city","status", "min_price","max_price","min_bedrooms","max_bedrooms", "min_bathrooms","max_bathrooms","furnished","serviced", "shared","school","sort"];
 
-  const plain = ["search","property_type","purpose","city","status", "min_price","max_price","min_bedrooms","max_bedrooms", "min_bathrooms","max_bathrooms","furnished","serviced", "shared","school","sort"];
+      plain.forEach(k => { if (active[k]) p.set(k, active[k]); });
+      active.amenities.forEach(a => { if (a) p.append("amenities", a); });
+      if (cursor) p.set("cursor", cursor);
+      return p.toString();
+    }
 
-  plain.forEach(k => { if (active[k]) p.set(k, active[k]); });
-  active.amenities.forEach(a => { if (a) p.append("amenities", a); });
-  if (cursor) p.set("cursor", cursor);
+    function buildCard(p) {
+      const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const priceNum  = parseFloat(p.price);
 
-return p.toString();
-}
+      let priceSuffix = "";
+      if (p.purpose === "rent") {
+        if (p.rent_duration_months === 12)    priceSuffix = `<span class="font-normal text-xs opacity-75">/yr</span>`;
+        else if (p.rent_duration_months === 1) priceSuffix = `<span class="font-normal text-xs opacity-75">/mo</span>`;
+        else if (p.rent_duration_months === 3 && p.school) priceSuffix = `<span class="font-normal text-xs opacity-75">/semester</span>`;
+        else if (p.rent_duration_months)       priceSuffix = `<span class="font-normal text-xs opacity-75">/${p.rent_duration_months}mo</span>`;
+      }
 
-function buildCard(p) {
-  const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  const priceNum  = parseFloat(p.price);
+      const featurePills = [
+        p.furnished ? "Furnished" : "",
+        p.serviced  ? "Serviced"  : "",
+        p.shared    ? "Shared"    : "",
+        p.school    ? "Student Housing"    : "",
+      ].filter(Boolean).map(b =>
+        `<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">${b}</span>`
+      ).join("");
 
-  let priceSuffix = "";
-  if (p.purpose === "rent") {
-    if (p.rent_duration_months === 12)    priceSuffix = `<span class="font-normal text-xs opacity-75">/yr</span>`;
-    else if (p.rent_duration_months === 1) priceSuffix = `<span class="font-normal text-xs opacity-75">/mo</span>`;
-    else if (p.rent_duration_months === 3 && p.school) priceSuffix = `<span class="font-normal text-xs opacity-75">/semester</span>`;
-    else if (p.rent_duration_months)       priceSuffix = `<span class="font-normal text-xs opacity-75">/${p.rent_duration_months}mo</span>`;
-  }
+      const specs = [
+        p.bedrooms  ? `<span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[10px]"></i>${p.bedrooms} bed</span>`   : "",
+        p.bathrooms ? `<span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[10px]"></i>${p.bathrooms} bath</span>` : "",
+        p.area_sqft ? `<span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>${parseFloat(p.area_sqft).toLocaleString()} sqft</span>` : "",
+      ].filter(Boolean).join("");
 
-  const featurePills = [
-    p.furnished ? "Furnished" : "",
-    p.serviced  ? "Serviced"  : "",
-    p.shared    ? "Shared"    : "",
-    p.school    ? "Student Housing"    : "",
-  ].filter(Boolean).map(b =>
-    `<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">${b}</span>`
-  ).join("");
+      const purposeColor = p.purpose === "rent" ? "bg-blue-500" : "bg-primary";
 
-  const specs = [
-    p.bedrooms  ? `<span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[10px]"></i>${p.bedrooms} bed</span>`   : "",
-    p.bathrooms ? `<span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[10px]"></i>${p.bathrooms} bath</span>` : "",
-    p.area_sqft ? `<span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>${parseFloat(p.area_sqft).toLocaleString()} sqft</span>` : "",
-  ].filter(Boolean).join("");
+      const typeBadge = p.property_type
+        ? `<span class="px-2 py-0.5 rounded-full pointer-events-none bg-black/30 text-white backdrop-blur-sm">${p.property_type}</span>`
+        : "";
 
-  const purposeColor = p.purpose === "rent" ? "bg-blue-500" : "bg-primary";
 
-  const typeBadge = p.property_type
-    ? `<span class="px-2 py-0.5 rounded-full pointer-events-none bg-black/30 text-white backdrop-blur-sm">${p.property_type}</span>`
-    : "";
 
-  
-
-  return `
+      return `
   <article class="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden
-                  hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col">
-
-    <div class="relative h44 aspect-[16/8] overflow-hidden bg-gray-100 shrink-0">
+                  hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col animate-slide-up">
+    <a href="/property/${p.id}/" class="absolute inset-0 z-10"></a>
+    <div class="relative aspect-[16/8] overflow-hidden bg-gray-100 shrink-0">
 
       ${p.main_image
         ? `<img src="${p.main_image}" alt="${safeTitle}" loading="lazy"
-               class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-500 ease-out pointer-events-none">`
+      class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-500 ease-out pointer-events-none">`
         : `<div class="w-full h-full flex items-center justify-center">
-             <i class="fas fa-home text-gray-200 text-4xl"></i>
-           </div>`
+      <i class="fas fa-home text-gray-200 text-4xl"></i>
+      </div>`
       }
 
       <div class="absolute top-2.5 left-2.5 z-10 text-[10px] font-bold flex gap-1 ">
@@ -308,14 +308,14 @@ function buildCard(p) {
         ${typeBadge}
 
         ${p.is_featured ? `
-        <span class="px-2 py-0.5 rounded-full pointer-events-none">
-          Featured
-        </span>`: ''}
+      <span class="px-2 py-0.5 rounded-full pointer-events-none">
+      Featured
+      </span>`: ''}
 
         ${p.school_short_name ? `
-        <span class="px-2 py-0.5 rounded-full pointer-events-none bg-amber-50 text-amber-700 border border-amber-200">
-          ${p.school_short_name}
-        </span>`: ''}
+      <span class="px-2 py-0.5 rounded-full pointer-events-none bg-amber-50 text-amber-700 border border-amber-200">
+      ${p.school_short_name}
+      </span>`: ''}
 
         </div>
 
@@ -323,7 +323,7 @@ function buildCard(p) {
         data-id="${p.id}"
         onclick="toggleSave(this, ${p.id})"
         class="save-btn absolute top-2.5 right-2.5 z-10 w-7 h-7 bg-white/85 backdrop-blur-sm rounded-lg
-               flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white transition">
+               flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white transition cursor-pointer">
         <i class="fas fa-heart text-xs"></i>
       </button>
 
@@ -342,31 +342,36 @@ function buildCard(p) {
         ${safeTitle}
       </a>
 
+      <div class="flex justify-between">
       <p class="text-xs text-gray-400 flex items-center gap-1 truncate">
         <i class="fas fa-map-marker-alt text-[9px] shrink-0"></i>
         <span class="capitalize">${p.city}</span>
         <span class="text-gray-300">·</span>
         <span class="capitalize">${p.state}</span>
       </p>
+      ${p.verified ? `<span class="relative text-primary text-xs flex justify-between gap-1">
+      <i class="fa fa-circle-check"></i>
+      <span class="">Verified</span>
+      <span/>` : ''}</div>
+
 
       ${specs ? `<div class="flex items-center gap-2.5 text-xs text-gray-500">${specs}</div>` : ""}
-      ${p.verified ? `<i class="fa fa-star text-yellow-300 text-sm"></i>` : ''}
       ${featurePills ? `<div class="flex flex-wrap gap-1 mt-0.5">${featurePills}</div>` : ""}
 
       <div class="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between">
-        <a href="/property/${p.id}/"
-           class="text-xs font-semibold text-gray-500 hover:text-primary transition flex items-center gap-1">
-          View Property <i class="fas fa-arrow-right text-[9px]"></i>
-        </a>
-        <button onclick="openReportModal(${p.id}, '${safeTitle}')"
-                class="w-6 h-6 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition"
-                title="Report listing">
-          <i class="fas fa-flag text-[10px]"></i>
-        </button>
+      <a href="/property/${p.id}/"
+      class="text-xs font-semibold text-gray-500 hover:text-primary transition flex items-center gap-1">
+      View Property <i class="fas fa-arrow-right text-[9px]"></i>
+      </a>
+      <button onclick="openReportModal(${p.id}, '${safeTitle}')"
+      class="w-6 h-6 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition z-10 cursor-pointer"
+      title="Report listing">
+      <i class="fas fa-flag text-[10px]"></i>
+      </button>
       </div>
 
-    </div>
-  </article>`;
+      </div>
+      </article>`;
 }
 
 
@@ -418,13 +423,13 @@ async function loadMore() {
     if (total === 0) {
       loadMoreBtn.innerHTML = "";
       emptyEl.innerHTML = `
-        <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
-          <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-home text-gray-400 text-3xl"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-800 mb-1">No Properties Found</h3>
-          <p class="text-gray-500 mb-5 text-sm">Try adjusting your filters.</p>
-        </div>`;
+      <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
+      <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-home text-gray-400 text-3xl"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-1">No Properties Found</h3>
+      <p class="text-gray-500 mb-5 text-sm">Try adjusting your filters.</p>
+      </div>`;
     }
   } catch (err) {
     console.error("Failed to load properties:", err);
@@ -452,27 +457,58 @@ function reloadProperties() {
   loadMoreBtn.classList.remove("cursor-not-allowed", "bg-gray-100");
   loadMoreBtn.onclick = loadMore;
   sidebtns.innerHTML = "";
+  window.scrollTo({ top:0})
   loadMore();
 }
 
 async function toggleSave(btn, propertyId) {
+  {% if user.is_authenticated %}
   const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
   const icon = btn.querySelector("i");
 
-  try {
-    const res = await fetch(`/property/${propertyId}/save/`, {
-      method: "POST",
-      headers: { "X-CSRFToken": csrfToken },
-    });
 
-    if (res.ok) {
-      const saved = icon.classList.contains("text-red-500");
-      icon.classList.toggle("text-red-500", !saved);
-      icon.classList.toggle("text-gray-400", saved);
-    }
+      try {
+        const res = await fetch(`/property/${propertyId}/save/`, {
+          method: "POST",
+        headers: { "X-CSRFToken": csrfToken },
+      });
+    
+      if (res.ok) {
+        const saved = icon.classList.contains("text-red-500");
+        icon.classList.toggle("text-red-500", !saved);
+        icon.classList.toggle("text-gray-400", saved);
+        let data = await res.json()
+        render_message(data.action)
+      }
+
   } catch (e) {
     console.error("Save failed", e);
   }
+  {% else %}
+    window.location.href = "{% url 'login' %}?next={{ request.path }}";
+  {% endif %}
+}
+
+function render_message(action) {
+  container_ = document.getElementById('container_')
+  const divv = document.createElement('div')
+  divv.innerHTML = `
+
+      <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden border-green-200 text-green-700">
+      <div class="mt-0.5">
+      <i class="fas fa-circle-check" id="icon"></i>
+      </div>
+
+      <div class="flex-1 text-sm" id="message_">
+      The propertty was ${action == "removed" ? "removed from" : "added to"} your saved properties
+      </div>
+
+      <div class="absolute bottom-0 left-0 h-[2px] w-full progress bg-green-400">
+      </div>
+
+      </div>`
+  container_.appendChild(divv)
+  setTimeout(()=> {container_.removeChild(divv)}, 5000)
 }
 
 document.getElementById("filterFormSidebar").addEventListener("submit", function(e) {
@@ -481,8 +517,10 @@ document.getElementById("filterFormSidebar").addEventListener("submit", function
 
 
   Object.keys(active).forEach(key => {
-    if (key != "amenities") {
+    if (typeof active[key] == 'string') {
       active[key] = fd.get(key) || "";
+    } else {
+      active[key] = fd.getAll(key) || [];
     }
   });
 
@@ -539,63 +577,72 @@ if (tips && localStorage.getItem("tips_shown") !== "true") {
         const form = document.getElementById('reportForm') || document.getElementById('reportFormDetail');
         if (form) {
             form.action = `/property/${propertyId}/report/`;
-        } else {
-            console.warn('Report form not found in DOM.');
-        }
+    } else {
+      console.warn('Report form not found in DOM.');
+    }
 
-        let rmodal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
-        if (rmodal) {
-            rmodal.classList.remove('hidden');
-            rmodal.classList.add('flex');
-        } else {
-            console.warn('Report modal not found in DOM.');
-        }
+    let rmodal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+    if (rmodal) {
+      rmodal.classList.remove('hidden');
+      rmodal.classList.add('flex');
+    } else {
+      console.warn('Report modal not found in DOM.');
+    }
     }
 
     function closeReportModal() {
-        let rmodal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
-        if (rmodal) {
-            rmodal.classList.add('hidden');
-            rmodal.classList.remove('flex');
-        }
+      let rmodal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
+      if (rmodal) {
+        rmodal.classList.add('hidden');
+        rmodal.classList.remove('flex');
+      }
     }
 
     const reportModal = document.getElementById('reportModal') || document.getElementById('reportModalDetail');
     if (reportModal) {
-        reportModal.addEventListener('click', function (e) {
-            if (e.target === this) closeReportModal();
-        });
+      reportModal.addEventListener('click', function (e) {
+        if (e.target === this) closeReportModal();
+      });
     }
 
-</script>
+  </script>
 
 
-<script>
-  function openMobileFilters() {
-    const d = document.getElementById('filterDrawer');
-    const b = document.getElementById('filterBackdrop');
-    b.classList.remove('hidden');
-    requestAnimationFrame(() => b.classList.remove('opacity-0'));
-    d.classList.remove('-translate-x-full');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeMobileFilters() {
-    const d = document.getElementById('filterDrawer');
-    const b = document.getElementById('filterBackdrop');
-    d.classList.add('-translate-x-full');
-    b.classList.add('opacity-0');
-    setTimeout(() => b.classList.add('hidden'), 300);
-    document.body.style.overflow = '';
-  }
-  document.getElementById('sortSelectMobile')?.addEventListener('change', function () {
-    const main = document.getElementById('sortSelect');
-    if (main) { main.value = this.value; main.dispatchEvent(new Event('change')); }
-  });
-  function updateTotalDisplays(n) {
-    const t  = document.getElementById('total');
-    const tm = document.getElementById('totalMobile');
-    if (t)  t.textContent  = n.toLocaleString();
-    if (tm) tm.textContent = n.toLocaleString();
-  }
-</script>
+  <script>
+    function openMobileFilters() {
+      const d = document.getElementById('filterDrawer');
+      const b = document.getElementById('filterBackdrop');
+      b.classList.remove('hidden');
+      requestAnimationFrame(() => b.classList.remove('opacity-0'));
+      d.classList.remove('-translate-x-full');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileFilters() {
+      const d = document.getElementById('filterDrawer');
+      const b = document.getElementById('filterBackdrop');
+      d.classList.add('-translate-x-full');
+      b.classList.add('opacity-0');
+      setTimeout(() => b.classList.add('hidden'), 300);
+      document.body.style.overflow = '';
+    }
+    document.getElementById('sortSelectMobile')?.addEventListener('change', function () {
+      const main = document.getElementById('sortSelect');
+      if (main) { main.value = this.value; main.dispatchEvent(new Event('change')); }
+    });
+    function updateTotalDisplays(n) {
+      const t  = document.getElementById('total');
+      const tm = document.getElementById('totalMobile');
+      if (t)  t.textContent  = n.toLocaleString();
+      if (tm) tm.textContent = n.toLocaleString();
+    }
+
+
+
+    document.querySelector("[name=city]").addEventListener("change", (e) => {
+      if (e.target.value.strip()) {
+
+      }
+    })
+    console.log(document.querySelector("[name=area]"))
+  </script>
 {% endblock %}

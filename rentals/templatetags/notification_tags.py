@@ -18,3 +18,4 @@ def get_notification_url(notification):
 def is_read(queryset, value):
     """Filter notifications by read status"""
     return queryset.filter(is_read=value)
+

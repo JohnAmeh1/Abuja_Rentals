@@ -9,6 +9,11 @@ PROPERTY_STATUS_CHOICES = [
     ('draft', 'Draft'),
 ]
 
+AGENT_PROPERTY_STATUS_CHOICES = [
+    ('available', 'Available'),
+    ('draft', 'Draft'),
+]
+
 USER_TYPE_CHOICES = [
     ('tenant', 'Tenant/Looking to Rent'),
     ('agent', 'Real Estate Agent'),
@@ -48,4 +53,21 @@ AGENT_APP_STATUS_CHOICES = [
     ('pending',  'Pending'),
     ('approved', 'Approved'),
     ('rejected', 'Rejected'),
+]
+
+NOTIFICATION_MESSAGE_TYPE_CHOICES = [
+    ("inquiry_sent", "Inquiry Sent"),
+    ("inquiry_responded", "Inquiry Responded"),
+    ("inquiries", "Inquiries"),
+    ("agent_application_sent", "Agent Application Sent"),
+    ("agent_application_reviewed", "Agent Application Reviewed"),
+    ("agent_applications", "Agent Applications"),
+    ("agent_verification_request", "Agent Verification Request"),
+    ("agent_verification_requests", "Agent Verification Requests"),
+]
+
+NOTIFICATION_MODE_CHOICES = [
+    ("email", "Email"),
+    ("whatsapp", "Whatsapp"),
+    ("phone", "Phone"),
 ]

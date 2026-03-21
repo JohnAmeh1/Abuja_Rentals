@@ -8,9 +8,10 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
-    path('verify-otp/<int:user_id>/', views.verify_otp_view, name='verify_otp'),
-    path('resend-otp/<int:user_id>/', views.resend_otp, name='resend_otp'),
+    path('verify-otp/', views.verify_otp_view, name='verify_otp'),
+    path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('forgot-password/', views.forgot_password, name='change_password'),
     path('verify-forgot-password-otp/', views.verify_forgot_password_otp, name='verify_forgot_password_otp'),
     path('resend-forgot-password-otp/<int:user_id>/', views.resend_forgot_password_otp, name='resend_forgot_password_otp'),
     path('reset-password/', views.reset_password, name='reset_password'),
@@ -19,10 +20,13 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('redirect/', views.send_message, name='redirect'),
     
-    path('agent/properties/', views.properties_view, name='agent_properties'),
+    path('agent/properties/', views.agent_properties_view, name='agent_properties'),
+    path('agent/profile/', views.agent_profile_edit, name='agent_profile_edit'),
+    path('agents/<int:agent_id>/', views.agent_public_profile, name='agent_public_profile'),
+    
     path('properties/', views.properties_view, name='properties'),
     path('api/properties/', views.get_properties, name='properties_api'),
-    path('properties/add/', views.add_property_view, name='create_property'),
+    path('properties/add/', views.add_property_view, name='add_property'),
     path('properties/edit/<int:property_id>/', views.edit_property_view, name='edit_property'),
     path('properties/status/<int:property_id>/', views.update_property_status, name='update_property_status'),
     path('properties/delete/<int:property_id>/', views.delete_property_view, name='delete_property'),
@@ -81,6 +85,8 @@ urlpatterns = [
 
     path('api/agent/properties/',            views.agent_property_search,  name='agent_property_search'),
     path('api/inquiries/<int:inquiry_id>/respond/', views.agent_respond_inquiry, name='agent_respond_inquiry'),
+    path('api/inquiries/<int:response_id>/', views.mark_response_opened, name='mark_response_opened'),
+    path('api/areas/', views.areas_by_city_api, name='areas_by_city'),
     
     path('about/',   views.AboutView.as_view(),   name='about'),
     path('careers/', views.CareersView.as_view(), name='careers'),

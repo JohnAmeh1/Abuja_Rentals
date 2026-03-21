@@ -1,7 +1,7 @@
 
 <div id="stickyAdBanner"
      class="fixed bottom-0 inset-x-0 z-30 translate-y-full transition-transform duration-500 ease-out
-            lg:bottom-4 lg:inset-x-auto lg:left-1/2 lg:-translate-x-1/2 lg:w-[640px]
+            lg:bottom-4 lg:inset-x-auto lg:left-1/2 lg:-translate-x-1/2 lg:w-160
             lg:translate-y-0 lg:opacity-0 lg:pointer-events-none"
      style="will-change: transform, opacity;">
 
@@ -17,7 +17,7 @@
       <p class="text-gray-500 text-xs truncate">Join 500+ agents on Abuja Rentals</p>
     </div>
 
-    <a href="{% url 'create_property' %}"
+    <a href="{% url 'add_property' %}"
        class="shrink-0 px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition whitespace-nowrap">
       Get Started
     </a>
@@ -31,7 +31,7 @@
 </div>
 
 <script>
-     const banner    = document.getElementById('stickyAdBanner');
+  const banner    = document.getElementById('stickyAdBanner');
   let bannerShown = sessionStorage.getItem('stickyAdDismissed') === '1';
 
   function showBanner() {

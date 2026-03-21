@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ agent.name }} | Abuja Rentals{% endblock %}
+
+{% block content %}
+  <div class="container mx-auto px-4 lg:px-13 py-8 pt-20">
+
+    <div class="relative w-full h-44 lg:h-60 rounded-2xl overflow-hidden bg-gray-100 mb-0">
+      {% if agent.image %}
+        <img src="{{ agent.image }}" alt="Agency banner"
+             class="w-full h-full object-cover">
+      {% else %}
+        <div class="w-full h-full bg-linear-to-br from-gray-900 via-gray-800 to-primary/40 flex items-center justify-center">
+          <div class="absolute inset-0 opacity-10"
+               style="background-image: repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%); background-size: 20px 20px;"></div>
+          <p class="text-white/20 font-black text-6xl lg:text-8xl tracking-tighter select-none uppercase">
+            {{ agent.name|truncatechars:2 }}
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="relative -mt-10 mx-4 lg:mx-8 mb-6">
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col lg:flex-row lg:items-end gap-4">
+
+        <div class="shrink-0 -mt-14 lg:-mt-16">
+          {% if agent.logo %}
+            <img src="{{ agent.logo }}" alt="{{ agent.user.get_full_name }}"
+                 class="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl object-cover border-4 border-white shadow-md">
+          {% else %}
+            <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl border-4 border-white shadow-md
+                        bg-primary/10 flex items-center justify-center text-3xl font-black text-primary uppercase">
+              {{ agent.name }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <h1 class="text-xl font-black text-gray-900">
+              {{ agent.name }}
+            </h1>
+            {% if agent.verified %}
+              <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-700
+                           bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                <i class="fas fa-shield-alt text-emerald-500 text-[9px]"></i> Verified
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
+            {% if agent.location %}
+              <span class="flex items-center gap-1">
+                <i class="fas fa-map-marker-alt text-[9px]"></i>
+                {% if agent.location.city %}{{ agent.location.city.name|capfirst }}{% endif %}
+                {% if agent.location.address %} · {{ agent.location.address }}{% endif %}
+              </span>
+            {% endif %}
+            {% if agent.website %}
+              <a href="{{ agent.website }}" target="_blank" rel="noopener"
+                 class="flex items-center gap-1 hover:text-primary transition">
+                <i class="fas fa-globe text-[9px]"></i> {{ agent.website|truncatechars:30 }}
+              </a>
+            {% endif %}
+            <span class="flex items-center gap-1">
+              <i class="fas fa-calendar-alt text-[9px]"></i>
+              Member since {{ agent.created_at|date:"M Y" }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex gap-2 shrink-0 flex-wrap">
+          {% if agent.whatsapp_number %}
+            <a href="https://wa.me/{{ agent.whatsapp_number|cut:'+' }}"
+               target="_blank" rel="noopener"
+               class="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700
+                      text-white text-xs font-semibold rounded-xl transition">
+              <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+          {% endif %}
+          {% if agent.phone %}
+            <a href="tel:{{ agent.phone }}"
+               class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 hover:bg-gray-50
+                      text-gray-700 text-xs font-semibold rounded-xl transition">
+              <i class="fas fa-phone text-[10px]"></i> {{ agent.phone }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <aside class="lg:col-span-3 space-y-4">
+
+        {% if agent.bio %}
+          <div class="bg-white rounded-2xl border border-gray-100 p-5">
+            <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-3">About</p>
+            <p class="text-sm text-gray-600 leading-relaxed">{{ agent.bio }}</p>
+          </div>
+        {% endif %}
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
+          <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Contact</p>
+
+          {% if agent.phone %}
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center shrink-0">
+                <i class="fas fa-phone text-gray-400 text-[10px]"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400">Phone</p>
+                <a href="tel:{{ agent.phone }}" class="text-sm font-semibold text-gray-800 hover:text-primary transition">
+                  {{ agent.phone }}
+                </a>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if agent.other_phones %}
+            {% for phone in agent.other_phones %}
+              {% if phone %}
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center shrink-0">
+                    <i class="fas fa-phone text-gray-300 text-[10px]"></i>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-gray-400">Other</p>
+                    <a href="tel:{{ phone }}" class="text-sm font-semibold text-gray-800 hover:text-primary transition">
+                      {{ phone }}
+                    </a>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if agent.whatsapp_number %}
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
+                <i class="fab fa-whatsapp text-green-500 text-sm"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400">WhatsApp</p>
+                <a href="https://wa.me/{{ agent.whatsapp_number|cut:'+' }}" target="_blank"
+                   class="text-sm font-semibold text-gray-800 hover:text-green-600 transition">
+                  {{ agent.whatsapp_number }}
+                </a>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if agent.website %}
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center shrink-0">
+                <i class="fas fa-globe text-gray-400 text-[10px]"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] text-gray-400">Website</p>
+                <a href="{{ agent.website }}" target="_blank" rel="noopener"
+                   class="text-sm font-semibold text-primary hover:underline truncate block">
+                  {{ agent.website|truncatechars:28 }}
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-5 space-y-4 sticky top-20">
+          <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Filter listings</p>
+
+          <div>
+            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Purpose</p>
+            <div class="flex flex-wrap gap-1.5" id="purposeFilter">
+              <button data-value="" onclick="setFilter('purpose', '')"
+                      class="filter-pill purpose-pill active text-[11px] px-3 py-1 rounded-full border border-gray-200
+                             text-gray-600 hover:border-gray-300 transition">All</button>
+              <button data-value="rent" onclick="setFilter('purpose', 'rent')"
+                      class="filter-pill purpose-pill text-[11px] px-3 py-1 rounded-full border border-gray-200
+                             text-gray-600 hover:border-gray-300 transition">For Rent</button>
+              <button data-value="sale" onclick="setFilter('purpose', 'sale')"
+                      class="filter-pill purpose-pill text-[11px] px-3 py-1 rounded-full border border-gray-200
+                             text-gray-600 hover:border-gray-300 transition">For Sale</button>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Type</p>
+            <div class="flex flex-wrap gap-1.5" id="typeFilter">
+              <button data-value="" onclick="setFilter('type', '')"
+                      class="filter-pill type-pill active text-[11px] px-3 py-1 rounded-full border border-gray-200
+                             text-gray-600 hover:border-gray-300 transition">All</button>
+              {% for pt in property_types %}
+                <button data-value="{{ pt.id }}" onclick="setFilter('type', '{{ pt.id }}')"
+                        class="filter-pill type-pill text-[11px] px-3 py-1 rounded-full border border-gray-200
+                               text-gray-600 hover:border-gray-300 transition">{{ pt.display_name }}</button>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% if areas %}
+            <div>
+              <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Area</p>
+              <div class="flex flex-wrap gap-1.5" id="areaFilter">
+                <button data-value="" onclick="setFilter('area', '')"
+                        class="filter-pill area-pill active text-[11px] px-3 py-1 rounded-full border border-gray-200
+                               text-gray-600 hover:border-gray-300 transition">All areas</button>
+                {% for area in areas %}
+                  <button data-value="{{ area.id }}" onclick="setFilter('area', '{{ area.id }}')"
+                          class="filter-pill area-pill text-[11px] px-3 py-1 rounded-full border border-gray-200
+                                 text-gray-600 hover:border-gray-300 transition">{{ area.name|capfirst }}</button>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+
+      </aside>
+
+      <main class="lg:col-span-9">
+
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-bold text-gray-900">Listings</h2>
+            <p class="text-xs text-gray-400 mt-0.5">
+              <span id="listingCount" class="font-semibold text-gray-600">{{ properties|length }}</span> properties
+            </p>
+          </div>
+          <div class="relative">
+            <select id="sortSelect" onchange="sortListings(this.value)"
+                    class="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-600
+                           focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+              <option value="newest">Newest</option>
+              <option value="price_asc">Price ↑</option>
+              <option value="price_desc">Price ↓</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div id="listingsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {% for p in properties %}
+            <article class="property-card group bg-white rounded-2xl border border-gray-200 overflow-hidden
+                            hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col"
+                     data-purpose="{{ p.purpose }}"
+                     data-type="{{ p.property_type }}"
+                     data-area="{{ p.area|default:'' }}"
+                     data-price="{{ p.price }}"
+                     data-created="{{ p.created_at|date:'U' }}">
+
+              <a href="{% url 'property_detail' p.id %}" class="relative aspect-video block overflow-hidden bg-gray-100 shrink-0">
+                {% if p.main_image %}
+                  <img src="{{ p.main_image }}" alt="{{ p.title }}" loading="lazy"
+                       class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                {% else %}
+                  <div class="w-full h-full flex items-center justify-center">
+                    <i class="fas fa-home text-gray-200 text-4xl"></i>
+                  </div>
+                {% endif %}
+
+                <div class="absolute top-2.5 left-2.5 flex gap-1 text-[10px] font-bold">
+                  <span class="px-2 py-0.5 rounded-full {% if p.purpose == 'rent' %}bg-blue-500{% else %}bg-primary{% endif %} text-white">
+                    {{ p.purpose|capfirst }}
+                  </span>
+
+                </div>
+
+                <div class="absolute bottom-0 inset-x-0 px-3 py-2.5
+                            bg-linear-to-t from-black/55 to-transparent pointer-events-none">
+                  <span class="text-white font-bold text-sm drop-shadow">
+                    ₦{{ p.price|floatformat:0|intcomma }}
+                    {% if p.purpose == 'rent' %}
+                      <span class="font-normal text-xs opacity-75">
+                        {% if p.rent_duration_months == 12 %}/yr
+                        {% elif p.rent_duration_months == 1 %}/mo
+                        {% elif p.rent_duration_months == 3 and p.school %}/sem
+                        {% endif %}
+                      </span>
+                    {% endif %}
+                  </span>
+                </div>
+              </a>
+
+              <div class="p-3.5 flex flex-col gap-1.5 flex-1">
+                <a href="{% url 'property_detail' p.id %}"
+                   class="font-bold text-gray-900 line-clamp-1 text-sm leading-snug group-hover:text-primary transition">
+                  {{ p.title }}
+                </a>
+
+                <p class="text-xs text-gray-400 flex items-center gap-1 truncate">
+                  <i class="fas fa-map-marker-alt text-[9px] shrink-0"></i>
+                  {% if p.area %}
+                    <span class="capitalize">{{ p.area }}</span>
+                    <span class="text-gray-300">·</span>
+                  {% endif %}
+                  {% if p.city %}
+                    <span class="capitalize">{{ p.city }}</span>
+                  {% endif %}
+                </p>
+
+                <div class="flex items-center gap-2.5 text-xs text-gray-500">
+                  {% if p.bedrooms %}<span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[10px]"></i>{{ p.bedrooms }} bed</span>{% endif %}
+                  {% if p.bathrooms %}<span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[10px]"></i>{{ p.bathrooms }} bath</span>{% endif %}
+                  {% if p.area_sqft %}<span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>{{ p.area_sqft|floatformat:0 }} sqft</span>{% endif %}
+                </div>
+
+                <div class="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between">
+                  <a href="{% url 'property_detail' p.id %}"
+                     class="text-xs font-semibold text-gray-500 hover:text-primary transition flex items-center gap-1">
+                    View <i class="fas fa-arrow-right text-[9px]"></i>
+                  </a>
+                  {% if p.verified %}
+                    <span class="flex items-center gap-1 text-[10px] text-primary font-semibold">
+                      <i class="fa fa-circle-check text-[9px]"></i> Verified
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            </article>
+          {% empty %}
+            <div class="sm:col-span-2 xl:col-span-3 bg-white rounded-2xl border border-gray-100 p-12 text-center">
+              <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-home text-gray-300 text-2xl"></i>
+              </div>
+              <p class="text-sm font-semibold text-gray-500">No listings yet</p>
+              <p class="text-xs text-gray-400 mt-1">This agent hasn't published any properties.</p>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div id="emptyFiltered"
+             class="hidden bg-white rounded-2xl border border-gray-100 p-12 text-center mt-4">
+          <i class="fas fa-filter text-gray-200 text-3xl mb-3"></i>
+          <p class="text-sm font-semibold text-gray-500">No matching properties</p>
+          <p class="text-xs text-gray-400 mt-1">Try a different filter combination.</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <style>
+    .filter-pill.active {
+      border-color: var(--color-primary, #3b82f6);
+      background-color: color-mix(in srgb, var(--color-primary, #3b82f6) 8%, white);
+      color: var(--color-primary, #3b82f6);
+      font-weight: 600;
+    }
+  </style>
+
+  <script>
+    const filters = { purpose: '', type: '', area: '' };
+
+    function setFilter(key, value) {
+      filters[key] = value;
+
+    // Update pill active states
+      document.querySelectorAll(`.${key}-pill`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === value);
+      });
+
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const cards = document.querySelectorAll('.property-card');
+      let visible = 0;
+
+      cards.forEach(card => {
+        const matchPurpose = !filters.purpose || card.dataset.purpose === filters.purpose;
+        const matchType    = !filters.type    || card.dataset.type    === filters.type;
+        const matchArea    = !filters.area    || card.dataset.area    === filters.area;
+
+        const show = matchPurpose && matchType && matchArea;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      document.getElementById('listingCount').textContent = visible;
+      document.getElementById('emptyFiltered').classList.toggle('hidden', visible > 0);
+
+    // Re-sort after filter to keep order consistent
+      sortListings(document.getElementById('sortSelect').value, false);
+    }
+
+    function sortListings(mode, updateCount = true) {
+      const grid  = document.getElementById('listingsGrid');
+      const cards = [...grid.querySelectorAll('.property-card')].filter(c => c.style.display !== 'none');
+
+      cards.sort((a, b) => {
+        if (mode === 'price_asc')  return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+        if (mode === 'price_desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+        return parseInt(b.dataset.created) - parseInt(a.dataset.created); // newest
+      });
+
+    // Re-append in sorted order (hidden cards stay in place at the end)
+      cards.forEach(c => grid.appendChild(c));
+    }
+  </script>
+{% endblock %}

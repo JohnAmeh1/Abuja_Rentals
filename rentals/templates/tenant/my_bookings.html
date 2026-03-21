@@ -4,139 +4,139 @@
 {% block title %}My Bookings | Abuja Rentals{% endblock %}
 
 {% block subcontent %}
-<div class="space-y-5 max-w-3xl">
+  <div class="space-y-5 ">
 
-  <div class="flex items-center justify-between">
-    <div>
-      <h2 class="text-xl font-bold text-gray-900">My Bookings</h2>
-      <p class="text-sm text-gray-400 mt-0.5">Track your scheduled property visits</p>
-    </div>
-    <a href="{% url 'properties' %}"
-       class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:opacity-90 transition">
-      <i class="fas fa-search text-xs"></i>
-      <span class="hidden sm:inline">Browse Properties</span>
-      <span class="sm:hidden">Browse</span>
-    </a>
-  </div>
-
-  {% if bookings %}
-
-  <div class="space-y-3">
-    {% for booking in bookings %}
-    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors group">
-      <div class="flex flex-col sm:flex-row">
-
-        <div class="sm:w-32 h-36 sm:h-auto shrink-0 bg-gray-100 overflow-hidden relative">
-          {% if booking.property.main_image %}
-            <img src="{{ booking.property.main_image }}" alt="{{ booking.property.title }}"
-                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ease-out">
-          {% else %}
-            <div class="w-full h-full flex items-center justify-center">
-              <i class="fas fa-home text-gray-200 text-3xl"></i>
-            </div>
-          {% endif %}
-        </div>
-
-        <div class="flex-1 p-5 min-w-0 flex flex-col">
-          <div class="flex items-start justify-between gap-2 mb-3">
-            <div class="min-w-0">
-              <a href="{% url 'property_detail' booking.property.id %}"
-                 class="text-sm font-bold text-gray-900 hover:text-primary transition line-clamp-1">
-                {{ booking.property.title }}
-              </a>
-              <p class="text-xs text-gray-400 mt-0.5 capitalize">
-                <i class="fas fa-map-marker-alt mr-1"></i>{{ booking.property.city }}
-                <span class="mx-1.5 text-gray-200">·</span>
-                <i class="fas fa-user mr-1"></i>{{ booking.property.owner.get_full_name|default:booking.property.owner.username }}
-              </p>
-            </div>
-
-            <span class="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full border
-              {% if booking.status == 'pending' %}bg-amber-50 text-amber-700 border-amber-200
-              {% elif booking.status == 'confirmed' %}bg-green-50 text-green-700 border-green-200
-              {% elif booking.status == 'declined' %}bg-red-50 text-red-500 border-red-200
-              {% elif booking.status == 'completed' %}bg-blue-50 text-blue-600 border-blue-200
-              {% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
-              {% if booking.status == 'pending' %}<i class="fas fa-clock mr-1 text-[9px]"></i>
-              {% elif booking.status == 'confirmed' %}<i class="fas fa-check mr-1 text-[9px]"></i>
-              {% elif booking.status == 'declined' %}<i class="fas fa-times mr-1 text-[9px]"></i>
-              {% elif booking.status == 'completed' %}<i class="fas fa-flag-checkered mr-1 text-[9px]"></i>
-              {% endif %}
-              {{ booking.get_status_display }}
-            </span>
-          </div>
-
-          <div class="flex flex-wrap gap-x-4 gap-y-1 mb-3">
-            <span class="flex items-center gap-1.5 text-xs text-gray-600">
-              <i class="fas fa-calendar text-gray-300 text-[10px]"></i>
-              {{ booking.visit_date|date:"N j, Y" }}
-            </span>
-            <span class="flex items-center gap-1.5 text-xs text-gray-600">
-              <i class="fas fa-clock text-gray-300 text-[10px]"></i>
-              {{ booking.visit_time|time:"g:i A" }}
-            </span>
-            <span class="flex items-center gap-1.5 text-xs text-gray-400">
-              <i class="fas fa-paper-plane text-gray-200 text-[10px]"></i>
-              Requested {{ booking.created_at|naturaltime }}
-            </span>
-          </div>
-
-          {% if booking.notes %}
-          <div class="flex gap-2 p-3 bg-gray-50 rounded-xl mb-2">
-            <i class="fas fa-sticky-note text-gray-300 text-xs shrink-0 mt-0.5"></i>
-            <div>
-              <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Your notes</p>
-              <p class="text-xs text-gray-600">{{ booking.notes }}</p>
-            </div>
-          </div>
-          {% endif %}
-
-          {% if booking.owner_response %}
-          <div class="flex gap-2 p-3 bg-primary/5 border border-primary/10 rounded-xl mb-2">
-            <i class="fas fa-comment text-primary/30 text-xs shrink-0 mt-0.5"></i>
-            <div>
-              <p class="text-[10px] font-semibold text-primary/50 uppercase tracking-wider mb-0.5">Owner's response</p>
-              <p class="text-xs text-gray-700">{{ booking.owner_response }}</p>
-            </div>
-          </div>
-          {% endif %}
-
-          {% if booking.status == 'pending' %}
-          <div class="mt-auto pt-3 border-t border-gray-100 flex justify-end">
-            <form method="POST" action="{% url 'update_booking_status' booking.id %}">
-              {% csrf_token %}
-              <input type="hidden" name="action" value="cancel">
-              <button type="submit"
-                onclick="return confirm('Cancel this booking request?')"
-                class="flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-600 transition">
-                <i class="fas fa-times-circle text-[11px]"></i> Cancel Request
-              </button>
-            </form>
-          </div>
-          {% endif %}
-
-        </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">My Bookings</h2>
+        <p class="text-sm text-gray-400 mt-0.5">Track your scheduled property visits</p>
       </div>
+      <a href="{% url 'properties' %}"
+         class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:opacity-90 transition">
+        <i class="fas fa-search text-xs"></i>
+        <span class="hidden sm:inline">Browse Properties</span>
+        <span class="sm:hidden">Browse</span>
+      </a>
     </div>
-    {% endfor %}
+
+    {% if bookings %}
+
+      <div class="space-y-3">
+        {% for booking in bookings %}
+          <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors group">
+            <div class="flex flex-col sm:flex-row">
+
+              <div class="sm:w-32 h-36 sm:h-auto shrink-0 bg-gray-100 overflow-hidden relative">
+                {% if booking.property.main_image %}
+                  <img src="{{ booking.property.main_image }}" alt="{{ booking.property.title }}"
+                       class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ease-out">
+                {% else %}
+                  <div class="w-full h-full flex items-center justify-center">
+                    <i class="fas fa-home text-gray-200 text-3xl"></i>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="flex-1 p-5 min-w-0 flex flex-col">
+                <div class="flex items-start justify-between gap-2 mb-3">
+                  <div class="min-w-0">
+                    <a href="{% url 'property_detail' booking.property.id %}"
+                       class="text-sm font-bold text-gray-900 hover:text-primary transition line-clamp-1">
+                      {{ booking.property.title }}
+                    </a>
+                    <p class="text-xs text-gray-400 mt-0.5 capitalize">
+                      <i class="fas fa-map-marker-alt mr-1"></i>{{ booking.property.city }}
+                      <span class="mx-1.5 text-gray-200">·</span>
+                      <i class="fas fa-user mr-1"></i>{{ booking.property.agent.user.get_full_name|default:booking.property.agent.user.username }}
+                    </p>
+                  </div>
+
+                  <span class="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full border
+                               {% if booking.status == 'pending' %}bg-amber-50 text-amber-700 border-amber-200
+                               {% elif booking.status == 'confirmed' %}bg-green-50 text-green-700 border-green-200
+                               {% elif booking.status == 'declined' %}bg-red-50 text-red-500 border-red-200
+                               {% elif booking.status == 'completed' %}bg-blue-50 text-blue-600 border-blue-200
+                               {% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+                    {% if booking.status == 'pending' %}<i class="fas fa-clock mr-1 text-[9px]"></i>
+                    {% elif booking.status == 'confirmed' %}<i class="fas fa-check mr-1 text-[9px]"></i>
+                    {% elif booking.status == 'declined' %}<i class="fas fa-times mr-1 text-[9px]"></i>
+                    {% elif booking.status == 'completed' %}<i class="fas fa-flag-checkered mr-1 text-[9px]"></i>
+                    {% endif %}
+                    {{ booking.get_status_display }}
+                  </span>
+                </div>
+
+                <div class="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+                  <span class="flex items-center gap-1.5 text-xs text-gray-600">
+                    <i class="fas fa-calendar text-gray-300 text-[10px]"></i>
+                    {{ booking.visit_date|date:"N j, Y" }}
+                  </span>
+                  <span class="flex items-center gap-1.5 text-xs text-gray-600">
+                    <i class="fas fa-clock text-gray-300 text-[10px]"></i>
+                    {{ booking.visit_time|time:"g:i A" }}
+                  </span>
+                  <span class="flex items-center gap-1.5 text-xs text-gray-400">
+                    <i class="fas fa-paper-plane text-gray-200 text-[10px]"></i>
+                    Requested {{ booking.created_at|naturaltime }}
+                  </span>
+                </div>
+
+                {% if booking.notes %}
+                  <div class="flex gap-2 p-3 bg-gray-50 rounded-xl mb-2">
+                    <i class="fas fa-sticky-note text-gray-300 text-xs shrink-0 mt-0.5"></i>
+                    <div>
+                      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Your notes</p>
+                      <p class="text-xs text-gray-600">{{ booking.notes }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if booking.owner_response %}
+                  <div class="flex gap-2 p-3 bg-primary/5 border border-primary/10 rounded-xl mb-2">
+                    <i class="fas fa-comment text-primary/30 text-xs shrink-0 mt-0.5"></i>
+                    <div>
+                      <p class="text-[10px] font-semibold text-primary/50 uppercase tracking-wider mb-0.5">Owner's response</p>
+                      <p class="text-xs text-gray-700">{{ booking.owner_response }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if booking.status == 'pending' %}
+                  <div class="mt-auto pt-3 border-t border-gray-100 flex justify-end">
+                    <form method="POST" action="{% url 'update_booking_status' booking.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="cancel">
+                      <button type="submit"
+                              onclick="return confirm('Cancel this booking request?')"
+                              class="flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-600 transition">
+                        <i class="fas fa-times-circle text-[11px]"></i> Cancel Request
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+
+      <div class="bg-white rounded-2xl border border-gray-200 py-20 text-center">
+        <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100">
+          <i class="far fa-calendar-check text-gray-300 text-xl"></i>
+        </div>
+        <h3 class="text-sm font-bold text-gray-700 mb-1">No bookings yet</h3>
+        <p class="text-sm text-gray-400 mb-6 max-w-xs mx-auto">
+          Browse properties and request a visit — your bookings will appear here.
+        </p>
+        <a href="{% url 'properties' %}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-medium rounded-xl hover:opacity-90 transition">
+          <i class="fas fa-search text-xs"></i> Browse Properties
+        </a>
+      </div>
+
+    {% endif %}
   </div>
-
-  {% else %}
-
-  <div class="bg-white rounded-2xl border border-gray-200 py-20 text-center">
-    <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100">
-      <i class="far fa-calendar-check text-gray-300 text-xl"></i>
-    </div>
-    <h3 class="text-sm font-bold text-gray-700 mb-1">No bookings yet</h3>
-    <p class="text-sm text-gray-400 mb-6 max-w-xs mx-auto">
-      Browse properties and request a visit — your bookings will appear here.
-    </p>
-    <a href="{% url 'properties' %}"
-       class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-medium rounded-xl hover:opacity-90 transition">
-      <i class="fas fa-search text-xs"></i> Browse Properties
-    </a>
-  </div>
-
-  {% endif %}
-</div>
 {% endblock %}

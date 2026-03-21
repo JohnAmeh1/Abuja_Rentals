@@ -45,10 +45,12 @@
     if (nudgeDismissed || !nudge) return;
     nudge.classList.remove('translate-y-4', 'opacity-0', 'pointer-events-none');
     nudge.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-    
-}
+    setTimeout(() => {
+      dismissCornerNudge()
+    }, 10000)
+  }
 
-function dismissCornerNudge() {
+  function dismissCornerNudge() {
     if (!nudge) return;
     nudge.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
     nudge.classList.add('translate-y-4', 'opacity-0', 'pointer-events-none');
@@ -56,7 +58,8 @@ function dismissCornerNudge() {
   };
 
   setTimeout(() => {
-    if (nudgeDismissed == 1) return; 
+    if (nudgeDismissed == 1) return;
     showNudge();
   }, 10000);
+
 </script>

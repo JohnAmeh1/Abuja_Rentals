@@ -20,28 +20,28 @@
 
           <div class="flex gap-3">
             {% for icon, url, label in social_links|default:'' %}
-            <a href="{{ url }}" aria-label="{{ label }}"
-               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary
-                      flex items-center justify-center transition text-gray-500">
-              <i class="fab {{ icon }} text-sm"></i>
-            </a>
+              <a href="{{ url }}" aria-label="{{ label }}"
+                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary
+                        flex items-center justify-center transition text-gray-500">
+                <i class="fab {{ icon }} text-sm"></i>
+              </a>
             {% empty %}
-            <a href="#" aria-label="Facebook"
-               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
-              <i class="fab fa-facebook-f text-sm"></i>
-            </a>
-            <a href="#" aria-label="Instagram"
-               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
-              <i class="fab fa-instagram text-sm"></i>
-            </a>
-            <a href="#" aria-label="X / Twitter"
-               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
-              <i class="fab fa-twitter text-sm"></i>
-            </a>
-            <a href="#" aria-label="WhatsApp"
-               class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
-              <i class="fab fa-whatsapp text-sm"></i>
-            </a>
+              <a href="#" aria-label="Facebook"
+                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                <i class="fab fa-facebook-f text-sm"></i>
+              </a>
+              <a href="#" aria-label="Instagram"
+                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                <i class="fab fa-instagram text-sm"></i>
+              </a>
+              <a href="#" aria-label="X / Twitter"
+                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                <i class="fab fa-twitter text-sm"></i>
+              </a>
+              <a href="#" aria-label="WhatsApp"
+                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                <i class="fab fa-whatsapp text-sm"></i>
+              </a>
             {% endfor %}
           </div>
         </div>

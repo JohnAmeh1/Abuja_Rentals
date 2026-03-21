@@ -1,14 +1,20 @@
 from django.utils import timezone
 
+class PropertyService:
+    def save(self, *args, **kwargs):        
+        if self.purpose == 'rent' and not self.rent_duration_months:
+            self.rent_duration_months = 12
+        
+        if self.status == 'available' and not self.published_at:
+            self.published_at = timezone.now()
+        
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        ptype = self.property_type.display_name if self.property_type else "Unknown"
+        return f"{self.title} - {ptype} ({self.get_purpose_display()})"
 
-def save(self, *args, **kwargs):        
-    if self.purpose == 'rent' and not self.rent_duration_months:
-        self.rent_duration_months = 12
-    
-    if self.status == 'available' and not self.published_at:
-        self.published_at = timezone.now()
-    
-    self.save(*args, **kwargs)
+
 
 def get_image_url(img):
     if not img.image:
@@ -18,22 +24,19 @@ def get_image_url(img):
         return name
     return img.image.url
 
-def serialize_property(p, detail=False):
 
+def serialize_property(p, detail=False):
     main_image = None
 
     imgs = list(p.images.all())
     main_image = get_image_url(imgs[0]) if imgs else None
 
-    city = None
     address = None
 
     if p.location:
-
         address = p.location.address
-
-        if p.location.city:
-            city = p.location.city.name
+        if p.location.area:
+            area = p.location.area.name
 
     data = {
         "id": p.id,
@@ -44,21 +47,24 @@ def serialize_property(p, detail=False):
         "bedrooms": p.bedrooms,
         "bathrooms": p.bathrooms,
         "area_sqft": str(p.area_sqft) if p.area_sqft else None,
-        "city": city,
-        "state": p.location.city.state.name,
+        "area": area,
+        "city": p.location.area.city.name if p.location.area.city else None,
+        "state": p.location.area.city.state.name if p.location.area.city.state else None,
         "address": address,
         "furnished": p.furnished,
         "serviced": p.serviced,
         "shared": p.shared,
         "is_featured": p.is_featured,
-        "owner": p.owner_id,
+        "agent": p.agent_id,
         "property_type": p.property_type.display_name if p.property_type else None,
         "status": p.status,
         "rent_duration_months": p.rent_duration_months,
         "description": p.description,
+        "verified": p.verified,
         "views": p.views,
         "school": p.school.name if p.school else None,
         "school_short_name": p.school.short_name if p.school else None,
+        "created_at": p.created_at
     }
 
 
@@ -72,5 +78,4 @@ def serialize_property(p, detail=False):
             "images": [get_image_url(img) for img in imgs if img.image],
             "amenities": amenities,
         })
-
     return data

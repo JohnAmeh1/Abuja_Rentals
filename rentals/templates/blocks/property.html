@@ -7,17 +7,17 @@
 
     <a href="{% url 'property_detail' prop.id %}" class="absolute inset-0 z-0" tabindex="-1" aria-hidden="true"></a>
     {% if prop.main_image %}
-    <img src="{{ prop.main_image  }}" alt="{{ prop.title }}"
-         class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-500 ease-out pointer-events-none">
+      <img src="{{ prop.main_image  }}" alt="{{ prop.title }}"
+           class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-500 ease-out pointer-events-none">
     {% else %}
-    <div class="w-full h-full flex items-center justify-center">
-      <i class="fas fa-home text-gray-200 text-4xl"></i>
-    </div>
+      <div class="w-full h-full flex items-center justify-center">
+        <i class="fas fa-home text-gray-200 text-4xl"></i>
+      </div>
     {% endif %}
 
     <span class="absolute top-2.5 left-2.5 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full pointer-events-none
-      {% if prop.purpose == 'rent' %}bg-blue-500 text-white{% else %}bg-primary text-white{% endif %}">
-      {{ prop.get_purpose_display }}
+                 {% if prop.purpose == 'rent' %}bg-blue-500 text-white{% else %}bg-primary text-white{% endif %}">
+      For {{ prop.purpose|capfirst}}
     </span>
 
     <a href="{% url 'save_property' prop.id %}"
@@ -27,12 +27,13 @@
     </a>
 
     <div class="absolute bottom-0 inset-x-0 z-10 px-2.5 py-2
-                bg-gradient-to-t from-black/55 to-transparent pointer-events-none">
+                bg-linear-to-t from-black/55 to-transparent pointer-events-none">
       <span class="text-white font-bold text-sm drop-shadow">
-        &#8358;{{ prop.price|floatformat:0 }}
+        <span class="price-txt">{{ prop.price|floatformat:0 }}</span>
         {% if prop.purpose == 'rent' %}
           {% if prop.rent_duration_months == 12 %}<span class="font-normal text-xs opacity-75">/yr</span>
           {% elif prop.rent_duration_months == 1 %}<span class="font-normal text-xs opacity-75">/mo</span>
+          {% elif prop.rent_duration_months == 3 %}<span class="font-normal text-xs opacity-75">/semester</span>
           {% endif %}
         {% endif %}
       </span>
@@ -49,32 +50,33 @@
 
     <p class="text-xs text-gray-400 flex items-center gap-1 truncate">
       <i class="fas fa-map-marker-alt text-[9px] shrink-0"></i>
-      {{ prop.location.city.name|capfirst }}, {{ prop.location.city.state.name|capfirst }}
-      {% if prop.school %}
+      {{ prop.city|capfirst }}, {{ prop.state|capfirst }}
+      {% if prop.school_short_name %}
         <span class="text-gray-200 mx-0.5">·</span>
         <i class="fas fa-graduation-cap text-[9px] shrink-0"></i>
-        {{ prop.school.short_name }}
+        {{ prop.school_short_name }}
       {% endif %}
     </p>
 
     <div class="flex items-center gap-2.5 text-xs text-gray-500">
       {% if prop.bedrooms %}
-      <span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[10px]"></i>{{ prop.bedrooms }} bed</span>
+        <span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[10px]"></i>{{ prop.bedrooms }} bed</span>
       {% endif %}
       {% if prop.bathrooms %}
-      <span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[10px]"></i>{{ prop.bathrooms }} bath</span>
+        <span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[10px]"></i>{{ prop.bathrooms }} bath</span>
       {% endif %}
       {% if prop.area_sqft %}
-      <span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>{{ prop.area_sqft|floatformat:0 }} sqft</span>
+        <span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>{{ prop.area_sqft|floatformat:0 }} sqft</span>
       {% endif %}
     </div>
 
-    {% if prop.furnished or prop.serviced or prop.shared %}
-    <div class="flex flex-wrap gap-1 mt-0.5">
-      {% if prop.furnished %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Furnished</span>{% endif %}
-      {% if prop.serviced  %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Serviced</span>{% endif %}
-      {% if prop.shared    %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Shared</span>{% endif %}
-    </div>
+    {% if prop.furnished or prop.serviced or prop.shared or prop.school %}
+      <div class="flex flex-wrap gap-1 mt-0.5">
+        {% if prop.furnished %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Furnished</span>{% endif %}
+        {% if prop.serviced  %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Serviced</span>{% endif %}
+        {% if prop.shared    %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Shared</span>{% endif %}
+        {% if prop.school    %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Student Housing</span>{% endif %}
+      </div>
     {% endif %}
 
     <div class="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between">

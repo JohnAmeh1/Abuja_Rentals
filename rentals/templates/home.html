@@ -3,533 +3,526 @@
 
 {% block content %}
 
-<style>
-  .step-img-wrap {
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-    aspect-ratio: 4/3;
-  }
+  <style>
+    .step-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      aspect-ratio: 4/3;
+    }
 
-  .step-img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(.22, 1, .36, 1);
-  }
+    .step-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(.22, 1, .36, 1);
+    }
 
-  .step-card:hover .step-img-wrap img {
-    transform: scale(1.05);
-  }
+    .step-card:hover .step-img-wrap img {
+      transform: scale(1.05);
+    }
 
-  .step-number {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 40px;
-    height: 40px;
-    background: #0f172a;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 800;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    letter-spacing: -0.5px;
-  }
+    .step-number {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 40px;
+      height: 40px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      letter-spacing: -0.5px;
+    }
 
-  .connector {
-    position: absolute;
-    top: calc(33% - 1px);
-    right: -28px;
-    width: 56px;
-    height: 2px;
-    background: linear-gradient(90deg, #e5e7eb, #3b82f6, #e5e7eb);
-    z-index: 0;
-  }
+    .connector {
+      position: absolute;
+      top: calc(33% - 1px);
+      right: -28px;
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(90deg, #e5e7eb, #3b82f6, #e5e7eb);
+      z-index: 0;
+    }
 
-  .connector::after {
-    content: '';
-    position: absolute;
-    right: -4px;
-    top: -4px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #3b82f6;
-  }
-</style>
-
-
-<section class="hero-background relative overflow-hidden h-[100vh] flex items-center pt-20">
-
-  <div class="container mx-auto px-4 lg:px-8 py-12 relative">
-
-    <div class="max-w-5xl mx-auto">
-
-      <div class="mb-10">
+    .connector::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82f6;
+    }
+  </style>
 
 
-        <h1 class="text- text-3xl lg:text-5xl font-black text-white mb-6 leading-tight text-center">
-          Find a Place You’ll
-          <br>
-          <span class="text-primary italic font-serif">Call Home</span>
-          in Abuja
-        </h1>
+  <section class="hero-background relative overflow-hidden min-h-screen flex items-center lg:pt-20">
 
-        <p class="text-gray-200 text-sm md:text-base max-w-2xl font-light text-center mx-auto">
-          From luxury apartments in Maitama and Asokoro to family homes in Wuse
-          and Gwarinpa, find your ideal property across Abuja's most desirable
-          neighbourhoods.
-        </p>
+    <div class="mx-auto px-4 lg:px-8 py-12 relative">
 
-      </div>
+      <div class="max-w-5xl mx-auto">
 
-
-      {% include "blocks/search.html" %}
-      <div class="bg-white rounded-2xl p-5 lg:p-7 max-w-3xl mx-auto shadow-2xl max-sm:mt-20">
-        <div class="mb-6">
-          <h3 class="text-base font-semibold text-gray-900">Quick Property Search</h3>
-          <p class="text-sm text-gray-500">Filter by location and property type</p>
-        </div>
-
-        <form method="GET" action="{% url 'properties' %}" id="basicForm">
-          <div class="grid lg:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm text-gray-600 mb-2">Location</label>
-              <div class="relative" id="autocomplete-wrapper">
-                <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
-                <input
-                  id="basic_search"
-                  name="search"
-                  type="text"
-                  autocomplete="off"
-                  placeholder="Maitama, Wuse, Gwarinpa..."
-                  class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                />
-                <ul id="autocomplete-list"
-                    class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-[200] overflow-hidden max-h-52 overflow-y-auto">
-                </ul>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm text-gray-600 mb-2">Property Type</label>
-              <div class="relative">
-                <i class="fas fa-home absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <select id="basic_property_type" name="property_type"
-                  class="text-sm w-full pl-11 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
-                  <option value="">All Types</option>
-                  {% for cat in property_types %}
-                    <option value="{{ cat.id }}">{{ cat.display_name }}</option>
-                  {% endfor %}
-                </select>
-                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="lg:flex justify-between items-center mt-4">
-            <button type="submit"
-              class="text-[13px] px-4 py-2 text-primary border-primary border hover:bg-primary hover:text-white duration-200 rounded-lg transition flex items-center justify-center gap-2">
-              <i class="fas fa-search"></i>
-              Search Properties
-            </button>
-
-            <button type="button" onclick="openAdvancedModal()"
-              class="text-sm text-accent flex items-center gap-1 hover:text-accent/70 transition mt-3 lg:mt-0">
-              More Options <i class="fa fa-chevron-down text-xs"></i>
-            </button>
-          </div>
-        </form>
-      </div>
-
-
-
-
-      <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
-
-        <div class="text-center">
-          <div class="text-2xl font-bold text-white ">
-            {{ total_properties }}+
-
-          </div>
-          <div class="text-gray-200 font-light text-sm mt-1">
-            Active Listings
-          </div>
-        </div>
-
-        <div class="text-center">
-          <div class="text-2xl font-bold text-white">
-            Verified
-          </div>
-          <div class="text-gray-200 font-light text-sm mt-1">
-            Owner Contacts
-          </div>
-        </div>
-
-        <div class="text-center">
-          <div class="text-2xl font-bold text-white">
-            Abuja
-          </div>
-          <div class="text-gray-200 font-light text-sm mt-1">
-            Focused Market
-          </div>
-        </div>
-
-        <div class="text-center">
-          <div class="text-2xl font-bold text-white">
-            Support
-          </div>
-          <div class="text-gray-200 font-light text-sm mt-1">
-            Response Team
-          </div>
-        </div>
-
-      </div>
-
-
-      <div class="mt-8 text-center">
-        <a href="#featured" class="text-white/80 hover:text-white text-sm">
-          Browse listings ↓
-        </a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-<section id="featured" class="py-24 bg-white overflow-hidden">
-
-  <div class="container mx-auto px-4 lg:px-20">
-
-    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
-      <div>
-        <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
-          <span class="w-6 h-px bg-blue-500 inline-block"></span>
-          Featured
-        </span>
-        <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
-          Properties<br class="hidden lg:block"> Worth Your Attention
-        </h2>
-      </div>
-      <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
-        Verified homes in Abuja with real photos, clear pricing, and direct access to owners.
-      </p>
-    </div>
-
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-
-      {% for prop in featured_properties %}
-      <div class="group bg-white rounded-2xl border border-gray-100
-                        hover:border-gray-200 hover:shadow-xl transition duration-300 overflow-hidden">
-
-        <div class="relative">
-
-          {% if prop.main_image %}
-          <img src="{{ prop.main_image}}" alt="{{ prop.title }}" class="w-full aspect-video object-cover" />
-          {% else %}
-          <div class="w-full aspect-video bg-gray-100 flex items-center justify-center rounded-t-2xl">
-            <i class="fas fa-home text-gray-300 text-3xl"></i>
-          </div>
-          {% endif %}
-
-          <div class="absolute top-3 left-3 flex gap-2">
-
-            {% if prop.is_featured %}
-            <span class="bg-primary text-white text-xs font-medium px-3 py-1 rounded-lg">
-              Featured
-            </span>
-            {% endif %}
-
-            <span class="bg-white/90 backdrop-blur text-gray-800 text-xs px-3 py-1 rounded-lg">
-              For {{ prop.purpose|capfirst }}
-            </span>
-          </div>
-
-          <a href="{% url 'save_property' prop.id %}" class="absolute top-3 right-3 w-8 h-8
-                          bg-white/90 backdrop-blur rounded-lg
-                          flex items-center justify-center
-                          text-gray-400 hover:text-red-500 transition">
-            <i class="fas fa-heart"></i>
-          </a>
-
-          <div class="absolute bottom-3 left-3">
-            <span class="bg-white text-gray-900 font-semibold py-2 px-3 rounded-lg shadow-sm">
-              ₦{{ prop.price|floatformat:0|intcomma }}
-            </span>
-          </div>
-
-        </div>
-
-        <div class="p-5">
-
-          <div class="flex items-center text-sm text-gray-500 mb-3">
-            <i class="fas fa-map-marker-alt mr-2"></i>
-            {{ prop.city|capfirst }}, {{ prop.state|capfirst }}
-          </div>
-
-          <h3 class="font-semibold text-lg text-gray-900 mb-2 truncate">
-            {{ prop.title }}
-          </h3>
-
-          <p class="text-sm text-gray-600 mb-4">
-            {{ prop.description|truncatechars:90 }}
+        <div class="mb-10 py-10 lg:py-0">
+          <h1 class="text-5xl lg:text-6xl font-black text-white mb-6 leading-tight tracking-tight text-center">
+            Find a Place You’ll
+            <br>
+            <span class="text-primary italic font-serif">Call Home</span>
+            in Abuja
+          </h1>
+          <p class="text-gray-200 text-base md:text-base max-w-2xl font-light text-center mx-auto">
+            From luxury apartments in Maitama and Asokoro to family homes in Wuse
+            and Gwarinpa, find your ideal property across Abuja's most desirable
+            neighbourhoods.
           </p>
+        </div>
 
-          <div class="grid grid-cols-3 gap-2 bg-gray-50 rounded-xl p-3">
 
-            <div class="text-center">
-              <div class="text-gray-900 font-semibold">
-                {{ prop.bedrooms|default:0 }}
-              </div>
-              <div class="text-xs text-gray-500">Beds</div>
-            </div>
-
-            <div class="text-center">
-              <div class="text-gray-900 font-semibold">
-                {{ prop.bathrooms|default:0 }}
-              </div>
-              <div class="text-xs text-gray-500">Baths</div>
-            </div>
-
-            <div class="text-center">
-              <div class="text-gray-900 font-semibold">
-                {{ prop.area_sqft|default:0|floatformat:0 }}
-              </div>
-              <div class="text-xs text-gray-500">Sq Ft</div>
-            </div>
-
+        {% include "blocks/search.html" %}
+        <div class="bg-black/20 backdrop-blur rounded-2xl p-5 lg:p-7 max-w-3xl mx-auto shadow-2xl max-sm:mt-10">
+          <div class="mb-6">
+            <h3 class="text-base font-semibold text-gray-200">Quick Property Search</h3>
+            <p class="text-sm text-gray-400">Filter by location and property type</p>
           </div>
 
-          <a href="{% url 'property_detail' prop.id %}" class="mt-4 block text-center py-3 rounded-xl
-                          border border-gray-200 text-gray-900
-                          hover:bg-primary hover:text-white
-                          hover:border-primary transition">
-            View Property →
-          </a>
+          <form method="GET" action="{% url 'properties' %}" id="basicForm">
+            <div class="grid grid-cols-2 gap-2 lg:gap-4">
+              <div>
+                <label class="block text-sm text-gray-300 mb-2">Location</label>
+                <div class="relative" id="autocomplete-wrapper">
+                  <i class="fas fa-map-marker-alt absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 text-white z-10 pointer-events-none"></i>
+                  <input
+                    id="basic_search"
+                    name="search"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Maitama, Wuse, Gwarinpa..."
+                    class="text-sm w-full pl-5 lg:pl-11 pr-4 py-2 bg-white/50 rounded-xl focus:ring-2 focus:ring-white/20 outline-none"
+                  />
+                  <ul id="autocomplete-list"
+                      class="hidden absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-lg z-200 overflow-hidden max-h-52 overflow-y-auto">
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-300 mb-2">Property Type</label>
+                <div class="relative">
+                  <i class="fas fa-home absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 text-white"></i>
+                  <select id="basic_property_type" name="property_type"
+                          class="text-sm w-full pl-5 lg:pl-11 pr-4 py-2 bg-white/50 rounded-xl focus:ring-2 focus:ring-white/20 focus:border-white outline-none appearance-none text-gray-600/70">
+                    <option value="">All Types</option>
+                    {% for cat in property_types %}
+                      <option value="{{ cat.id }}">{{ cat.display_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+              <button type="submit"
+                      class="text-[13px] px-3.5 py-1.5 text-white border-gray-400 border hover:bg-white hover:text-primary duration-200 rounded-xl transition flex items-center justify-center gap-2">
+                <i class="fas fa-search"></i>
+                Search Properties
+              </button>
+
+              <button type="button" onclick="openAdvancedModal('search')"
+                      class="text-sm text-accent flex items-center gap-1 hover:text-accent/70 transition mt-3 lg:mt-0">
+                More Options <i class="fa fa-chevron-down text-xs"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+
+
+
+        <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-3xl mx-auto">
+
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white ">
+              {{ total_properties }}+
+
+            </div>
+            <div class="text-gray-200 font-light text-sm mt-1">
+              Active Listings
+            </div>
+          </div>
+
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white">
+              Verified
+            </div>
+            <div class="text-gray-200 font-light text-sm mt-1">
+              Owner Contacts
+            </div>
+          </div>
+
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white">
+              Abuja
+            </div>
+            <div class="text-gray-200 font-light text-sm mt-1">
+              Focused Market
+            </div>
+          </div>
+
+          <div class="text-center">
+            <div class="text-2xl font-bold text-white">
+              Support
+            </div>
+            <div class="text-gray-200 font-light text-sm mt-1">
+              Response Team
+            </div>
+          </div>
 
         </div>
+
       </div>
-
-      {% empty %}
-      <div class="col-span-3 text-center text-gray-500 py-10">
-        No featured properties available.
-      </div>
-      {% endfor %}
-
     </div>
-
-    <div class="text-center">
-      <a href="{% url 'properties' %}" class="inline-flex items-center gap-3
-                    bg-primary text-white font-semibold
-                    px-8 py-4 rounded-xl hover:bg-primary/90 transition">
-        Browse All Properties
-        <i class="fas fa-arrow-right"></i>
-      </a>
-    </div>
-
-  </div>
-</section>
+  </section>
 
 
+  <section id="featured" class="py-24 bg-white overflow-hidden">
 
+    <div class="container mx-auto px-4 lg:px-20">
 
-<section id="categories" class="py-24 bg-white overflow-hidden">
-  <div class="container mx-auto px-4 lg:px-20">
-
-    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
-      <div>
-        <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
-          <span class="w-6 h-px bg-blue-500 inline-block"></span>
-          Properties
-        </span>
-        <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
-          Browse by<br class="hidden lg:block"> Property Type
-        </h2>
-      </div>
-      <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
-        Explore curated property categories across Abuja’s most desirable
-        neighborhoods.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-1 lg:gap-3">
-      {% for cat in categories %}
-      <a href="{% url 'properties' %}?property_type={{ cat.id }}"
-        class='group relative overflow-hidden transition-all duration-300 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
-
-        <img src="/media/abstract/{{cat.name}}_high_quality.webp"
-          class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-500 brightness-[.70] group-hover:brightness-[.35]"
-          alt="{{cat.display_name}}" />
-
-        <div class="relative p-2.5 lg:p-5 h-48 flex items-end lg:justify-between text-white gap-2">
-
-          <div class="flex items-center gap-3">
-            <h3 class="font-semibold text-lg">
-              {{ cat.display_name }}
-              <p class="text-xs lg:text-sm text-white/80 font-light">
-                {{cat.count}}+ available listings
-              </p>
-            </h3>
-          </div>
-
-
-          <span
-            class="text-sm font-medium opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-            ›
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+        <div>
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+            <span class="w-6 h-px bg-blue-500 inline-block"></span>
+            Featured
           </span>
-
+          <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
+            Properties<br class="hidden lg:block"> Worth Your Attention
+          </h2>
         </div>
-
-      </a>
-      {% endfor %}
-    </div>
-
-  </div>
-</section>
-
-<section class="py-24 bg-white overflow-hidden">
-  <div class="container mx-auto px-4 lg:px-20">
-
-    <!-- Header -->
-    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
-      <div>
-        <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
-          <span class="w-6 h-px bg-blue-500 inline-block"></span>
-          How It Works
-        </span>
-        <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
-          Your journey to<br class="hidden lg:block"> the perfect home
-        </h2>
+        <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
+          Verified homes in Abuja with real photos, clear pricing, and direct access to owners.
+        </p>
       </div>
-      <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
-        Three simple steps — from browsing to moving in.
-        We handle the details so you can focus on what matters.
-      </p>
-    </div>
 
-    <!-- Steps grid -->
-    <div class="grid lg:grid-cols-3 gap-8 lg:gap-10">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+        {% for prop in featured_properties %}
+          <article class="group bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-gray-200
+                          transition-all duration-300 overflow-hidden flex flex-col">
 
-      <!-- Step 1 -->
-      <div class="step-card group relative flex flex-col gap-5">
-        <!-- connector (desktop only) -->
-        <div class="hidden lg:block connector"></div>
+          <!-- Image -->
+            <div class="relative aspect-16/10 overflow-hidden bg-gray-100 shrink-0">
+              {% if prop.main_image %}
+                <img src="{{ prop.main_image }}" alt="{{ prop.title }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ease-out">
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                  <i class="fas fa-home text-gray-200 text-4xl"></i>
+                </div>
+              {% endif %}
 
-        <!-- image -->
-        <div class="step-img-wrap shadow-lg">
-          <div class="step-number">01</div>
-          <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Browse properties"
-            loading="lazy">
-          <!-- dark overlay at bottom -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-        </div>
+            <!-- Top badges -->
+              <div class="absolute top-3 left-3 flex gap-1.5">
+                <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg
+                             {% if prop.purpose == 'rent' %}bg-blue-500 text-white{% else %}bg-primary text-white{% endif %}">
+                  For {{ prop.purpose|capfirst }}
+                </span>
+                {% if prop.is_featured %}
+                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-400 text-amber-900">
+                    Featured
+                  </span>
+                {% endif %}
+                {% if prop.verified %}
+                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-white">
+                    <i class="fas fa-shield-alt text-[9px]"></i>
+                  </span>
+                {% endif %}
+              </div>
 
-        <!-- text -->
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-search text-blue-500 text-sm"></i>
+            <!-- Save button -->
+              <a href="{% url 'save_property' prop.id %}"
+                 class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-xl
+                        flex items-center justify-center text-gray-400 hover:text-red-500
+                        hover:bg-white transition shadow-sm">
+                <i class="fas fa-heart text-xs"></i>
+              </a>
+
+            <!-- Price overlay -->
+              <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3 pointer-events-none">
+                <p class="text-white font-black text-xl leading-none">
+                  ₦{{ prop.price|floatformat:0|intcomma }}
+                </p>
+                {% if prop.purpose == 'rent' %}
+                  <p class="text-white/70 text-[11px] mt-0.5">
+                    {% if prop.rent_duration_months == 1 %}per month
+                    {% elif prop.rent_duration_months == 12 %}per year
+                    {% elif prop.rent_duration_months == 3 and prop.school %}per semester
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Smart Matching</h3>
-          </div>
-          <p class="text-gray-500 text-sm leading-relaxed">
-            Browse verified listings filtered by your budget, location, and lifestyle.
-            Our smart search surfaces homes that genuinely fit — no noise, no guesswork.
-          </p>
-          <div class="flex flex-wrap gap-2 mt-1">
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Filter by area</span>
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Budget range</span>
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Amenities</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Step 2 -->
-      <div class="step-card group relative flex flex-col gap-5 lg:mt-10">
-        <div class="hidden lg:block connector"></div>
+          <!-- Body -->
+            <div class="p-5 flex flex-col flex-1">
 
-        <div class="step-img-wrap shadow-lg">
-          <div class="step-number">02</div>
-          <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80" alt="Verified viewings"
-            loading="lazy">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-        </div>
+            <!-- Location -->
+              <p class="text-xs text-gray-400 flex items-center gap-1 mb-2 truncate">
+                <i class="fas fa-map-marker-alt text-[9px] shrink-0"></i>
+                <span class="capitalize">
+                  {% if prop.city %}{{ prop.city }}{% endif %}
+                  {% if prop.state %}, {{ prop.state }}{% endif %}
+                </span>
+              </p>
 
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-shield-alt text-blue-500 text-sm"></i>
+            <!-- Title -->
+              <h3 class="font-bold text-gray-900 text-base leading-snug line-clamp-2 mb-2
+                         group-hover:text-primary transition">
+                {{ prop.title }}
+              </h3>
+
+            <!-- Specs row -->
+              <div class="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                {% if prop.bedrooms %}
+                  <span class="flex items-center gap-1">
+                    <i class="fas fa-bed text-gray-300 text-[10px]"></i>{{ prop.bedrooms }} bed
+                  </span>
+                {% endif %}
+                {% if prop.bathrooms %}
+                  <span class="flex items-center gap-1">
+                    <i class="fas fa-bath text-gray-300 text-[10px]"></i>{{ prop.bathrooms }} bath
+                  </span>
+                {% endif %}
+                {% if prop.area_sqft %}
+                  <span class="flex items-center gap-1 ml-auto">
+                    <i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>{{ prop.area_sqft|floatformat:0 }} sqft
+                  </span>
+                {% endif %}
+              </div>
+
+            <!-- CTA -->
+              <a href="{% url 'property_detail' prop.id %}"
+                 class="mt-auto block text-center py-2.5 rounded-xl border border-gray-200 text-sm font-semibold
+                        text-gray-700 hover:bg-primary hover:text-white hover:border-primary transition">
+                View Property
+              </a>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Verified Viewings</h3>
+          </article>
+
+        {% empty %}
+          <div class="md:col-span-2 lg:col-span-3 text-center py-16 text-gray-400">
+            <i class="fas fa-home text-4xl mb-4 block text-gray-200"></i>
+            No featured properties yet.
           </div>
-          <p class="text-gray-500 text-sm leading-relaxed">
-            Every property is owner-verified with real photos and transparent pricing.
-            Book guided inspections directly through the platform — no middlemen.
-          </p>
-          <div class="flex flex-wrap gap-2 mt-1">
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Real photos</span>
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Owner verified</span>
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Clear pricing</span>
-          </div>
-        </div>
+        {% endfor %}
       </div>
 
-      <!-- Step 3 -->
-      <div class="step-card group relative flex flex-col gap-5 lg:mt-20">
-
-        <div class="step-img-wrap shadow-lg">
-          <div class="step-number">03</div>
-          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="Secure closing"
-            loading="lazy">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-        </div>
-
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-handshake text-blue-500 text-sm"></i>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900">Secure Closing</h3>
-          </div>
-          <p class="text-gray-500 text-sm leading-relaxed">
-            Negotiation support, documentation checks, and a smooth move-in
-            process — our team is with you from offer to keys in hand.
-          </p>
-          <div class="flex flex-wrap gap-2 mt-1">
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Doc review</span>
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Negotiation</span>
-            <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Move-in ready</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Bottom CTA strip -->
-    <div class="mt-20 rounded-2xl bg-gray-950 px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div>
-        <p class="text-white font-bold text-lg">Ready to find your next home?</p>
-        <p class="text-gray-400 text-sm mt-0.5">Over 200 verified listings across Abuja.</p>
-      </div>
-      <div class="flex gap-3 flex-shrink-0 flex-col lg:flex-row max-lg:w-full">
+      <!-- Bottom CTA -->
+      <div class="text-center">
         <a href="{% url 'properties' %}"
-          class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition max-lg:w-fit">
-          Browse Properties
+           class="inline-flex items-center gap-3 bg-primary text-white font-semibold
+                  px-8 py-4 rounded-xl hover:bg-primary/90 transition">
+          Browse All Properties
+          <i class="fas fa-arrow-right text-sm"></i>
         </a>
-        <button onclick="openRequestModal()"
-          class="px-5 py-2.5 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded-xl transition max-lg:w-fit max-lg:ml-auto">
-          Make a Request
-        </button>
       </div>
-    </div>
 
-  </div>
-</section>
+    </div>
+  </section>
+
+
+
+
+  <section id="categories" class="py-24 bg-white overflow-hidden">
+    <div class="container mx-auto px-4 lg:px-20">
+
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+        <div>
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+            <span class="w-6 h-px bg-blue-500 inline-block"></span>
+            Properties
+          </span>
+          <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
+            Browse by<br class="hidden lg:block"> Property Type
+          </h2>
+        </div>
+        <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
+          Explore curated property categories across Abuja’s most desirable
+          neighborhoods.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-1 lg:gap-3">
+        {% for cat in categories %}
+          <a href="{% url 'properties' %}?property_type={{ cat.id }}"
+             class='group relative overflow-hidden transition-all duration-200 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
+
+            <img src="{{cat.image}}&w=800&q=70"
+                 class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-400 brightness-[.70] group-hover:brightness-[.35]"
+                 alt="{{cat.display_name}}" />
+
+            <div class="relative p-2.5 lg:p-5 h-48 flex items-end lg:justify-between text-white gap-2">
+
+              <div class="flex items-center gap-3">
+                <h3 class="font-semibold text-lg">
+                  {{ cat.display_name }}
+                  <p class="text-xs lg:text-sm text-white/80 font-light">
+                    {{cat.count}}+ available listings
+                  </p>
+                </h3>
+              </div>
+
+
+              <span
+                class="text-sm font-medium opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                ›
+              </span>
+
+            </div>
+
+          </a>
+        {% endfor %}
+      </div>
+
+    </div>
+  </section>
+
+  <section class="py-24 bg-white overflow-hidden">
+    <div class="container mx-auto px-4 lg:px-20">
+
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+        <div>
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+            <span class="w-6 h-px bg-blue-500 inline-block"></span>
+            How It Works
+          </span>
+          <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
+            Your journey to<br class="hidden lg:block"> the perfect home
+          </h2>
+        </div>
+        <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
+          Three simple steps — from browsing to moving in.
+          We handle the details so you can focus on what matters.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-8 lg:gap-10">
+
+        <div class="step-card group relative flex flex-col gap-5">
+          <div class="hidden lg:block connector"></div>
+
+          <div class="step-img-wrap shadow-lg">
+            <div class="step-number">01</div>
+            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Browse properties"
+                 loading="lazy">
+            <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-search text-blue-500 text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900">Smart Matching</h3>
+            </div>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              Browse verified listings filtered by your budget, location, and lifestyle.
+              Our smart search surfaces homes that genuinely fit — no noise, no guesswork.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Filter by area</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Budget range</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Amenities</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card group relative flex flex-col gap-5 lg:mt-10">
+          <div class="hidden lg:block connector"></div>
+
+          <div class="step-img-wrap shadow-lg">
+            <div class="step-number">02</div>
+            <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80" alt="Verified viewings"
+                 loading="lazy">
+            <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-shield-alt text-blue-500 text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900">Verified Viewings</h3>
+            </div>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              Every property is owner-verified with real photos and transparent pricing.
+              Book guided inspections directly through the platform — no middlemen.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Real photos</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Owner verified</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Clear pricing</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card group relative flex flex-col gap-5 lg:mt-20">
+
+          <div class="step-img-wrap shadow-lg">
+            <div class="step-number">03</div>
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="Secure closing"
+                 loading="lazy">
+            <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-handshake text-blue-500 text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900">Secure Closing</h3>
+            </div>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              Negotiation support, documentation checks, and a smooth move-in
+              process — our team is with you from offer to keys in hand.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Doc review</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Negotiation</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Move-in ready</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="relative overflow-hidden mt-20 rounded-2xl z-0">
+        <img src="/media/abstract/careers-bg.webp" class="absolute object-cover inset-0 size-full -z-10 pointer-events-none select-none" alt="">
+        <div class="bg-gray-950/50 backdrop-blur-lg px-10 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6 ">
+          <div class="w-full">
+            <p class="text-white font-bold text-lg">Ready to find your next home?</p>
+            <p class="text-gray-400 text-sm mt-0.5">Over 200 verified listings across Abuja.</p>
+          </div>
+          <div class="flex gap-6 lg:gap-3 shrink-0 flex-col lg:flex-row max-lg:w-full">
+            <a href="{% url 'properties' %}"
+               class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition max-lg:w-fit">
+              Browse Properties
+            </a>
+            <button onclick="openRequestModal()"
+                    class="px-5 py-2.5 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded-xl transition max-lg:w-fit max-lg:ml-auto">
+              Make a Request
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
 
 
 {%endblock%}

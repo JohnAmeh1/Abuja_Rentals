@@ -1,124 +1,456 @@
 {% include 'blocks/requestForm.html' %}
 
 
-<nav class="fixed top-0 z-[11] right-0 left-0 bg-white/50 backdrop-blur-md shadow-sm">
-    <div class="container mx-auto px-4 lg:px-8">
+<nav class="fixed top-0 z-50 right-0 left-0 transition-all duration-300" id="mainNav">
+  <div class="container mx-auto px-4 lg:px-8">
 
-      <div class="flex justify-between items-center h-[72px]">
+    <div class="flex justify-between items-center h-16">
 
-        <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-
-          <div class="leading-[1.1]">
-            <span class="text-xl font-bold text-gray-900">Abuja</span>
-            <span class="text-xl font-bold text-accent">Rentals</span>
-            <div class="text-[11px] text-gray-400 tracking-wide">
-              PREMIUM PROPERTIES
-            </div>
+      <!-- Logo -->
+      <a href="{% url 'home' %}" class="flex items-center gap-2.5 shrink-0">
+        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
+          <i class="fas fa-home text-white text-sm"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-base font-black text-gray-900 tracking-tight">
+            Abuja<span class="text-primary">Rentals</span>
           </div>
+          <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-[0.15em] -mt-0.5">
+            Premium Properties
+          </div>
+        </div>
+      </a>
 
+      <!-- Desktop nav -->
+      <div class="hidden lg:flex items-center gap-1">
+
+        <a href="{% url 'home' %}"
+           class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+          Home
         </a>
 
-
-        <div class="hidden lg:flex items-center gap-1">
-          <a href="{% url 'home' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Home</a>
-          <a href="{% url 'properties' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Properties</a>
-          <a href="{% url 'about' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">About</a>
-          {% if user.is_authenticated %}
-          <a href="{% url 'dashboard' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Dashboard</a>
-
-          {% else %}
-           <a href="{% url 'signup' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Sign up</a>
-          <a href="{% url 'login' %}" class=" px-3 py-2 text-sm font-medium text-gray-700 hover:text-accent hover:underline rounded-lg transition">Login</a>
-          {% endif %}
-        </div>
-
-
-
-        <div class="hidden lg:flex items-center gap-3">
-
-          {% if admin_messages %}
-          <button id="notificationBellBtn" class="relative p-2 rounded-lg text-gray-500 hover:text-accent hover:bg-gray-50 transition">
-
-            <i class="fas fa-bell text-lg"></i>
-
-            <span class="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-              {{ admin_messages|length }}
-            </span>
+        <!-- Properties mega trigger -->
+        <div class="relative" id="propertiesNavItem">
+          <button id="propertiesTrigger"
+                  onclick="toggleMegaMenu()"
+                  class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600
+                         hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+            Properties
+            <i class="fas fa-chevron-down text-[10px] transition-transform duration-200" id="propertiesChevron"></i>
           </button>
-          {% endif %}
-
-
-
-          <button onclick="openRequestModal()"
-          class="px-5 py-2 bg-primary hover:bg-primary/90 duration-200 text-white text-sm font-semibold rounded">
-          Make a Request
-        </button>
-
         </div>
 
+        <a href="{% url 'about' %}"
+           class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+          About
+        </a>
 
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}"
+             class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+            Dashboard
+          </a>
+        {% endif %}
+      </div>
 
-        <!-- Mobile Button -->
-        <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-          <i class="fas fa-bars text-xl"></i>
-        </button>
+      <!-- Desktop right actions -->
+      <div class="hidden lg:flex items-center gap-2">
+
+        {% if admin_messages %}
+          <div class="relative" id="notifWrapper">
+            <button id="notificationBellBtn"
+                    class="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-500
+                           hover:text-gray-900 hover:bg-gray-100 transition">
+              <i class="fas fa-bell text-base"></i>
+              <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+          </div>
+        {% endif %}
+
+        {% if not user.is_authenticated %}
+          <a href="{% url 'login' %}"
+             class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg transition">
+            Sign in
+          </a>
+          <a href="{% url 'signup' %}"
+             class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-200
+                    rounded-lg hover:bg-gray-50 transition">
+            Sign up
+          </a>
+        {% else %}
+        <!-- User avatar -->
+          <a href="{% url 'profile' %}"
+             class="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20
+                    flex items-center justify-center text-sm font-bold text-primary uppercase
+                    hover:bg-primary/20 transition">
+            {{ user.first_name|first|default:user.username|first }}
+          </a>
+        {% endif %}
+
+        {% if user.userprofile.user_type == "agent" %}
+          <a href="{% url 'add_property' %}"
+             class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90
+                    text-white text-sm font-semibold rounded-xl transition">
+            <i class="fas fa-plus text-xs"></i> Add listing
+          </a>
+        {% else %}
+          <button onclick="openRequestModal()"
+                  class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90
+                         text-white text-sm font-semibold rounded-xl transition">
+            <i class="fas fa-paper-plane text-xs"></i> Make a Request
+          </button>
+        {% endif %}
 
       </div>
 
+      <!-- Mobile hamburger -->
+      <button id="mobile-menu-button"
+              class="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl
+                     text-gray-600 hover:bg-gray-100 transition">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
 
+  </div>
 
-      <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden lg:hidden pb-4">
-        <a href="{% url 'home' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-          <i class="fas fa-home mr-3"></i>Home
+  <!-- ── Mega menu ───────────────────────────────────────────────────── -->
+  <div id="megaMenu"
+       class="hidden absolute left-0 right-0 top-full bg-white border-t border-gray-100 shadow-2xl
+              opacity-0 -translate-y-2 transition-all duration-200 pointer-events-none"
+       style="z-index:49;">
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+
+      <div class="grid grid-cols-12 gap-8">
+
+        <!-- Left: browse by type -->
+        <div class="col-span-5">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Browse by type</p>
+          <div class="grid grid-cols-2 gap-2">
+            {% for ptype in nav_property_types %}
+              <a href="{% url 'properties' %}?property_type={{ ptype.id }}"
+                 class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 group transition">
+                <div class="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center shrink-0
+                            group-hover:bg-primary/15 transition">
+                  <i class="{{ptype.icon}} text-primary text-xs"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition leading-tight">
+                    {{ ptype.display_name }}
+                  </p>
+                  <p class="text-[11px] text-gray-400">
+                    {{ ptype.property_count|default:"—" }} listings
+                  </p>
+                </div>
+              </a>
+            {% empty %}
+              {% for item in nav_type_defaults|default:'' %}{% endfor %}
+              <a href="{% url 'properties' %}?search=flat" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 group transition">
+                <div class="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition"><i class="fas fa-door-open text-primary text-xs"></i></div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Flats</p>
+              </a>
+              <a href="{% url 'properties' %}?search=duplex" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 group transition">
+                <div class="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition"><i class="fas fa-home text-primary text-xs"></i></div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Duplexes</p>
+              </a>
+              <a href="{% url 'properties' %}?search=office" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 group transition">
+                <div class="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition"><i class="fas fa-briefcase text-primary text-xs"></i></div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Offices</p>
+              </a>
+              <a href="{% url 'properties' %}?search=land" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 group transition">
+                <div class="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition"><i class="fas fa-map text-primary text-xs"></i></div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Land</p>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Middle: browse by purpose -->
+        <div class="col-span-3">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Browse by purpose</p>
+          <div class="space-y-1">
+
+            <a href="{% url 'properties' %}?purpose=rent"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 group transition">
+              <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition">
+                <i class="fas fa-key text-gray-400 group-hover:text-primary text-xs transition"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">For Rent</p>
+                <p class="text-[11px] text-gray-400">Monthly & yearly leases</p>
+              </div>
+            </a>
+
+            <a href="{% url 'properties' %}?purpose=sale"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 group transition">
+              <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition">
+                <i class="fas fa-handshake text-gray-400 group-hover:text-primary text-xs transition"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">For Sale</p>
+                <p class="text-[11px] text-gray-400">Own your property</p>
+              </div>
+            </a>
+
+            <a href="{% url 'properties' %}?school=1"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 group transition">
+              <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition">
+                <i class="fas fa-graduation-cap text-gray-400 group-hover:text-primary text-xs transition"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Student Housing</p>
+                <p class="text-[11px] text-gray-400">Near universities</p>
+              </div>
+            </a>
+
+            <a href="{% url 'properties' %}?furnished=true"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 group transition">
+              <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition">
+                <i class="fas fa-couch text-gray-400 group-hover:text-primary text-xs transition"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Furnished</p>
+                <p class="text-[11px] text-gray-400">Move-in ready</p>
+              </div>
+            </a>
+
+            <a href="{% url 'properties' %}?serviced=true"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 group transition">
+              <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition">
+                <i class="fas fa-concierge-bell text-gray-400 group-hover:text-primary text-xs transition"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">Serviced</p>
+                <p class="text-[11px] text-gray-400">Fully managed</p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Right: popular areas + CTA -->
+        <div class="col-span-4">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Popular areas</p>
+          <div class="flex flex-wrap gap-1.5 mb-6">
+            {% for city in nav_cities %}
+              <a href="{% url 'properties' %}?city={{ city.id }}"
+                 class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-gray-100
+                        hover:bg-primary hover:text-white rounded-lg transition capitalize">
+                {{ city.name }}
+              </a>
+            {% empty %}
+              {% for area in nav_fallback_areas %}
+                <a href="{% url 'properties' %}?search={{ area }}"
+                   class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-gray-100
+                          hover:bg-primary hover:text-white rounded-lg transition">{{ area }}</a>
+              {% endfor %}
+            {% endfor %}
+          </div>
+
+          <!-- CTA box -->
+          <div class="bg-primary/5 border border-primary/10 rounded-2xl p-5">
+            <p class="text-sm font-bold text-gray-900 mb-1">Can't find what you need?</p>
+            <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+              Submit a request and agents will send you matching properties directly.
+            </p>
+            <button onclick="closeMegaMenu(); openRequestModal()"
+                    class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs
+                           font-semibold rounded-xl hover:bg-primary/90 transition">
+              <i class="fas fa-paper-plane text-[10px]"></i>
+              Make a Request
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom strip: quick stats -->
+      <div class="mt-8 pt-6 border-t border-gray-100 flex items-center gap-8 text-xs text-gray-400">
+        <span><span class="font-semibold text-gray-700">{{ total_properties|default:"500" }}+</span> active listings</span>
+        <span><span class="font-semibold text-gray-700">Abuja FCT</span> only</span>
+        <span><span class="font-semibold text-gray-700">Verified</span> owners & agents</span>
+        <a href="{% url 'properties' %}" class="ml-auto text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+          View all properties <i class="fas fa-arrow-right text-[9px]"></i>
         </a>
-        <a href="{% url 'properties' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-          <i class="fas fa-shop mr-3"></i>Properties
-        </a>
+      </div>
+    </div>
+  </div>
 
-        {% if admin_messages %}
+  <!-- ── Mobile menu ────────────────────────────────────────────────── -->
+  <div id="mobile-menu"
+       class="hidden lg:hidden bg-white border-t border-gray-100 shadow-lg">
+    <div class="container mx-auto px-4 py-3 space-y-1">
+
+      <a href="{% url 'home' %}"
+         class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
+        <i class="fas fa-home text-gray-400 w-4 text-center"></i> Home
+      </a>
+      <a href="{% url 'properties' %}"
+         class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
+        <i class="fas fa-building text-gray-400 w-4 text-center"></i> Properties
+      </a>
+
+      <!-- Mobile purpose shortcuts -->
+      <div class="flex gap-2 px-4 py-2">
+        <a href="{% url 'properties' %}?purpose=rent"
+           class="flex-1 text-center py-2 text-xs font-semibold bg-blue-50 text-blue-600 rounded-lg">For Rent</a>
+        <a href="{% url 'properties' %}?purpose=sale"
+           class="flex-1 text-center py-2 text-xs font-semibold bg-emerald-50 text-emerald-600 rounded-lg">For Sale</a>
+        <a href="{% url 'properties' %}?school=1"
+           class="flex-1 text-center py-2 text-xs font-semibold bg-amber-50 text-amber-600 rounded-lg">Student</a>
+      </div>
+
+      <a href="{% url 'about' %}"
+         class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
+        <i class="fas fa-info-circle text-gray-400 w-4 text-center"></i> About
+      </a>
+
+      {% if admin_messages %}
         <button id="notificationBellBtnMobile"
-          class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg w-full text-left">
-          <i class="fas fa-bell mr-3"></i>
+                class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl w-full">
+          <i class="fas fa-bell text-gray-400 w-4 text-center"></i>
           Notifications
-          <span class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+          <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
             {{ admin_messages|length }}
           </span>
         </button>
-        {% endif %}
+      {% endif %}
 
-        <button id="installButtonMobile" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-blue-700 bg-blue-50">
-          <i class="fas fa-download mr-3"></i>Install App
-        </button>
+      <button id="installButtonMobile"
+              class="flex items-center gap-3 px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-xl w-full">
+        <i class="fas fa-download text-blue-400 w-4 text-center"></i> Install App
+      </button>
 
+      <div class="border-t border-gray-100 my-2 pt-2">
         {% if user.is_authenticated %}
-
-        <a href="{% url 'dashboard' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-          <i class="fas fa-th-large mr-3"></i>Dashboard
-        </a>
-
-        <a href="{% url 'profile' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-          <i class="fas fa-user-circle mr-3"></i>Profile
-        </a>
-
-        <a href="{% url 'logout' %}" class="block px-4 py-3 hover:bg-gray-50 rounded-lg text-red-600">
-          <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
-        </a>
-
+          <a href="{% url 'dashboard' %}"
+             class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
+            <i class="fas fa-th-large text-gray-400 w-4 text-center"></i> Dashboard
+          </a>
+          <a href="{% url 'profile' %}"
+             class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
+            <i class="fas fa-user text-gray-400 w-4 text-center"></i> Profile
+          </a>
+          <a href="{% url 'logout' %}"
+             class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl">
+            <i class="fas fa-sign-out-alt w-4 text-center"></i> Sign Out
+          </a>
         {% else %}
-
-        <a href="{% url 'login' %}" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">
-          <i class="fas fa-sign-in-alt mr-3"></i>Sign In
-        </a>
-
-        <a href="{% url 'signup' %}" class="block mx-4 mt-2 py-3 text-center
-                                                bg-primary text-white rounded-lg">
-          Join Now
-        </a>
-
+          <a href="{% url 'login' %}"
+             class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
+            <i class="fas fa-sign-in-alt text-gray-400 w-4 text-center"></i> Sign In
+          </a>
+          <a href="{% url 'signup' %}"
+             class="flex items-center justify-center gap-2 mx-4 mt-1 py-3 bg-primary text-white
+                    text-sm font-semibold rounded-xl">
+            <i class="fas fa-user-plus text-xs"></i> Create Account
+          </a>
         {% endif %}
-
       </div>
 
     </div>
-  </nav>
+  </div>
+
+</nav>
+
+<style>
+  #mainNav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.06); }
+  #mainNav.scrolled { background: rgba(255,255,255,0.97); box-shadow: 0 1px 24px rgba(0,0,0,0.07); }
+  #megaMenu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+</style>
+
+<script>
+  // Scroll shadow
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+
+  // Mobile menu
+  document.getElementById('mobile-menu-button').addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+    closeMegaMenu();
+  });
+
+  // Mega menu
+  let megaOpen = false;
+
+  function toggleMegaMenu() {
+    megaOpen ? closeMegaMenu() : openMegaMenu();
+  }
+
+  function openMegaMenu() {
+    megaOpen = true;
+    const menu = document.getElementById('megaMenu');
+    menu.classList.remove('hidden');
+    void menu.offsetHeight;
+    menu.classList.add('open');
+    document.getElementById('propertiesChevron').style.transform = 'rotate(180deg)';
+    document.getElementById('mobile-menu').classList.add('hidden');
+  }
+
+  function closeMegaMenu() {
+    megaOpen = false;
+    const menu = document.getElementById('megaMenu');
+    menu.classList.remove('open');
+    document.getElementById('propertiesChevron').style.transform = '';
+    setTimeout(() => {
+      if (!megaOpen) menu.classList.add('hidden');
+    }, 200);
+  }
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('propertiesNavItem').contains(e.target) &&
+      !document.getElementById('megaMenu').contains(e.target)) {
+        closeMegaMenu();
+      }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMegaMenu();
+  });
+
+
+    // Handle both notification bell buttons
+  const bellBtn = document.getElementById('notificationBellBtn');
+  const bellBtnMobile = document.getElementById('notificationBellBtnMobile');
+  let modal = document.getElementById('adminMessagesModal');
+
+  function toggleModal() {
+    if (modal.classList.contains('hidden')) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    } else {
+      modal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  if (bellBtn && modal) {
+    bellBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleModal();
+    });
+  }
+
+  if (bellBtnMobile && modal) {
+    bellBtnMobile.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleModal();
+        // Close mobile menu when opening modal
+      const mobileMenu = document.getElementById("mobile-menu");
+      mobileMenu.classList.add("hidden");
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal || event.target.classList.contains('bg-gray-900')) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    });
+  }
+
+</script>

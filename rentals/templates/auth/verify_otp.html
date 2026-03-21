@@ -3,33 +3,33 @@
 {% block title %}Verify Email | Abuja Rentals{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md mx-auto">
+    <div class="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md mx-auto">
         <!-- Header Section -->
-        <div class="text-center mb-10">
-            <a href="{% url 'home' %}" class="inline-flex items-center justify-center">
-                <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-envelope text-white text-2xl"></i>
+            <div class="text-center mb-10">
+                <a href="{% url 'home' %}" class="inline-flex items-center justify-center">
+                    <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-envelope text-white text-2xl"></i>
+                    </div>
+                </a>
+
+                <div class="mt-8">
+                    <h2 class="text-3xl font-display font-bold text-primary mb-3">
+                        Verify Your Email
+                    </h2>
+                    <p class="text-gray-600">
+                        We've sent a verification code to:
+                    </p>
+                    <p class="text-lg font-semibold text-primary mt-2 wrap-break-word">
+                        {{ user_email }}
+                    </p>
                 </div>
-            </a>
-            
-            <div class="mt-8">
-                <h2 class="text-3xl font-display font-bold text-primary mb-3">
-                    Verify Your Email
-                </h2>
-                <p class="text-gray-600">
-                    We've sent a verification code to:
-                </p>
-                <p class="text-lg font-semibold text-primary mt-2 break-words">
-                    {{ user_email }}
-                </p>
             </div>
-        </div>
 
         <!-- Form Container -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <div class="p-8">
-                <!-- Messages -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+                <div class="p-8">
+                {% comment %} <!-- Messages -->
                 {% if messages %}
                     {% for message in messages %}
                         <div class="mb-6 p-4 rounded-lg {% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800 border border-{{ message.tags }}-300{% else %}bg-blue-100 text-blue-800 border border-blue-300{% endif %}">
@@ -39,101 +39,101 @@
                             </div>
                         </div>
                     {% endfor %}
-                {% endif %}
+                {% endif %} {% endcomment %}
 
-                <form method="POST" class="space-y-6">
-                    {% csrf_token %}
-                    
+                    <form method="POST" class="space-y-6">
+                        {% csrf_token %}
+
                     <!-- OTP Input Field -->
-                    <div>
-                        <label for="{{ form.otp_code.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ form.otp_code.label }}
-                        </label>
-                        
-                        <div class="relative">
-                            {{ form.otp_code }}
-                            
-                            {% if form.otp_code.errors %}
-                                <div class="mt-2 text-sm text-red-600">
-                                    {% for error in form.otp_code.errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                        <div>
+                            <label for="{{ form.otp_code.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-3">
+                                {{ form.otp_code.label }}
+                            </label>
+
+                            <div class="relative">
+                                {{ form.otp_code }}
+
+                                {% if form.otp_code.errors %}
+                                    <div class="mt-2 text-sm text-red-600">
+                                        {% for error in form.otp_code.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <p class="mt-3 text-sm text-gray-500 text-center">
+                                Enter the 6-digit code from your email
+                            </p>
                         </div>
-                        
-                        <p class="mt-3 text-sm text-gray-500 text-center">
-                            Enter the 6-digit code from your email
-                        </p>
-                    </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        Verify Email
-                    </button>
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Verify Email
+                        </button>
 
                     <!-- Resend OTP Link -->
-                    <div class="text-center pt-4 border-t border-gray-200">
-                        <p class="text-sm text-gray-600 mb-3">
-                            Didn't receive the code?
-                        </p>
-                        <a href="{% url 'resend_otp' user_id %}" class="text-accent hover:text-accent-dark font-semibold text-sm transition-colors duration-200">
-                            <i class="fas fa-redo mr-1"></i>
-                            Resend OTP
-                        </a>
-                    </div>
-                </form>
+                        <div class="text-center pt-4 border-t border-gray-200">
+                            <p class="text-sm text-gray-600 mb-3">
+                                Didn't receive the code?
+                            </p>
+                            <a href="{% url 'resend_otp' %}" class="text-accent hover:text-accent-dark font-semibold text-sm transition-colors duration-200">
+                                <i class="fas fa-redo mr-1"></i>
+                                Resend OTP
+                            </a>
+                        </div>
+                    </form>
 
                 <!-- Additional Info -->
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <div class="bg-blue-50 rounded-lg p-4">
-                        <h4 class="font-semibold text-blue-900 mb-2">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            OTP Validity
-                        </h4>
-                        <ul class="text-sm text-blue-800 space-y-1">
-                            <li>✓ Code is valid for 10 minutes</li>
-                            <li>✓ You can request a new code if it expires</li>
-                            <li>✓ Check your spam folder if you don't see the email</li>
-                        </ul>
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-blue-900 mb-2">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                OTP Validity
+                            </h4>
+                            <ul class="text-sm text-blue-800 space-y-1">
+                                <li>✓ Code is valid for 10 minutes</li>
+                                <li>✓ You can request a new code if it expires</li>
+                                <li>✓ Check your spam folder if you don't see the email</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Footer Links -->
-        <div class="text-center mt-6 space-y-2">
-            <p class="text-sm text-gray-600">
-                Need help?
-                <a href="{% url 'home' %}" class="text-primary hover:text-primary-dark font-semibold">
-                    Go back home
-                </a>
-            </p>
+            <div class="text-center mt-6 space-y-2">
+                <p class="text-sm text-gray-600">
+                    Need help?
+                    <a href="{% url 'home' %}" class="text-primary hover:text-primary-dark font-semibold">
+                        Go back home
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
-</div>
 
-<style>
+    <style>
     /* Style for OTP input field */
-    #id_otp_code {
-        font-size: 2rem;
-        letter-spacing: 0.5rem;
-        text-align: center;
-        font-weight: bold;
-        border: 2px solid #e5e7eb;
-        transition: all 0.3s ease;
-    }
+        #id_otp_code {
+            font-size: 2rem;
+            letter-spacing: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
 
-    #id_otp_code:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
+        #id_otp_code:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
-    #id_otp_code::placeholder {
-        color: #d1d5db;
-    }
-</style>
+        #id_otp_code::placeholder {
+            color: #d1d5db;
+        }
+    </style>
 {% endblock %}
 
 {% block footer %}

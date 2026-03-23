@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ENV = os.getenv("DJANGO_ENV", "development")
+ENV = os.getenv("DJANGO_ENV", "testing")
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
 
@@ -164,7 +164,7 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 # Authentication
 LOGIN_REDIRECT_URL = '/'
@@ -172,13 +172,12 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
  
 # Email Configuration for Gmail SMTP
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST      = 'smtp.gmail.com'
-# EMAIL_PORT      = 587
-# EMAIL_USE_TLS   = True
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST      = 'smtp.gmail.com'
+EMAIL_PORT      = 587
+EMAIL_USE_TLS   = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 DEFAULT_FROM_EMAIL = 'Abuja Rentals <no-reply@abujarentals.com>'
 SITE_URL = "https://abujarentals.com"

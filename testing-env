@@ -1,0 +1,15 @@
+DJANGO_ENV=testing
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=postgres
+DB_USER=postgres.bbwqpxozwtquqdctlbdc
+DB_PASSWORD=rxwKTg0dlOyWrgWC
+DB_HOST=aws-1-eu-central-2.pooler.supabase.com
+DB_PORT=5432
+DB_SSL=require
+
+EMAIL_HOST_USER = dreamzcybercafe2021@gmail.com
+EMAIL_HOST_PASSWORD = 'xjup fswi kbqf stuw'
+
+CLOUDINARY_CLOUD_NAME = ddhjg0j3u
+CLOUDINARY_API_KEY = 228448685218287
+CLOUDINARY_API_SECRET = ZqaL-BCrilQGT2qdHFdaCrHfv6o

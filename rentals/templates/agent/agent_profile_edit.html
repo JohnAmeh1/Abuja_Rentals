@@ -12,7 +12,13 @@
         <p class="text-sm text-gray-400 mt-0.5">Visible to tenants browsing your listings</p>
       </div>
 
-      {% if agent.verified %}
+      <div class="flex items-center gap-3">
+         <button onclick="shareProfile()"
+                      class="w-9 h-9 flex items-center justify-center border border-gray-200
+                             hover:bg-gray-50 rounded-xl text-xs text-gray-600 transition bg-white">
+                <i class="fas fa-share-alt"></i>
+              </button>
+        {% if agent.verified %}
         <span class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
           <i class="fas fa-shield-check text-emerald-500"></i> Verified agent
         </span>
@@ -26,7 +32,9 @@
             Request verification
           </button>
         </form>
-      {% endif %}
+        {% endif %}
+      </div>
+
     </div>
 
 
@@ -342,6 +350,28 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Saving…';
       btn.disabled = true;
     });
+
+    function copyProfileLink() {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => showNotification('Link copied!'))
+        .catch(() => showNotification('Could not copy link', 'error'));
+    }
+    function shareProfile() {
+      if (navigator.share) {
+        let url = `http://${window.location.host}/${"agents/{{agent.id}}"}/`
+        navigator.share({ title: {% if agent.name %}'{{ agent.name|escapejs }}' {% else %} '{{ agent.user.get_full_name|escapejs }}' {% endif %}, url: url })
+          .catch(() => {});
+         fetch('{% url "mark_profile_shared" %}', {
+          method:  'POST',
+          headers: {
+            'X-CSRFToken':      '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+    }).catch(() => {});
+      } else {
+        copyProfileLink();
+      }
+    }
   </script>
 
 {% endblock %}

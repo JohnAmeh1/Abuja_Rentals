@@ -16,10 +16,13 @@ from django.core import signing
 from datetime import datetime
 from decimal import Decimal
 
+
+
 from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminMessage, Report,
                      PropertyVisit, Inquiry, School, OTP, InquiryResponse, AgentProfile, Notification,
                      AgentApplication, PropertyType, Amenity, City, InquiryCity, PropertyImage,
-                     Location, PropertyAmenity, InquiryAmenity, AgentPreferredTypes, Area)
+                     Location, PropertyAmenity, InquiryAmenity, AgentPreferredTypes, Area,
+                     AgentAssignedSchools, AgentAssignedCities)
 
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, AdminMessageForm, ReportForm,
                     OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm,
@@ -27,10 +30,15 @@ from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, Proper
 from .services.recommendations import get_property_recommendations
 from .services.property_service import serialize_property, get_image_url
 from .services.helper import PURPOSE_CHOICES, PROPERTY_STATUS_CHOICES, AGENT_PROPERTY_STATUS_CHOICES
+from .onboarding import get_agent_onboarding
+
+        
+        
+
 
 import random
 import json
-
+import threading
 import cloudinary
 
 
@@ -494,7 +502,7 @@ def dashboard_view(request):
         potential_earnings = potential_agg['total'] or Decimal('0.00')
 
         recent_properties = Property.objects.filter(agent__user=user).order_by('-created_at')[:3]
-
+        agent = _require_agent(request)
         context = {
             'page_title': 'Agent Dashboard',
             'total_properties': total_properties,
@@ -502,6 +510,8 @@ def dashboard_view(request):
             'total_value': total_value,
             'potential_earnings': potential_earnings,
             'recent_properties': recent_properties,
+            'show_welcome_modal': not agent.has_seen_welcome,
+            **get_agent_onboarding(request.user, agent),
         }
 
     elif user_profile.user_type == 'tenant':
@@ -1507,6 +1517,12 @@ def property_request(request):
         school = get_object_or_404(School, id=request.POST.get('school'))
         obj.school = school
         obj.save()
+        
+    threading.Thread(
+        target=_notify_matching_agents,
+        args=(obj.id,),
+        daemon=True,
+    ).start()
 
     messages.success(request, "Request Sent!\nOur team will review your requirements and get back to you.")
     return JsonResponse({'ok': True})
@@ -1597,7 +1613,7 @@ def dashboard_requests(request):
         'inquiries':  inquiries,
     }
     return render(request, 'auth/dashboard_requests.html', context)
- 
+
 
 @login_required
 @require_http_methods(["POST"])
@@ -1654,14 +1670,12 @@ def review_agent_application(request, application_id):
 
         status_label = 'Declined' if action == 'reject' else 'Approved'
         Notification.notify_user(
-            application.user.id,
-            'agent_application_reviewed',
-            f"Your agent application request has been {status_label}",
-            "email"
+            userid=application.user.id,
+            type='application_reviewed',
+            message=f"Your agent application request has been {status_label}",
         )
 
     return redirect('admin_users')
-
 
 @login_required
 def agent_inquiries(request):
@@ -1669,7 +1683,7 @@ def agent_inquiries(request):
     if not agent:
         return redirect('dashboard')
 
-    base_qs      = agent.get_inquiry_queryset()
+    base_qs        = agent.get_inquiry_queryset()
     active_purpose = request.GET.get('purpose', '') or agent.preferred_purpose or ''
     active_types   = [int(t) for t in request.GET.getlist('types') if t.isdigit()]
 
@@ -1679,21 +1693,22 @@ def agent_inquiries(request):
     if active_types:
         filtered = filtered.filter(property_type_id__in=active_types)
 
-    inquiries = list(
-        filtered
-        .select_related('user', 'school', 'property_type')
-        .prefetch_related(
-            Prefetch(
-                'inquires_responses',
-                queryset=InquiryResponse.objects.filter(agent=request.user)
-                    .select_related('property', 'property__location__area__city')
-                    .prefetch_related('property__images'),
-                to_attr='my_responses'
-            ),
-            'inquiries_city__city',
-            'inquiry_amenities__amenity',
-        )
-    )
+    # filtered = filtered.select_related('user', 'school', 'property_type').prefetch_related(
+    #     Prefetch(
+    #         'inquires_responses',
+    #         queryset=InquiryResponse.objects.filter(agent=request.user)
+    #             .select_related('property', 'property__location__area__city')
+    #             .prefetch_related('property__images'),
+    #         to_attr='my_responses',
+    #     ),
+    #     'inquiries_city__city',
+    #     'inquiry_amenities__amenity',
+    # )
+    
+
+    paginator = Paginator(filtered, 15)
+    page      = request.GET.get('page', 1)
+    inquiries = paginator.get_page(page)  
 
     agent_properties = (
         Property.objects
@@ -1708,63 +1723,28 @@ def agent_inquiries(request):
     )
 
     context = {
-        'page_title':        'Client Requests',
-        'agent':             agent,
-        'inquiries':         inquiries,
-        'agent_properties':  agent_properties,
-        'active_purpose':    active_purpose,
-        'active_types':      active_types,
+        'page_title':         'Client Requests',
+        'agent':              agent,
+        'inquiries':          inquiries,      
+        'paginator':          paginator,
+        'active_purpose':     active_purpose,
+        'active_types':       active_types,
         'preferred_type_ids': preferred_type_ids,
-        'type_choices':      PropertyType.objects.all().order_by('name'),
-        'purpose_choices':   PURPOSE_CHOICES,
-        'city_choices':      City.objects.all().order_by('name'),
+        'type_choices':       PropertyType.objects.all().order_by('name'),
+        'purpose_choices':    PURPOSE_CHOICES,
+        'city_choices':       City.objects.all().order_by('name'),
+        'agent_properties':   agent_properties,
+        'assigned_city_ids':   list(
+            agent.assigned_cities.values_list('city_id', flat=True)
+        ),
+        'assigned_school_ids': list(
+            AgentAssignedSchools.objects.filter(agent=agent)
+            .values_list('school_id', flat=True)
+        ),
+        'school_choices': School.objects.select_related('location__area').order_by('name'),
+        
     }
     return render(request, 'agent/agent_inquiries.html', context)
-
-@login_required
-@require_http_methods(["GET"])
-def agent_property_search(request):
-    agent = _require_agent(request)
-    if not agent:
-        return JsonResponse({'error': 'forbidden'}, status=403)
-
-    q = request.GET.get('q', '').strip()
-
-    qs = Property.objects.filter(
-        agent__user=request.user,
-        status='available',
-    )
-
-    if q:
-        qs = qs.filter(
-            Q(title__icontains=q) |
-            Q(location__area__name__icontains=q) |
-            Q(location__area__city__name__icontains=q) |
-            Q(location__address__icontains=q)
-        )
-
-    qs = list(qs[:10])
-
-    def get_main_image_url(p):
-        imgs = list(p.images.all())
-        return get_image_url(imgs[0]) if imgs else None
-
-    data = [
-        {
-            'id': p.id,
-            'title': p.title,
-            'area': p.location.area.name,
-            'city': p.location.area.city.name,
-            'price': str(p.price),
-            'purpose': p.purpose,
-            'bedrooms': p.bedrooms,
-            'bathrooms': p.bathrooms,
-            'main_image': get_main_image_url(p),
-        }
-        for p in qs
-    ]
-    return JsonResponse({'properties': data})
-
 
 @login_required
 @require_http_methods(["POST"])
@@ -1783,10 +1763,17 @@ def agent_respond_inquiry(request, inquiry_id):
         status='available',
     )
 
-    response, created = InquiryResponse.objects.get_or_create(
-        agent=request.user,
+    _, created = InquiryResponse.objects.get_or_create(
+        agent=request.user.agentprofile,
         inquiry=inquiry,
         property=property_,
+    )
+    
+    Notification.notify_user(
+        userid=inquiry.user.id, 
+        type="inquiry_response",
+        message=f"New response to your {inquiry}",
+        related_id=inquiry.id,
     )
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1799,24 +1786,59 @@ def agent_respond_inquiry(request, inquiry_id):
 
 
 @login_required
-@require_http_methods(["POST"])
 def agent_update_preferences(request):
-    agent = _require_agent(request)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Method not allowed'}, status=405)
+ 
+    agent = getattr(request.user, 'agent_profile', None)
     if not agent:
-        return JsonResponse({'error': 'forbidden'}, status=403)
-
-    preferred_type_ids = request.POST.getlist('preferred_types')
-    preferred_purpose = request.POST.get('preferred_purpose', '')
-
-    AgentPreferredTypes.objects.filter(agent=agent).delete()
-    for type_id in preferred_type_ids:
-        AgentPreferredTypes.objects.create(agent=agent, type_id=type_id)
-
-    agent.preferred_purpose = preferred_purpose
+        return JsonResponse({'ok': False, 'message': 'Not an agent'}, status=403)
+ 
+    agent.preferred_purpose = request.POST.get('preferred_purpose') or None
     agent.save(update_fields=['preferred_purpose'])
-
+ 
+    type_ids = [int(t) for t in request.POST.getlist('preferred_types') if t.isdigit()]
+    AgentPreferredTypes.objects.filter(agent=agent).delete()
+    AgentPreferredTypes.objects.bulk_create([
+        AgentPreferredTypes(agent=agent, type_id=tid) for tid in type_ids
+    ])
+ 
+    city_ids = [int(c) for c in request.POST.getlist('assigned_cities') if c.isdigit()]
+    AgentAssignedCities.objects.filter(agent=agent).delete()
+    AgentAssignedCities.objects.bulk_create([
+        AgentAssignedCities(agent=agent, city_id=cid) for cid in city_ids
+    ])
+ 
+    school_ids = [int(s) for s in request.POST.getlist('assigned_schools') if s.isdigit()]
+    AgentAssignedSchools.objects.filter(agent=agent).delete()
+    AgentAssignedSchools.objects.bulk_create([
+        AgentAssignedSchools(agent=agent, school_id=sid) for sid in school_ids
+    ])
+ 
+    return JsonResponse({'ok': True})
+ 
+ 
+@login_required
+def mark_welcome_seen(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Method not allowed'}, status=405)
+    
+    profile = request.user.agentprofile
+    if not profile.has_seen_welcome:
+        profile.has_seen_welcome = True
+        profile.save(update_fields=['has_seen_welcome'])
     return JsonResponse({'ok': True})
 
+ 
+@login_required
+def mark_profile_shared(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Method not allowed'}, status=405)
+
+    agent = _require_agent(request)
+    agent.has_shared_profile = True
+    agent.save(update_fields=['has_shared_profile'])
+    return JsonResponse({'ok': True})
 
 @login_required
 @user_passes_test(is_admin)
@@ -1843,9 +1865,6 @@ def agent_properties_view(request):
     }
 
     return render(request, 'agent/agent_properties.html', context)
-
-
-
 
 @login_required
 @user_passes_test(is_agent)
@@ -1927,7 +1946,6 @@ def agent_profile_edit(request):
 @user_passes_test(is_agent)
 @require_http_methods(["POST"])
 def request_agent_verification(request):
-    """Agent requests verification — notifies admins."""
     agent = request.user.agent_profile
 
     if agent.verified:
@@ -1940,13 +1958,12 @@ def request_agent_verification(request):
 
     for admin_id in admin_ids:
         Notification.notify_user(
-            admin_id,
-            'agent_verification_request',
-            f"Agent {request.user.get_full_name() or request.user.username} has requested profile verification.",
-            'email'
+            userid=admin_id,
+            type='application_request',
+            message=f"Agent {request.user.get_full_name() or request.user.username} has requested profile verification.",
         )
 
-    messages.success(request, 'Verification request sent. Our team will review your profile shortly.')
+    messages.success(request, 'Verification request sent. \nOur team will review your profile shortly.')
     return redirect('agent_profile_edit')
 
 @login_required
@@ -2037,62 +2054,6 @@ def agent_application_withdraw(request):
     return redirect('agent_apply')
 
 
-from django.views.generic import TemplateView
-
-
-class AboutView(TemplateView):
-    template_name = 'about.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['total_properties']   = Property.objects.filter(status='available').count()
-        ctx['neighbourhood_count'] = City.objects.count()
-        ctx['tenant_count']       = (
-            UserProfile.objects.filter(user_type='tenant').count()
-        )
-        return ctx
-
-
-OPEN_ROLES = [
-    {
-        'title': 'Full-Stack Django Developer',
-        'department': 'Engineering',
-        'location': 'Abuja (Hybrid)',
-        'type': 'Full-time',
-        'summary': 'Build and maintain the core platform — from property search to agent dashboards.',
-        'url': 'mailto:careers@abujarentals.com?subject=Application: Full-Stack Django Developer',
-    },
-]
-
-
-class CareersView(TemplateView):
-    template_name = 'careers.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['open_roles'] = OPEN_ROLES
-        return ctx
-
-
-RENTER_FAQS = []
-
-
-class FAQView(TemplateView):
-    template_name = 'faq.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['renter_faqs'] = RENTER_FAQS
-        return ctx
-
-
-class TermsView(TemplateView):
-    template_name = 'terms.html'
-    
-    
-    
-    
-
 def agent_public_profile(request, agent_id):
     agent = get_object_or_404(
         AgentProfile.objects.select_related(
@@ -2121,7 +2082,7 @@ def agent_public_profile(request, agent_id):
     areas = Area.objects.filter(id__in=area_ids).order_by('name')
  
     context = {
-        'page_title':     f"{agent.name} — Agent Profile",
+        'page_title':     f"{agent.name if agent.name else agent.user.get_full_name()} — Agent Profile",
         'agent':          agent,
         'properties':     [serialize_property(p) for p in properties],
         'property_types': PropertyType.objects.filter(
@@ -2301,3 +2262,141 @@ def edit_property_view(request, property_id):
         'initial_area_id':    initial_area_id,
         'initial_school_id':  property_obj.school_id or '',
     })
+    
+    
+from django.views.generic import TemplateView
+
+
+class SchoolsView(TemplateView):
+    template_name = 'schools.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        agent_qs = (
+            AgentAssignedSchools.objects
+            .select_related(
+                'agent',
+                'agent__user',
+            )
+            .order_by('-agent__verified', 'agent__user__first_name')
+        )
+
+        schools = (
+            School.objects
+            .select_related('location__area__city')
+            .prefetch_related(
+                Prefetch('assigned_schools', queryset=agent_qs, to_attr='assigned_agents'),
+            )
+            .annotate(
+                listing_count=Count(
+                    'properties',  
+                    filter=__import__('django.db.models', fromlist=['Q']).Q(
+                        properties__status='available'
+                    ),
+                    distinct=True,
+                )
+            )
+            .order_by('name')
+        )
+ 
+        ctx['schools'] = schools
+        return ctx
+ 
+
+class AboutView(TemplateView):
+    template_name = 'about.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['total_properties']   = Property.objects.filter(status='available').count()
+        ctx['neighbourhood_count'] = City.objects.count()
+        ctx['tenant_count']       = (
+            UserProfile.objects.filter(user_type='tenant').count()
+        )
+        return ctx
+
+
+OPEN_ROLES = [
+    {
+        'title': 'Full-Stack Django Developer',
+        'department': 'Engineering',
+        'location': 'Abuja (Hybrid)',
+        'type': 'Full-time',
+        'summary': 'Build and maintain the core platform — from property search to agent dashboards.',
+        'url': 'mailto:careers@abujarentals.com?subject=Application: Full-Stack Django Developer',
+    },
+]
+
+
+class CareersView(TemplateView):
+    template_name = 'careers.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['open_roles'] = OPEN_ROLES
+        return ctx
+
+
+RENTER_FAQS = []
+
+
+class FAQView(TemplateView):
+    template_name = 'faq.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['renter_faqs'] = RENTER_FAQS
+        return ctx
+
+
+class TermsView(TemplateView):
+    template_name = 'terms.html'
+    
+    
+def _notify_matching_agents(inquiry_id):
+    try:
+        inquiry = Inquiry.objects.select_related('property_type').get(id=inquiry_id)
+        city_ids = inquiry.inquiries_city.values_list('city_id', flat=True)
+        agents   = (
+            AgentProfile.objects
+            .filter(assigned_cities__city_id__in=city_ids)
+            .select_related('user')
+            .distinct()
+        )
+        
+        notifications = [
+            Notification(
+                user=agent.user,
+                type='new_inquiry',
+                message=f"New request for a {inquiry.property_type or 'property'} in your area",
+                related_id=inquiry_id,
+            )
+            for agent in agents
+        ]
+        
+        school_id = inquiry.school.id
+        agents = []
+        agents   = (
+            AgentProfile.objects
+            .filter(assigned_schools__school_id=school_id)
+            .select_related('user')
+            .distinct()
+        )
+        
+        notifications.extend([
+            Notification(
+                user=agent.user,
+                type='new_inquiry',
+                message=f"New request for a {inquiry.property_type or 'property'} in {inquiry.school.name}",
+                related_id=inquiry_id,
+            )
+            for agent in agents
+        ])
+        
+        Notification.objects.bulk_create(notifications, ignore_conflicts=True)
+
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"_notify_matching_agents failed: {e}")
+
+

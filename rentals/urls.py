@@ -21,7 +21,10 @@ urlpatterns = [
     path('redirect/', views.send_message, name='redirect'),
     
     path('agent/properties/', views.agent_properties_view, name='agent_properties'),
+    path('api/welcome-seen/', views.mark_welcome_seen, name='mark_welcome_seen'),
+    path('api/profile-shared/', views.mark_profile_shared, name='mark_profile_shared'),
     path('agent/profile/', views.agent_profile_edit, name='agent_profile_edit'),
+    path('agent/request_verification/', views.request_agent_verification, name='request_agent_verification'),
     path('agents/<int:agent_id>/', views.agent_public_profile, name='agent_public_profile'),
     
     path('properties/', views.properties_view, name='properties'),
@@ -80,10 +83,9 @@ urlpatterns = [
     path('dashboard/requests/<int:inquiry_id>/close/', views.close_inquiry, name='close_inquiry'),
     path('api/inquiries/<int:inquiry_id>/mark-opened/', views.mark_responses_opened, name='mark_responses_opened'),
 
-    path('dashboard/requests/agent/', views.agent_inquiries,          name='agent_inquiries'),
+    path('dashboard/requests/agent/', views.agent_inquiries, name='agent_inquiries'),
     path('dashboard/agent/preferences/', views.agent_update_preferences, name='agent_update_preferences'),
 
-    path('api/agent/properties/',            views.agent_property_search,  name='agent_property_search'),
     path('api/inquiries/<int:inquiry_id>/respond/', views.agent_respond_inquiry, name='agent_respond_inquiry'),
     path('api/inquiries/<int:response_id>/', views.mark_response_opened, name='mark_response_opened'),
     path('api/areas/', views.areas_by_city_api, name='areas_by_city'),
@@ -92,6 +94,8 @@ urlpatterns = [
     path('careers/', views.CareersView.as_view(), name='careers'),
     path('faq/',     views.FAQView.as_view(),     name='faq'),
     path('terms/',   views.TermsView.as_view(),   name='terms'),
+    
+    path('universities/', views.SchoolsView.as_view(), name='schools'),
 ]
 
 if settings.DEBUG:

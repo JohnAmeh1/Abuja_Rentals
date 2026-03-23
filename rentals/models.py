@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
 
-# from django.contrib.gis.db import models as gis_models
 
 from .services.helper import (PURPOSE_CHOICES, PROPERTY_STATUS_CHOICES, USER_TYPE_CHOICES,
                                 REASON_CHOICES, REPORT_STATUS_CHOICES, VISIT_STATUS_CHOICES,
@@ -153,6 +152,8 @@ class AgentProfile(models.Model):
 
     preferred_purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES, blank=True, null=True)
     whatsapp_number = models.CharField(max_length=20, blank=True)
+    has_seen_welcome = models.BooleanField(default=False)
+    has_shared_profile = models.BooleanField(default=False)
 
     bio = models.TextField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
@@ -165,8 +166,6 @@ class AgentProfile(models.Model):
 
     def get_inquiry_queryset(self):
         qs = Inquiry.objects.filter(closed=False).exclude(
-            inquires_responses__agent=self.user,
-        ).exclude(
             user=self.user
         )
         qs = qs.select_related('user', 'school').order_by('-created_at')
@@ -273,10 +272,10 @@ class Inquiry(InquiryService, models.Model):
     def __str__(self):
         if self.property_type:
             return str(self.property_type)
-
+        
 
 class InquiryResponse(models.Model):
-    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="inquires_responses")
+    agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name="inquires_responses")
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="inquires_responses")
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name="inquires_responses")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -502,7 +501,11 @@ class AgentApplication(models.Model):
         return f"{self.user.username} — {self.get_status_display()}"
 
 class Notification(NotificationService, models.Model):
-    message_type = models.CharField(choices=NOTIFICATION_MESSAGE_TYPE_CHOICES)
-    mode = models.CharField(choices=NOTIFICATION_MODE_CHOICES, default='phone')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(choices=NOTIFICATION_MESSAGE_TYPE_CHOICES)
+    mode = models.CharField(choices=NOTIFICATION_MODE_CHOICES, default='email')
     message = models.TextField()
+    related_id = models.CharField(null=True, blank=True)
+    sent = models.BooleanField(default=False)
+
+    

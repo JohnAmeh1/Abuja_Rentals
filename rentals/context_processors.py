@@ -21,10 +21,6 @@ def admin_messages_context(request):
 
 
 
-# rentals/context_processors.py
-#
-# Register in settings.py:
-# TEMPLATES[0]['OPTIONS']['context_processors'] += ['rentals.context_processors.nav_context']
 
 from django.db.models import Count, Q
 from .models import PropertyType, City, Property

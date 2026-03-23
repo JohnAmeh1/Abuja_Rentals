@@ -558,13 +558,13 @@ function addad(container, ad) {
 }
 
 const tips = document.getElementById("tips");
-if (tips && localStorage.getItem("tips_shown") !== "true") {
+if (tips && sessionStorage.getItem("tips_shown") !== "1") {
   tips.classList.remove("hidden");
   function removeTips() {
     tips.classList.add("opacity-0");
     tips.addEventListener("transitionend", () => tips.classList.add("hidden"), { once: true });
     document.removeEventListener("scroll", removeTips);
-    localStorage.setItem("tips_shown", "true");
+    sessionStorage.setItem("tips_shown", "1");
   }
   setTimeout(removeTips, 3000);
   tips.addEventListener("click", removeTips);
@@ -636,13 +636,5 @@ if (tips && localStorage.getItem("tips_shown") !== "true") {
       if (tm) tm.textContent = n.toLocaleString();
     }
 
-
-
-    document.querySelector("[name=city]").addEventListener("change", (e) => {
-      if (e.target.value.strip()) {
-
-      }
-    })
-    console.log(document.querySelector("[name=area]"))
   </script>
 {% endblock %}

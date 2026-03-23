@@ -56,14 +56,16 @@ AGENT_APP_STATUS_CHOICES = [
 ]
 
 NOTIFICATION_MESSAGE_TYPE_CHOICES = [
-    ("inquiry_sent", "Inquiry Sent"),
-    ("inquiry_responded", "Inquiry Responded"),
-    ("inquiries", "Inquiries"),
-    ("agent_application_sent", "Agent Application Sent"),
-    ("agent_application_reviewed", "Agent Application Reviewed"),
-    ("agent_applications", "Agent Applications"),
-    ("agent_verification_request", "Agent Verification Request"),
-    ("agent_verification_requests", "Agent Verification Requests"),
+    ("new_inquiry", "New Inquiry"),
+    ("inquiry_response", "Inquiry Responded"),
+    ("property_approved", "Property Approved"),
+    ("property_rejected", "Property Rejected"),
+    ("application_reviewed", "Agent Reviewed"),
+    ("application_request", "Agent Request"),
+    ("agent_verified", "Agent Verified"),
+    ("new_visit_request", "New Visit Request"),
+    ("visit_confirmed", "Visit Confirmed"),
+    ("verification_request", "verification_request"),
 ]
 
 NOTIFICATION_MODE_CHOICES = [

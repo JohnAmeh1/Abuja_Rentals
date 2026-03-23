@@ -1,24 +1,13 @@
 {% extends "base.html" %}
 {% load humanize %}
 
-{% block title %}{{ agent.name }} | Abuja Rentals{% endblock %}
+{% block title %} {% if agent.name %}{{ agent.name }} {% else %} {{ agent.user.get_full_name }} {% endif %} | Abuja Rentals{% endblock %}
 
 {% block content %}
   <div class="container mx-auto px-4 lg:px-13 py-8 pt-20">
 
     <div class="relative w-full h-44 lg:h-60 rounded-2xl overflow-hidden bg-gray-100 mb-0">
-      {% if agent.image %}
-        <img src="{{ agent.image }}" alt="Agency banner"
-             class="w-full h-full object-cover">
-      {% else %}
-        <div class="w-full h-full bg-linear-to-br from-gray-900 via-gray-800 to-primary/40 flex items-center justify-center">
-          <div class="absolute inset-0 opacity-10"
-               style="background-image: repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%); background-size: 20px 20px;"></div>
-          <p class="text-white/20 font-black text-6xl lg:text-8xl tracking-tighter select-none uppercase">
-            {{ agent.name|truncatechars:2 }}
-          </p>
-        </div>
-      {% endif %}
+        <img src={% if agent.image %}"{{ agent.image }}"{% else %}"/media/abstract/home-bg.webp"{% endif %} alt="Agency banner" class="w-full h-full object-cover">
     </div>
 
     <div class="relative -mt-10 mx-4 lg:mx-8 mb-6">
@@ -31,7 +20,7 @@
           {% else %}
             <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl border-4 border-white shadow-md
                         bg-primary/10 flex items-center justify-center text-3xl font-black text-primary uppercase">
-              {{ agent.name }}
+              {% if agent.name %}{{ agent.name }} {% else %} {{ agent.user.get_full_name }} {% endif %}
             </div>
           {% endif %}
         </div>
@@ -39,7 +28,7 @@
         <div class="flex-1 min-w-0">
           <div class="flex flex-wrap items-center gap-2 mb-1">
             <h1 class="text-xl font-black text-gray-900">
-              {{ agent.name }}
+             {% if agent.name %}{{ agent.name }} {% else %} {{ agent.user.get_full_name }} {% endif %}
             </h1>
             {% if agent.verified %}
               <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-700
@@ -86,6 +75,11 @@
               <i class="fas fa-phone text-[10px]"></i> {{ agent.phone }}
             </a>
           {% endif %}
+          <button onclick="shareProfile()"
+                      class="w-9 h-9 flex items-center justify-center border border-gray-200
+                             hover:bg-gray-50 rounded-xl text-xs text-gray-600 transition">
+                <i class="fas fa-share-alt"></i>
+              </button>
         </div>
       </div>
     </div>
@@ -167,7 +161,7 @@
           {% endif %}
         </div>
 
-        <div class="bg-white rounded-2xl border border-gray-100 p-5 space-y-4 sticky top-20">
+        <div class="bg-white rounded-2xl border border-gray-100 p-5 space-y-4 ">
           <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Filter listings</p>
 
           <div>
@@ -262,7 +256,7 @@
 
                 <div class="absolute top-2.5 left-2.5 flex gap-1 text-[10px] font-bold">
                   <span class="px-2 py-0.5 rounded-full {% if p.purpose == 'rent' %}bg-blue-500{% else %}bg-primary{% endif %} text-white">
-                    {{ p.purpose|capfirst }}
+                    For {{ p.purpose|capfirst }}
                   </span>
 
                 </div>
@@ -397,6 +391,20 @@
 
     // Re-append in sorted order (hidden cards stay in place at the end)
       cards.forEach(c => grid.appendChild(c));
+    }
+
+    function copyProfileLink() {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => showNotification('Link copied!'))
+        .catch(() => showNotification('Could not copy link', 'error'));
+    }
+    function shareProfile() {
+      if (navigator.share) {
+        navigator.share({ title: {% if agent.name %}'{{ agent.name|escapejs }}' {% else %} '{{ agent.user.get_full_name|escapejs }}' {% endif %}, url: window.location.href })
+          .catch(() => {});
+      } else {
+        copyProfileLink();
+      }
     }
   </script>
 {% endblock %}

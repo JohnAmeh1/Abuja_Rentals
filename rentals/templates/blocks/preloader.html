@@ -1,241 +1,123 @@
 <style>
-    /* Preloader Styles */
-    #preloader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999;
-        transition: opacity 0.5s ease, visibility 0.5s ease;
-    }
+  #preloader {
+    position: fixed;
+    inset: 0;
+    background: #f7f7f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 99999;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  #preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+  }
 
-    #preloader.fade-out {
-        opacity: 0;
-        visibility: hidden;
-    }
+  .pl-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: pl-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .pl-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary, #0F6E56);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .pl-icon i {
+    font-size: 16px;
+    color: white;
+  }
+  .pl-wordmark {
+    line-height: 1;
+  }
+  .pl-wordmark-main {
+    font-size: 20px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.03em;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .pl-wordmark-main span {
+    color: var(--color-primary, #0F6E56);
+  }
+  .pl-wordmark-sub {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
 
-    .preloader-logo {
-        width: 100px;
-        height: 100px;
-        background: #3b82f6;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 30px;
-        animation: pulse-logo 2s ease-in-out infinite;
-        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-    }
+  .pl-track {
+    width: 160px;
+    height: 2px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+    animation: pl-rise 0.5s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .pl-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--color-primary, #0F6E56);
+    border-radius: 999px;
+    animation: pl-fill 1.2s 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
 
-    .preloader-logo i {
-        font-size: 50px;
-        color: white;
-        animation: rotate-icon 3s linear infinite;
-    }
-
-    .preloader-text {
-        color: white;
-        font-size: 28px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        font-family: 'Manrope', 'Inter', system-ui, sans-serif;
-    }
-
-    .preloader-text .brand-name {
-        color: #3b82f6;
-    }
-
-    .preloader-subtitle {
-        color: #94a3b8;
-        font-size: 14px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        margin-bottom: 30px;
-    }
-
-    .preloader-spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid rgba(59, 130, 246, 0.2);
-        border-top: 4px solid #3b82f6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    .preloader-progress {
-        width: 200px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-
-    .preloader-progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-        border-radius: 2px;
-        animation: progress 5s ease-out forwards;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-    }
-
-    @keyframes pulse-logo {
-        0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-        }
-        50% {
-            transform: scale(1.05);
-            box-shadow: 0 15px 50px rgba(59, 130, 246, 0.6);
-        }
-    }
-
-    @keyframes rotate-icon {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    @keyframes progress {
-        0% {
-            width: 0%;
-        }
-        100% {
-            width: 100%;
-        }
-    }
-
-    /* Loading dots animation */
-    .loading-dots {
-        display: inline-flex;
-        gap: 4px;
-        margin-top: 10px;
-    }
-
-    .loading-dots span {
-        width: 8px;
-        height: 8px;
-        background: #3b82f6;
-        border-radius: 50%;
-        animation: bounce 1.4s ease-in-out infinite;
-    }
-
-    .loading-dots span:nth-child(1) {
-        animation-delay: -0.32s;
-    }
-
-    .loading-dots span:nth-child(2) {
-        animation-delay: -0.16s;
-    }
-
-    @keyframes bounce {
-        0%, 80%, 100% {
-            transform: scale(0.8);
-            opacity: 0.5;
-        }
-        40% {
-            transform: scale(1.2);
-            opacity: 1;
-        }
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .preloader-logo {
-            width: 80px;
-            height: 80px;
-        }
-
-        .preloader-logo i {
-            font-size: 40px;
-        }
-
-        .preloader-text {
-            font-size: 24px;
-        }
-
-        .preloader-subtitle {
-            font-size: 12px;
-        }
-    }
+  @keyframes pl-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+  @keyframes pl-fill {
+    0%   { width: 0%;   opacity: 1; }
+    70%  { width: 85%;  opacity: 1; }
+    90%  { width: 95%;  opacity: 1; }
+    100% { width: 100%; opacity: 0; }
+  }
 </style>
 
 <div id="preloader">
-    <div class="preloader-logo">
-        <i class="fas fa-building"></i>
+  <div class="pl-logo">
+    <div class="pl-icon">
+      <i class="fas fa-home"></i>
     </div>
-
-    <div class="preloader-text">
-        <span>Abuja</span>
-        <span class="brand-name">Rentals</span>
+    <div class="pl-wordmark">
+      <div class="pl-wordmark-main">Abuja<span>Rentals</span></div>
+      <div class="pl-wordmark-sub">Premium Properties</div>
     </div>
-
-    <div class="preloader-subtitle">Premium Properties</div>
-
-    <div class="preloader-spinner"></div>
-
-    <div class="preloader-progress">
-        <div class="preloader-progress-bar"></div>
-    </div>
-
-    <div class="loading-dots">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+  </div>
+  <div class="pl-track">
+    <div class="pl-bar"></div>
+  </div>
 </div>
 
 <script>
-    (function() {
-        const preloader = document.getElementById('preloader');
-        const maxLoadTime = 1000;
-        let loaded = false;
-        document.body.style.overflow = 'hidden';
+  (function () {
+    const el     = document.getElementById('preloader');
+    let   done   = false;
+    document.body.style.overflow = 'hidden';
 
-        function hidePreloader() {
-            if (!loaded) {
-                loaded = true;
-                preloader.classList.add('fade-out');
+    function hide() {
+      if (done) return;
+      done = true;
+      el.classList.add('fade-out');
+      el.addEventListener('transitionend', () => {
+        el.remove();
+        document.body.style.overflow = '';
+      }, { once: true });
+    }
 
-                preloader.addEventListener("transitionend", () => {
-                    if (preloader && preloader.parentNode) {
-                        preloader.parentNode.removeChild(preloader);
-                    }
-                    document.body.style.overflow = 'auto';
-                })
-            }
-        }
-
-
-        setTimeout(function() {
-            if (!loaded) {
-                hidePreloader();
-            }
-        }, maxLoadTime);
-
-        window.addEventListener('load', hidePreloader);
-
-        window.addEventListener('beforeunload', function() {
-            hidePreloader();
-        });
-
-    })();
+    window.addEventListener('load', hide);
+    setTimeout(hide, 1200); 
+  })();
 </script>

@@ -2,19 +2,17 @@ from django.contrib.auth.models import User
 
 class NotificationService:
     @classmethod
-    def notify_user(cls, userid, type, message, mode):
+    def notify_user(cls, userid, type, message, **kwargs):
         user = User.objects.get(id=userid)
         if not user:
             return None
         
         n = cls.objects.create(
             user=user,
-            message_type=type,
+            type=type,
             message=message,
+            related_id = kwargs.get("related_id")
         )
-        
-        if mode:
-            n.mode = mode
         
         n.save()
         return n

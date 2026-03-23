@@ -32,10 +32,9 @@
         </button>
       </div>
     {% endif %}
-
+    <div class="grid gap-2">
     {% for inquiry in inquiries %}
 
-  {# FIX: check for unread responses — opened is on InquiryResponse, not Inquiry #}
       {% with responses=inquiry.prefetched_responses %}
         {% with has_unread=responses|length %}
 
@@ -43,7 +42,6 @@
                       {% if inquiry.closed %}opacity-60{% endif %}"
                id="inquiry-{{ inquiry.id }}">
 
-    <!-- Header row -->
             <div class="flex items-start justify-between px-6 py-4 border-b border-gray-100 cursor-pointer
                         hover:bg-gray-50 transition select-none"
                  onclick="toggleInquiry({{ inquiry.id }})">
@@ -302,6 +300,7 @@
         {% endwith %}
       {% endwith %}
     {% endfor %}
+    </div>
 
   </div>
 

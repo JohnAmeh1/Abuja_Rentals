@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
+from cloudinary.models import CloudinaryField
 
 
 from .services.helper import (PURPOSE_CHOICES, PROPERTY_STATUS_CHOICES, USER_TYPE_CHOICES,
@@ -47,7 +48,7 @@ class UserProfile(UserProfileService, models.Model):
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, default='tenant')
     phone_number = models.CharField(max_length=15, blank=True)
     whatsapp_number = models.CharField(max_length=255, blank=True)
-    profile_picture = models.URLField(null=True, blank=True)
+    profile_picture = CloudinaryField('image', resource_type="auto", blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True)
     address = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -160,8 +161,8 @@ class AgentProfile(models.Model):
     website = models.CharField(max_length=200, blank=True)
     other_phones = models.JSONField(default=list, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.URLField(null=True, blank=True)
-    logo = models.URLField(null=True, blank=True)
+    image = CloudinaryField('image', resource_type="auto", blank=True, null=True)
+    logo = CloudinaryField('image', resource_type="auto", blank=True, null=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True)
 
     def get_inquiry_queryset(self):
@@ -392,7 +393,7 @@ class InquiryCity(models.Model):
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to="property_images/")
+    image = CloudinaryField('image', resource_type="auto")
     order = models.IntegerField(default=0)
 
     class Meta:

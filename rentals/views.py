@@ -394,7 +394,7 @@ def signup_view(request):
 
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
-        user = User.objects.filter(email=form.email)
+        user = User.objects.filter(email=request.POST.get("email", "")).first()
         if user:
             messages.error(request, "An account has already been linked with this email")
             return redirect('login')
@@ -454,7 +454,7 @@ def profile_view(request):
                     overwrite=True,
                     transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
                 )
-                profile.profile_picture = result['secure_url']
+                profile.profile_picture = result['public_id']  # not secure_url
                 profile.save()
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
@@ -1759,12 +1759,12 @@ def agent_respond_inquiry(request, inquiry_id):
     property_ = get_object_or_404(
         Property,
         id=property_id,
-        agent__user=request.user,
+        agent=agent,
         status='available',
     )
 
     _, created = InquiryResponse.objects.get_or_create(
-        agent=request.user.agentprofile,
+        agent=agent,
         inquiry=inquiry,
         property=property_,
     )
@@ -1823,7 +1823,7 @@ def mark_welcome_seen(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'message': 'Method not allowed'}, status=405)
     
-    profile = request.user.agentprofile
+    profile = request.user.agent_profile
     if not profile.has_seen_welcome:
         profile.has_seen_welcome = True
         profile.save(update_fields=['has_seen_welcome'])
@@ -1876,6 +1876,7 @@ def agent_profile_edit(request):
  
         if form.is_valid():
             image_file = request.FILES.get('image')
+            image_file = request.FILES.get('image')
             if image_file:
                 result = cloudinary.uploader.upload(
                     image_file,
@@ -1884,8 +1885,8 @@ def agent_profile_edit(request):
                     overwrite=True,
                     transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
                 )
-                agent.image = result['secure_url']
- 
+                agent.image = result['public_id']
+
             logo_file = request.FILES.get('logo')
             if logo_file:
                 result = cloudinary.uploader.upload(
@@ -1895,7 +1896,7 @@ def agent_profile_edit(request):
                     overwrite=True,
                     transformation=[{'width': 800, 'height': 300, 'crop': 'fill'}],
                 )
-                agent.logo = result['secure_url']
+                agent.logo = result['public_id']
  
             user = request.user
             user.first_name = request.POST.get('first_name', user.first_name).strip()

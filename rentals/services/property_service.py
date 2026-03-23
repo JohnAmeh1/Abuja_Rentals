@@ -15,28 +15,38 @@ class PropertyService:
         return f"{self.title} - {ptype} ({self.get_purpose_display()})"
 
 
-
 def get_image_url(img):
     if not img.image:
         return None
-    name = img.image.name
-    if name.startswith("http"):
-        return name
-    return img.image.url
-
+    try:
+        public_id = img.image.public_id
+        if public_id:
+            return img.image.url
+    except AttributeError:
+        name = str(img.image)
+        if name.startswith("http"):
+            return name
+        if name:
+            return img.image.url
+    return None
 
 def serialize_property(p, detail=False):
-    main_image = None
-
     imgs = list(p.images.all())
     main_image = get_image_url(imgs[0]) if imgs else None
 
     address = None
+    area = None
+    city = None
+    state = None
 
     if p.location:
         address = p.location.address
         if p.location.area:
             area = p.location.area.name
+            if p.location.area.city:
+                city = p.location.area.city.name
+                if p.location.area.city.state:
+                    state = p.location.area.city.state.name
 
     data = {
         "id": p.id,
@@ -48,8 +58,8 @@ def serialize_property(p, detail=False):
         "bathrooms": p.bathrooms,
         "area_sqft": str(p.area_sqft) if p.area_sqft else None,
         "area": area,
-        "city": p.location.area.city.name if p.location.area.city else None,
-        "state": p.location.area.city.state.name if p.location.area.city.state else None,
+        "city": city,
+        "state": state,
         "address": address,
         "furnished": p.furnished,
         "serviced": p.serviced,
@@ -64,12 +74,10 @@ def serialize_property(p, detail=False):
         "views": p.views,
         "school": p.school.name if p.school else None,
         "school_short_name": p.school.short_name if p.school else None,
-        "created_at": p.created_at
+        "created_at": p.created_at,
     }
 
-
     if detail:
-
         amenities = [
             pa.amenity.display_name
             for pa in p.property_amenities.all()
@@ -78,4 +86,5 @@ def serialize_property(p, detail=False):
             "images": [get_image_url(img) for img in imgs if img.image],
             "amenities": amenities,
         })
+
     return data

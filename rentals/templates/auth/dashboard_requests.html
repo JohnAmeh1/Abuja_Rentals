@@ -59,15 +59,13 @@
                 <div>
                   <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-sm font-semibold text-gray-900">
-              {# FIX: was inquiry.property_type which renders the FK object — use display_name #}
                       {{ inquiry.property_type.display_name|default:"Any type" }}
                       {% if inquiry.purpose %}
                         <span class="font-normal text-gray-400">·</span>
                         For {{ inquiry.purpose|capfirst }}
                       {% endif %}
                     </span>
-            {# FIX: was checking inquiry.opened which doesn't exist on Inquiry model.
-               Now checks if any response in the prefetch is unread. #}
+           
                     {% for r in responses %}
                       {% if not r.opened %}
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500 text-white text-[10px] font-semibold rounded-full">
@@ -207,8 +205,7 @@
                          class="flex gap-4 p-4 rounded-xl border hover:border-primary/30 hover:bg-primary/5 transition group
                                 {% if not response.opened %}border-l-4 border-l-green-400 border-gray-200{% else %}border-gray-200{% endif %}">
 
-            {# FIX: was response.property.main_image (no such field on Property model).
-               Access first image through the related manager instead. #}
+           
                         <div class="w-20 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                           {% with first_img=response.property.images.first %}
                             {% if first_img %}
@@ -232,7 +229,6 @@
                             {% endif %}
                           </div>
 
-              {# FIX: was response.property.city — no such field. Use location chain. #}
                           <p class="text-xs text-gray-400 mt-0.5 capitalize">
                             {% if response.property.location.area %}
                               {{ response.property.location.area.name }},
@@ -315,7 +311,6 @@
       details.classList.toggle('hidden', !opening);
       chevron.style.transform = opening ? 'rotate(180deg)' : '';
 
-    {# FIX: was firing mark-opened on both open and close. Now only fires on open. #}
       if (opening) {
         fetch(`/api/inquiries/${id}/mark-opened/`, {
           method: 'POST',

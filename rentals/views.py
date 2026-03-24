@@ -447,15 +447,19 @@ def profile_view(request):
             profile = request.user.userprofile
             image_file = request.FILES.get('profile_picture')
             if image_file:
-                result = cloudinary.uploader.upload(
-                    image_file,
-                    folder=f'abuja_rentals/tenants/{request.user.id}/',
-                    public_id=f'profile_{request.user.id}',
-                    overwrite=True,
-                    transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
-                )
-                profile.profile_picture = result['public_id']  # not secure_url
-                profile.save()
+                try:
+                    result = cloudinary.uploader.upload(
+                        image_file,
+                        folder=f'abuja_rentals/tenants/{request.user.id}/',
+                        public_id=f'profile_{request.user.id}',
+                        overwrite=True,
+                        transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
+                    )
+                    profile.profile_picture = result['public_id']
+                    profile.save()
+                except Exception as e:
+                    messages.error(request, 'Failed to upload image. Please check your connection and try again.')
+                    return redirect('profile')
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
             return redirect('profile')
@@ -522,6 +526,7 @@ def dashboard_view(request):
             'page_title': 'Tenant Dashboard',
             'saved_properties_count': saved_properties_count,
             'booking_count': booking_count,
+            'requests_count': user.inquires.count(),
         }
 
     else:
@@ -1876,27 +1881,34 @@ def agent_profile_edit(request):
  
         if form.is_valid():
             image_file = request.FILES.get('image')
-            image_file = request.FILES.get('image')
             if image_file:
-                result = cloudinary.uploader.upload(
-                    image_file,
-                    folder=f'abuja_rentals/agents/{request.user.id}/',
-                    public_id=f'profile_{request.user.id}',
-                    overwrite=True,
-                    transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
-                )
-                agent.image = result['public_id']
+                try:
+                    result = cloudinary.uploader.upload(
+                        image_file,
+                        folder=f'abuja_rentals/agents/{request.user.id}/',
+                        public_id=f'profile_{request.user.id}',
+                        overwrite=True,
+                        transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
+                    )
+                    agent.image = result['public_id']
+                except Exception as e:
+                    messages.error(request, 'Failed to upload profile image. Please check your connection.')
+                    return redirect('agent_profile_edit')
 
-            logo_file = request.FILES.get('logo')
-            if logo_file:
-                result = cloudinary.uploader.upload(
-                    logo_file,
-                    folder=f'abuja_rentals/agents/{request.user.id}/',
-                    public_id=f'logo_{request.user.id}',
-                    overwrite=True,
-                    transformation=[{'width': 800, 'height': 300, 'crop': 'fill'}],
-                )
-                agent.logo = result['public_id']
+                logo_file = request.FILES.get('logo')
+                if logo_file:
+                    try:
+                        result = cloudinary.uploader.upload(
+                            logo_file,
+                            folder=f'abuja_rentals/agents/{request.user.id}/',
+                            public_id=f'logo_{request.user.id}',
+                            overwrite=True,
+                            transformation=[{'width': 800, 'height': 300, 'crop': 'fill'}],
+                        )
+                        agent.logo = result['public_id']
+                    except Exception as e:
+                        messages.error(request, 'Failed to upload logo. Please check your connection.')
+                        return redirect('agent_profile_edit')
  
             user = request.user
             user.first_name = request.POST.get('first_name', user.first_name).strip()
@@ -1989,11 +2001,8 @@ def agent_apply(request):
         messages.info(request, f"Missing ({labels}) in your userprofile please complete the form")
         return redirect('profile')
 
-    try:
-        if user.userprofile.user_type == 'agent':
-            return redirect('agent_inquiries')
-    except Exception:
-        pass
+    if user.userprofile.user_type == 'agent':
+        return redirect('agent_inquiries')
 
     existing = getattr(user, 'agent_application', None)
     if existing and existing.status == 'rejected':
@@ -2053,7 +2062,6 @@ def agent_application_withdraw(request):
     except AgentApplication.DoesNotExist:
         pass
     return redirect('agent_apply')
-
 
 def agent_public_profile(request, agent_id):
     agent = get_object_or_404(
@@ -2241,17 +2249,17 @@ def edit_property_view(request, property_id):
         messages.error(request, 'Please fix the errors below.')
     else:
         form = PropertyForm(instance=property_obj)
- 
+
     selected_amenities = list(
         PropertyAmenity.objects.filter(property=property_obj)
         .values_list('amenity_id', flat=True)
     )
- 
+
     initial_area_id = initial_city_id = ''
     if property_obj.location and property_obj.location.area:
         initial_area_id = property_obj.location.area_id
         initial_city_id = property_obj.location.area.city_id
- 
+
     return render(request, 'agent/edit_property.html', {
         **_base_context(),
         'form':               form,
@@ -2299,10 +2307,10 @@ class SchoolsView(TemplateView):
             )
             .order_by('name')
         )
- 
+
         ctx['schools'] = schools
         return ctx
- 
+
 
 class AboutView(TemplateView):
     template_name = 'about.html'
@@ -2364,6 +2372,15 @@ def _notify_matching_agents(inquiry_id):
             .select_related('user')
             .distinct()
         )
+
+        if hasattr(inquiry, 'school') and hasattr(inquiry.school, 'id'):
+            school_id = inquiry.school.id
+            agents.append(
+                AgentProfile.objects
+                .filter(assigned_schools__school_id=school_id)
+                .select_related('user')
+                .distinct()
+            )
         
         notifications = [
             Notification(
@@ -2374,25 +2391,6 @@ def _notify_matching_agents(inquiry_id):
             )
             for agent in agents
         ]
-        
-        school_id = inquiry.school.id
-        agents = []
-        agents   = (
-            AgentProfile.objects
-            .filter(assigned_schools__school_id=school_id)
-            .select_related('user')
-            .distinct()
-        )
-        
-        notifications.extend([
-            Notification(
-                user=agent.user,
-                type='new_inquiry',
-                message=f"New request for a {inquiry.property_type or 'property'} in {inquiry.school.name}",
-                related_id=inquiry_id,
-            )
-            for agent in agents
-        ])
         
         Notification.objects.bulk_create(notifications, ignore_conflicts=True)
 

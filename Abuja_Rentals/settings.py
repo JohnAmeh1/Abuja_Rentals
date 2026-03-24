@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ENV = os.getenv("DJANGO_ENV", "testing")
+ENV = os.getenv("DJANGO_ENV", "development")
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
 
@@ -164,13 +164,13 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Authentication
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
- 
+
 # Email Configuration for Gmail SMTP
 EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST      = 'smtp.gmail.com'

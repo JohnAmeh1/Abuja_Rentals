@@ -280,9 +280,9 @@
   {% endif %}
 
   {% if request.user.userprofile.user_type == 'agent' %}
-    {% include "blocks/agent_welcome_modal.html" %}
-    {% include "blocks/agent_onboarding.html" %}
-{% endif %}
+      {% include "blocks/agent_welcome_modal.html" %}
+      {% include "blocks/agent_onboarding.html" %}
+  {% endif %}
 
 
   <div class="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">

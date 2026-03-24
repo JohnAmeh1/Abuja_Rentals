@@ -266,14 +266,14 @@
               {% else %}
                 <div class="w-12 h-12 rounded-xl bg-linear-to-br from-primary/80 to-accent
                             flex items-center justify-center text-white font-bold uppercase">
-                  {{ firstof agent.name agent.user.get_full_name }}
+                  {% if agent.name %}{{agent.name}}{% else %}{{ agent.user.get_full_name }}{% endif %}
                 </div>
               {% endif %}
 
 
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-semibold text-gray-900 truncate">
-                  {{ firstof agent.name agent.user.get_full_name }}
+                  {% if agent.name %}{{agent.name}}{% else %}{{ agent.user.get_full_name }}{% endif %}
                 </p>
                 <div class="flex items-center gap-2 mt-0.5">
                   <span class="text-xs text-gray-400">Agent</span>

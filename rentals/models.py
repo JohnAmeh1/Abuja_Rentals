@@ -241,7 +241,7 @@ class PropertyVisit(models.Model):
 
 class Inquiry(InquiryService, models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquires')
-    property_type = models.ForeignKey(PropertyType, on_delete=models.SET_NULL, null=True)
+    property_type = models.ForeignKey(PropertyType, on_delete=models.SET_NULL, null=True, related_name='inquires')
     school = models.ForeignKey(School, on_delete=models.SET_NULL, related_name='inquires', null=True, blank=True)
 
     purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES, blank=True, null=True)
@@ -393,8 +393,9 @@ class InquiryCity(models.Model):
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    image = CloudinaryField('image', resource_type="auto")
+    image = CloudinaryField('image', resource_type="auto", null=True, blank=True)
     order = models.IntegerField(default=0)
+    test_url = models.URLField(null=True, blank=True)
 
     class Meta:
         ordering = ['order']

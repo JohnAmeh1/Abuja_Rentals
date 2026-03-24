@@ -16,6 +16,8 @@ class PropertyService:
 
 
 def get_image_url(img):
+    if img.test_url:
+        return img.test_url
     if not img.image:
         return None
     try:

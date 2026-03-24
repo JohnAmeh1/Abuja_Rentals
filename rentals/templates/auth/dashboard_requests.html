@@ -95,10 +95,8 @@
               </div>
             </div>
 
-    <!-- Collapsible body -->
             <div class="hidden" id="details-{{ inquiry.id }}">
 
-      <!-- Details grid -->
               <div class="px-6 py-5 bg-gray-50 border-b border-gray-100">
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Request Details</p>
 
@@ -166,7 +164,6 @@
 
                 </div>
 
-        {# Amenities from the inquiry's own related set, not a separate context variable #}
                 {% with amenity_list=inquiry.inquiry_amenities.all %}
                   {% if amenity_list %}
                     <div class="mt-4">
@@ -190,7 +187,6 @@
                 {% endif %}
               </div>
 
-      <!-- Agent responses -->
               {% if responses %}
                 <div class="px-6 py-5">
                   <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
@@ -253,10 +249,10 @@
                                 <a href="{% url 'agent_public_profile' response.agent.agent_profile.id %}"
                                    onclick="event.stopPropagation()"
                                    class="hover:text-primary transition">
-                                  {{ response.agent.get_full_name|default:response.agent.username }}
+                                  {{ response.agent.name }}
                                 </a>
                               {% else %}
-                                {{ response.agent.get_full_name|default:response.agent.username }}
+                                {{ response.agent.name }}
                               {% endif %}
                               · {{ response.created_at|naturaltime }}
                             </p>

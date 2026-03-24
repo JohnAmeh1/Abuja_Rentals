@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+{% block subject %}Agent verification request{% endblock %}
+{% block stripe_color %}#f59e0b{% endblock %}
+{% block icon_bg %}#fffbeb{% endblock %}
+{% block icon %}🔍{% endblock %}
+{% block label %}Admin Action Required{% endblock %}
+
+{% block headline %}An agent has requested verification{% endblock %}
+
+{% block body %}
+Hi {{ user.first_name|default:user.username }},<br><br>
+An agent on Abuja Rentals has submitted a verification request and is
+waiting for your review. Please log in to the admin panel to approve or
+reject their application.
+{% endblock %}
+
+{% block cta %}
+<table cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="background:#f59e0b;border-radius:10px;">
+      <a href="{{ site_url }}/admin/rentals/agentprofile/"
+         style="display:inline-block;padding:12px 22px;color:white;font-size:13px;font-weight:700;text-decoration:none;">
+        Review in Admin →
+      </a>
+    </td>
+  </tr>
+</table>
+{% endblock %}

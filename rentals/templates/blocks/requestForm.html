@@ -1,0 +1,367 @@
+<div style="display:none" id="requestModal"
+     class="fixed inset-0 z-9999 items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRequestModal()"></div>
+
+  <div id="requestSheet"
+       class="relative z-10 w-full max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto translate-y-4 transition-transform duration-300 ease-out">
+
+    <div class="flex items-start justify-between p-6 pb-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+      <div>
+        <h2 class="text-base font-semibold text-gray-900">Property Request</h2>
+        <p class="text-sm text-gray-500">Tell us what you need and we'll find it for you.</p>
+      </div>
+      <button onclick="closeRequestModal()"
+              class="ml-4 shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <form id="propertyRequestForm" method="POST" action="{% url 'property_request' %}">
+      {% csrf_token %}
+      <div class="p-6 space-y-6">
+
+        <!-- Property Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            What type of property? <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="flex flex-wrap gap-2" id="req_ptype_container">
+            <div class="w-5 h-5 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+          </div>
+        </div>
+
+        <!-- Purpose -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Listing Purpose</label>
+          <div class="flex gap-3" id="req_purpose_container">
+            <div class="w-5 h-5 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+          </div>
+        </div>
+
+        <!-- Preferred Locations -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Preferred Locations <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="flex flex-wrap gap-2" id="req_cities_container">
+            <div class="w-5 h-5 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Budget Range (₦)</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
+              <input type="text" name="budget_min" placeholder="Min"
+                     class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt">
+            </div>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₦</span>
+              <input type="text" name="budget_max" placeholder="Max"
+                     class="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bedrooms & Bathrooms: hidden for non-residential types -->
+        <div id="req_rooms_section">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-3">Bedrooms</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-gray-400 mb-1.5">Minimum</p>
+                <div class="relative">
+                  <i class="fas fa-bed absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                  <select name="bedrooms_min" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                    <option value="">Any</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option>5</option><option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option>10</option>
+                  </select>
+                  <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1.5">Maximum</p>
+                <div class="relative">
+                  <i class="fas fa-bed absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                  <select name="bedrooms_max" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                    <option value="">Any</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option>5</option><option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option value="10">10+</option>
+                  </select>
+                  <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">Bathrooms</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-gray-400 mb-1.5">Minimum</p>
+                <div class="relative">
+                  <i class="fas fa-bath absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                  <select name="bathrooms_min" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                    <option value="">Any</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option>5</option><option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option>10</option>
+                  </select>
+                  <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400 mb-1.5">Maximum</p>
+                <div class="relative">
+                  <i class="fas fa-bath absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                  <select name="bathrooms_max" class="w-full pl-8 pr-8 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none appearance-none">
+                    <option value="">Any</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option>5</option><option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option value="10">10+</option>
+                  </select>
+                  <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Property Features</label>
+          <div class="grid grid-cols-3 gap-3">
+            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-checked:border-primary has-checked:bg-primary/5 transition">
+              <input type="checkbox" name="furnished" value="true" class="accent-primary">
+              <span class="text-sm text-gray-700">Furnished</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-checked:border-primary has-checked:bg-primary/5 transition">
+              <input type="checkbox" name="serviced" value="true" class="accent-primary">
+              <span class="text-sm text-gray-700">Serviced</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-checked:border-primary has-checked:bg-primary/5 transition">
+              <input type="checkbox" name="shared" value="true" class="accent-primary">
+              <span class="text-sm text-gray-700">Shared</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Amenities -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Amenities <span class="font-normal text-gray-400">(pick any)</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2" id="req_amenities_container">
+            <div class="col-span-2 flex items-center gap-2 text-sm text-gray-400">
+              <div class="w-4 h-4 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
+              Loading...
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Anything else?</label>
+          <textarea name="notes" rows="2"
+                    placeholder="Proximity to schools, specific estate, ground floor…"
+                    class="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition"></textarea>
+        </div>
+
+      </div>
+
+      <div class="flex gap-3 p-6 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
+        <button type="button" onclick="clearRequestForm()"
+                class="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">
+          Clear All
+        </button>
+        <button type="submit" id="reqSubmitBtn"
+                class="flex-1 py-2.5 bg-primary text-white text-sm rounded-xl hover:bg-primary/90 transition flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane text-xs"></i>
+          Submit Request
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+
+  var RESIDENTIAL_TYPES = ['apartment', 'flat', 'house', 'duplex', 'bungalow', 'mansion', 'studio', 'room', 'self_contain', 'self contain'];
+  function isResidential(typeName) {
+    return RESIDENTIAL_TYPES.some(r => typeName.toLowerCase().includes(r));
+  }
+
+  function updateRoomsVisibility(selectedTypeNames) {
+    const roomsSection = document.getElementById('req_rooms_section');
+    const show = selectedTypeNames.length === 0 || selectedTypeNames.some(isResidential);
+    roomsSection.style.display = show ? '' : 'none';
+
+    if (!show) {
+      roomsSection.querySelectorAll('select').forEach(s => s.value = '');
+    }
+  }
+
+  const CACHE_KEY     = "site_details";
+  const CACHE_VERSION = "v3";
+
+  async function getSiteDetails() {
+    const raw     = localStorage.getItem(CACHE_KEY);
+    const version = localStorage.getItem(CACHE_KEY + "_v");
+
+    if (raw && version === CACHE_VERSION) {
+      return JSON.parse(raw);
+    }
+
+    const res  = await fetch('/api/get-details/');
+    const data = await res.json();
+
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(CACHE_KEY + "_v", CACHE_VERSION);
+
+    return data;
+  }
+
+  function pillCheckbox({ name, value, label, idPrefix }) {
+    const id  = `${idPrefix}_${value}`;
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <input type="checkbox" id="${id}" name="${name}" value="${value}" class="hidden peer">
+      <label for="${id}"
+        class="cursor-pointer select-none text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-600 bg-white peer-checked:bg-primary/5 peer-checked:border-primary peer-checked:text-primary hover:border-gray-400 transition">
+        ${label}
+      </label>`;
+    return div;
+  }
+
+  function amenityCheckbox({ value, label }) {
+    const id  = `req_am_${value}`;
+    const lbl = document.createElement("label");
+    lbl.className = "flex items-center gap-2 p-2.5 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-checked:border-primary has-checked:bg-primary/5 transition";
+    lbl.innerHTML = `
+      <input type="checkbox" id="${id}" name="amenities" value="${value}" class="accent-primary">
+      <span class="text-sm text-gray-700">${label}</span>`;
+    return lbl;
+  }
+
+  // Store type labels keyed by value for visibility checks.
+  let _reqTypeLabels = {};
+
+  async function populateRequestForm() {
+    const data = await getSiteDetails();
+
+    // --- Property Types ---
+    const ptypeEl = document.getElementById("req_ptype_container");
+    ptypeEl.innerHTML = "";
+    data.property_type_choices.forEach(([value, label]) => {
+      _reqTypeLabels[value] = label;
+      ptypeEl.appendChild(pillCheckbox({ name: "property_type", value, label, idPrefix: "rpt" }));
+    });
+
+    // Listen for type changes to show/hide rooms section.
+    ptypeEl.addEventListener('change', () => {
+      const checked = Array.from(ptypeEl.querySelectorAll('input:checked'))
+        .map(inp => _reqTypeLabels[inp.value] || '');
+      updateRoomsVisibility(checked);
+    });
+
+    // --- Purpose (populated from API so it stays in sync) ---
+    const purposeEl = document.getElementById("req_purpose_container");
+    purposeEl.innerHTML = "";
+    // Always include "Any" first, then each purpose from the API.
+    const allPurposes = [{ value: '', label: 'Any' }, ...data.purpose_choices];
+    allPurposes.forEach(({ value, label }, i) => {
+      const lbl = document.createElement('label');
+      lbl.className = 'flex-1';
+      lbl.innerHTML = `
+        <input type="radio" name="purpose" value="${value}" class="peer hidden" ${i === 0 ? 'checked' : ''}>
+        <span class="block text-center py-2 px-4 border border-gray-200 rounded-xl text-sm cursor-pointer
+          peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-gray-300 transition">
+          ${label}
+        </span>`;
+      purposeEl.appendChild(lbl);
+    });
+
+    // --- Cities ---
+    const citiesEl = document.getElementById("req_cities_container");
+    citiesEl.innerHTML = "";
+    data.cities.forEach(([value, label]) => {
+      citiesEl.appendChild(pillCheckbox({ name: "cities", value, label, idPrefix: "rcity" }));
+    });
+
+    // --- Amenities ---
+    const amenitiesEl = document.getElementById("req_amenities_container");
+    amenitiesEl.innerHTML = "";
+    data.amenity_choices.forEach(([value, label]) => {
+      amenitiesEl.appendChild(amenityCheckbox({ value, label }));
+    });
+  }
+
+  populateRequestForm();
+
+  function openRequestModal() {
+    {% if user.is_authenticated %}
+      let reqmodal = document.getElementById('requestModal');
+      const sheet = document.getElementById('requestSheet');
+      reqmodal.style.display = "flex";
+      void reqmodal.offsetHeight;
+      reqmodal.classList.remove('opacity-0', 'pointer-events-none');
+      sheet.classList.remove('translate-y-4');
+      document.body.style.overflow = 'hidden';
+    {% else %}
+      window.location.href = "{% url 'login' %}?next={{ request.path }}";
+    {% endif %}
+  }
+
+  function closeRequestModal() {
+    let reqmodal = document.getElementById('requestModal');
+    const sheet = document.getElementById('requestSheet');
+    reqmodal.classList.add('opacity-0', 'pointer-events-none');
+    sheet.classList.add('translate-y-4');
+    document.body.style.overflow = '';
+    reqmodal.addEventListener('transitionend', () => { reqmodal.style.display = "none"; }, { once: true });
+  }
+
+  function clearRequestForm() {
+    document.getElementById('propertyRequestForm').reset();
+    document.querySelectorAll('#req_ptype_container input, #req_cities_container input, #req_amenities_container input')
+      .forEach(el => el.checked = false);
+    // After clearing, re-evaluate visibility with nothing selected.
+    updateRoomsVisibility([]);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeRequestModal();
+  });
+
+  document.getElementById('propertyRequestForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('reqSubmitBtn');
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Sending…`;
+    btn.disabled  = true;
+
+    try {
+      const res = await fetch(this.action, {
+        method:  'POST',
+        body:    new FormData(this),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+
+      if (res.ok) {
+        closeRequestModal();
+        location.reload();
+      } else {
+        throw new Error("bad response");
+      }
+    } catch {
+      btn.innerHTML = `<i class="fas fa-paper-plane text-xs"></i> Submit Request`;
+      btn.disabled  = false;
+      alert('Something went wrong, please try again.');
+    }
+  });
+</script>

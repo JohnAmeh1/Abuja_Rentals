@@ -1,0 +1,29 @@
+{% extends "emails/base_email.html" %}
+{% block subject %}New property request in your area{% endblock %}
+{% block stripe_color %}#2563eb{% endblock %}
+{% block icon_bg %}#eff6ff{% endblock %}
+{% block icon %}📋{% endblock %}
+{% block label %}New Client Request{% endblock %}
+
+{% block headline %}A client is looking for a property in your area{% endblock %}
+
+{% block body %}
+Hi {{ user.first_name|default:user.username }},<br><br>
+A new property request has been submitted that matches your coverage area.
+{% if notification.related_id %}
+Act quickly — clients often go with the first agent who responds.
+{% endif %}
+{% endblock %}
+
+{% block cta %}
+<table cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="background:#2563eb;border-radius:10px;margin-right:8px;">
+      <a href="{{ site_url }}/agent/requests/"
+         style="display:inline-block;padding:12px 22px;color:white;font-size:13px;font-weight:700;text-decoration:none;">
+        View Request →
+      </a>
+    </td>
+  </tr>
+</table>
+{% endblock %}

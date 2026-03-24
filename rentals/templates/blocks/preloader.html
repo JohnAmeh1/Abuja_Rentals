@@ -1,0 +1,123 @@
+<style>
+  #preloader {
+    position: fixed;
+    inset: 0;
+    background: #f7f7f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 99999;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  #preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .pl-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: pl-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .pl-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary, #0F6E56);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .pl-icon i {
+    font-size: 16px;
+    color: white;
+  }
+  .pl-wordmark {
+    line-height: 1;
+  }
+  .pl-wordmark-main {
+    font-size: 20px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.03em;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .pl-wordmark-main span {
+    color: var(--color-primary, #0F6E56);
+  }
+  .pl-wordmark-sub {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  .pl-track {
+    width: 160px;
+    height: 2px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+    animation: pl-rise 0.5s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .pl-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--color-primary, #0F6E56);
+    border-radius: 999px;
+    animation: pl-fill 1.2s 0.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes pl-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+  @keyframes pl-fill {
+    0%   { width: 0%;   opacity: 1; }
+    70%  { width: 85%;  opacity: 1; }
+    90%  { width: 95%;  opacity: 1; }
+    100% { width: 100%; opacity: 0; }
+  }
+</style>
+
+<div id="preloader">
+  <div class="pl-logo">
+    <div class="pl-icon">
+      <i class="fas fa-home"></i>
+    </div>
+    <div class="pl-wordmark">
+      <div class="pl-wordmark-main">Abuja<span>Rentals</span></div>
+      <div class="pl-wordmark-sub">Premium Properties</div>
+    </div>
+  </div>
+  <div class="pl-track">
+    <div class="pl-bar"></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const el     = document.getElementById('preloader');
+    let   done   = false;
+    document.body.style.overflow = 'hidden';
+
+    function hide() {
+      if (done) return;
+      done = true;
+      el.classList.add('fade-out');
+      el.addEventListener('transitionend', () => {
+        el.remove();
+        document.body.style.overflow = '';
+      }, { once: true });
+    }
+
+    window.addEventListener('load', hide);
+    setTimeout(hide, 1200); 
+  })();
+</script>

@@ -1,0 +1,638 @@
+{% extends "auth/base.html" %}
+{% load humanize %}
+
+{% block title %}Edit — {{ property.title }} | Abuja Rentals{% endblock %}
+
+{% block subcontent %}
+  <div class="max-w-3xl mx-auto pb-20">
+
+    <div class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <a href="{% url 'agent_properties' %}"
+             class="text-xs text-gray-400 hover:text-primary transition flex items-center gap-1">
+            <i class="fas fa-arrow-left text-[9px]"></i> My listings
+          </a>
+        </div>
+        <h1 class="text-2xl font-black text-gray-900">Edit listing</h1>
+        <p class="text-sm text-gray-400 mt-0.5 truncate max-w-md">{{ property.title }}</p>
+      </div>
+      <span class="shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full border mt-1
+                   {% if property.status == 'available' %}bg-green-50 text-green-700 border-green-200
+                   {% elif property.status == 'pending'  %}bg-amber-50 text-amber-700 border-amber-200
+                   {% elif property.status == 'draft'    %}bg-gray-100 text-gray-500 border-gray-200
+                   {% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+        {{ property.get_status_display }}
+      </span>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="propertyForm" class="space-y-4">
+      {% csrf_token %}
+
+      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        {% if form.errors %}
+          <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-2">
+            <p class="text-xs font-bold text-red-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <i class="fas fa-circle-exclamation"></i> Please fix the following
+            </p>
+            <ul class="text-xs text-red-600 space-y-1 list-disc list-inside">
+              {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                  <li><span class="font-semibold capitalize">{{ field }}:</span> {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        <div class="px-6 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Photos</p>
+            <p class="text-sm font-semibold text-gray-800 mt-0.5">
+              <span id="photoCount">{{ property.images.count }}</span> / 10 photos
+            </p>
+          </div>
+          <label for="imagePickerBtn"
+                 class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold
+                        rounded-xl cursor-pointer hover:opacity-90 transition">
+            <i class="fas fa-plus text-[10px]"></i> Add photos
+            <input type="file" id="imagePickerBtn" accept="image/*" multiple class="hidden"
+                   onchange="addNewImages(this)">
+          </label>
+        </div>
+
+        <div class="p-4"
+             ondragover="event.preventDefault(); this.classList.add('bg-primary/5')"
+             ondragleave="this.classList.remove('bg-primary/5')"
+             ondrop="handleNewImageDrop(event)">
+
+          <div id="existingGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mb-2">
+            {% for image in property.images.all %}
+              <div class="img-card" data-image-id="{{ image.id }}" id="existing-{{ image.id }}">
+                <img src="{{ image.image.url }}" alt="Photo {{ forloop.counter }}">
+                {% if forloop.first %}<div class="badge-main">Main</div>{% endif %}
+                <div class="img-actions">
+                  <button type="button" class="img-action-btn danger"
+                          onclick="markDeleteExisting({{ image.id }})" title="Remove">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div id="newImageGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 hidden"></div>
+
+          <p class="text-[10px] text-gray-300 mt-3 text-center">
+            Drag images here or click "Add photos" · First image is the main photo
+          </p>
+        </div>
+
+        <div id="deleteInputs" class="hidden"></div>
+        <div id="newImageInputs" class="hidden"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Basics</p>
+
+        <div>
+          <label class="field-label">Title <span class="text-red-400">*</span></label>
+          <input name="title" type="text" required maxlength="200"
+                 value="{{ property.title }}"
+                 class="field-input">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="field-label">Type <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <select name="property_type" id="property_type_select" required class="field-select">
+                {% for ptype in property_types %}
+                  <option value="{{ ptype.id }}" data-name="{{ ptype.name }}"
+                          {% if property.property_type_id == ptype.id %}selected{% endif %}>
+                    {{ ptype.display_name }}
+                  </option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Purpose <span class="text-red-400">*</span></label>
+            <div class="grid grid-cols-2 gap-1.5 h-10.5">
+              <label class="pill-label">
+                <input type="radio" name="purpose" value="rent" class="hidden peer"
+                       {% if property.purpose == 'rent' %}checked{% endif %}>
+                <span class="pill-span">Rent</span>
+              </label>
+              <label class="pill-label">
+                <input type="radio" name="purpose" value="sale" class="hidden peer"
+                       {% if property.purpose == 'sale' %}checked{% endif %}>
+                <span class="pill-span">Sale</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label">Description <span class="text-red-400">*</span></label>
+          <textarea name="description" required rows="3" maxlength="2000" id="descTA"
+                    class="field-input resize-none">{{ property.description }}</textarea>
+          <p class="text-[10px] text-gray-300 text-right mt-1" id="descCount">{{ property.description|length }} / 2000</p>
+        </div>
+      </div>
+
+    <!-- ── Location ────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Location</p>
+
+        <div>
+          <label class="field-label">Street address <span class="text-red-400">*</span></label>
+          <input name="address" type="text" required
+                 value="{{ property.location.address|default:'' }}"
+                 class="field-input">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+        <!-- City: trigger only, not submitted -->
+          <div>
+            <label class="field-label">City <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <select id="city_select" class="field-select">
+                <option value="">Select city</option>
+                {% for city in cities %}
+                  <option value="{{ city.id }}">{{ city.name|capfirst }}</option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+
+        <!-- Area: submitted, required -->
+          <div>
+            <label class="field-label">Area <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <select name="area" id="area_select" required class="field-select">
+                <option value="">Select city first</option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+        </div>
+
+      <!-- School: filtered to match selected area -->
+        <div>
+          <label class="field-label">
+            Near a university? <span class="text-gray-300 font-normal normal-case tracking-normal">(optional)</span>
+          </label>
+          <div class="relative">
+            <select name="school" id="school_select" class="field-select">
+              <option value="">None</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+          </div>
+          <p class="text-[10px] text-gray-400 mt-1" id="school_hint">Select a city and area to see nearby universities</p>
+        </div>
+      </div>
+
+      <script>
+        const AREAS_MAP   = {{ areas_map_json|safe }};
+        const ALL_SCHOOLS = {{ schools_json|safe }};
+        const INIT_CITY   = "{{ initial_city_id }}";
+        const INIT_AREA   = "{{ initial_area_id }}";
+        const INIT_SCHOOL = "{{ initial_school_id }}";
+
+        const citySelect   = document.getElementById('city_select');
+        const areaSelect   = document.getElementById('area_select');
+        const schoolSelect = document.getElementById('school_select');
+        const schoolHint   = document.getElementById('school_hint');
+
+        function renderAreas(cityId, selectedAreaId) {
+          const areas = AREAS_MAP[parseInt(cityId)] || [];
+          areaSelect.innerHTML = areas.length
+            ? '<option value="">Select area</option>'
+            : '<option value="">No areas listed</option>';
+          areas.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.name;
+            if (String(a.id) === String(selectedAreaId)) opt.selected = true;
+            areaSelect.appendChild(opt);
+          });
+          areaSelect.disabled = areas.length === 0;
+        }
+
+        function renderSchools(cityId, areaId, selectedSchoolId) {
+          const matched = ALL_SCHOOLS.filter(s => {
+            if (!cityId) return false;
+            const cityMatch = String(s.city_id) === String(cityId);
+            if (s.area_id && areaId) return cityMatch && String(s.area_id) === String(areaId);
+            return cityMatch;
+          });
+          schoolSelect.innerHTML = '<option value="">None</option>';
+          if (matched.length === 0) {
+            schoolHint.textContent = 'No universities listed near this area';
+          } else {
+            schoolHint.textContent = `${matched.length} universit${matched.length === 1 ? 'y' : 'ies'} nearby`;
+            matched.forEach(s => {
+              const opt = document.createElement('option');
+              opt.value = s.id;
+              opt.textContent = s.name;
+              if (String(s.id) === String(selectedSchoolId)) opt.selected = true;
+              schoolSelect.appendChild(opt);
+            });
+          }
+          schoolSelect.disabled = matched.length === 0;
+        }
+
+        function addSemesterOption() {
+          const sel = document.getElementById('rent_duration_select');
+          if (sel && !sel.querySelector('option[value="3"]')) {
+            const opt = document.createElement('option');
+            opt.value = '3'; opt.textContent = 'Per semester';
+            sel.appendChild(opt);
+          }
+        }
+        function removeSemesterOption() {
+          const sel = document.getElementById('rent_duration_select');
+          const opt = sel?.querySelector('option[value="3"]');
+          if (opt) { if (opt.selected) sel.value = '12'; sel.removeChild(opt); }
+        }
+
+        citySelect.addEventListener('change', function () {
+          renderAreas(this.value, '');
+          renderSchools(this.value, '', '');
+          schoolSelect.disabled = false;
+          removeSemesterOption();
+        });
+
+        areaSelect.addEventListener('change', function () {
+          renderSchools(citySelect.value, this.value, '');
+          schoolSelect.value    = '';
+          schoolSelect.disabled = false;
+          removeSemesterOption();
+        });
+
+        schoolSelect.addEventListener('change', function () {
+          if (!this.value) {
+            citySelect.disabled = false;
+            areaSelect.disabled = false;
+            removeSemesterOption();
+            return;
+          }
+          const school = ALL_SCHOOLS.find(s => String(s.id) === this.value);
+          if (!school) return;
+          citySelect.value    = school.city_id;
+          citySelect.disabled = true;
+          renderAreas(school.city_id, school.area_id);
+          areaSelect.disabled = true;
+          addSemesterOption();
+        });
+
+      // Init: pre-populate from existing property data
+        if (INIT_CITY) {
+          citySelect.value = INIT_CITY;
+          renderAreas(INIT_CITY, INIT_AREA);
+          renderSchools(INIT_CITY, INIT_AREA, INIT_SCHOOL);
+          if (INIT_SCHOOL) {
+            citySelect.disabled = true;
+            areaSelect.disabled = true;
+            addSemesterOption();
+          }
+        }
+      </script>
+
+    <!-- ── Pricing & Details ───────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Pricing & Details</p>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="field-label">Price (₦) <span class="text-red-400">*</span></label>
+            <input name="price" type="text" required min="0" step="10000"
+                   value="₦{{ property.price|floatformat:0|intcomma }}"
+                   class="field-input price-fmt">
+          </div>
+          <div id="rentDurationWrap">
+            <label class="field-label">Duration</label>
+            <div class="relative">
+              <select name="rent_duration_months" id="rent_duration_select" class="field-select">
+                <option value="1"  {% if property.rent_duration_months == 1  %}selected{% endif %}>Per month</option>
+                <option value="6"  {% if property.rent_duration_months == 6  %}selected{% endif %}>6 months</option>
+                <option value="12" {% if property.rent_duration_months == 12 or not property.rent_duration_months %}selected{% endif %}>Per year</option>
+                {% if property.rent_duration_months == 3 %}
+                  <option value="3" selected>Per semester</option>
+                {% endif %}
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+        </div>
+
+        <div id="rooms_section" class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="field-label">Bedrooms</label>
+            <input name="bedrooms" type="number" min="0" max="20"
+                   value="{{ property.bedrooms|default:'' }}"
+                   placeholder="—" class="field-input text-center">
+          </div>
+          <div>
+            <label class="field-label">Bathrooms</label>
+            <input name="bathrooms" type="number" min="0" max="20"
+                   value="{{ property.bathrooms|default:'' }}"
+                   placeholder="—" class="field-input text-center">
+          </div>
+          <div>
+            <label class="field-label">Sq ft</label>
+            <input name="area_sqft" type="number" min="0"
+                   value="{{ property.area_sqft|default:'' }}"
+                   placeholder="—" class="field-input text-center">
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label">Features</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="pill-label">
+              <input type="checkbox" name="furnished" value="true" class="hidden peer"
+                     {% if property.furnished %}checked{% endif %}>
+              <span class="pill-span px-4 py-2"><i class="fas fa-couch mr-1.5"></i>Furnished</span>
+            </label>
+            <label class="pill-label">
+              <input type="checkbox" name="serviced" value="true" class="hidden peer"
+                     {% if property.serviced %}checked{% endif %}>
+              <span class="pill-span px-4 py-2"><i class="fas fa-concierge-bell mr-1.5"></i>Serviced</span>
+            </label>
+            <label class="pill-label">
+              <input type="checkbox" name="shared" value="true" class="hidden peer"
+                     {% if property.shared %}checked{% endif %}>
+              <span class="pill-span px-4 py-2"><i class="fas fa-users mr-1.5"></i>Shared</span>
+            </label>
+          </div>
+        </div>
+
+        {% if amenities %}
+          <div>
+            <label class="field-label">Amenities</label>
+            <div class="flex flex-wrap gap-1.5">
+              {% for amenity in amenities %}
+                <label class="pill-label">
+                  <input type="checkbox" name="amenities" value="{{ amenity.id }}" class="hidden peer"
+                         {% if amenity.id in selected_amenities %}checked{% endif %}>
+                  <span class="pill-span px-3 py-1.5 text-[11px]">
+                    {% if amenity.icon %}<i class="{{ amenity.icon }} mr-1"></i>{% endif %}{{ amenity.display_name }}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <div>
+          <label class="field-label">Status</label>
+
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+
+    <!-- Current status badge -->
+            <div class="flex items-center gap-2.5">
+              <span class="text-[11px] font-bold px-3 py-1.5 rounded-full border
+                           {% if property.status == 'available' %}bg-green-50 text-green-700 border-green-200
+                           {% elif property.status == 'pending'  %}bg-amber-50 text-amber-700 border-amber-200
+                           {% elif property.status == 'draft'    %}bg-gray-100 text-gray-500 border-gray-200
+                           {% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+                {{ property.get_status_display }}
+              </span>
+              <span class="text-xs text-gray-400">
+                {% if property.status == 'pending' %}Waiting for admin approval
+                {% elif property.status == 'draft' %}Not visible to tenants
+                {% elif property.status == 'available' %}Live and visible
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="flex gap-2">
+              {% if property.status == 'draft'  %}
+                <label>
+                  <input type="radio" name="status" value="available" class="hidden peer">
+                  <span class="block text-xs font-semibold px-4 py-2 rounded-xl border border-gray-200
+                               cursor-pointer hover:border-green-400 hover:text-green-700 hover:bg-green-50
+                               peer-checked:border-green-400 peer-checked:bg-green-50 peer-checked:text-green-700
+                               transition">
+                    <i class="fas fa-globe text-[10px] mr-1"></i> Publish
+                  </span>
+                </label>
+              {% endif %}
+
+              {% if property.status != 'draft' %}
+                <label>
+                  <input type="radio" name="status" value="draft" class="hidden peer">
+                  <span class="block text-xs font-semibold px-4 py-2 rounded-xl border border-gray-200
+                               cursor-pointer hover:border-gray-400 hover:bg-gray-50
+                               peer-checked:border-gray-400 peer-checked:bg-gray-50
+                               transition">
+                    <i class="fas fa-file text-[10px] mr-1"></i> Save as draft
+                  </span>
+                </label>
+              {% endif %}
+
+
+
+            </div>
+
+          </div>
+
+          <input type="hidden" name="status" value="{{ property.status }}" id="statusFallback">
+        </div>
+
+
+      </div>
+
+      <div class="flex items-center justify-between gap-4 pt-2 flex-wrap">
+        <button type="button"
+                onclick="if(confirm('Delete this listing? This cannot be undone.')) document.getElementById('deleteForm').submit()"
+                class="text-xs text-red-400 hover:text-red-600 transition flex items-center gap-1.5">
+          <i class="fas fa-trash text-[10px]"></i> Delete listing
+        </button>
+        <button type="submit" id="submitBtn"
+                class="flex items-center gap-2 px-8 py-3 bg-primary hover:opacity-90
+                       text-white text-sm font-bold rounded-xl transition">
+          <i class="fas fa-save text-xs"></i> Save changes
+        </button>
+      </div>
+
+    </form>
+
+    <form id="deleteForm" method="POST" action="{% url 'delete_property' property.id %}" class="hidden">
+      {% csrf_token %}
+    </form>
+
+  </div>
+
+  <style>
+    .field-label  { display: block; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+    .field-input  { width: 100%; padding: 10px 16px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 14px; background: white; outline: none; transition: border-color .15s; }
+    .field-input:focus  { border-color: var(--color-primary, #3b82f6); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary,#3b82f6) 12%, transparent); }
+    .field-select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 14px; appearance: none; background: white; outline: none; transition: border-color .15s; }
+    .field-select:focus { border-color: var(--color-primary, #3b82f6); }
+    .select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #d1d5db; font-size: 9px; pointer-events: none; }
+    .pill-label { display: contents; }
+    .pill-span  { display: block; text-align: center; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 12px; cursor: pointer; transition: all .15s; padding: 8px; }
+    .pill-span:hover { border-color: #d1d5db; }
+    input.peer:checked ~ .pill-span { border-color: var(--color-primary, #3b82f6); background: color-mix(in srgb, var(--color-primary,#3b82f6) 6%, white); color: var(--color-primary, #3b82f6); font-weight: 600; }
+
+    .img-card { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #f3f4f6; }
+    .img-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-card .img-actions { position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .img-card:hover .img-actions { opacity: 1; }
+    .img-card.marked-delete { opacity: .35; }
+    .img-card.marked-delete .img-actions { opacity: 1; }
+    .badge-main { position: absolute; top: 6px; left: 6px; background: var(--color-primary,#3b82f6); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; z-index: 1; }
+    .img-action-btn { width: 30px; height: 30px; border-radius: 8px; border: none; background: white; color: #374151; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+    .img-action-btn.danger:hover { background: #fee2e2; color: #ef4444; }
+  </style>
+
+  <script>
+  // ── Residential type detection ──────────────────────────────────────────
+    const RESIDENTIAL_TYPES = ['apartment','flat','house','duplex','bungalow','mansion','studio','room','self_contain','self contain'];
+    function isResidential(name) { return !name || RESIDENTIAL_TYPES.some(r => name.toLowerCase().includes(r)); }
+
+    document.getElementById('property_type_select').addEventListener('change', function() {
+      const sel  = this.options[this.selectedIndex];
+      const show = isResidential(sel?.dataset.name || sel?.text || '');
+      const sec  = document.getElementById('rooms_section');
+      sec.style.display = show ? '' : 'none';
+    });
+    document.getElementById('property_type_select').dispatchEvent(new Event('change'));
+
+  // ── Purpose ─────────────────────────────────────────────────────────────
+    document.querySelectorAll('input[name="purpose"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('rentDurationWrap').style.opacity = r.value === 'sale' ? '0.35' : '1';
+      });
+    });
+    document.querySelector('input[name="purpose"]:checked')?.dispatchEvent(new Event('change'));
+
+  // ── Description counter ─────────────────────────────────────────────────
+    const descTA    = document.getElementById('descTA');
+    const descCount = document.getElementById('descCount');
+    descTA?.addEventListener('input', () => descCount.textContent = `${descTA.value.length} / 2000`);
+
+  // ── Existing image management ───────────────────────────────────────────
+  // IDs marked for deletion
+    const toDelete = new Set();
+
+    function markDeleteExisting(imageId) {
+      const card = document.getElementById(`existing-${imageId}`);
+      if (toDelete.has(imageId)) {
+      // undo
+        toDelete.delete(imageId);
+        card.classList.remove('marked-delete');
+        card.querySelector('.img-action-btn').innerHTML = '<i class="fas fa-times"></i>';
+      } else {
+        toDelete.add(imageId);
+        card.classList.add('marked-delete');
+        card.querySelector('.img-action-btn').innerHTML = '<i class="fas fa-undo"></i>';
+      }
+      syncDeleteInputs();
+      updatePhotoCount();
+    }
+
+    function syncDeleteInputs() {
+      const wrap = document.getElementById('deleteInputs');
+      wrap.innerHTML = '';
+      toDelete.forEach(id => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'delete_images'; inp.value = id;
+        wrap.appendChild(inp);
+      });
+    }
+
+  // ── New images being added ──────────────────────────────────────────────
+    let newFiles = [];
+
+    function addNewImages(input) {
+      const existingCount = document.querySelectorAll('#existingGrid .img-card:not(.marked-delete)').length;
+      const remaining = 10 - existingCount - newFiles.length;
+      Array.from(input.files).slice(0, remaining).forEach(file => {
+        newFiles.push({ file, url: URL.createObjectURL(file) });
+      });
+      input.value = '';
+      renderNewImages();
+      updatePhotoCount();
+    }
+
+    function handleNewImageDrop(e) {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      const existingCount = document.querySelectorAll('#existingGrid .img-card:not(.marked-delete)').length;
+      const remaining = 10 - existingCount - newFiles.length;
+      files.slice(0, remaining).forEach(file => {
+        newFiles.push({ file, url: URL.createObjectURL(file) });
+      });
+      renderNewImages();
+      updatePhotoCount();
+    }
+
+    function removeNewImage(idx) {
+      URL.revokeObjectURL(newFiles[idx].url);
+      newFiles.splice(idx, 1);
+      renderNewImages();
+      updatePhotoCount();
+    }
+
+    function renderNewImages() {
+      const grid = document.getElementById('newImageGrid');
+      const inputsWrap = document.getElementById('newImageInputs');
+      grid.innerHTML = '';
+      inputsWrap.innerHTML = '';
+
+      if (newFiles.length === 0) { grid.classList.add('hidden'); return; }
+      grid.classList.remove('hidden');
+
+      newFiles.forEach(({ file, url }, idx) => {
+        const card = document.createElement('div');
+        card.className = 'img-card';
+        card.innerHTML = `
+        <img src="${url}" alt="New photo">
+        <div class="badge-main" style="background:#10b981">New</div>
+        <div class="img-actions">
+          <button type="button" class="img-action-btn danger" onclick="removeNewImage(${idx})">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>`;
+        grid.appendChild(card);
+
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.name = 'images'; inp.className = 'hidden';
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        inp.files = dt.files;
+        inputsWrap.appendChild(inp);
+      });
+    }
+
+    function updatePhotoCount() {
+      const kept    = document.querySelectorAll('#existingGrid .img-card:not(.marked-delete)').length;
+      const added   = newFiles.length;
+      document.getElementById('photoCount').textContent = kept + added;
+    }
+
+  // ── Submit ──────────────────────────────────────────────────────────────
+    document.getElementById('propertyForm').addEventListener('submit', function() {
+      const priceInput = this.querySelector('input[name="price"]');
+      if (priceInput) {
+        let v = priceInput.value.replace(/[₦,\s]/g, '');
+        priceInput.value = parseFloat(v)
+      }
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Saving…';
+      btn.disabled = true;
+    });
+
+    document.querySelectorAll('input[name="status"][type="radio"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('statusFallback').disabled = true;
+      });
+    });
+  </script>
+
+{% endblock %}

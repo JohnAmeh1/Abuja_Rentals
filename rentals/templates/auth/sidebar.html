@@ -1,0 +1,92 @@
+<div class="lg:col-span-1">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="text-center mb-6">
+            <div
+                class="w-24 h-24 bg-linear-to-r from-accent to-accent-dark rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4">
+                <i class="fas fa-user"></i>
+            </div>
+            <h3 class="font-bold text-lg text-primary">{{ user.get_full_name|default:user.username }}</h3>
+            <p class="text-gray-600 text-sm capitalize">{{ user.userprofile.get_user_type_display }}</p>
+        </div>
+
+        <nav class="space-y-1">
+            <a href="{% url 'dashboard' %}"
+               class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium {% if request.path == '/dashboard/' %}bg-blue-50 text-accent{% endif %}">
+                <i class="fas fa-th-large mr-3"></i>Dashboard
+            </a>
+            <a href="{% url 'profile' %}"
+               class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                <i class="fas fa-user-circle mr-3"></i>My Profile
+            </a>
+
+            {% if user.userprofile.user_type == 'tenant' %}
+                <a href="{% url 'saved_properties' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-heart mr-3"></i>Saved Properties
+                </a>
+                <a href="{% url 'my_bookings' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-clock mr-3"></i>My Bookings
+                </a>
+
+            {% elif user.userprofile.user_type == 'agent' %}
+                <a href="{% url 'saved_properties' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-heart mr-3"></i>Saved Properties
+                </a>
+                <a href="{% url 'my_bookings' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-clock mr-3"></i>My Bookings
+                </a>
+                <a href="{% url 'student_properties' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-home mr-3"></i>My Properties
+                </a>
+                <a href="{% url 'add_property' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-plus-circle mr-3"></i>Add New Property
+                </a>
+
+
+            {% elif user.userprofile.user_type == 'admin' %}
+                <a href="{% url 'admin_dashboard' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Admin Dashboard
+                </a>
+                <a href="{% url 'admin_users' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-users-cog mr-3"></i>Manage Users
+                </a>
+                <a href="{% url 'admin_properties' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-home mr-3"></i>Manage Properties
+                </a>
+                <a href="{% url 'admin_settings' %}"
+                   class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    <i class="fas fa-cogs mr-3"></i>Site Settings
+                </a>
+            {% endif %}
+
+            {% if user.userprofile.user_type == 'agent' %}
+                <a href="{% url 'agent_inquiries' %}" class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    Client Requests</a>
+            {% elif not user.agent_application %}
+                <a href="{% url 'agent_apply' %}" class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    Become an Agent</a>
+            {% else %}
+                <a href="{% url 'agent_apply' %}" class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                    Application ({{ user.agent_application.get_status_display }})</a>
+            {% endif %}
+
+            <a href="#"
+               class="flex items-center px-4 py-3 text-gray-700 hover:text-accent hover:bg-gray-50 rounded-lg font-medium">
+                <i class="fas fa-cog mr-3"></i>Settings
+            </a>
+            <a href="{% url 'logout' %}"
+               class="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium">
+                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+            </a>
+        </nav>
+    </div>
+</div>
+

@@ -1,0 +1,552 @@
+{% extends "auth/base.html" %}
+{% load humanize %}
+
+{% block title %}List a Property | Abuja Rentals{% endblock %}
+
+{% block subcontent %}
+  <div class="max-w-3xl mx-auto pb-20">
+
+  <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-black text-gray-900">List a Property</h1>
+      <p class="text-sm text-gray-400 mt-1">Fill in what you know — takes about 2 minutes.</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="propertyForm" class="space-y-4">
+      {% csrf_token %}
+
+      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Photos</p>
+            <p class="text-sm font-semibold text-gray-800 mt-0.5">Add up to 10 photos</p>
+          </div>
+          <label for="imagePickerBtn"
+                 class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold
+                        rounded-xl cursor-pointer hover:opacity-90 transition">
+            <i class="fas fa-plus text-[10px]"></i> Add photos
+            <input type="file" id="imagePickerBtn" accept="image/*" multiple class="hidden"
+                   onchange="addImages(this)">
+          </label>
+        </div>
+
+      <!-- Drop zone + grid -->
+        <div id="imageDropZone"
+             class="p-4 min-h-[120px]"
+             ondragover="event.preventDefault(); this.classList.add('bg-primary/5')"
+             ondragleave="this.classList.remove('bg-primary/5')"
+             ondrop="handleImageDrop(event)">
+
+          <div id="imagePlaceholder"
+               class="flex flex-col items-center justify-center py-8 text-center text-gray-300">
+            <i class="fas fa-images text-3xl mb-2"></i>
+            <p class="text-xs">Click "Add photos" or drag images here</p>
+            <p class="text-[10px] mt-1">First image becomes the main photo · JPG, PNG up to 10MB each</p>
+          </div>
+
+          <div id="imageGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 hidden"></div>
+        </div>
+
+      <!-- Hidden inputs container — real files attached here -->
+        <div id="imageInputs" class="hidden"></div>
+      </div>
+
+    <!-- ── Basics ──────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Basics</p>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Title <span class="text-red-400">*</span></label>
+          <input name="title" type="text" required maxlength="200"
+                 value="{{ form.title.value|default:'' }}"
+                 placeholder="e.g. Spacious 3-Bedroom Flat in Maitama"
+                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+          {% if form.title.errors %}<p class="text-xs text-red-500 mt-1">{{ form.title.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Type <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <select name="property_type" id="property_type_select" required
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                <option value="">Select type</option>
+                {% for ptype in property_types %}
+                  <option value="{{ ptype.id }}" data-name="{{ ptype.name }}"
+                          {% if form.property_type.value == ptype.id|stringformat:"s" %}selected{% endif %}>
+                    {{ ptype.display_name }}
+                  </option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Purpose <span class="text-red-400">*</span></label>
+            <div class="grid grid-cols-2 gap-1.5">
+              <label>
+                <input type="radio" name="purpose" value="rent" class="hidden peer"
+                       {% if form.purpose.value == 'rent' or not form.purpose.value %}checked{% endif %}>
+                <span class="block text-center py-2.5 border border-gray-200 rounded-xl text-xs cursor-pointer
+                             peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                             hover:border-gray-300 transition">Rent</span>
+              </label>
+              <label>
+                <input type="radio" name="purpose" value="sale" class="hidden peer"
+                       {% if form.purpose.value == 'sale' %}checked{% endif %}>
+                <span class="block text-center py-2.5 border border-gray-200 rounded-xl text-xs cursor-pointer
+                             peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                             hover:border-gray-300 transition">Sale</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Description <span class="text-red-400">*</span></label>
+          <textarea name="description" required rows="3" maxlength="2000" id="descTA"
+                    placeholder="Key features, surroundings, what makes it special…"
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition resize-none">{{ form.description.value|default:'' }}</textarea>
+          <p class="text-[10px] text-gray-300 text-right mt-1" id="descCount">0 / 2000</p>
+        </div>
+      </div>
+
+    <!-- ── Location ────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Location</p>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Street address <span class="text-red-400">*</span></label>
+          <input name="address" type="text" required
+                 value="{{ form.address.value|default:'' }}"
+                 placeholder="Plot 5, Aminu Kano Crescent"
+                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+        <!-- City — used only for the cascade, not submitted directly -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">City <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <select id="city_select"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                <option value="">Select city</option>
+                {% for city in cities %}
+                  <option value="{{ city.id }}">{{ city.name|capfirst }}</option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
+            </div>
+          </div>
+
+        <!-- Area — loaded dynamically, this IS submitted -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Area <span class="text-red-400">*</span>
+            </label>
+            <div class="relative">
+              <select name="area" id="area_select" required
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                <option value="">Select city first</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
+
+      <!-- School — filtered to match the selected area/city -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+            Near a university? <span class="text-gray-300 font-normal normal-case tracking-normal">(optional)</span>
+          </label>
+          <div class="relative">
+            <select name="school" id="school_select"
+                    class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+              <option value="">None</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
+          </div>
+          <p class="text-[10px] text-gray-400 mt-1" id="school_hint">Select a city and area first to see nearby universities</p>
+        </div>
+      </div>
+
+    <!-- Data for JS cascade — rendered server-side, read by JS below -->
+      <script>
+        const AREAS_MAP    = {{ areas_map_json|safe }};
+        const ALL_SCHOOLS  = {{ schools_json|safe }};
+        const INIT_CITY    = "{{ initial_city_id }}";
+        const INIT_AREA    = "{{ initial_area_id }}";
+        const INIT_SCHOOL  = "{{ initial_school_id }}";
+
+        const citySelect   = document.getElementById('city_select');
+        const areaSelect   = document.getElementById('area_select');
+        const schoolSelect = document.getElementById('school_select');
+        const schoolHint   = document.getElementById('school_hint');
+
+      // ── Populate area dropdown for a given city ───────────────────
+        function renderAreas(cityId, selectedAreaId) {
+          const areas = AREAS_MAP[parseInt(cityId)] || [];
+          areaSelect.innerHTML = areas.length
+            ? '<option value="">Select area</option>'
+            : '<option value="">No areas listed</option>';
+
+          areas.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.name;
+            if (String(a.id) === String(selectedAreaId)) opt.selected = true;
+            areaSelect.appendChild(opt);
+          });
+
+          areaSelect.disabled = areas.length === 0;
+        }
+
+      // ── Populate school dropdown filtered by city + area ──────────
+        function renderSchools(cityId, areaId, selectedSchoolId) {
+          const matched = ALL_SCHOOLS.filter(s => {
+            if (!cityId) return false;
+            const cityMatch = String(s.city_id) === String(cityId);
+          // If school has an area_id, it must match exactly.
+          // If school has no area_id (city-level only), show it for any area in that city.
+            if (s.area_id && areaId) return cityMatch && String(s.area_id) === String(areaId);
+            return cityMatch;
+          });
+
+          schoolSelect.innerHTML = '<option value="">None</option>';
+
+          if (matched.length === 0) {
+            schoolHint.textContent = 'No universities listed near this area';
+          } else {
+            schoolHint.textContent = `${matched.length} universit${matched.length === 1 ? 'y' : 'ies'} nearby`;
+            matched.forEach(s => {
+              const opt = document.createElement('option');
+              opt.value = s.id;
+              opt.textContent = s.name;
+              if (String(s.id) === String(selectedSchoolId)) opt.selected = true;
+              schoolSelect.appendChild(opt);
+            });
+          }
+
+          schoolSelect.disabled = matched.length === 0;
+        }
+
+        schoolSelect.addEventListener('change', function () {
+          if (!this.value) {
+            citySelect.disabled  = false;
+            areaSelect.disabled  = false;
+            removeSemesterOption();
+            return;
+          }
+          const school = ALL_SCHOOLS.find(s => String(s.id) === this.value);
+          if (!school) return;
+
+          citySelect.value    = school.city_id;
+          citySelect.disabled = true;
+
+          renderAreas(school.city_id, school.area_id);
+          areaSelect.disabled = true;
+
+          addSemesterOption();
+        });
+
+        citySelect.addEventListener('change', function () {
+          schoolSelect.value   = '';
+          schoolSelect.disabled = false;
+          citySelect.disabled  = false;
+          renderAreas(this.value, '');
+          renderSchools(this.value, '', '');
+          removeSemesterOption();
+        });
+
+        areaSelect.addEventListener('change', function () {
+          schoolSelect.value    = '';
+          schoolSelect.disabled = false;
+          renderSchools(citySelect.value, this.value, '');
+          removeSemesterOption();
+        });
+
+        function addSemesterOption() {
+          const sel = document.getElementById('rent_duration_select');
+          if (sel && !sel.querySelector('option[value="3"]')) {
+            const opt = document.createElement('option');
+            opt.value = '3'; opt.textContent = 'Per semester';
+            sel.appendChild(opt);
+          }
+        }
+        function removeSemesterOption() {
+          const sel = document.getElementById('rent_duration_select');
+          const opt = sel?.querySelector('option[value="3"]');
+          if (opt) { if (opt.selected) sel.value = '12'; sel.removeChild(opt); }
+        }
+
+        if (INIT_CITY) {
+          citySelect.value = INIT_CITY;
+          renderAreas(INIT_CITY, INIT_AREA);
+          renderSchools(INIT_CITY, INIT_AREA, INIT_SCHOOL);
+
+          if (INIT_SCHOOL) {
+            citySelect.disabled = true;
+            areaSelect.disabled = true;
+            addSemesterOption();
+          }
+        }
+      </script>
+
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Pricing & Details</p>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Price (₦) <span class="text-red-400">*</span></label>
+            <input name="price" type="text"
+                   value="{{ form.price.value|default:'' }}"
+                   placeholder="0"
+                   class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition price-fmt">
+          </div>
+          <div id="rentDurationWrap">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Duration</label>
+            <div class="relative">
+              <select name="rent_duration_months" id="rent_duration_select"
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                <option value="1"  {% if form.rent_duration_months.value == '1'  %}selected{% endif %}>Per month</option>
+                <option value="6"  {% if form.rent_duration_months.value == '6'  %}selected{% endif %}>6 months</option>
+                <option value="12" {% if form.rent_duration_months.value == '12' or not form.rent_duration_months.value %}selected{% endif %}>Per year</option>
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
+
+      <!-- Rooms — hidden for non-residential -->
+        <div id="rooms_section" class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Bedrooms</label>
+            <input name="bedrooms" type="number" min="0" max="20"
+                   value="{{ form.bedrooms.value|default:'' }}"
+                   placeholder="—"
+                   class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Bathrooms</label>
+            <input name="bathrooms" type="number" min="0" max="20"
+                   value="{{ form.bathrooms.value|default:'' }}"
+                   placeholder="—"
+                   class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Sq ft</label>
+            <input name="area_sqft" type="number" min="0"
+                   value="{{ form.area_sqft.value|default:'' }}"
+                   placeholder="—"
+                   class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+          </div>
+        </div>
+
+      <!-- Features -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Features</label>
+          <div class="flex flex-wrap gap-2">
+            <label>
+              <input type="checkbox" name="furnished" value="true" class="hidden peer"
+                     {% if form.furnished.value %}checked{% endif %}>
+              <span class="block px-4 py-2 border border-gray-200 rounded-xl text-xs cursor-pointer
+                           peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                           hover:border-gray-300 transition">
+                <i class="fas fa-couch mr-1.5"></i>Furnished
+              </span>
+            </label>
+            <label>
+              <input type="checkbox" name="serviced" value="true" class="hidden peer"
+                     {% if form.serviced.value %}checked{% endif %}>
+              <span class="block px-4 py-2 border border-gray-200 rounded-xl text-xs cursor-pointer
+                           peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                           hover:border-gray-300 transition">
+                <i class="fas fa-concierge-bell mr-1.5"></i>Serviced
+              </span>
+            </label>
+            <label>
+              <input type="checkbox" name="shared" value="true" class="hidden peer"
+                     {% if form.shared.value %}checked{% endif %}>
+              <span class="block px-4 py-2 border border-gray-200 rounded-xl text-xs cursor-pointer
+                           peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                           hover:border-gray-300 transition">
+                <i class="fas fa-users mr-1.5"></i>Shared
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {% if amenities %}
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Amenities</label>
+            <div class="flex flex-wrap gap-1.5">
+              {% for amenity in amenities %}
+                <label>
+                  <input type="checkbox" name="amenities" value="{{ amenity.id }}" class="hidden peer"
+                         {% if amenity.id in selected_amenities %}checked{% endif %}>
+                  <span class="block px-3 py-1.5 border border-gray-200 rounded-lg text-[11px] cursor-pointer
+                               peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
+                               hover:border-gray-300 transition">
+                    {% if amenity.icon %}<i class="{{ amenity.icon }} mr-1"></i>{% endif %}{{ amenity.display_name }}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+    <!-- ── Submit ──────────────────────────────────────────────────── -->
+      <div class="flex items-center justify-between gap-4 pt-2">
+        <p class="text-xs text-gray-400">
+          <i class="fas fa-info-circle mr-1"></i>
+          Your listing will be reviewed before going live.
+        </p>
+        <button type="submit" id="submitBtn"
+                class="flex items-center gap-2 px-8 py-3 bg-primary hover:opacity-90
+                       text-white text-sm font-bold rounded-xl transition shrink-0">
+          <i class="fas fa-paper-plane text-xs"></i> Submit listing
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <style>
+  /* Image card hover effects — these need CSS because Tailwind can't target nested child selectors */
+    .img-card { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #f3f4f6; }
+    .img-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-card .img-actions { position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .img-card:hover .img-actions { opacity: 1; }
+    .img-action-btn { width: 30px; height: 30px; border-radius: 8px; border: none; background: white; color: #374151; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+    .img-action-btn:hover { background: #f9fafb; }
+    .img-action-btn.danger:hover { background: #fee2e2; color: #ef4444; }
+  </style>
+
+  <script>
+  // ── Residential type detection ──────────────────────────────────────────
+    const RESIDENTIAL_TYPES = ['apartment','flat','house','duplex','bungalow','mansion','studio','room','self_contain','self contain'];
+    function isResidential(name) { return !name || RESIDENTIAL_TYPES.some(r => name.toLowerCase().includes(r)); }
+
+    document.getElementById('property_type_select').addEventListener('change', function() {
+      const sel  = this.options[this.selectedIndex];
+      const show = isResidential(sel?.dataset.name || sel?.text || '');
+      const sec  = document.getElementById('rooms_section');
+      sec.style.display = show ? '' : 'none';
+      if (!show) sec.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+    });
+  // Run once on load (edit mode).
+    document.getElementById('property_type_select').dispatchEvent(new Event('change'));
+
+  // ── Purpose → hide duration for sale ───────────────────────────────────
+    document.querySelectorAll('input[name="purpose"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('rentDurationWrap').style.opacity = r.value === 'sale' ? '0.35' : '1';
+      });
+    });
+    document.querySelector('input[name="purpose"]:checked')?.dispatchEvent(new Event('change'));
+
+  // ── Description counter ─────────────────────────────────────────────────
+    const descTA    = document.getElementById('descTA');
+    const descCount = document.getElementById('descCount');
+    descTA?.addEventListener('input', () => descCount.textContent = `${descTA.value.length} / 2000`);
+    if (descTA) descCount.textContent = `${descTA.value.length} / 2000`;
+
+  // ── Image manager ───────────────────────────────────────────────────────
+  // We keep a local array of { file, url } objects and sync hidden <input> elements
+  // on every change so the form submits all images regardless of how many times
+  // the user opens the picker.
+
+    let imageFiles = [];  // [ { file: File, url: string } ]
+
+    function addImages(input) {
+      const incoming = Array.from(input.files);
+      const remaining = 10 - imageFiles.length;
+      incoming.slice(0, remaining).forEach(file => {
+        imageFiles.push({ file, url: URL.createObjectURL(file) });
+      });
+      input.value = '';   // reset so the same file can be re-added / picker reopens cleanly
+      renderImages();
+    }
+
+    function handleImageDrop(e) {
+      e.preventDefault();
+      document.getElementById('imageDropZone').classList.remove('bg-primary/5');
+      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      const remaining = 10 - imageFiles.length;
+      files.slice(0, remaining).forEach(file => {
+        imageFiles.push({ file, url: URL.createObjectURL(file) });
+      });
+      renderImages();
+    }
+
+    function removeImage(idx) {
+      URL.revokeObjectURL(imageFiles[idx].url);
+      imageFiles.splice(idx, 1);
+      renderImages();
+    }
+
+    function moveImage(from, to) {
+      if (to < 0 || to >= imageFiles.length) return;
+      const [item] = imageFiles.splice(from, 1);
+      imageFiles.splice(to, 0, item);
+      renderImages();
+    }
+
+    function renderImages() {
+      const grid        = document.getElementById('imageGrid');
+      const placeholder = document.getElementById('imagePlaceholder');
+      const inputsWrap  = document.getElementById('imageInputs');
+
+      grid.innerHTML    = '';
+      inputsWrap.innerHTML = '';
+
+      if (imageFiles.length === 0) {
+        grid.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      } else {
+        placeholder.classList.add('hidden');
+        grid.classList.remove('hidden');
+
+        imageFiles.forEach(({ file, url }, idx) => {
+        // Visual card
+          const card = document.createElement('div');
+          card.className = 'img-card';
+          card.innerHTML = `
+          <img src="${url}" alt="photo ${idx + 1}">
+          ${idx === 0 ? '<div style="position:absolute;top:6px;left:6px;background:#3b82f6;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;z-index:1;">Main</div>' : ''}
+          <div class="img-actions">
+            ${idx > 0 ? `<button type="button" class="img-action-btn" onclick="moveImage(${idx},${idx-1})" title="Move left"><i class="fas fa-arrow-left"></i></button>` : ''}
+            <button type="button" class="img-action-btn danger" onclick="removeImage(${idx})" title="Remove"><i class="fas fa-times"></i></button>
+            ${idx < imageFiles.length - 1 ? `<button type="button" class="img-action-btn" onclick="moveImage(${idx},${idx+1})" title="Move right"><i class="fas fa-arrow-right"></i></button>` : ''}
+          </div>`;
+          grid.appendChild(card);
+
+        // Real file input (name="images" for the view to pick up)
+          const inp = document.createElement('input');
+          inp.type = 'file';
+          inp.name = 'images';
+          inp.className = 'hidden';
+        // Attach the actual File object via a DataTransfer trick
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          inp.files = dt.files;
+          inputsWrap.appendChild(inp);
+        });
+      }
+    }
+
+  // ── Submit ──────────────────────────────────────────────────────────────
+    document.getElementById('propertyForm').addEventListener('submit', function() {
+      const priceInput = this.querySelector('input[name="price"]');
+      if (priceInput) {
+        let v = priceInput.value.replace(/[₦,\s]/g, '');
+        priceInput.value = parseFloat(v)
+      }
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Submitting…';
+      btn.disabled = true;
+    });
+  </script>
+
+{% endblock %}

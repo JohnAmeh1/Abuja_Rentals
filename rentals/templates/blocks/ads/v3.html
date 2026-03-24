@@ -1,0 +1,60 @@
+
+<div id="stickyAdBanner"
+     class="fixed bottom-0 inset-x-0 z-30 translate-y-full transition-transform duration-500 ease-out
+            lg:bottom-4 lg:inset-x-auto lg:left-1/2 lg:-translate-x-1/2 lg:w-160
+            lg:translate-y-0 lg:opacity-0 lg:pointer-events-none"
+     style="will-change: transform, opacity;">
+
+  <div class="bg-gray-950 border-t border-white/10 lg:border lg:rounded-2xl lg:shadow-2xl
+              flex items-center gap-4 px-4 py-3 lg:px-5 lg:py-4">
+
+    <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+      <i class="fas fa-building text-primary text-sm"></i>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <p class="text-white text-sm font-bold truncate">List your property free</p>
+      <p class="text-gray-500 text-xs truncate">Join 500+ agents on Abuja Rentals</p>
+    </div>
+
+    <a href="{% url 'add_property' %}"
+       class="shrink-0 px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition whitespace-nowrap">
+      Get Started
+    </a>
+
+    <button onclick="dismissStickyAd()"
+            class="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-300 hover:bg-white/10 transition">
+      <i class="fas fa-times text-xs"></i>
+    </button>
+
+  </div>
+</div>
+
+<script>
+  const banner    = document.getElementById('stickyAdBanner');
+  let bannerShown = sessionStorage.getItem('stickyAdDismissed') === '1';
+
+  function showBanner() {
+    if (bannerShown || !banner) return;
+    banner.classList.remove('translate-y-full');
+    banner.classList.remove('lg:opacity-0', 'lg:pointer-events-none');
+    banner.classList.add('lg:opacity-100', 'lg:pointer-events-auto');
+  }
+
+  window.dismissStickyAd = function () {
+    if (!banner) return;
+    banner.classList.add('translate-y-full', 'lg:opacity-0', 'lg:pointer-events-none');
+    sessionStorage.setItem('stickyAdDismissed', '1');
+    bannerShown = true;
+  };
+
+  let bannerTriggered = false;
+  window.addEventListener('scroll', () => {
+    if (bannerTriggered || bannerShown) return;
+    if (window.scrollY > 600) {
+      bannerTriggered = true;
+      showBanner();
+    }
+  }, { passive: true });
+
+</script>

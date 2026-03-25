@@ -101,9 +101,7 @@ def get_property_recommendations(property_obj, limit=6):
 
         return [serialize_property(p) for p in fallback]
 
-    cache.set(cache_key, results, timeout=600)
     print("results")
-    return [
-        serialize_property(p)
-        for p in results
-    ]
+    serialized = [serialize_property(p) for p in results]
+    cache.set(cache_key, serialized, timeout=6000)
+    return serialized

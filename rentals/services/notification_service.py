@@ -14,5 +14,4 @@ class NotificationService:
             related_id = kwargs.get("related_id")
         )
         
-        n.save()
         return n

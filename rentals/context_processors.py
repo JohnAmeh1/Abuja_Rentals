@@ -1,29 +1,40 @@
 # context_processors.py
-from .models import AdminMessage
 from django.utils import timezone
+from django.db.models import Count, Q
+from django.core.cache import cache
+
+from .models import PropertyType, City, Property, AdminMessage
+
 
 def admin_messages_context(request):
-    """Make active admin messages available in all templates"""
-    if request.user.is_authenticated:
-        # Get messages that should be shown to current user
-        messages_to_show = []
-        for message in AdminMessage.objects.filter(is_active=True):
-            if message.should_show_to_user(request.user):
-                # Check if message is currently active based on dates
-                if message.is_current():
-                    # Check if user has already dismissed this message
-                    session_key = f'dismissed_message_{message.id}'
-                    if not request.session.get(session_key):
-                        messages_to_show.append(message)
-        
-        return {'admin_messages': messages_to_show}
-    return {'admin_messages': []}
+    if not request.user.is_authenticated:
+        return {'admin_messages': []}
+    
+    try:
+        user_type = request.user.userprofile.user_type
+    except Exception:
+        return {'admin_messages': []}
 
+    if user_type == 'admin':
+        return {'admin_messages': []}
 
+    now = timezone.now()
+    qs = AdminMessage.objects.filter(
+        is_active=True,
+        start_date__lte=now,
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=now)
+    )
+    if user_type == 'agent':
+        qs = qs.filter(show_to_agents=True)
+    else:
+        qs = qs.filter(show_to_tenants=True)
 
-
-from django.db.models import Count, Q
-from .models import PropertyType, City, Property
+    messages_to_show = [
+        m for m in qs
+        if not request.session.get(f'dismissed_message_{m.id}')
+    ]
+    return {'admin_messages': messages_to_show}
 
 
 def nav_context(request):
@@ -33,6 +44,9 @@ def nav_context(request):
     # related_name, so the reverse accessor is 'property_set'.
     # However, using the model name lowercase 'property' also works in annotations.
     # The safest approach is to filter Property directly and build a lookup dict.
+    cached = cache.get('nav_context_data')
+    if cached:
+        return cached
     available_type_ids = (
         Property.objects
         .filter(status='available')
@@ -70,9 +84,11 @@ def nav_context(request):
 
     total_properties = Property.objects.filter(status='available').count()
 
-    return {
+    result =  {
         'nav_property_types': property_types,
         'nav_cities':         nav_cities,
         'total_properties':   total_properties,
         'nav_fallback_areas': ['Maitama', 'Wuse II', 'Asokoro', 'Gwarinpa', 'Jabi', 'Garki', 'Lugbe', 'Kado'],
     }
+    cache.set('nav_context_data', result, timeout=10000)
+    return result

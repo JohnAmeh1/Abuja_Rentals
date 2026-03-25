@@ -1,170 +1,170 @@
 {% if show_welcome_modal %}
-<div id="welcomeModal"
-     class="fixed inset-0 z-99999 flex items-center justify-center p-4
-            bg-black/50 backdrop-blur-sm
-            opacity-0 transition-opacity duration-300">
+  <div id="welcomeModal"
+       class="fixed inset-0 z-99999 flex items-center justify-center p-4
+              bg-black/50 backdrop-blur-sm
+              opacity-0 transition-opacity duration-300">
 
-  <div id="welcomeSheet"
-       class="relative w-full max-w-lg bg-white rounded-2xl overflow-hidden
-              shadow-2xl translate-y-4 transition-transform duration-300 ease-out">
+    <div id="welcomeSheet"
+         class="relative w-full max-w-lg bg-white rounded-2xl overflow-hidden
+                shadow-2xl translate-y-4 transition-transform duration-300 ease-out">
 
-    <div class="bg-primary px-7 pt-7 pb-6">
-      <div class="flex items-center gap-2.5 mb-4">
-        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-          <i class="fas fa-home text-white text-sm"></i>
-        </div>
-        <span class="text-white/70 text-[11px] font-semibold uppercase tracking-widest">
-          Abuja Rentals
-        </span>
-      </div>
-      <h2 class="text-white text-2xl font-black leading-tight mb-2">
-        Welcome aboard,
-        {{ request.user.first_name|default:request.user.username }}
-      </h2>
-      <p class="text-white/65 text-sm leading-relaxed">
-        Your agent account is ready. Here's everything you can do on the platform.
-      </p>
-    </div>
-
-    <div class="p-5 grid grid-cols-2 gap-2.5">
-
-      <div class="bg-gray-50 rounded-xl p-4">
-        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
-          <i class="fas fa-inbox text-primary text-xs"></i>
-        </div>
-        <p class="text-sm font-bold text-gray-900 mb-1">Client Requests</p>
-        <p class="text-xs text-gray-500 leading-relaxed">
-          Clients post what they need. You respond with matching listings — no cold calls.
-        </p>
-      </div>
-
-      <div class="bg-gray-50 rounded-xl p-4">
-        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
-          <i class="fas fa-building text-primary text-xs"></i>
-        </div>
-        <p class="text-sm font-bold text-gray-900 mb-1">Your Listings</p>
-        <p class="text-xs text-gray-500 leading-relaxed">
-          Add properties and they appear in search results. Share individual links with clients.
-        </p>
-      </div>
-
-      <div class="bg-gray-50 rounded-xl p-4">
-        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
-          <i class="fas fa-map-marker-alt text-primary text-xs"></i>
-        </div>
-        <p class="text-sm font-bold text-gray-900 mb-1">Cities & Schools</p>
-        <p class="text-xs text-gray-500 leading-relaxed">
-          Pick the areas you work in. You'll only see client requests from those cities and schools.
-        </p>
-      </div>
-
-      <div class="bg-gray-50 rounded-xl p-4">
-        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
-          <i class="fas fa-share-alt text-primary text-xs"></i>
-        </div>
-        <p class="text-sm font-bold text-gray-900 mb-1">Public Profile</p>
-        <p class="text-xs text-gray-500 leading-relaxed">
-          Your profile page shows all your listings. Share the link on WhatsApp, Instagram, anywhere.
-        </p>
-      </div>
-
-    </div>
-
-    <!-- Checklist teaser -->
-    <div class="px-5 pb-4">
-      <div class="flex items-center gap-3 bg-primary/5 border border-primary/15
-                  rounded-xl px-4 py-3">
-        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-          <i class="fas fa-list-check text-primary text-xs"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-xs font-bold text-gray-800">Setup checklist on your dashboard</p>
-          <p class="text-[11px] text-gray-500 mt-0.5">
-            7 quick steps to get fully set up — your progress is tracked automatically.
-          </p>
-        </div>
-        <!-- Mini progress ring, starts at 0 -->
-        <div class="relative w-9 h-9 shrink-0">
-          <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="14" fill="none" stroke="#e5e7eb" stroke-width="3"/>
-            <circle cx="18" cy="18" r="14" fill="none"
-                    stroke="#0F6E56" stroke-width="3"
-                    stroke-linecap="round"
-                    stroke-dasharray="88"
-                    stroke-dashoffset="{{ onboarding_dash_offset|default:88 }}"/>
-          </svg>
-          <span class="absolute inset-0 flex items-center justify-center
-                       text-[9px] font-black text-primary">
-            {{ onboarding_pct|default:0 }}%
+      <div class="bg-primary px-7 pt-7 pb-6">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+            <i class="fas fa-home text-white text-sm"></i>
+          </div>
+          <span class="text-white/70 text-[11px] font-semibold uppercase tracking-widest">
+            Abuja Rentals
           </span>
         </div>
+        <h2 class="text-white text-2xl font-black leading-tight mb-2">
+          Welcome aboard,
+          {{ request.user.first_name|default:request.user.username }}
+        </h2>
+        <p class="text-white/65 text-sm leading-relaxed">
+          Your agent account is ready. Here's everything you can do on the platform.
+        </p>
       </div>
-    </div>
+
+      <div class="p-5 grid grid-cols-2 gap-2.5">
+
+        <div class="bg-gray-50 rounded-xl p-4">
+          <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-inbox text-primary text-xs"></i>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-1">Client Requests</p>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Clients post what they need. You respond with matching listings — no cold calls.
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-4">
+          <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-building text-primary text-xs"></i>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-1">Your Listings</p>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Add properties and they appear in search results. Share individual links with clients.
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-4">
+          <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-map-marker-alt text-primary text-xs"></i>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-1">Cities & Schools</p>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Pick the areas you work in. You'll only see client requests from those cities and schools.
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-4">
+          <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
+            <i class="fas fa-share-alt text-primary text-xs"></i>
+          </div>
+          <p class="text-sm font-bold text-gray-900 mb-1">Public Profile</p>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Your profile page shows all your listings. Share the link on WhatsApp, Instagram, anywhere.
+          </p>
+        </div>
+
+      </div>
+
+    <!-- Checklist teaser -->
+      <div class="px-5 pb-4">
+        <div class="flex items-center gap-3 bg-primary/5 border border-primary/15
+                    rounded-xl px-4 py-3">
+          <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            <i class="fas fa-list-check text-primary text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-gray-800">Setup checklist on your dashboard</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">
+              7 quick steps to get fully set up — your progress is tracked automatically.
+            </p>
+          </div>
+        <!-- Mini progress ring, starts at 0 -->
+          <div class="relative w-9 h-9 shrink-0">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+              <circle cx="18" cy="18" r="14" fill="none"
+                      stroke="#0F6E56" stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-dasharray="88"
+                      stroke-dashoffset="{{ onboarding_dash_offset|default:88 }}"/>
+            </svg>
+            <span class="absolute inset-0 flex items-center justify-center
+                         text-[9px] font-black text-primary">
+              {{ onboarding_pct|default:0 }}%
+            </span>
+          </div>
+        </div>
+      </div>
 
     <!-- Actions -->
-    <div class="px-5 pb-5 flex gap-2.5">
-      <button onclick="closeWelcomeModal()"
-              class="flex-1 py-3 bg-primary text-white text-sm font-bold
-                     rounded-xl hover:bg-primary/90 transition">
-        Go to dashboard
-      </button>
-      <a href="{% url 'agent_profile_edit' %}"
-         onclick="closeWelcomeModal()"
-         class="px-5 py-3 border border-gray-200 text-gray-600 text-sm font-semibold
-                rounded-xl hover:bg-gray-50 transition whitespace-nowrap">
-        Set up profile
-      </a>
+      <div class="px-5 pb-5 flex gap-2.5">
+        <button onclick="closeWelcomeModal()"
+                class="flex-1 py-3 bg-primary text-white text-sm font-bold
+                       rounded-xl hover:bg-primary/90 transition">
+          Go to dashboard
+        </button>
+        <a href="{% url 'agent_profile_edit' %}"
+           onclick="closeWelcomeModal()"
+           class="px-5 py-3 border border-gray-200 text-gray-600 text-sm font-semibold
+                  rounded-xl hover:bg-gray-50 transition whitespace-nowrap">
+          Set up profile
+        </a>
+      </div>
+
     </div>
-
   </div>
-</div>
 
-<script>
-  (function () {
-    const KEY    = 'welcome_modal_seen_{{ request.user.id }}';
-    const modal  = document.getElementById('welcomeModal');
-    const sheet  = document.getElementById('welcomeSheet');
+  <script>
+    (function () {
+      const KEY    = 'welcome_modal_seen_{{ request.user.id }}';
+      const modal  = document.getElementById('welcomeModal');
+      const sheet  = document.getElementById('welcomeSheet');
 
-    if (localStorage.getItem(KEY)) {
-      modal.remove();
-      return;
+      if (localStorage.getItem(KEY)) {
+        modal.remove();
+        return;
+      }
+
+      setTimeout(() => {
+        modal.style.display = 'flex';
+        void modal.offsetHeight;
+        modal.classList.remove('opacity-0');
+        sheet.classList.remove('translate-y-4');
+      }, 400);
+    })();
+
+    function closeWelcomeModal() {
+      const KEY   = 'welcome_modal_seen_{{ request.user.id }}';
+      const modal = document.getElementById('welcomeModal');
+      const sheet = document.getElementById('welcomeSheet');
+
+      localStorage.setItem(KEY, '1');
+
+      modal.classList.add('opacity-0');
+      sheet.classList.add('translate-y-4');
+
+      setTimeout(() => modal.remove(), 300);
+
+      fetch('{% url "mark_welcome_seen" %}', {
+        method:  'POST',
+        headers: {
+          'X-CSRFToken':      '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      }).catch(() => {});
     }
 
-    setTimeout(() => {
-      modal.style.display = 'flex';
-      void modal.offsetHeight;
-      modal.classList.remove('opacity-0');
-      sheet.classList.remove('translate-y-4');
-    }, 400);
-  })();
+    document.getElementById('welcomeModal')?.addEventListener('click', function (e) {
+      if (e.target === this) closeWelcomeModal();
+    });
 
-  function closeWelcomeModal() {
-    const KEY   = 'welcome_modal_seen_{{ request.user.id }}';
-    const modal = document.getElementById('welcomeModal');
-    const sheet = document.getElementById('welcomeSheet');
-
-    localStorage.setItem(KEY, '1');
-
-    modal.classList.add('opacity-0');
-    sheet.classList.add('translate-y-4');
-
-    setTimeout(() => modal.remove(), 300);
-
-    fetch('{% url "mark_welcome_seen" %}', {
-      method:  'POST',
-      headers: {
-        'X-CSRFToken':      '{{ csrf_token }}',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    }).catch(() => {});
-  }
-
-  document.getElementById('welcomeModal')?.addEventListener('click', function (e) {
-    if (e.target === this) closeWelcomeModal();
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeWelcomeModal();
-  }, { once: true });
-</script>
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeWelcomeModal();
+    }, { once: true });
+  </script>
 {% endif %}

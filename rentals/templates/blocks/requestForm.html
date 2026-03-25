@@ -21,7 +21,6 @@
       {% csrf_token %}
       <div class="p-6 space-y-6">
 
-        <!-- Property Type -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">
             What type of property? <span class="font-normal text-gray-400">(pick any)</span>
@@ -31,7 +30,6 @@
           </div>
         </div>
 
-        <!-- Purpose -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">Listing Purpose</label>
           <div class="flex gap-3" id="req_purpose_container">
@@ -39,7 +37,6 @@
           </div>
         </div>
 
-        <!-- Preferred Locations -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">
             Preferred Locations <span class="font-normal text-gray-400">(pick any)</span>
@@ -49,7 +46,6 @@
           </div>
         </div>
 
-        <!-- Budget -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">Budget Range (₦)</label>
           <div class="grid grid-cols-2 gap-3">
@@ -66,7 +62,6 @@
           </div>
         </div>
 
-        <!-- Bedrooms & Bathrooms: hidden for non-residential types -->
         <div id="req_rooms_section">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-3">Bedrooms</label>
@@ -133,7 +128,6 @@
           </div>
         </div>
 
-        <!-- Features -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">Property Features</label>
           <div class="grid grid-cols-3 gap-3">
@@ -152,12 +146,11 @@
           </div>
         </div>
 
-        <!-- Amenities -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-3">
             Amenities <span class="font-normal text-gray-400">(pick any)</span>
           </label>
-          <div class="grid grid-cols-2 gap-2" id="req_amenities_container">
+          <div class="flex flex-wrap gap-2" id="req_amenities_container">
             <div class="col-span-2 flex items-center gap-2 text-sm text-gray-400">
               <div class="w-4 h-4 rounded-full border-2 border-gray-200 border-t-primary animate-spin"></div>
               Loading...
@@ -165,7 +158,6 @@
           </div>
         </div>
 
-        <!-- Notes -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Anything else?</label>
           <textarea name="notes" rows="2"
@@ -208,7 +200,7 @@
   }
 
   const CACHE_KEY     = "site_details";
-  const CACHE_VERSION = "v3";
+  const CACHE_VERSION = "v4";
 
   async function getSiteDetails() {
     const raw     = localStorage.getItem(CACHE_KEY);
@@ -239,23 +231,24 @@
     return div;
   }
 
-  function amenityCheckbox({ value, label }) {
+  function amenityCheckbox({ value, label, icon }) {
     const id  = `req_am_${value}`;
     const lbl = document.createElement("label");
-    lbl.className = "flex items-center gap-2 p-2.5 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 has-checked:border-primary has-checked:bg-primary/5 transition";
     lbl.innerHTML = `
-      <input type="checkbox" id="${id}" name="amenities" value="${value}" class="accent-primary">
-      <span class="text-sm text-gray-700">${label}</span>`;
+          <input type="checkbox" id="${id}" name="amenities" value="${value}" class="hidden peer" >
+            <span class="block px-3 py-1 border border-gray-200 rounded-md text-[11px] cursor-pointer
+              peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
+              hover:border-gray-300 transition">
+              <i class="${icon}"></i> ${label}
+            </span>`;
     return lbl;
   }
 
-  // Store type labels keyed by value for visibility checks.
   let _reqTypeLabels = {};
 
   async function populateRequestForm() {
     const data = await getSiteDetails();
 
-    // --- Property Types ---
     const ptypeEl = document.getElementById("req_ptype_container");
     ptypeEl.innerHTML = "";
     data.property_type_choices.forEach(([value, label]) => {
@@ -263,17 +256,14 @@
       ptypeEl.appendChild(pillCheckbox({ name: "property_type", value, label, idPrefix: "rpt" }));
     });
 
-    // Listen for type changes to show/hide rooms section.
     ptypeEl.addEventListener('change', () => {
       const checked = Array.from(ptypeEl.querySelectorAll('input:checked'))
         .map(inp => _reqTypeLabels[inp.value] || '');
       updateRoomsVisibility(checked);
     });
 
-    // --- Purpose (populated from API so it stays in sync) ---
     const purposeEl = document.getElementById("req_purpose_container");
     purposeEl.innerHTML = "";
-    // Always include "Any" first, then each purpose from the API.
     const allPurposes = [{ value: '', label: 'Any' }, ...data.purpose_choices];
     allPurposes.forEach(({ value, label }, i) => {
       const lbl = document.createElement('label');
@@ -287,18 +277,16 @@
       purposeEl.appendChild(lbl);
     });
 
-    // --- Cities ---
     const citiesEl = document.getElementById("req_cities_container");
     citiesEl.innerHTML = "";
     data.cities.forEach(([value, label]) => {
       citiesEl.appendChild(pillCheckbox({ name: "cities", value, label, idPrefix: "rcity" }));
     });
 
-    // --- Amenities ---
     const amenitiesEl = document.getElementById("req_amenities_container");
     amenitiesEl.innerHTML = "";
-    data.amenity_choices.forEach(([value, label]) => {
-      amenitiesEl.appendChild(amenityCheckbox({ value, label }));
+    data.amenity_choices.forEach(([value, label, icon]) => {
+      amenitiesEl.appendChild(amenityCheckbox({ value, label, icon }));
     });
   }
 

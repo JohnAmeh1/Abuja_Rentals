@@ -8,20 +8,20 @@
 {% block headline %}Your property is now live{% endblock %}
 
 {% block body %}
-Hi {{ user.first_name|default:user.username }},<br><br>
-Your listing has been reviewed and approved. It's now visible to tenants
-and buyers on Abuja Rentals. You can manage it from your dashboard anytime.
+  Hi {{ user.first_name|default:user.username }},<br><br>
+  Your listing has been reviewed and approved. It's now visible to tenants
+  and buyers on Abuja Rentals. You can manage it from your dashboard anytime.
 {% endblock %}
 
 {% block cta %}
-<table cellpadding="0" cellspacing="0">
-  <tr>
-    <td style="background:#0F6E56;border-radius:10px;">
-      <a href="{{ site_url }}/agent/properties/"
-         style="display:inline-block;padding:12px 22px;color:white;font-size:13px;font-weight:700;text-decoration:none;">
-        View My Listings →
-      </a>
-    </td>
-  </tr>
-</table>
+  <table cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="background:#0F6E56;border-radius:10px;">
+        <a href="{{ site_url }}/agent/properties/"
+           style="display:inline-block;padding:12px 22px;color:white;font-size:13px;font-weight:700;text-decoration:none;">
+          View My Listings →
+        </a>
+      </td>
+    </tr>
+  </table>
 {% endblock %}

@@ -172,7 +172,7 @@
 
     <!-- Data for JS cascade — rendered server-side, read by JS below -->
       <script>
-        const AREAS_MAP    = {{ areas_map_json|safe }};
+        let AREAS_MAP    = {{ areas_map_json|safe }};
         const ALL_SCHOOLS  = {{ schools_json|safe }};
         const INIT_CITY    = "{{ initial_city_id }}";
         const INIT_AREA    = "{{ initial_area_id }}";

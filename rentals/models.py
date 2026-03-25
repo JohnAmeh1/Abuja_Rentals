@@ -16,6 +16,7 @@ from .services.notification_service import NotificationService
 from .services.otp_service import OTPService
 from .services.property_service import PropertyService
 from .services.user_service import UserProfileService
+from .services.property_image_service import PropertyImageService
 
 
 
@@ -345,7 +346,7 @@ class Report(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-        if self.property and self.property.agent != self.reported_user:
+        if self.property and self.property.agent.user != self.reported_user:
             raise ValidationError("The reported property does not belong to the reported user.")
 
 class Amenity(models.Model):
@@ -391,7 +392,7 @@ class InquiryCity(models.Model):
         return self.city.name.capitalize()
 
 
-class PropertyImage(models.Model):
+class PropertyImage(PropertyImageService, models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
     image = CloudinaryField('image', resource_type="auto", null=True, blank=True)
     order = models.IntegerField(default=0)

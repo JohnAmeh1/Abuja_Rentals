@@ -455,7 +455,7 @@ def profile_view(request):
                         overwrite=True,
                         transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
                     )
-                    profile.profile_picture = result['public_id']
+                    profile.profile_picture = result['secure_url']
                     profile.save()
                 except Exception as e:
                     messages.error(request, 'Failed to upload image. Please check your connection and try again.')
@@ -465,7 +465,6 @@ def profile_view(request):
             return redirect('profile')
     else:
         form = ProfileUpdateForm(instance=request.user.userprofile, user=request.user)
-
     return render(request, 'auth/profile.html', {'form': form})
 
 
@@ -1016,7 +1015,7 @@ def submit_report(request, property_id):
         if form.is_valid():
             report = form.save(commit=False)
             report.reporter = request.user
-            report.reported_user = property_obj.agent
+            report.reported_user = property_obj.agent.user
             report.property = property_obj
             report.save()
             messages.success(request, 'Report submitted. Admin will review shortly.')
@@ -1559,7 +1558,7 @@ def get_details(request):
     ]
 
     amenities = [
-        (int(p.id), str(p.display_name))
+        (int(p.id), str(p.display_name), str(p.icon))
         for p in Amenity.objects.all()
     ]
 
@@ -1890,7 +1889,7 @@ def agent_profile_edit(request):
                         overwrite=True,
                         transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
                     )
-                    agent.image = result['public_id']
+                    agent.image = result['secure_url']
                 except Exception as e:
                     messages.error(request, 'Failed to upload profile image. Please check your connection.')
                     return redirect('agent_profile_edit')
@@ -1905,7 +1904,7 @@ def agent_profile_edit(request):
                             overwrite=True,
                             transformation=[{'width': 800, 'height': 300, 'crop': 'fill'}],
                         )
-                        agent.logo = result['public_id']
+                        agent.logo = result['secure_url']
                     except Exception as e:
                         messages.error(request, 'Failed to upload logo. Please check your connection.')
                         return redirect('agent_profile_edit')
@@ -2189,8 +2188,9 @@ def add_property_view(request):
                     property=property_obj, amenity_id=amenity_id)
  
             for i, img in enumerate(request.FILES.getlist('images')):
-                PropertyImage.objects.create(
+                p = PropertyImage.objects.create(
                     property=property_obj, image=img, order=i)
+                p.save()
  
             messages.success(request, 'Listing submitted for review.')
             return redirect('agent_properties')
@@ -2374,13 +2374,14 @@ def _notify_matching_agents(inquiry_id):
         )
 
         if hasattr(inquiry, 'school') and hasattr(inquiry.school, 'id'):
-            school_id = inquiry.school.id
-            agents.append(
-                AgentProfile.objects
-                .filter(assigned_schools__school_id=school_id)
-                .select_related('user')
-                .distinct()
-            )
+            if inquiry.school:
+                school_id = inquiry.school.id
+                agents.append(
+                    AgentProfile.objects
+                    .filter(assigned_schools__school_id=school_id)
+                    .select_related('user')
+                    .distinct()
+                )
         
         notifications = [
             Notification(

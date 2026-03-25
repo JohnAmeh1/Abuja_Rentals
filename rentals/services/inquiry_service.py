@@ -15,5 +15,4 @@ class InquiryService:
         return f"{user} — {self.property_type or 'any'} ({self.created_at:%d %b %Y})"
 
     def amenities_list(self):
-        """Return amenities as a Python list."""
-        return [a.strip() for a in self.amenities.split(',') if a.strip()]
+        return [ia.amenity.display_name for ia in self.inquiry_amenities.all()]

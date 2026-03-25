@@ -73,7 +73,7 @@
           <h1 class="text-5xl lg:text-6xl font-black text-white mb-6 leading-tight tracking-tight text-center">
             Find a Place You’ll
             <br>
-            <span class="text-primary italic font-serif">Call Home</span>
+            <span class="text-primary italic curse">Call Home </span>
             in Abuja
           </h1>
           <p class="text-gray-200 text-base md:text-base max-w-2xl font-light text-center mx-auto">
@@ -103,7 +103,7 @@
                     type="text"
                     autocomplete="off"
                     placeholder="Maitama, Wuse, Gwarinpa..."
-                    class="text-sm w-full pl-5 lg:pl-11 pr-4 py-2 bg-white/50 rounded-xl focus:ring-2 focus:ring-white/20 outline-none"
+                    class="text-sm w-full pl-8 lg:pl-11 pr-4 py-2 bg-white/50 rounded-xl focus:ring-2 focus:ring-white/20 outline-none"
                   />
                   <ul id="autocomplete-list"
                       class="hidden absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-lg z-200 overflow-hidden max-h-52 overflow-y-auto">
@@ -116,7 +116,7 @@
                 <div class="relative">
                   <i class="fas fa-home absolute left-2 lg:left-4 top-1/2 -translate-y-1/2 text-white"></i>
                   <select id="basic_property_type" name="property_type"
-                          class="text-sm w-full pl-5 lg:pl-11 pr-4 py-2 bg-white/50 rounded-xl focus:ring-2 focus:ring-white/20 focus:border-white outline-none appearance-none text-gray-600/70">
+                          class="text-sm w-full pl-8 lg:pl-11 pr-4 py-2 bg-white/50 rounded-xl focus:ring-2 focus:ring-white/20 focus:border-white outline-none appearance-none text-gray-600/70">
                     <option value="">All Types</option>
                     {% for cat in property_types %}
                       <option value="{{ cat.id }}">{{ cat.display_name }}</option>
@@ -135,7 +135,7 @@
               </button>
 
               <button type="button" onclick="openAdvancedModal('search')"
-                      class="text-sm text-accent flex items-center gap-1 hover:text-accent/70 transition mt-3 lg:mt-0">
+                      class="text-sm text-white flex items-center gap-1 hover:text-accent/70 transition mt-3 lg:mt-0">
                 More Options <i class="fa fa-chevron-down text-xs"></i>
               </button>
             </div>

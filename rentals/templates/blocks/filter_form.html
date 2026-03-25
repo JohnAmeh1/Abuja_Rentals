@@ -1,6 +1,5 @@
 <form method="GET" id="{{ form_id }}" class="space-y-3 z-50">
 
-  <!-- Search -->
   <div class="relative">
     <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
     <input name="search" type="text" value="{{ active.search }}" placeholder="Search…" id="basic_search"
@@ -12,7 +11,6 @@
     </ul>
   </div>
 
-  <!-- Purpose -->
   <div>
     <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Purpose</p>
     <div class="grid grid-cols-3 gap-1">
@@ -40,7 +38,6 @@
     </div>
   </div>
 
-  <!-- Property type -->
   <div class="relative">
     <select name="property_type" id="basic_property_type"
             class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
@@ -55,7 +52,6 @@
     <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
   </div>
 
-  <!-- City — changing this reloads the areas dropdown -->
   <div class="relative">
     <select name="city" id="city_select"
             class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
@@ -70,7 +66,6 @@
     <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
   </div>
 
-  <!-- Area — populated dynamically when city is selected -->
   <div class="relative" id="area_wrap"
        style="{% if not active.city %}display:none{% endif %}">
     <select name="area" id="area_select"
@@ -87,7 +82,6 @@
     <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
   </div>
 
-  <!-- Admin status filter -->
   {% if user_is_admin %}
     <div class="relative">
       <select name="status"
@@ -102,7 +96,6 @@
     </div>
   {% endif %}
 
-  <!-- Price -->
   <div>
     <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Price (₦)</p>
     <div class="grid grid-cols-2 gap-1.5">
@@ -115,7 +108,6 @@
     </div>
   </div>
 
-  <!-- Bedrooms -->
   <div>
     <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Bedrooms (min)</p>
     <div class="grid grid-cols-5 gap-1">
@@ -193,43 +185,43 @@
 </form>
 
 <script>
-  const AREAS_MAP = {{ areas_map_json|safe }};
+  let {{form_id}}_AREAS_MAP = {{ areas_map_json|safe }};
 
-  const citySelect = document.getElementById('city_select');
-  const areaWrap   = document.getElementById('area_wrap');
-  const areaSelect = document.getElementById('area_select');
+  const {{form_id}}_citySelect = document.getElementById('city_select');
+  const {{form_id}}_areaWrap   = document.getElementById('area_wrap');
+  const {{form_id}}_areaSelect = document.getElementById('area_select');
 
-  const PRE_SELECTED_AREA = "{{ active.area }}";
+  const {{form_id}}_PRE_SELECTED_AREA = "{{ active.area }}";
 
   function renderAreas(areas, preSelect) {
-    areaSelect.innerHTML = '<option value="">All areas</option>';
+    {{form_id}}_areaSelect.innerHTML = '<option value="">All areas</option>';
     areas.forEach(function(a) {
       const opt = document.createElement('option');
       opt.value       = a.id;
       opt.textContent = a.name.charAt(0).toUpperCase() + a.name.slice(1);
       if (String(a.id) === String(preSelect)) opt.selected = true;
-      areaSelect.appendChild(opt);
+      {{form_id}}_areaSelect.appendChild(opt);
     });
   }
 
-  citySelect.addEventListener('change', function() {
+  {{form_id}}_citySelect.addEventListener('change', function() {
     const cityId = parseInt(this.value);
 
     if (!cityId) {
-      areaWrap.style.display   = 'none';
-      areaSelect.innerHTML     = '<option value="">All areas</option>';
+      {{form_id}}_areaWrap.style.display   = 'none';
+      {{form_id}}_areaSelect.innerHTML     = '<option value="">All areas</option>';
       return;
     }
 
-    const areas = AREAS_MAP[cityId] || [];
+    const areas = {{form_id}}_AREAS_MAP[cityId] || [];
 
     if (areas.length === 0) {
-      areaWrap.style.display = 'none';
-      areaSelect.innerHTML   = '<option value="">All areas</option>';
+      {{form_id}}_areaWrap.style.display = 'none';
+      {{form_id}}_areaSelect.innerHTML   = '<option value="">All areas</option>';
       return;
     }
 
     renderAreas(areas, '');
-    areaWrap.style.display = '';
+    {{form_id}}_areaWrap.style.display = '';
   });
 </script>

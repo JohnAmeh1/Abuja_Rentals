@@ -265,79 +265,76 @@
       </div>
     </div>
   </div>
+  <div id="mobile-menu-backdrop" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
 
-  <div id="mobile-menu"
-       class="hidden lg:hidden bg-white border-t border-gray-100 shadow-lg">
-    <div class="container mx-auto px-4 py-3 space-y-1">
+<div id="mobile-drawer" class="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-white z-[60] shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col lg:hidden">
+  
+  <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+    <div class="text-base font-black text-primary tracking-tight">
+      Abuja<span class="text-accent">Rentals</span>
+    </div>
+    <button id="close-mobile-menu" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
 
-      <a href="{% url 'home' %}"
-         class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
-        <i class="fas fa-home text-gray-400 w-4 text-center"></i> Home
+  <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+    
+    <div class="flex gap-2">
+      <a href="{% url 'properties' %}?purpose=rent" class="flex-1 text-center py-2.5 text-xs font-bold bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition">For Rent</a>
+      <a href="{% url 'properties' %}?purpose=sale" class="flex-1 text-center py-2.5 text-xs font-bold bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition">For Sale</a>
+      <a href="{% url 'schools' %}" class="flex-1 text-center py-2.5 text-xs font-bold bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition">Student</a>
+    </div>
+
+    <div class="space-y-1">
+      <a href="{% url 'home' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
+        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition"><i class="fas fa-home text-sm"></i></div>
+        Home
       </a>
-      <a href="{% url 'properties' %}"
-         class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
-        <i class="fas fa-building text-gray-400 w-4 text-center"></i> Properties
+      <a href="{% url 'properties' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
+        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition"><i class="fas fa-building text-sm"></i></div>
+        Properties
       </a>
-
-      <div class="flex gap-2 px-4 py-2">
-        <a href="{% url 'properties' %}?purpose=rent"
-           class="flex-1 text-center py-2 text-xs font-semibold bg-blue-50 text-blue-600 rounded-lg">For Rent</a>
-        <a href="{% url 'properties' %}?purpose=sale"
-           class="flex-1 text-center py-2 text-xs font-semibold bg-emerald-50 text-emerald-600 rounded-lg">For Sale</a>
-        <a href="{% url 'properties' %}?school=1"
-           class="flex-1 text-center py-2 text-xs font-semibold bg-amber-50 text-amber-600 rounded-lg">Student</a>
-      </div>
-
-      <a href="{% url 'about' %}"
-         class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
-        <i class="fas fa-info-circle text-gray-400 w-4 text-center"></i> About
+      <a href="{% url 'about' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
+        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition"><i class="fas fa-info-circle text-sm"></i></div>
+        About
       </a>
-
+      
       {% if admin_messages %}
-        <button id="notificationBellBtnMobile"
-                class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl w-full">
-          <i class="fas fa-bell text-gray-400 w-4 text-center"></i>
+        <button id="notificationBellBtnMobile" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group w-full">
+          <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 transition"><i class="fas fa-bell text-sm"></i></div>
           Notifications
-          <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-            {{ admin_messages|length }}
-          </span>
+          <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ admin_messages|length }}</span>
         </button>
       {% endif %}
+    </div>
 
-      <button id="installButtonMobile"
-              class="flex items-center gap-3 px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-xl w-full">
-        <i class="fas fa-download text-blue-400 w-4 text-center"></i> Install App
-      </button>
+    <hr class="border-gray-100">
 
-      <div class="border-t border-gray-100 my-2 pt-2">
-        {% if user.is_authenticated %}
-          <a href="{% url 'dashboard' %}"
-             class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
-            <i class="fas fa-th-large text-gray-400 w-4 text-center"></i> Dashboard
-          </a>
-          <a href="{% url 'profile' %}"
-             class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
-            <i class="fas fa-user text-gray-400 w-4 text-center"></i> Profile
-          </a>
-          <a href="{% url 'logout' %}"
-             class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl">
-            <i class="fas fa-sign-out-alt w-4 text-center"></i> Sign Out
-          </a>
-        {% else %}
-          <a href="{% url 'login' %}"
-             class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl">
-            <i class="fas fa-sign-in-alt text-gray-400 w-4 text-center"></i> Sign In
-          </a>
-          <a href="{% url 'signup' %}"
-             class="flex items-center justify-center gap-2 mx-4 mt-1 py-3 bg-primary text-white
-                    text-sm font-semibold rounded-xl">
-            <i class="fas fa-user-plus text-xs"></i> Create Account
-          </a>
-        {% endif %}
-      </div>
-
+    <div class="space-y-1">
+      <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Account</p>
+      
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
+          <i class="fas fa-th-large text-gray-400 w-5 text-center group-hover:text-primary transition"></i> Dashboard
+        </a>
+        <a href="{% url 'profile' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
+          <i class="fas fa-user text-gray-400 w-5 text-center group-hover:text-primary transition"></i> Profile
+        </a>
+        <a href="{% url 'logout' %}" class="flex items-center gap-4 px-4 py-3.5 text-red-500 hover:bg-red-50 rounded-xl font-medium transition">
+          <i class="fas fa-sign-out-alt w-5 text-center"></i> Sign Out
+        </a>
+      {% else %}
+        <a href="{% url 'login' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
+          <i class="fas fa-sign-in-alt text-gray-400 w-5 text-center group-hover:text-primary transition"></i> Sign In
+        </a>
+        <a href="{% url 'signup' %}" class="flex items-center justify-center gap-2 mt-4 py-3.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition shadow-md shadow-primary/20">
+          <i class="fas fa-user-plus text-xs"></i> Create Account
+        </a>
+      {% endif %}
     </div>
   </div>
+</div>
 
 </nav>
 
@@ -352,10 +349,17 @@
     nav.classList.toggle('scrolled', window.scrollY > 10);
   }, { passive: true });
 
-  document.getElementById('mobile-menu-button').addEventListener('click', () => {
-    document.getElementById('mobile-menu').classList.toggle('hidden');
-    closeMegaMenu();
-  });
+  const mobileMenu = document.getElementById("mobile-menu");
+
+document.getElementById("mobile-menu-button").addEventListener("click", () => {
+  mobileMenu.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+});
+
+function closeMobileMenu() {
+  mobileMenu.classList.add("hidden");
+  document.body.style.overflow = "auto";
+}
 
   // Mega menu
   let megaOpen = false;
@@ -383,6 +387,34 @@
       if (!megaOpen) menu.classList.add('hidden');
     }, 200);
   }
+
+  const mobileBtn = document.getElementById('mobile-menu-button');
+  const closeBtn = document.getElementById('close-mobile-menu');
+  const mobileDrawer = document.getElementById('mobile-drawer');
+  const mobileBackdrop = document.getElementById('mobile-menu-backdrop');
+
+  function openMobileMenu() {
+    closeMegaMenu(); // Close desktop mega menu if open
+    mobileBackdrop.classList.remove('hidden');
+    // Force reflow to enable animation
+    void mobileBackdrop.offsetWidth;
+    mobileBackdrop.classList.add('opacity-100');
+    mobileDrawer.classList.remove('translate-x-full');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  }
+
+  function closeMobileMenu() {
+    mobileDrawer.classList.add('translate-x-full');
+    mobileBackdrop.classList.remove('opacity-100');
+    setTimeout(() => {
+      mobileBackdrop.classList.add('hidden');
+      document.body.style.overflow = '';
+    }, 300); // Matches duration-300
+  }
+
+  mobileBtn.addEventListener('click', openMobileMenu);
+  closeBtn.addEventListener('click', closeMobileMenu);
+  mobileBackdrop.addEventListener('click', closeMobileMenu);
 
   // Close on outside click
   document.addEventListener('click', (e) => {

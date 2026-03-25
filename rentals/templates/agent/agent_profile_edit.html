@@ -13,25 +13,25 @@
       </div>
 
       <div class="flex items-center gap-3">
-         <button onclick="shareProfile()"
-                      class="w-9 h-9 flex items-center justify-center border border-gray-200
-                             hover:bg-gray-50 rounded-xl text-xs text-gray-600 transition bg-white">
-                <i class="fas fa-share-alt"></i>
-              </button>
+        <button onclick="shareProfile()"
+                class="w-9 h-9 flex items-center justify-center border border-gray-200
+                       hover:bg-gray-50 rounded-xl text-xs text-gray-600 transition bg-white">
+          <i class="fas fa-share-alt"></i>
+        </button>
         {% if agent.verified %}
-        <span class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-          <i class="fas fa-shield-check text-emerald-500"></i> Verified agent
-        </span>
-      {% else %}
-        <form method="POST" action="{% url 'request_agent_verification' %}">
-          {% csrf_token %}
-          <button type="submit"
-                  class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-amber-700
-                         bg-amber-50 border border-amber-200 rounded-full hover:bg-amber-100 transition">
-            <i class="fas fa-shield text-amber-500"></i>
-            Request verification
-          </button>
-        </form>
+          <span class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+            <i class="fas fa-shield-check text-emerald-500"></i> Verified agent
+          </span>
+        {% else %}
+          <form method="POST" action="{% url 'request_agent_verification' %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-amber-700
+                           bg-amber-50 border border-amber-200 rounded-full hover:bg-amber-100 transition">
+              <i class="fas fa-shield text-amber-500"></i>
+              Request verification
+            </button>
+          </form>
         {% endif %}
       </div>
 
@@ -361,13 +361,13 @@
         let url = `http://${window.location.host}/${"agents/{{agent.id}}"}/`
         navigator.share({ title: {% if agent.name %}'{{ agent.name|escapejs }}' {% else %} '{{ agent.user.get_full_name|escapejs }}' {% endif %}, url: url })
           .catch(() => {});
-         fetch('{% url "mark_profile_shared" %}', {
+        fetch('{% url "mark_profile_shared" %}', {
           method:  'POST',
           headers: {
             'X-CSRFToken':      '{{ csrf_token }}',
             'X-Requested-With': 'XMLHttpRequest',
           },
-    }).catch(() => {});
+        }).catch(() => {});
       } else {
         copyProfileLink();
       }

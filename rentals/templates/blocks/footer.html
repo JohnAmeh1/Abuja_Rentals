@@ -70,31 +70,31 @@
           <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Find a Home</p>
           <ul class="space-y-3">
             {% for ptype in nav_property_types %}
-             {% if not forloop.counter > 6 %}
+              {% if not forloop.counter > 6 %}
                 <li><a href="{% url 'properties' %}?property_type={{ ptype.id }}" class="footer-link capitalize">{{ ptype.display_name }}</a></li>
-            {% endif %}
+              {% endif %}
             {% empty %}
-            <li><a href="{% url 'properties' %}?purpose=sale" class="footer-link">Properties for Sale</a></li>
-            <li><a href="{% url 'properties' %}?purpose=rent" class="footer-link">Properties for Rent</a></li>
-            <li><a href="{% url 'properties' %}?city=maitama" class="footer-link">Maitama</a></li>
-            <li><a href="{% url 'properties' %}?city=asokoro" class="footer-link">Asokoro</a></li>
-            <li><a href="{% url 'properties' %}?city=gwarinpa" class="footer-link">Gwarinpa</a></li>
-            <li><a href="{% url 'properties' %}?city=wuse" class="footer-link">Wuse</a></li>
+              <li><a href="{% url 'properties' %}?purpose=sale" class="footer-link">Properties for Sale</a></li>
+              <li><a href="{% url 'properties' %}?purpose=rent" class="footer-link">Properties for Rent</a></li>
+              <li><a href="{% url 'properties' %}?city=maitama" class="footer-link">Maitama</a></li>
+              <li><a href="{% url 'properties' %}?city=asokoro" class="footer-link">Asokoro</a></li>
+              <li><a href="{% url 'properties' %}?city=gwarinpa" class="footer-link">Gwarinpa</a></li>
+              <li><a href="{% url 'properties' %}?city=wuse" class="footer-link">Wuse</a></li>
             {% endfor %}
           </ul>
         </div>
         <div>
           <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Popular Location</p>
           <ul class="space-y-3">
-             {% for city in nav_cities %}
-             {% if not forloop.counter > 6 %}
+            {% for city in nav_cities %}
+              {% if not forloop.counter > 6 %}
                 <li><a href="{% url 'properties' %}?city={{ city.id }}" class="footer-link capitalize">{{ city.name }}</a></li>
-            {% endif %}
+              {% endif %}
             {% empty %}
-            <li><a href="{% url 'properties' %}?city=maitama" class="footer-link">Maitama</a></li>
-            <li><a href="{% url 'properties' %}?city=asokoro" class="footer-link">Asokoro</a></li>
-            <li><a href="{% url 'properties' %}?city=gwarinpa" class="footer-link">Gwarinpa</a></li>
-            <li><a href="{% url 'properties' %}?city=wuse" class="footer-link">Wuse</a></li>
+              <li><a href="{% url 'properties' %}?city=maitama" class="footer-link">Maitama</a></li>
+              <li><a href="{% url 'properties' %}?city=asokoro" class="footer-link">Asokoro</a></li>
+              <li><a href="{% url 'properties' %}?city=gwarinpa" class="footer-link">Gwarinpa</a></li>
+              <li><a href="{% url 'properties' %}?city=wuse" class="footer-link">Wuse</a></li>
             {% endfor %}
           </ul>
         </div>

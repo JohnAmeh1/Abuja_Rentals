@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
 from django.views.generic import TemplateView
 from django.conf import settings
@@ -99,4 +99,6 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
+    import debug_toolbar
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns = [path('__debug__/', include(debug_toolbar.urls))] + urlpatterns

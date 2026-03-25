@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ENV = os.getenv("DJANGO_ENV", "development")
+ENV = os.getenv("DJANGO_ENV", "testing")
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
 
@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'rentals',
     'cloudinary_storage',
-    'cloudinary'
+    'cloudinary',
+    'debug_toolbar'
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'Abuja_Rentals.urls'
@@ -96,11 +98,11 @@ DATABASES = {
         'PASSWORD': os.getenv("DB_PASSWORD", ""),
         'HOST': os.getenv("DB_HOST", ""),
         'PORT': os.getenv("DB_PORT", ""),
-        'OPTIONS': (
-            {'sslmode': os.getenv("DB_SSL")}
-            if os.getenv("DB_SSL")
-            else {}
-        ),
+        'OPTIONS':{
+             'sslmode': 'require',
+            'connect_timeout': 10,
+            },
+        'CONN_MAX_AGE': 60,
     }
 }
 
@@ -134,6 +136,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+INTERNAL_IPS = ['127.0.0.1']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/

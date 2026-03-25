@@ -90,5 +90,5 @@ def nav_context(request):
         'total_properties':   total_properties,
         'nav_fallback_areas': ['Maitama', 'Wuse II', 'Asokoro', 'Gwarinpa', 'Jabi', 'Garki', 'Lugbe', 'Kado'],
     }
-    cache.set('nav_context_data', result, timeout=10000)
+    cache.set('nav_context_data', result, timeout=1000)
     return result

@@ -177,8 +177,8 @@
                                   hover:border-primary/30 hover:bg-primary/5 transition group">
 
                   <!-- Agent avatar -->
-                          {% if agent.image %}
-                            <img src="{{ agent.image }}" alt="{{ agent.user.get_full_name }}"
+                          {% if agent.image.url %}
+                            <img src="{{ agent.image.url }}" alt="{{ agent.user.get_full_name }}"
                                  class="w-10 h-10 rounded-xl object-cover shrink-0 border border-gray-100">
                           {% else %}
                             <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center

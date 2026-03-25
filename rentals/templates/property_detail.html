@@ -29,7 +29,7 @@
             <div id="sliderTrack" class="flex transition-transform duration-500 ease-out">
               {% for image in all_images %}
                 <div class="min-w-full">
-                  <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image %}{{ image.image }}{% endif %}" class="w-full aspect-16/10 object-cover"
+                  <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}" class="w-full aspect-16/10 object-cover"
                        alt="Property image {{ forloop.counter }}">
                 </div>
               {% endfor %}
@@ -52,7 +52,7 @@
           {% if all_images.count > 1 %}
             <div class="flex gap-2 p-3 overflow-x-auto bg-gray-50 border-t border-gray-100 thumbnails-container">
               {% for image in all_images %}
-                <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image %}{{ image.image }}{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"
+                <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"
                      class="thumb h-14 w-20 object-cover rounded-lg cursor-pointer border-2 border-transparent hover:opacity-80 transition shrink-0"
                      data-index="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
               {% endfor %}
@@ -218,7 +218,7 @@
           <div class="rounded-xl overflow-hidden border border-gray-100">
             <iframe class="w-full h-72 lg:h-96 border-0" loading="lazy" allowfullscreen
                     referrerpolicy="no-referrer-when-downgrade"
-                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q= {{ property.location.address }}, {{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|upper }}">
+                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q={{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|capfirst }}">
             </iframe>
           </div>
         </div>
@@ -260,8 +260,8 @@
 
             <div class="flex items-center gap-3">
 
-              {% if agent.logo %}
-                <img src="{{ agent.logo }}"
+              {% if agent.logo.url %}
+                <img src="{{ agent.logo.url }}"
                      class="w-12 h-12 rounded-xl object-cover border border-gray-100">
               {% else %}
                 <div class="w-12 h-12 rounded-xl bg-linear-to-br from-primary/80 to-accent

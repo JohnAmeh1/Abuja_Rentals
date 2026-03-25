@@ -544,7 +544,7 @@
                        ${selectedPropertyId === p.id ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-primary/40 hover:bg-primary/5'}"
                 id="prop-btn-${p.id}">
           <div class="w-14 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-home text-gray-300 text-sm"></i></div>`}
+            ${p.image ? `<img src="${p.image.url}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fas fa-home text-gray-300 text-sm"></i></div>`}
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-semibold text-gray-800 line-clamp-1 group-hover:text-primary transition">${p.title}</p>

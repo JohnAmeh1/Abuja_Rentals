@@ -171,7 +171,7 @@ class ProfileUpdateForm(forms.ModelForm):
 class AgentProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = AgentProfile
-        fields = ['phone', 'whatsapp_number', 'bio', 'website']
+        fields = ['phone', 'whatsapp_number', 'bio', 'website', 'name']
         widgets = {
             'phone': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
@@ -189,6 +189,10 @@ class AgentProfileUpdateForm(forms.ModelForm):
             'website': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
                 'placeholder': 'Website',
+            }),
+            'name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent',
+                'placeholder': 'Name',
             }),
         }
 

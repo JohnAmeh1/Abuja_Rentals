@@ -16,10 +16,6 @@ from .services.notification_service import NotificationService
 from .services.otp_service import OTPService
 from .services.property_service import PropertyService
 from .services.user_service import UserProfileService
-from .services.property_image_service import PropertyImageService
-
-
-
 
 
 def send_mail_(user, subject, message):
@@ -49,7 +45,7 @@ class UserProfile(UserProfileService, models.Model):
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, default='tenant')
     phone_number = models.CharField(max_length=15, blank=True)
     whatsapp_number = models.CharField(max_length=255, blank=True)
-    profile_picture = CloudinaryField('image', resource_type="auto", blank=True, null=True)
+    profile_picture = CloudinaryField('image', resource_type="image", blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True)
     address = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -162,8 +158,8 @@ class AgentProfile(models.Model):
     website = models.CharField(max_length=200, blank=True)
     other_phones = models.JSONField(default=list, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    image = CloudinaryField('image', resource_type="auto", blank=True, null=True)
-    logo = CloudinaryField('image', resource_type="auto", blank=True, null=True)
+    image = CloudinaryField('image', resource_type="image", blank=True, null=True)
+    logo  = CloudinaryField('image', resource_type="image", blank=True, null=True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True)
 
     def get_inquiry_queryset(self):
@@ -392,9 +388,9 @@ class InquiryCity(models.Model):
         return self.city.name.capitalize()
 
 
-class PropertyImage(PropertyImageService, models.Model):
+class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    image = CloudinaryField('image', resource_type="auto", null=True, blank=True)
+    image = CloudinaryField('image', resource_type="image", null=True, blank=True)
     order = models.IntegerField(default=0)
     test_url = models.URLField(null=True, blank=True)
 

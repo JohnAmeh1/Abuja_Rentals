@@ -1879,40 +1879,39 @@ def agent_profile_edit(request):
         form = AgentProfileUpdateForm(request.POST, instance=agent)
  
         if form.is_valid():
+            
             image_file = request.FILES.get('image')
+            logo_file = request.FILES.get('logo')
             if image_file:
                 try:
                     result = cloudinary.uploader.upload(
                         image_file,
-                        folder=f'abuja_rentals/agents/{request.user.id}/',
-                        public_id=f'profile_{request.user.id}',
+                        folder=f'abuja_rentals/agents/{agent.id}/',
+                        public_id=f'profile_{agent.id}',
                         overwrite=True,
-                        transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}],
+                        resource_type="image",
+                        transformation=[{'width': 400, 'height': 400, 'crop': 'fill'}],
+                        
                     )
-                    agent.image = result['secure_url']
+                    agent.image = result['public_id']
                 except Exception as e:
                     messages.error(request, 'Failed to upload profile image. Please check your connection.')
                     return redirect('agent_profile_edit')
 
-                logo_file = request.FILES.get('logo')
-                if logo_file:
-                    try:
-                        result = cloudinary.uploader.upload(
-                            logo_file,
-                            folder=f'abuja_rentals/agents/{request.user.id}/',
-                            public_id=f'logo_{request.user.id}',
-                            overwrite=True,
-                            transformation=[{'width': 800, 'height': 300, 'crop': 'fill'}],
-                        )
-                        agent.logo = result['secure_url']
-                    except Exception as e:
-                        messages.error(request, 'Failed to upload logo. Please check your connection.')
-                        return redirect('agent_profile_edit')
- 
-            user = request.user
-            user.first_name = request.POST.get('first_name', user.first_name).strip()
-            user.last_name  = request.POST.get('last_name',  user.last_name).strip()
-            user.save(update_fields=['first_name', 'last_name'])
+            if logo_file:
+                try:
+                    result = cloudinary.uploader.upload(
+                        logo_file,
+                        folder=f'abuja_rentals/agents/{agent.id}/',
+                        public_id=f'logo_{agent.id}',
+                        overwrite=True,
+                        resource_type="image",
+                        transformation=[{'width': 800, 'height': 300, 'crop': 'fill'}],
+                    )
+                    agent.logo = result['public_id']
+                except Exception as e:
+                    messages.error(request, 'Failed to upload logo. Please check your connection.')
+                    return redirect('agent_profile_edit')
  
             raw_phones = request.POST.get('other_phones_json', '[]')
             try:
@@ -1952,8 +1951,8 @@ def agent_profile_edit(request):
         'areas':     Area.objects.all().order_by('city'),
     }
     return render(request, 'agent/agent_profile_edit.html', context)
- 
- 
+
+
 @login_required
 @user_passes_test(is_agent)
 @require_http_methods(["POST"])
@@ -2173,7 +2172,7 @@ def add_property_view(request):
         if form.is_valid():
             property_obj        = form.save(commit=False)
             property_obj.agent  = request.user.agent_profile
-            property_obj.status = 'pending'
+            property_obj.status = 'available'
  
             type_obj = property_obj.property_type
             if type_obj and not is_residential(type_obj.name):
@@ -2190,7 +2189,6 @@ def add_property_view(request):
             for i, img in enumerate(request.FILES.getlist('images')):
                 p = PropertyImage.objects.create(
                     property=property_obj, image=img, order=i)
-                p.save()
  
             messages.success(request, 'Listing submitted for review.')
             return redirect('agent_properties')

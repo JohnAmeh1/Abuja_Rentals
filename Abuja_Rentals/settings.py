@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure-&#cg6&7+-j-x@#4p579n*xn!*su83wmc2g6!%xzcl0m#fg^3ow
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["abuja-rentals.onrender.com"]
 
 
 # Application definition

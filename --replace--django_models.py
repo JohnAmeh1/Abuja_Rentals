@@ -481,13 +481,6 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
             "Unselect this instead of deleting accounts."
         ),
     )
-    email_is_verified = models.BooleanField(
-        _("email verified"),
-        default=True,
-        help_text=_(
-            "Designates whether this user's email has been verified. "
-        ),
-    )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     objects = UserManager()
@@ -540,7 +533,6 @@ class AnonymousUser:
     is_staff = False
     is_active = False
     is_superuser = False
-    email_is_verified = False
     _groups = EmptyManager(Group)
     _user_permissions = EmptyManager(Permission)
 

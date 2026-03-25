@@ -13,7 +13,7 @@
       <p class="text-sm text-gray-400 mt-0.5">Here's what's happening with your account.</p>
 
     </div>
-    {% if not user.email_is_verified %}
+    {% if not user.userprofile.email_is_verified %}
       <a href="{% url 'verify_otp'%}"
          class="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition">
         Verify your account

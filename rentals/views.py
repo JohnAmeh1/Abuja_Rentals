@@ -112,7 +112,9 @@ def verify_otp_view(request):
         messages.error(request, 'User not found.')
         return redirect('signup')
 
-    if user.email_is_verified:
+    profile = user.userprofile
+
+    if profile.email_is_verified:
         messages.info(request, 'Email already verified.')
         login(request, user)
         return redirect('home')
@@ -133,8 +135,8 @@ def verify_otp_view(request):
                 return redirect('verify_otp')
 
             if otp.verify(otp_code):
-                user.email_is_verified = True
-                user.save()
+                profile.email_is_verified = True
+                profile.save()
 
                 messages.success(request, 'Email verified successfully!')
                 login(request, user)
@@ -223,9 +225,10 @@ def verify_forgot_password_otp(request):
 
             if otp.verify(otp_code):
                 request.session['password_reset_verified'] = True
-                if not user.email_is_verified:
-                    user.email_is_verified = True
-                    user.save()
+                profile = user.userprofile
+                if not profile.email_is_verified:
+                    profile.email_is_verified = True
+                    profile.save()
 
                 messages.success(request, 'OTP verified successfully. Please set your new password.')
                 return redirect('reset_password')
@@ -399,9 +402,7 @@ def signup_view(request):
             messages.error(request, "An account has already been linked with this email")
             return redirect('login')
         if form.is_valid():
-
             user = form.save(commit=False)
-            user.email_is_verified = False
             user.save()
 
             success = UserProfile.make_profile(user, {
@@ -1980,11 +1981,11 @@ def request_agent_verification(request):
 @login_required
 def agent_apply(request):
     user = request.user
-    if not user.email_is_verified:
+    profile = request.user.userprofile
+    if not profile.email_is_verified:
         messages.info(request, "Please verify your email")
         return redirect('verify_otp')
 
-    profile = user.userprofile
     profile_data = {
         'phone_number': profile.phone_number,
         'whatsapp_number': profile.whatsapp_number,

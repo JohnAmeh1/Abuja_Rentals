@@ -50,6 +50,7 @@ class UserProfile(UserProfileService, models.Model):
     address = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    email_is_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

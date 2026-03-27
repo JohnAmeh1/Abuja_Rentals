@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.conf import settings
-from django.core.mail import send_mail
 from cloudinary.models import CloudinaryField
 
 
@@ -16,22 +14,6 @@ from .services.notification_service import NotificationService
 from .services.otp_service import OTPService
 from .services.property_service import PropertyService
 from .services.user_service import UserProfileService
-
-
-def send_mail_(user, subject, message):
-    try:
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
-            [user.email],
-            fail_silently=False,
-        )
-        return True
-    except Exception as e:
-        print(f"Error sending email: {e}")
-        return False
-
 
 class OTP(OTPService, models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp')
@@ -463,18 +445,6 @@ class AgentApplication(models.Model):
                 AgentAssignedCities(agent=agent_profile, city=city)
                 for city in cities
             ])
-
-        send_mail_(
-            user=self.user,
-            subject='Your agent application has been approved',
-            message=(
-                f"Hi {self.user.get_full_name() or self.user.username},\n\n"
-                f"Congratulations! Your application to become an agent on Abuja Rentals "
-                f"has been approved. You can now list properties and respond to client requests.\n\n"
-                f"Log in to get started: {settings.SITE_URL}/dashboard/\n\n"
-                f"Welcome aboard!"
-            )
-        )
         return agent_profile
 
     def reject(self, reviewed_by, reason=''):
@@ -484,18 +454,6 @@ class AgentApplication(models.Model):
         self.reviewed_at = timezone.now()
         self.rejection_reason = reason
         self.save(update_fields=['status', 'reviewed_by', 'reviewed_at', 'rejection_reason'])
-
-        if reason:
-            send_mail_(
-                user=self.user,
-                subject='Update on your agent application',
-                message=(
-                    f"Hi {self.user.get_full_name() or self.user.username},\n\n"
-                    f"Thank you for applying. Unfortunately your application was not approved at this time.\n\n"
-                    f"Reason: {reason}\n\n"
-                    f"You're welcome to apply again after addressing the feedback above."
-                )
-            )
 
     def __str__(self):
         return f"{self.user.username} — {self.get_status_display()}"

@@ -15,11 +15,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ENV = os.getenv("DJANGO_ENV", "testing")
+ENV = os.getenv("DJANGO_ENV", "development")
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
 
@@ -102,7 +101,7 @@ DATABASES = {
         'HOST': os.getenv("DB_HOST", ""),
         'PORT': os.getenv("DB_PORT", ""),
         'OPTIONS':{
-             'sslmode': 'require',
+             'sslmode': os.getenv("DB_SSL", "require"),
             'connect_timeout': 10,
             },
         'CONN_MAX_AGE': 60,

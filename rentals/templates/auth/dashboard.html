@@ -5,7 +5,7 @@
 
 {% block subcontent %}
 
-  <div class="mb-6 flex justify-between items-end">
+  <div class="mb-6 flex lg:justify-between lg:items-end flex-col lg:flex-row items-start gap-3">
     <div>
       <h2 class="text-xl font-bold text-gray-900">
         Welcome back, {{ user.get_full_name|default:user.username }}

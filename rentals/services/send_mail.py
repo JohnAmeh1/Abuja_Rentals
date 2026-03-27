@@ -16,6 +16,9 @@ NOTIFICATION_CONFIG = {
     'new_visit_request':      ('New visit request for your property',         'emails/visit_request.html'),
     'visit_confirmed':        ('Your visit has been confirmed',               'emails/visit_confirmed.html'),
     'verification_request':   ('Agent verification request',                  'emails/verification_request.html'),
+    'application_request':    ('Agent Application request',                  'emails/verification_request.html'),
+    'application_approved':   ('Agent Application request',                   'emails/agent_approved.html'),
+    'application_denied':     ('Agent Application request',                   'emails/agent_approved.html'),
 
     'email_verification':     ('Verify your email address',                   'emails/email_verification.html'),
     'login_otp':              ('Your login verification code',                'emails/login_otp.html'),

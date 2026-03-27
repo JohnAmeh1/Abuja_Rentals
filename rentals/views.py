@@ -1635,6 +1635,7 @@ def review_agent_application(request, application_id):
             return redirect('admin_users')
 
         status_label = 'Declined' if action == 'reject' else 'Approved'
+        type = 'application_denied' if action == 'reject' else 'application_approved'
         Notification.notify_user(
             userid=application.user.id,
             type='application_reviewed',

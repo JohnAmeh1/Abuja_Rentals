@@ -28,10 +28,12 @@
           <div class="relative overflow-hidden">
             <div id="sliderTrack" class="flex transition-transform duration-500 ease-out">
               {% for image in all_images %}
-                <div class="min-w-full">
-                  <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}" class="w-full aspect-16/10 object-cover"
-                       alt="Property image {{ forloop.counter }}">
-                </div>
+              <div class="min-w-full cursor-pointer" 
+                  onclick="openLightBox('{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}')">
+                <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}" 
+                    class="w-full aspect-video object-cover"
+                    alt="Property image {{ forloop.counter }}">
+              </div>
               {% endfor %}
             </div>
 
@@ -182,14 +184,13 @@
         {% if amenities %}
           <div class="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 class="text-base font-bold text-gray-900 mb-4">Amenities & Features</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {% for amenity in amenities %}
-                <div class="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm text-gray-700 hover:bg-primary/5 hover:border-primary/20 transition">
-                  <i class="{{ amenity.icon }} text-primary text-xs shrink-0"></i>
-                  {{ amenity.display_name }}
-                </div>
-              {% endfor %}
+            <div class="flex flex-wrap grid-cols-2 sm:grid-cols-3 gap-2 duration-200" id="amenities">
             </div>
+            <button onclick="showAllAmenities()" id="amenities_btn"
+              class="mt-4 w-full py-2.5 text-xs font-semibold text-primary border border-primary/20 
+                    bg-primary/5 hover:bg-primary hover:text-white rounded-xl transition duration-200">
+              Show all amenities
+            </button>
           </div>
         {% endif %}
 
@@ -340,6 +341,7 @@
 
           </div>
 
+
           {% if property.verified %}
             <div class="border overflow-hidden rounded-2xl border-gray-200">
               <div class="bg-[#0F6E56] p-5">
@@ -368,6 +370,65 @@
                 <i class="fas fa-info-circle text-[#1D9E75] text-xs"></i>
                 <p class="text-xs text-gray-400 m-0">Verification badge issued by Abuja Rentals</p>
               </div>
+            </div>
+
+          {% else %}
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+              <h1 class="font-black text-xl mb-1">Safety tips</h1>
+              <p class="text-xs text-gray-400 mb-4">Protect yourself when renting or buying property</p>
+              <ul class="space-y-3">
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-ban text-red-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Never pay before inspecting</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Avoid any upfront payments or transfers before physically seeing the property.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-file-contract text-blue-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Verify all documents</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Request title documents, C of O, or tenancy agreement and confirm they're legitimate.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-user-shield text-amber-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Meet in a safe place</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Always meet agents or landlords in public first. Bring someone you trust for physical visits.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-search text-green-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Inspect thoroughly</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Check water, electricity, walls, and surroundings. Only pay when you're fully satisfied.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-headset text-primary text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Report suspicious listings</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">If something feels off, report the listing. We review and remove fraudulent properties quickly.</p>
+                  </div>
+                </li>
+
+              </ul>
             </div>
           {% endif %}
 
@@ -439,6 +500,17 @@
     </div>
   {% endif %}
 
+<div class="fixed inset-0 z-50 opacity-0 pointer-events-none transition-opacity duration-300" id="lightbox">
+  <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeLightbox()"></div>
+  <button onclick="closeLightbox()" 
+          class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center 
+            rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+    <i class="fas fa-times text-sm"></i>
+  </button>
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <img src="" class="max-w-full max-h-full  object-cover rounded-xl" alt="">
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -450,6 +522,55 @@
     const total      = track ? track.children.length : 0;
     let current      = 0;
     let autoPlay;
+    const amenities_list = [{% for amenity in amenities %}{display_name: '{{ amenity.display_name }}', icon: '{{amenity.icon}}'},{% endfor %}]
+    const amenities_div = document.getElementById("amenities")
+    const amenities_btn = document.getElementById("amenities_btn")
+
+    showLess()
+
+    function openLightBox(src) {
+      const lightbox = document.getElementById("lightbox")
+      lightbox.querySelector("img").src = src
+      lightbox.classList.remove("opacity-0", "pointer-events-none")
+      document.body.style.overflow = "hidden"
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById("lightbox")
+      lightbox.classList.add("opacity-0", "pointer-events-none")
+      document.body.style.overflow = ""
+      setTimeout(() => lightbox.querySelector("img").src = "", 300)
+    }
+
+    function showAllAmenities() {
+      amenities_div.innerHTML = ''
+      showAmenities(amenities_list)
+      amenities_btn.textContent = "Show Less"
+      amenities_btn.onclick = showLess
+    }
+
+    function showLess() {
+      amenities_div.innerHTML = ''
+      showAmenities(amenities_list.slice(0, 6))
+      amenities_btn.textContent = "Show all amenities"
+      amenities_btn.onclick = showAllAmenities
+
+      if (amenities_list.length <= 6) amenities_btn.classList.add('hidden')
+    }
+
+function showAmenities(arr) {
+  for (val of arr) {
+    let d = document.createElement("div")
+    d.className = "animate-slide-up duration-200"
+    d.innerHTML = `
+      <div class="flex items-center gap-2 px-2 py-2.5 bg-gray-50 border border-gray-100 
+                  rounded-xl text-sm text-gray-700 hover:bg-primary/5 hover:border-primary/20 transition">
+        <i class="${val.icon} text-primary text-xs shrink-0"></i>
+        ${val.display_name}
+      </div>`
+    amenities_div.appendChild(d)
+  }
+}
 
     function updateSlider() {
       if (!track) return;

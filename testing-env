@@ -7,9 +7,9 @@ DB_HOST=aws-1-eu-central-2.pooler.supabase.com
 DB_PORT=5432
 DB_SSL=require
 
-EMAIL_HOST_USER = dreamzcybercafe2021@gmail.com
-EMAIL_HOST_PASSWORD = 'xjup fswi kbqf stuw'
-
 CLOUDINARY_CLOUD_NAME = ddhjg0j3u
 CLOUDINARY_API_KEY = 228448685218287
 CLOUDINARY_API_SECRET = ZqaL-BCrilQGT2qdHFdaCrHfv6o
+
+EMAIL_HOST_USER=favourfasi46@gmail.com
+BREVO_API_KEY=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

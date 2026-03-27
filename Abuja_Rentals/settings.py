@@ -15,6 +15,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +32,8 @@ SECRET_KEY = 'django-insecure-&#cg6&7+-j-x@#4p579n*xn!*su83wmc2g6!%xzcl0m#fg^3ow
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["abuja-rentals.onrender.com"]
+ALLOWED_HOSTS = ["abuja-rentals.onrender.com", "127.0.0.1"]
+
 
 
 # Application definition
@@ -47,7 +49,8 @@ INSTALLED_APPS = [
     'rentals',
     'cloudinary_storage',
     'cloudinary',
-    'debug_toolbar'
+    'debug_toolbar',
+    'anymail'
 ]
 
 MIDDLEWARE = [
@@ -116,9 +119,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
@@ -174,16 +177,15 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-# Email Configuration for Gmail SMTP
-EMAIL_BACKEND   = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST      = 'smtp.gmail.com'
-EMAIL_PORT      = 587
-EMAIL_USE_TLS   = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND   = 'anymail.backends.brevo.EmailBackend'
 
-DEFAULT_FROM_EMAIL = 'Abuja Rentals <no-reply@abujarentals.com>'
-SITE_URL = "https://abujarentals.com"
+ANYMAIL = {
+    "BREVO_API_KEY": os.getenv("BREVO_API_KEY", ""), 
+}
+
+DEFAULT_FROM_EMAIL = 'favourfasi46@gmail.com'
+SENDER_URL = 'abuja-rentals.onrender.com'
+SITE_URL = "https://abuja-rentals.onrender.com"
 
 # Media files
 

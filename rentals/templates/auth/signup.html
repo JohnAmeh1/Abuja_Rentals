@@ -151,8 +151,8 @@
                                                     </li>
                                                     <li class="flex items-center" id="num"><i
                                                         class="fas fa-circle text-xs mr-2"></i>Letters and numbers</li>
-                                                    <li class="flex items-center"><i
-                                                        class="fas fa-circle text-xs mr-2"></i>Not too common</li>
+                                                    {% comment %} <li class="flex items-center"><i
+                                                        class="fas fa-circle text-xs mr-2"></i>Not too common</li> {% endcomment %}
                                                 </ul>
                                             </div>
                                         </div>
@@ -259,11 +259,11 @@
         const p1 = document.getElementById("p1")
         p1.addEventListener('input', (e) => {
             if (String(e.target.value).length > 7){
-                document.getElementById("len").classList.remove("text-red-500")
-                document.getElementById("len").classList.add("text-green-500")
+                document.getElementById("len").classList.remove("text-red-600")
+                document.getElementById("len").classList.add("text-green-600")
             } else {
-                document.getElementById("len").classList.remove("text-green-500")
-                document.getElementById("len").classList.add("text-red-500")
+                document.getElementById("len").classList.remove("text-green-600")
+                document.getElementById("len").classList.add("text-red-600")
             }
             let s = String(e.target.value).split("")
             letter = true
@@ -273,13 +273,13 @@
                     digit = true
                 }
                 if (digit && letter) {
-                    document.getElementById("num").classList.remove("text-red-500")
-                    document.getElementById("num").classList.add("text-green-500")
+                    document.getElementById("num").classList.remove("text-red-600")
+                    document.getElementById("num").classList.add("text-green-600")
                     return
                 }
             }
-            document.getElementById("num").classList.remove("text-green-500")
-            document.getElementById("num").classList.add("text-red-500")
+            document.getElementById("num").classList.remove("text-green-600")
+            document.getElementById("num").classList.add("text-red-600")
         })
     </script>
 

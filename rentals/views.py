@@ -5,8 +5,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, Q, F, DecimalField, Prefetch
-from django.core.mail import send_mail
-from django.conf import settings
 
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -15,6 +13,7 @@ from django.core.paginator import Paginator
 from django.core import signing
 from datetime import datetime
 from decimal import Decimal
+from .services.send_mail import _send_notification_email
 
 
 
@@ -50,60 +49,24 @@ def is_admin(user):
 def is_agent(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'agent'
 
-def send_mail_(user, subject, message):
-    try:
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@abuja-rentals.com',
-            [user.email],
-            fail_silently=False,
-        )
-        return True
-    except Exception as e:
-        print(f"Error sending email: {e}")
-        return False
 
-
-def send_otp_email(user, otp_code):
-    subject = 'Your OTP for Email Verification - Abuja Rentals'
-    message = f"""
-    Hello {user.first_name or user.username},
+def trigger_otp_notification(user, notification_type):
+    otp = OTP.create_otp(user)
     
-    Your One-Time Password (OTP) for email verification is:
+    notification = Notification.objects.create(
+        user=user,
+        type=notification_type,
+        mode="email",
+        message=otp.code,
+        sent=False
+    )
     
-    {otp_code}
+    success = _send_notification_email(notification.id)
     
-    This code will expire in 10 minutes.
-    
-    If you did not request this code, please ignore this email.
-    
-    Best regards,
-    Abuja Rentals Team
-    """
-    return send_mail_(user, subject, message)
-
-
-def send_forgot_password_email(user, otp_code):
-    subject = 'Password Reset Request - Abuja Rentals'
-    message = f"""
-    Hello {user.first_name or user.username},
-    
-    We received a request to reset your password. 
-    
-    Please use the OTP code below to verify your identity and reset your password:
-    
-    Your One-Time Password (OTP): {otp_code}
-    
-    This code will expire in 10 minutes.
-    
-    If you did not request this password reset, please ignore this email and your password will remain unchanged.
-    
-    Best regards,
-    Abuja Rentals Team
-    """
-    return send_mail_(user, subject, message)
-
+    if not success:
+        otp.delete()
+            
+    return success
 
 def verify_otp_view(request):
     """View to verify OTP code"""
@@ -154,16 +117,15 @@ def verify_otp_view(request):
 
 def resend_otp(request):
     user = request.user
-    if not user:
-        messages.error(request, 'User not found.')
+    if not user.is_authenticated:
         return redirect('signup')
 
-    otp = OTP.create_otp(user)
-    if send_otp_email(user, otp.code):
-        messages.success(request, f'OTP sent to {user.email}')
+    success = trigger_otp_notification(user, "email_verification")
+    
+    if success:
+        messages.success(request, f'A new verification code was sent to {user.email}')
     else:
-        otp.delete()
-        messages.error(request, 'Failed to send OTP. Please try again.')
+        messages.error(request, 'Failed to send email. Please try again.')
 
     return redirect('verify_otp')
 
@@ -176,15 +138,15 @@ def forgot_password(request):
             email = form.cleaned_data['email']
             try:
                 user = User.objects.get(email=email)
-                otp = OTP.create_otp(user)
+                success = trigger_otp_notification(user, "forgot_password")
 
-                if send_forgot_password_email(user, otp.code):
+                if success:
                     request.session['password_reset_user_id'] = user.id
-                    messages.success(request, f'OTP sent to {user.email}. Please check your email.')
+                    messages.success(request, 'Check your email for the reset code.')
                     return redirect('verify_forgot_password_otp')
+
                 else:
                     messages.error(request, 'Failed to send OTP. Please try again later.')
-                    otp.delete()
             except User.DoesNotExist:
                 messages.info(request, f'Please check the email "{email}"')
                 return redirect('login')
@@ -292,9 +254,9 @@ def resend_forgot_password_otp(request, user_id):
         messages.error(request, 'User not found.')
         return redirect('login')
 
-    otp = OTP.create_otp(user)
+    success = trigger_otp_notification(user, "forgot_password")
 
-    if send_forgot_password_email(user, otp.code):
+    if success:
         messages.success(request, f'OTP resent to {user.email}')
     else:
         messages.error(request, 'Failed to send OTP. Please try again.')
@@ -417,13 +379,12 @@ def signup_view(request):
             next_url = request.GET.get('next', 'home')
             login(request, user)
 
-            otp = OTP.create_otp(user)
-            if send_otp_email(user, otp.code):
+            success = trigger_otp_notification(user, "email_verification")
+            if success:
                 messages.success(request, 'Account created! Please check your email for the OTP code.\nYou can verify in the dashboard')
                 return redirect(next_url)
             else:
                 messages.error(request, 'Failed to send OTP email. Please try again.')
-                otp.delete()
                 return redirect(next_url)
         else:
             print(f"DEBUG: Form errors: {form.errors}")

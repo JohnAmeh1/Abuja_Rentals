@@ -270,7 +270,7 @@
               {% else %}
                 <div class="w-12 h-12 rounded-xl bg-linear-to-br from-primary/80 to-accent
                             flex items-center justify-center text-white font-bold uppercase">
-                  {% if agent.name %}{{agent.name}}{% else %}{{ agent.user.get_full_name }}{% endif %}
+                  {% if agent.name %}{{agent.name|slice:":1"}}{% else %}{{ agent.user.get_full_name|slice:":1" }}{% endif %}
                 </div>
               {% endif %}
 

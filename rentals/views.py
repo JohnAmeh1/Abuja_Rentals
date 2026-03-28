@@ -322,7 +322,7 @@ def home(request):
         
     amenities = cache.get("home_amenities")
     if not amenities:
-        amenities = list(Amenity.objects.values("id", "name"))
+        amenities = list(Amenity.objects.values("id", "display_name", "icon"))
         cache.set("home_amenities", amenities, 3600)
 
     context = {
@@ -562,13 +562,15 @@ def _apply_filters(qs, params, user_is_admin=False):
     if purpose:
         qs = qs.filter(purpose=purpose)
 
-    city = params.get("city", "").strip()
-    if city:
-        qs = qs.filter(location__area__city_id=city)
         
     area = params.get("area", "").strip()
     if area:
         qs = qs.filter(location__area_id=area)
+        
+    if not area:
+        city = params.get("city", "").strip()
+        if city:
+            qs = qs.filter(location__area__city_id=city)
 
     school = params.get("school", "").strip()
     if school:
@@ -743,15 +745,39 @@ def properties_view(request):
 
     active_city_id = int(active["city"]) if active["city"].isdigit() else None
     active_areas   = areas_map.get(active_city_id, []) if active_city_id else []
+    
+    from django.core.cache import cache
+    schools = cache.get("home_schools")
+    if not schools:
+        schools = list(
+            School.objects.order_by("name").values("id", "name", "short_name")[:100]
+        )
+    cache.set("home_schools", schools, 3600)
+    
+    cities = cache.get("home_cities")
+    if not cities:
+        cities = list(City.objects.values("id", "name"))
+        cache.set("home_cities", cities, 3600)
+        
+    amenities = cache.get("home_amenities")
+    if not amenities:
+        amenities = list(Amenity.objects.values("id", "display_name", "icon"))
+        cache.set("home_amenities", amenities, 3600)
+        
+    ptypes = cache.get("home_types")
+    if not ptypes:
+        ptypes = list(Amenity.objects.values("id", "display_name", "icon"))
+        cache.set("home_types", ptypes, 3600)
+
 
     context = {
         "page_title":     "Available Properties",
         "user_is_admin":  user_is_admin,
-        "property_types": PropertyType.objects.all(),
+        "property_types": ptypes,
         "status_choices": status_choices,
-        "amenity_choices": Amenity.objects.all(),
-        "schools":        School.objects.order_by("name"),
-        "cities":         City.objects.all().order_by("name"),
+        "amenity_choices":amenities,
+        "schools":        schools,
+        "cities":         cities,
         "active_areas":   active_areas,  
         "areas_map_json": areas_map,     
         "active":         active,

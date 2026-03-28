@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'rentals',
     'cloudinary_storage',
     'cloudinary',
-    'debug_toolbar',
     'anymail'
 ]
 
@@ -62,7 +61,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'Abuja_Rentals.urls'

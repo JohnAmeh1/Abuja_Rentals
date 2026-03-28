@@ -303,7 +303,7 @@ def home(request):
 
     context = {
         'featured_properties': featured_properties,
-        'total_properties': available.count(),
+        'total_properties': round(available.count(), -2),
         'categories': categories_raw[:9],
         'property_types': type_choices,
         'page_title': 'Home',
@@ -2278,7 +2278,7 @@ class AboutView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['total_properties']   = Property.objects.filter(status='available').count()
+        ctx['total_properties']   = round(Property.objects.filter(status='available').count(), -2)
         ctx['neighbourhood_count'] = City.objects.count()
         ctx['tenant_count']       = (
             UserProfile.objects.filter(user_type='tenant').count()

@@ -267,74 +267,120 @@
   </div>
   <div id="mobile-menu-backdrop" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
 
-  <div id="mobile-drawer" class="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-white z-60 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col lg:hidden">
+  <div id="mobile-drawer" class="fixed top-0 right-0 h-full w-[85vw] max-w-xs bg-white z-60 shadow-xl transform translate-x-full transition-transform duration-300 flex flex-col lg:hidden">
 
-    <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-      <div class="text-base font-black text-primary tracking-tight">
-        Abuja<span class="text-accent">Rentals</span>
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+        <i class="fas fa-house text-white text-[10px]"></i>
       </div>
-      <button id="close-mobile-menu" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
-        <i class="fas fa-times"></i>
-      </button>
+      <span class="text-sm font-black text-gray-900 tracking-tight">Abuja Rentals</span>
+    </div>
+    <button id="close-mobile-menu" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
+      <i class="fas fa-times text-sm"></i>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="flex-1 overflow-y-auto px-5 py-6 space-y-7">
+
+    <!-- Primary nav -->
+    <nav class="space-y-0.5">
+      <a href="{% url 'home' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
+        <span>Home</span>
+      </a>
+      <a href="{% url 'properties' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
+        <span>Properties</span>
+        <i class="fas fa-chevron-right text-[9px] text-gray-300 group-hover:text-gray-500 transition"></i>
+      </a>
+      <a href="{% url 'about' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition">
+        <span>About</span>
+      </a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition">
+          <span>Dashboard</span>
+        </a>
+      {% endif %}
+    </nav>
+
+    <!-- Browse section -->
+    <div>
+      <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Browse</p>
+      <div class="space-y-0.5">
+        <a href="{% url 'properties' %}?purpose=rent" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+          <span>For Rent</span>
+          <span class="text-[10px] text-gray-400">Monthly & yearly</span>
+        </a>
+        <a href="{% url 'properties' %}?purpose=sale" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+          <span>For Sale</span>
+          <span class="text-[10px] text-gray-400">Own your property</span>
+        </a>
+        <a href="{% url 'schools' %}" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+          <span>Student Housing</span>
+          <span class="text-[10px] text-gray-400">Near universities</span>
+        </a>
+        <a href="{% url 'properties' %}?furnished=true" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+          <span>Furnished</span>
+          <span class="text-[10px] text-gray-400">Move-in ready</span>
+        </a>
+      </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-
-      <div class="flex gap-2">
-        <a href="{% url 'properties' %}?purpose=rent" class="flex-1 text-center py-2.5 text-xs font-bold bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition">For Rent</a>
-        <a href="{% url 'properties' %}?purpose=sale" class="flex-1 text-center py-2.5 text-xs font-bold bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition">For Sale</a>
-        <a href="{% url 'schools' %}" class="flex-1 text-center py-2.5 text-xs font-bold bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition">Student</a>
+    <!-- Notifications -->
+    {% if admin_messages %}
+      <div>
+        <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Alerts</p>
+        <button id="notificationBellBtnMobile" class="flex items-center justify-between w-full px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+          <span>Notifications</span>
+          <span class="text-[10px] font-semibold text-white bg-red-500 rounded-full px-2 py-0.5">{{ admin_messages|length }}</span>
+        </button>
       </div>
+    {% endif %}
 
-      <div class="space-y-1">
-        <a href="{% url 'home' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
-          <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition"><i class="fas fa-home text-sm"></i></div>
-          Home
-        </a>
-        <a href="{% url 'properties' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
-          <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition"><i class="fas fa-building text-sm"></i></div>
-          Properties
-        </a>
-        <a href="{% url 'about' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
-          <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition"><i class="fas fa-info-circle text-sm"></i></div>
-          About
-        </a>
-
-        {% if admin_messages %}
-          <button id="notificationBellBtnMobile" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group w-full">
-            <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 transition"><i class="fas fa-bell text-sm"></i></div>
-            Notifications
-            <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ admin_messages|length }}</span>
-          </button>
-        {% endif %}
-      </div>
-
-      <hr class="border-gray-100">
-
-      <div class="space-y-1">
-        <p class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Account</p>
-
+    <!-- Account -->
+    <div>
+      <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Account</p>
+      <div class="space-y-0.5">
         {% if user.is_authenticated %}
-          <a href="{% url 'dashboard' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
-            <i class="fas fa-th-large text-gray-400 w-5 text-center group-hover:text-primary transition"></i> Dashboard
+          <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary uppercase">
+              {{ user.first_name|first|default:user.username|first }}
+            </div>
+            <span>{{ user.first_name|default:user.username }}</span>
           </a>
-          <a href="{% url 'profile' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
-            <i class="fas fa-user text-gray-400 w-5 text-center group-hover:text-primary transition"></i> Profile
-          </a>
-          <a href="{% url 'logout' %}" class="flex items-center gap-4 px-4 py-3.5 text-red-500 hover:bg-red-50 rounded-xl font-medium transition">
-            <i class="fas fa-sign-out-alt w-5 text-center"></i> Sign Out
+          <a href="{% url 'logout' %}" class="flex items-center px-3 py-2.5 text-sm text-red-500 rounded-lg hover:bg-red-50 transition">
+            Sign out
           </a>
         {% else %}
-          <a href="{% url 'login' %}" class="flex items-center gap-4 px-4 py-3.5 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition group">
-            <i class="fas fa-sign-in-alt text-gray-400 w-5 text-center group-hover:text-primary transition"></i> Sign In
+          <a href="{% url 'login' %}" class="flex items-center px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            Sign in
           </a>
-          <a href="{% url 'signup' %}" class="flex items-center justify-center gap-2 mt-4 py-3.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition shadow-md shadow-primary/20">
-            <i class="fas fa-user-plus text-xs"></i> Create Account
+          <a href="{% url 'signup' %}" class="flex items-center px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            Create account
           </a>
         {% endif %}
       </div>
     </div>
+
   </div>
+
+  <!-- CTA Footer -->
+  <div class="px-5 py-5 border-t border-gray-100">
+    {% if user.userprofile.user_type == "agent" %}
+      <a href="{% url 'add_property' %}"
+         class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition">
+        <i class="fas fa-plus text-xs"></i> Add listing
+      </a>
+    {% else %}
+      <button onclick="closeMobileMenu(); openRequestModal()"
+              class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition">
+        <i class="fas fa-paper-plane text-xs"></i> Make a Request
+      </button>
+    {% endif %}
+  </div>
+
+</div>
 
 </nav>
 

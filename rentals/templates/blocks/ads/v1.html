@@ -1,7 +1,7 @@
 
-<div class="relative overflow-hidden rounded-2xl col-span-1 sm:col-span-2 xl:col-span-3
-            border border-white/5 p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
-  <img src="https://res.cloudinary.com/ddhjg0j3u/image/upload/v1774621763/home-bg_bw248m.webp" class="absolute inset-0 object-cover size-full -z-10" alt="">
+<div class="relative overflow-hidden rounded-2xl col-span-full">
+  <img src="https://res.cloudinary.com/ddhjg0j3u/image/upload/v1774621760/careers-bg_bdjeuz.webp" class="absolute object-cover inset-0 size-full -z-10 pointer-events-none select-none" alt="">
+        <div class="bg-gray-950/50 backdrop-blur-lg px-10 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6 ">
 
 
   <div class="hidden w-16 h-16 rounded-2xl bg-white/10 lg:flex items-center justify-center shrink-0 z-10">
@@ -9,21 +9,21 @@
   </div>
 
   <div class="flex-1">
-    <h3 class="text-lg sm:text-xl font-black text-shadow-2xs text-white leading-tight mb-2 lg:mb-1.5">
+    <h3 class="text-white font-bold text-lg">
       Have a property to list?
     </h3>
-    <p class="text-sm lg:font-light text-gray-300 max-w-sm">
+    <p class="text-gray-400 text-sm mt-0.5">
       Reach thousands of verified renters and buyers across Abuja. Free to list, no commission.
     </p>
   </div>
 
-  <div class="flex flex-col sm:flex-row lg:gap-2 shrink-0 max-lg:w-full">
+  <div class="flex gap-3 lg:gap-3 shrink-0 flex-col lg:flex-row max-lg:w-full">
     <a href="{% url 'add_property' %}"
-       class="px-8 py-2.5 bg-white text-gray-900 text-sm font-bold rounded-xl hover:bg-gray-100 transition whitespace-nowrap max-lg:w-fit">
+       class="px-8 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition max-lg:w-fit">
       List for Free
     </a>
     <a href="{% url 'about' %}"
-       class="px-8 py-2.5 border border-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/10 transition whitespace-nowrap max-lg:w-fit max-lg:ml-auto">
+       class="px-8 py-2.5 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded-xl transition max-lg:w-fit max-lg:ml-auto">
       Learn more
     </a>
   </div>

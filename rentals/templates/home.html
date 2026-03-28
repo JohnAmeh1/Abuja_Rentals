@@ -69,7 +69,7 @@
 
       <div class="max-w-5xl mx-auto">
 
-        <div class="mb-5 lg:mb-10 py-10 lg:py-0">
+        <div class="mb-5 lg:mb-10 py-5 lg:py-0">
           <h1 class="text-5xl lg:text-6xl font-black text-white mb-6 leading-tight tracking-tight text-center">
             Find a Place You’ll
             <br>
@@ -195,7 +195,7 @@
 
     <div class="container mx-auto px-4 lg:px-20">
 
-      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 lg:mb-16">
         <div>
           <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
             <span class="w-6 h-px bg-blue-500 inline-block"></span>
@@ -205,115 +205,14 @@
             Properties<br class="hidden lg:block"> Worth Your Attention
           </h2>
         </div>
-        <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
+        <p class="text-gray-500 max-w-sm leading-relaxed text-xs lg:text-base lg:text-right">
           Verified homes in Abuja with real photos, clear pricing, and direct access to owners.
         </p>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
         {% for prop in featured_properties %}
-          <article class="group bg-white rounded-2xl border border-gray-100 hover:shadow-xl hover:border-gray-200
-                          transition-all duration-300 overflow-hidden flex flex-col">
-
-          <!-- Image -->
-            <div class="relative aspect-16/10 overflow-hidden bg-gray-100 shrink-0">
-              {% if prop.main_image %}
-                <img src="{{ prop.main_image }}" alt="{{ prop.title }}"
-                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ease-out">
-              {% else %}
-                <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                  <i class="fas fa-home text-gray-200 text-4xl"></i>
-                </div>
-              {% endif %}
-
-            <!-- Top badges -->
-              <div class="absolute top-3 left-3 flex gap-1.5">
-                <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg
-                             {% if prop.purpose == 'rent' %}bg-blue-500 text-white{% else %}bg-primary text-white{% endif %}">
-                  For {{ prop.purpose|capfirst }}
-                </span>
-                {% if prop.is_featured %}
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-400 text-amber-900">
-                    Featured
-                  </span>
-                {% endif %}
-                {% if prop.verified %}
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500 text-white">
-                    <i class="fas fa-shield-alt text-[9px]"></i>
-                  </span>
-                {% endif %}
-              </div>
-
-            <!-- Save button -->
-              <a href="{% url 'save_property' prop.id %}"
-                 class="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-xl
-                        flex items-center justify-center text-gray-400 hover:text-red-500
-                        hover:bg-white transition shadow-sm">
-                <i class="fas fa-heart text-xs"></i>
-              </a>
-
-            <!-- Price overlay -->
-              <div class="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/60 to-transparent px-4 py-3 pointer-events-none">
-                <p class="text-white font-black text-xl leading-none">
-                  ₦{{ prop.price|floatformat:0|intcomma }}
-                </p>
-                {% if prop.purpose == 'rent' %}
-                  <p class="text-white/70 text-[11px] mt-0.5">
-                    {% if prop.rent_duration_months == 1 %}per month
-                    {% elif prop.rent_duration_months == 12 %}per year
-                    {% elif prop.rent_duration_months == 3 and prop.school %}per semester
-                    {% endif %}
-                  </p>
-                {% endif %}
-              </div>
-            </div>
-
-          <!-- Body -->
-            <div class="p-5 flex flex-col flex-1">
-
-            <!-- Location -->
-              <p class="text-xs text-gray-400 flex items-center gap-1 mb-2 truncate">
-                <i class="fas fa-map-marker-alt text-[9px] shrink-0"></i>
-                <span class="capitalize">
-                  {% if prop.city %}{{ prop.city }}{% endif %}
-                  {% if prop.state %}, {{ prop.state }}{% endif %}
-                </span>
-              </p>
-
-            <!-- Title -->
-              <h3 class="font-bold text-gray-900 text-base leading-snug line-clamp-2 mb-2
-                         group-hover:text-primary transition">
-                {{ prop.title }}
-              </h3>
-
-            <!-- Specs row -->
-              <div class="flex items-center gap-4 text-xs text-gray-500 mb-4">
-                {% if prop.bedrooms %}
-                  <span class="flex items-center gap-1">
-                    <i class="fas fa-bed text-gray-300 text-[10px]"></i>{{ prop.bedrooms }} bed
-                  </span>
-                {% endif %}
-                {% if prop.bathrooms %}
-                  <span class="flex items-center gap-1">
-                    <i class="fas fa-bath text-gray-300 text-[10px]"></i>{{ prop.bathrooms }} bath
-                  </span>
-                {% endif %}
-                {% if prop.area_sqft %}
-                  <span class="flex items-center gap-1 ml-auto">
-                    <i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>{{ prop.area_sqft|floatformat:0 }} sqft
-                  </span>
-                {% endif %}
-              </div>
-
-            <!-- CTA -->
-              <a href="{% url 'property_detail' prop.id %}"
-                 class="mt-auto block text-center py-2.5 rounded-xl border border-gray-200 text-sm font-semibold
-                        text-gray-700 hover:bg-primary hover:text-white hover:border-primary transition">
-                View Property
-              </a>
-            </div>
-          </article>
-
+          {% include 'blocks/property.html' %}
         {% empty %}
           <div class="md:col-span-2 lg:col-span-3 text-center py-16 text-gray-400">
             <i class="fas fa-home text-4xl mb-4 block text-gray-200"></i>

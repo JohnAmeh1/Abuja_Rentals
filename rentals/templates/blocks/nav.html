@@ -446,12 +446,14 @@
     void mobileBackdrop.offsetWidth;
     mobileBackdrop.classList.add('opacity-100');
     mobileDrawer.classList.remove('translate-x-full');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden'; 
+    document.body.querySelector("main").classList.add("-translate-x-10")
   }
-
+  
   function closeMobileMenu() {
     mobileDrawer.classList.add('translate-x-full');
     mobileBackdrop.classList.remove('opacity-100');
+    document.body.querySelector("main").classList.remove("-translate-x-10")
     setTimeout(() => {
       mobileBackdrop.classList.add('hidden');
       document.body.style.overflow = '';

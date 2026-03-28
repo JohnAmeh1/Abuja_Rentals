@@ -1,0 +1,11 @@
+__pycache__/
+__pycache__/*
+*.pyc
+.env.*
+.venv/
+.vscode/*
+.env
+00*.py
+node_modules/
+node_modules/*
+install.sh

@@ -267,15 +267,13 @@ def resend_forgot_password_otp(request, user_id):
 def home(request):
     available = Property.objects.filter(status='available')
 
-    featured_ids = list(
-        available.filter(is_featured=True).values_list('id', flat=True)
+    featured_qs = (
+        available.filter(is_featured=True)
+        .order_by("?")[:3]
     )
-
-    if featured_ids:
-        chosen_ids = random.sample(featured_ids, min(3, len(featured_ids)))
-        featured_qs = available.filter(id__in=chosen_ids)
-    else:
-        featured_qs = available.order_by('-views')[:3]
+    
+    if not featured_qs.exists():
+        featured_qs = available.order_by("-views")[:3]
 
     featured_qs = featured_qs.select_related(
         "location__area",
@@ -287,19 +285,45 @@ def home(request):
     )
 
     featured_properties = [serialize_property(p) for p in featured_qs]
-    type_choices = PropertyType.objects.all()
+    
+    type_counts = dict(
+        available.values_list("property_type_id")
+        .annotate(cnt=Count("id"))
+    )
+
+    type_choices = PropertyType.objects.only(
+        "id", "name", "display_name", "image"
+    )
 
     categories_raw = [
         {
-            'id': row.id,
-            'name': row.name,
-            'display_name': row.display_name,
-            'count': f"{(available.filter(property_type=row.id).count() // 100) * 100}",
-            'image': row.image
+            "id": pt.id,
+            "name": pt.name,
+            "display_name": pt.display_name,
+            "count": f"{(type_counts.get(pt.id, 0) // 100) * 100}",
+            "image": pt.image,
         }
-        for row in type_choices
+        for pt in type_choices
     ]
     random.shuffle(categories_raw)
+    from django.core.cache import cache
+    
+    schools = cache.get("home_schools")
+    if not schools:
+        schools = list(
+            School.objects.order_by("name").values("id", "name", "short_name")[:100]
+        )
+    cache.set("home_schools", schools, 3600)
+    
+    cities = cache.get("home_cities")
+    if not cities:
+        cities = list(City.objects.values("id", "name"))
+        cache.set("home_cities", cities, 3600)
+        
+    amenities = cache.get("home_amenities")
+    if not amenities:
+        amenities = list(Amenity.objects.values("id", "name"))
+        cache.set("home_amenities", amenities, 3600)
 
     context = {
         'featured_properties': featured_properties,
@@ -307,9 +331,9 @@ def home(request):
         'categories': categories_raw[:9],
         'property_types': type_choices,
         'page_title': 'Home',
-        'amenity_choices': Amenity.objects.all(),
-        'schools': School.objects.all().order_by('name'),
-        'cities': City.objects.all(),
+        'amenity_choices': amenities,
+        'schools': schools,
+        'cities': cities,
     }
 
     return render(request, "home.html", context)

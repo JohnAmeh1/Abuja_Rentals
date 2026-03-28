@@ -24,7 +24,7 @@ def admin_messages_context(request):
         start_date__lte=now,
     ).filter(
         Q(end_date__isnull=True) | Q(end_date__gte=now)
-    )
+    ).only("id", "message", "title")
     if user_type == 'agent':
         qs = qs.filter(show_to_agents=True)
     else:
@@ -54,10 +54,9 @@ def nav_context(request):
         .annotate(cnt=Count('id'))
     )
     count_map = {row['property_type_id']: row['cnt'] for row in available_type_ids}
-
     property_types = []
     i = 0
-    for pt in PropertyType.objects.order_by('display_name'):
+    for pt in PropertyType.objects.order_by("display_name"):
         if i == 10:
             break
         cnt = count_map.get(pt.id, 0)
@@ -85,8 +84,8 @@ def nav_context(request):
     total_properties = Property.objects.filter(status='available').count()
 
     result =  {
-        'nav_property_types': property_types,
-        'nav_cities':         nav_cities,
+        'nav_property_types': [{"icon": pt.icon, "display_name": pt.display_name, "property_count": pt.property_count} for pt in property_types],
+        'nav_cities':         [{'id': c.id, 'name': c.name} for c in nav_cities],
         'total_properties':   total_properties,
         'nav_fallback_areas': ['Maitama', 'Wuse II', 'Asokoro', 'Gwarinpa', 'Jabi', 'Garki', 'Lugbe', 'Kado'],
     }

@@ -1,0 +1,14 @@
+{
+    "users":1000,
+    "properties":10000,
+    "username":"postgres",
+    "password":"password",
+    "host":"localhost",
+    "table":"abuja_rentals",
+    "port": 5432,
+    "batchSize": 500,
+    "inquiries": 100,
+    "saved": 500,
+    "bookings": 500
+}
+

@@ -1,3 +1,4 @@
+#!/bin/bash
 for arg in "$@"
 do
     pip uninstall arg

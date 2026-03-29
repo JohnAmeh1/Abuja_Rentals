@@ -1,9 +1,11 @@
-# Exit on error
+#!/bin/bash
 set -o errexit
 
 cd ./rentals/
 
-rm -rf node_modules
+if [ -d "node_modules" ]; then
+    rm -rf node_modules
+fi
 
 npm install
 

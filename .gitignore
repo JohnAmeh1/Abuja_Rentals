@@ -9,3 +9,6 @@ __pycache__/*
 node_modules/
 node_modules/*
 install.sh
+.gitignore
+uninstall.sh
+migrate.sh

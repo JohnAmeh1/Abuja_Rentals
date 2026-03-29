@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ENV = os.getenv("DJANGO_ENV", "development")
+ENV = os.getenv("DJANGO_ENV", "testing")
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
 

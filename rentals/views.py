@@ -263,17 +263,209 @@ def resend_forgot_password_otp(request, user_id):
 
     return redirect('verify_forgot_password_otp')
 
+def get_curated_sections(available, count):
+    from django.core.cache import cache
+
+    def get_section(cache_key, title, href, queryset, count=count):
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+        qs = queryset.select_related(
+            "location__area__city", "school", "agent"
+        ).prefetch_related("images")[:count]
+        props = [serialize_property(p) for p in qs]
+        if not props:
+            return None
+        result = {"title": title, "href": href, "props": props}
+        cache.set(cache_key, result, 1800)
+        return result
+
+    def area_id(name):
+        return Area.objects.filter(
+            name__iexact=name
+        ).values_list("id", flat=True).first()
+
+    def school_id(name):
+        return School.objects.filter(
+            name__icontains=name
+        ).values_list("id", flat=True).first()
+
+    def type_id(name, icontains=False):
+        qs = PropertyType.objects.values_list("id", flat=True)
+        return (
+            qs.filter(name__icontains=name) if icontains
+            else qs.filter(name__iexact=name)
+        ).first()
+
+    ids = cache.get("curated_ids")
+    if not ids:
+        ids = {
+            "maitama":    area_id("maitama"),
+            "asokoro":    area_id("asokoro"),
+            "wuse2":      area_id("wuse ii"),
+            "gwarinpa":   area_id("gwarinpa"),
+            "jabi":       area_id("jabi"),
+            "garki":      area_id("garki"),
+            "kubwa":      area_id("kubwa"),
+            "uniabuja":   school_id("University of Abuja"),
+            "unn":        school_id("University of Nigeria"),
+            "abuad":      school_id("ABUAD"),
+            "flat":       type_id("flat"),
+            "duplex":     type_id("duplex"),
+            "hostel":     type_id("hostel", icontains=True),
+            "self_contain": type_id("self contain", icontains=True),
+            "bungalow":   type_id("bungalow"),
+        }
+        cache.set("curated_ids", ids, 3600)
+
+    m  = ids
+    sections = []
+
+    if m["maitama"]:
+        sections.append(get_section(
+            "sec_maitama",
+            "Luxury Homes in Maitama",
+            f"/properties/?area={m['maitama']}",
+            available.filter(location__area_id=m["maitama"]).order_by("-views"),
+        ))
+
+    if m["wuse2"] and m["flat"]:
+        sections.append(get_section(
+            "sec_wuse2_flats",
+            "Flats for Rent in Wuse II",
+            f"/properties/?area={m['wuse2']}&property_type={m['flat']}&purpose=rent",
+            available.filter(
+                location__area_id=m["wuse2"],
+                property_type_id=m["flat"],
+                purpose="rent",
+            ).order_by("-views"),
+        ))
+
+    if m["gwarinpa"]:
+        sections.append(get_section(
+            "sec_gwarinpa_3bed",
+            "3-Bedroom Homes in Gwarinpa",
+            f"/properties/?area={m['gwarinpa']}&bedrooms=3",
+            available.filter(
+                location__area_id=m["gwarinpa"],
+                bedrooms=3,
+            ).order_by("-views"),
+        ))
+
+    if m["asokoro"]:
+        sections.append(get_section(
+            "sec_asokoro_serviced",
+            "Serviced Apartments in Asokoro",
+            f"/properties/?area={m['asokoro']}&serviced=true",
+            available.filter(
+                location__area_id=m["asokoro"],
+                serviced=True,
+            ).order_by("-views"),
+        ))
+
+    if m["uniabuja"]:
+        sections.append(get_section(
+            f"sec_school_{m['uniabuja']}",
+            "Housing near University of Abuja",
+            f"/properties/?school={m['uniabuja']}",
+            available.filter(school_id=m["uniabuja"]).order_by("-views"),
+        ))
+
+    if m["hostel"]:
+        sections.append(get_section(
+            "sec_hostels",
+            "Student Hostels across Abuja",
+            f"/properties/?property_type={m['hostel']}",
+            available.filter(property_type_id=m["hostel"]).order_by("-views"),
+        ))
+
+    if m["self_contain"]:
+        sections.append(get_section(
+            "sec_self_contain",
+            "Self-Contain Apartments",
+            f"/properties/?property_type={m['self_contain']}",
+            available.filter(property_type_id=m["self_contain"]).order_by("-views"),
+        ))
+
+    if m["duplex"]:
+        sections.append(get_section(
+            "sec_duplexes_sale",
+            "Duplexes for Sale in Abuja",
+            f"/properties/?property_type={m['duplex']}&purpose=sale",
+            available.filter(
+                property_type_id=m["duplex"],
+                purpose="sale",
+            ).order_by("-views"),
+        ))
+
+    if m["jabi"]:
+        sections.append(get_section(
+            "sec_jabi_furnished",
+            "Furnished Apartments in Jabi",
+            f"/properties/?area={m['jabi']}&furnished=true",
+            available.filter(
+                location__area_id=m["jabi"],
+                furnished=True,
+            ).order_by("-views"),
+        ))
+
+    if m["kubwa"]:
+        sections.append(get_section(
+            "sec_kubwa",
+            "Affordable Rentals in Kubwa",
+            f"/properties/?area={m['kubwa']}&purpose=rent",
+            available.filter(
+                location__area_id=m["kubwa"],
+                purpose="rent",
+            ).order_by("price"),
+        ))
+
+    if m["bungalow"]:
+        sections.append(get_section(
+            "sec_bungalows",
+            "Bungalows for Rent & Sale",
+            f"/properties/?property_type={m['bungalow']}",
+            available.filter(property_type_id=m["bungalow"]).order_by("-views"),
+        ))
+
+    sections.append(get_section(
+        "sec_budget",
+        "Budget Rentals under ₦500,000/yr",
+        "/properties/?purpose=rent&max_price=500000",
+        available.filter(
+            purpose="rent",
+            price__lte=500000,
+            rent_duration_months=12,
+        ).order_by("price"),
+    ))
+
+    if m["unn"]:
+        sections.append(get_section(
+            f"sec_school_{m['unn']}",
+            "Housing near University of Nigeria",
+            f"/properties/?school={m['unn']}",
+            available.filter(school_id=m["unn"]).order_by("-views"),
+        ))
+
+    sections.append(get_section(
+        "sec_shared",
+        "Shared Apartments in Abuja",
+        "/properties/?shared=true&purpose=rent",
+        available.filter(shared=True, purpose="rent").order_by("-views"),
+    ))
+
+    return [s for s in sections if s]
 
 def home(request):
     available = Property.objects.filter(status='available')
-
+    NOOFHOMELISTINGS = 6
     featured_qs = (
         available.filter(is_featured=True)
-        .order_by("?")[:3]
+        .order_by("?")[:NOOFHOMELISTINGS]
     )
     
     if not featured_qs.exists():
-        featured_qs = available.order_by("-views")[:3]
+        featured_qs = available.order_by("-views")[:NOOFHOMELISTINGS]
 
     featured_qs = featured_qs.select_related(
         "location__area",
@@ -334,6 +526,7 @@ def home(request):
         'amenity_choices': amenities,
         'schools': schools,
         'cities': cities,
+        'curated_sections': get_curated_sections(available, NOOFHOMELISTINGS), 
     }
 
     return render(request, "home.html", context)
@@ -2411,3 +2604,19 @@ def _notify_matching_agents(inquiry_id):
         logging.getLogger(__name__).error(f"_notify_matching_agents failed: {e}")
 
 
+def compare_properties_api(request):
+    ids = request.GET.get('ids', '').split(',')
+    ids = [i.strip() for i in ids if i.strip()]
+    
+    properties = Property.objects.filter(id__in=ids).select_related(
+        'property_type', 'location__area__city__state', 'school'
+    )
+    
+    data = []
+    for prop in properties:
+        d = serialize_property(prop)
+        d['url'] = f'/property/{prop.id}/',
+        data.append(d)
+        
+    
+    return JsonResponse({'properties': data})

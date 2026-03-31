@@ -16,6 +16,63 @@
       rgba(19, 26, 32, 0.08) 0px 35px 75px -35px;
 
     }
+
+    .step-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      aspect-ratio: 4/3;
+    }
+
+    .step-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .step-card:hover .step-img-wrap img {
+      transform: scale(1.05);
+    }
+
+    .step-number {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 40px;
+      height: 40px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      letter-spacing: -0.5px;
+    }
+
+    .connector {
+      position: absolute;
+      top: calc(33% - 1px);
+      right: -28px;
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(90deg, #e5e7eb, #3b82f6, #e5e7eb);
+      z-index: 0;
+    }
+
+    .connector::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82f6;
+    }
   </style>
 
   <div class="overflow-x-hidden relative">
@@ -143,6 +200,120 @@
             <p class="text-sm text-gray-500 leading-relaxed">We ship new features, fix bugs fast, and listen when something doesn't work. This is a living product.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="py-24 bg-white overflow-hidden">
+      <div class="container mx-auto px-4 lg:px-20">
+
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+          <div>
+            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+              <span class="w-6 h-px bg-blue-500 inline-block"></span>
+              How It Works
+            </span>
+            <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
+              Your journey to<br class="hidden lg:block"> the perfect home
+            </h2>
+          </div>
+          <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
+            Three simple steps — from browsing to moving in.
+            We handle the details so you can focus on what matters.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8 lg:gap-10">
+
+          <div class="step-card group relative flex flex-col gap-5">
+            <div class="hidden lg:block connector"></div>
+
+            <div class="step-img-wrap shadow-lg">
+              <div class="step-number">01</div>
+              <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Browse properties"
+                   loading="lazy">
+              <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="fas fa-search text-blue-500 text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Smart Matching</h3>
+              </div>
+              <p class="text-gray-500 text-sm leading-relaxed">
+                Browse verified listings filtered by your budget, location, and lifestyle.
+                Our smart search surfaces homes that genuinely fit — no noise, no guesswork.
+              </p>
+              <div class="flex flex-wrap gap-2 mt-1">
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Filter by area</span>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Budget range</span>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Amenities</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card group relative flex flex-col gap-5 lg:mt-10">
+            <div class="hidden lg:block connector"></div>
+
+            <div class="step-img-wrap shadow-lg">
+              <div class="step-number">02</div>
+              <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80" alt="Verified viewings"
+                   loading="lazy">
+              <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="fas fa-shield-alt text-blue-500 text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Verified Viewings</h3>
+              </div>
+              <p class="text-gray-500 text-sm leading-relaxed">
+                Every property is owner-verified with real photos and transparent pricing.
+                Book guided inspections directly through the platform — no middlemen.
+              </p>
+              <div class="flex flex-wrap gap-2 mt-1">
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Real photos</span>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Owner verified</span>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Clear pricing</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card group relative flex flex-col gap-5 lg:mt-20">
+
+            <div class="step-img-wrap shadow-lg">
+              <div class="step-number">03</div>
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="Secure closing"
+                   loading="lazy">
+              <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <i class="fas fa-handshake text-blue-500 text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Secure Closing</h3>
+              </div>
+              <p class="text-gray-500 text-sm leading-relaxed">
+                Negotiation support, documentation checks, and a smooth move-in
+                process — our team is with you from offer to keys in hand.
+              </p>
+              <div class="flex flex-wrap gap-2 mt-1">
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Doc review</span>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Negotiation</span>
+                <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Move-in ready</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+
       </div>
     </section>
 

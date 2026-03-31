@@ -382,6 +382,17 @@ class PropertyImage(models.Model):
         indexes = [
             models.Index(fields=['property'])
         ]
+        
+class PropertyVideo(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='videos')
+    video = CloudinaryField('video', resource_type="video", null=True, blank=True)
+    youtube_link = models.URLField(null=True, blank=True)
+    other_link = models.CharField(null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['property'])
+        ]
 
 class AgentAssignedSchools(models.Model):
     agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name="assigned_schools")

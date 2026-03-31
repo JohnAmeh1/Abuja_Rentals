@@ -3,69 +3,12 @@
 
 {% block content %}
 
-  <style>
-    .step-img-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 16px;
-      aspect-ratio: 4/3;
-    }
 
-    .step-img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s cubic-bezier(.22, 1, .36, 1);
-    }
-
-    .step-card:hover .step-img-wrap img {
-      transform: scale(1.05);
-    }
-
-    .step-number {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      width: 40px;
-      height: 40px;
-      background: #0f172a;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 800;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-      letter-spacing: -0.5px;
-    }
-
-    .connector {
-      position: absolute;
-      top: calc(33% - 1px);
-      right: -28px;
-      width: 56px;
-      height: 2px;
-      background: linear-gradient(90deg, #e5e7eb, #3b82f6, #e5e7eb);
-      z-index: 0;
-    }
-
-    .connector::after {
-      content: '';
-      position: absolute;
-      right: -4px;
-      top: -4px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #3b82f6;
-    }
-  </style>
 
 
   <section class="hero-background relative overflow-hidden min-h-screen flex items-center lg:pt-20">
 
-    <div class="mx-auto px-4 lg:px-8 py-12 relative">
+    <div class="mx-auto px-2 lg:px-8 py-12 relative">
 
       <div class="max-w-5xl mx-auto">
 
@@ -191,7 +134,7 @@
   </section>
 
 
-  <section id="featured" class="py-24 bg-white overflow-hidden">
+  <section id="featured" class="py-24 overflow-hidden">
 
     <div class="container mx-auto px-4 lg:px-20">
 
@@ -209,26 +152,15 @@
           Verified homes in Abuja with real photos, clear pricing, and direct access to owners.
         </p>
       </div>
+      <div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-        {% for prop in featured_properties %}
-          {% include 'blocks/property.html' %}
-        {% empty %}
-          <div class="md:col-span-2 lg:col-span-3 text-center py-16 text-gray-400">
-            <i class="fas fa-home text-4xl mb-4 block text-gray-200"></i>
-            No featured properties yet.
-          </div>
+        {% include 'blocks/listing_row.html' with props=featured_properties title=" " %}
+        {% for section in curated_sections %}
+          {% if section.props %}
+                {% include 'blocks/listing_row.html' with props=section.props title=section.title href=section.href %}
+          {% endif %}
+
         {% endfor %}
-      </div>
-
-      <!-- Bottom CTA -->
-      <div class="text-center">
-        <a href="{% url 'properties' %}"
-           class="inline-flex items-center gap-3 bg-primary text-white font-semibold
-                  px-8 py-4 rounded-xl hover:bg-primary/90 transition">
-          Browse All Properties
-          <i class="fas fa-arrow-right text-sm"></i>
-        </a>
       </div>
 
     </div>
@@ -237,7 +169,7 @@
 
 
 
-  <section id="categories" class="py-24 bg-white overflow-hidden">
+  <section id="categories" class="pb-24 overflow-hidden">
     <div class="container mx-auto px-4 lg:px-20">
 
       <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
@@ -291,137 +223,73 @@
     </div>
   </section>
 
-  <section class="py-24 bg-white overflow-hidden">
-    <div class="container mx-auto px-4 lg:px-20">
-
-      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
-        <div>
-          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
-            <span class="w-6 h-px bg-blue-500 inline-block"></span>
-            How It Works
-          </span>
-          <h2 class="text-3xl lg:text-5xl font-bold text-gray-900 leading-tight">
-            Your journey to<br class="hidden lg:block"> the perfect home
-          </h2>
+  <div class="container mx-auto px-4 lg:px-20 pb-24">
+    <div class="relative overflow-hidden mt-20 rounded-2xl z-0 ">
+      <img src="https://res.cloudinary.com/ddhjg0j3u/image/upload/v1774621760/careers-bg_bdjeuz.webp" class="absolute object-cover inset-0 size-full -z-10 pointer-events-none select-none" alt="">
+      <div class="bg-gray-950/50 backdrop-blur-lg px-10 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6 ">
+        <div class="w-full">
+          <p class="text-white font-bold text-lg">Ready to find your next home?</p>
+          <p class="text-gray-400 text-sm mt-0.5">Over 200 verified listings across Abuja.</p>
         </div>
-        <p class="text-gray-500 max-w-sm leading-relaxed lg:text-right">
-          Three simple steps — from browsing to moving in.
-          We handle the details so you can focus on what matters.
-        </p>
-      </div>
-
-      <div class="grid lg:grid-cols-3 gap-8 lg:gap-10">
-
-        <div class="step-card group relative flex flex-col gap-5">
-          <div class="hidden lg:block connector"></div>
-
-          <div class="step-img-wrap shadow-lg">
-            <div class="step-number">01</div>
-            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Browse properties"
-                 loading="lazy">
-            <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
-          </div>
-
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-search text-blue-500 text-sm"></i>
-              </div>
-              <h3 class="text-lg font-bold text-gray-900">Smart Matching</h3>
-            </div>
-            <p class="text-gray-500 text-sm leading-relaxed">
-              Browse verified listings filtered by your budget, location, and lifestyle.
-              Our smart search surfaces homes that genuinely fit — no noise, no guesswork.
-            </p>
-            <div class="flex flex-wrap gap-2 mt-1">
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Filter by area</span>
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Budget range</span>
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Amenities</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="step-card group relative flex flex-col gap-5 lg:mt-10">
-          <div class="hidden lg:block connector"></div>
-
-          <div class="step-img-wrap shadow-lg">
-            <div class="step-number">02</div>
-            <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80" alt="Verified viewings"
-                 loading="lazy">
-            <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
-          </div>
-
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-shield-alt text-blue-500 text-sm"></i>
-              </div>
-              <h3 class="text-lg font-bold text-gray-900">Verified Viewings</h3>
-            </div>
-            <p class="text-gray-500 text-sm leading-relaxed">
-              Every property is owner-verified with real photos and transparent pricing.
-              Book guided inspections directly through the platform — no middlemen.
-            </p>
-            <div class="flex flex-wrap gap-2 mt-1">
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Real photos</span>
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Owner verified</span>
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Clear pricing</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="step-card group relative flex flex-col gap-5 lg:mt-20">
-
-          <div class="step-img-wrap shadow-lg">
-            <div class="step-number">03</div>
-            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="Secure closing"
-                 loading="lazy">
-            <div class="absolute inset-0 bg-linear-to-t from-black/30 to-transparent pointer-events-none"></div>
-          </div>
-
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                <i class="fas fa-handshake text-blue-500 text-sm"></i>
-              </div>
-              <h3 class="text-lg font-bold text-gray-900">Secure Closing</h3>
-            </div>
-            <p class="text-gray-500 text-sm leading-relaxed">
-              Negotiation support, documentation checks, and a smooth move-in
-              process — our team is with you from offer to keys in hand.
-            </p>
-            <div class="flex flex-wrap gap-2 mt-1">
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Doc review</span>
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Negotiation</span>
-              <span class="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Move-in ready</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="relative overflow-hidden mt-20 rounded-2xl z-0">
-        <img src="https://res.cloudinary.com/ddhjg0j3u/image/upload/v1774621760/careers-bg_bdjeuz.webp" class="absolute object-cover inset-0 size-full -z-10 pointer-events-none select-none" alt="">
-        <div class="bg-gray-950/50 backdrop-blur-lg px-10 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6 ">
-          <div class="w-full">
-            <p class="text-white font-bold text-lg">Ready to find your next home?</p>
-            <p class="text-gray-400 text-sm mt-0.5">Over 200 verified listings across Abuja.</p>
-          </div>
-          <div class="flex gap-6 lg:gap-3 shrink-0 flex-col lg:flex-row max-lg:w-full">
-            <a href="{% url 'properties' %}"
-               class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition max-lg:w-fit">
-              Browse Properties
-            </a>
-            <button onclick="openRequestModal()"
-                    class="px-5 py-2.5 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded-xl transition max-lg:w-fit max-lg:ml-auto">
-              Make a Request
-            </button>
-          </div>
+        <div class="flex gap-6 lg:gap-3 shrink-0 flex-col lg:flex-row max-lg:w-full">
+          <a href="{% url 'properties' %}"
+             class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition max-lg:w-fit">
+            Browse Properties
+          </a>
+          <button onclick="openRequestModal()"
+                  class="px-5 py-2.5 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-semibold rounded-xl transition max-lg:w-fit max-lg:ml-auto">
+            Make a Request
+          </button>
         </div>
       </div>
-
     </div>
-  </section>
+  </div>
+
+  <script>
+
+    const btns = document.getElementsByClassName("mv-btn")
+    Array.from(btns).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return
+        let parent = btn.parentElement.parentElement
+        let container = parent.querySelector(".ls-container")
+        let direction = btn.getAttribute("direction")
+        console.log(container)
+        console.log(direction)
+
+        container.scrollTo({
+          left: direction == "left" ? 0 : container.scrollWidth,
+          behavior: 'smooth'
+        });
+      })
+    })
+
+    const containers = document.getElementsByClassName("ls-container")
+    Array.from(containers).forEach((c) => {
+      c.addEventListener("scroll", (e) => {
+        let parent = c.parentElement
+        let leftbtn = parent.querySelector("[direction='left']")
+        let rightbtn = parent.querySelector("[direction='right']")
+
+        if (c.scrollLeft < 10) {
+          leftbtn.disabled = true
+          leftbtn.classList.add("opacity-40")
+        } else {
+          leftbtn.disabled = false
+          leftbtn.classList.remove("opacity-40")
+        }
+
+        if (c.scrollLeft > (c.scrollWidth - c.offsetWidth) -10) {
+          rightbtn.disabled = true
+          rightbtn.classList.add("opacity-40")
+        } else {
+          rightbtn.disabled = false
+          rightbtn.classList.remove("opacity-40")
+        }
+      })
+    })
+  </script>
+
 
 
 {%endblock%}

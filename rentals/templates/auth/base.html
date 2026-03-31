@@ -102,6 +102,9 @@
           <a href="{% url 'add_property' %}" class="db-link {% if request.resolver_match.url_name == 'add_property' %}db-active{% endif %}">
             <i class="fas fa-plus-circle db-icon"></i>Add Property
           </a>
+          <a href="{% url 'add_property' %}" class="db-link {% if request.resolver_match.url_name == 'add_property' %}db-active{% endif %}">
+            <i class="fas fa-plus-circle db-icon"></i>Quick Add Property
+          </a>
           <p class="db-section">Clients</p>
           <a href="{% url 'agent_inquiries' %}" class="db-link {% if request.resolver_match.url_name == 'agent_inquiries' %}db-active{% endif %}">
             <i class="fas fa-inbox db-icon"></i>Client Requests
@@ -154,7 +157,7 @@
       </header>
 
       <main class="flex-1 overflow-y-auto">
-        <div class="p-4 sm:p-6 lg:p-8">
+        <div class="p-2 sm:p-6 lg:p-8">
           {% block subcontent %}{% endblock %}
         </div>
       </main>

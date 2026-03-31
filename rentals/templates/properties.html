@@ -7,16 +7,14 @@
 {% block content %}
   <div class="container mx-auto px-4 lg:px-13 py-8 pt-20 duration-200 max-lg:overflow-hidden">
 
-    <div id="tips" class="fixed inset-0 bg-black/30 duration-200 z-10 lg:z-50 hidden">
-      <div class="fixed bottom-28 lg:bottom-10 right-5 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div id="tips" class="fixed inset-0 bg-black/30 duration-200 z-50 lg:z-50 hidden">
+      <div class="fixed bottom-10 right-5 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Tips</h3>
-        <ul class="text-sm text-gray-600 space-y-2.5">
-          <li class="flex gap-2">
-            <i class="fas fa-filter text-accent mt-1"></i>
+        <ul class="text-sm text-gray-600 space-y-2.5 list-disc list-inside">
+          <li>
             Use filters to narrow results quickly
           </li>
-          <li class="flex gap-2">
-            <i class="fas fa-eye text-accent mt-1"></i>
+          <li>
             Click a card to view full details
           </li>
         </ul>
@@ -287,8 +285,13 @@
 
 
       return `
-  <article class="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden
+  <article class="group relative bg-white rounded-2xl border border-gray-200
                   hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col animate-slide-up">
+    ${p.is_featured ? `<div class="absolute top-12 -left-2 px-5 py-2 bg-linear-to-r to-accent-dark from-accent z-20 rounded-r-4xl rounded-tl-lg text-xs font-semibold text-white">
+      Featured
+      </div>
+      <span class="absolute -left-2 top-17 h-5 w-5 rounded-full bg-accent-dark "></span>
+      `: ''}
     <a href="/property/${p.id}/" class="absolute inset-0 z-10"></a>
     <div class="relative aspect-[16/8] overflow-hidden bg-gray-100 shrink-0">
 

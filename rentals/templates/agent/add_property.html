@@ -21,13 +21,16 @@
             <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Photos</p>
             <p class="text-sm font-semibold text-gray-800 mt-0.5">Add up to 10 photos</p>
           </div>
-          <label for="imagePickerBtn"
-                 class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold
-                        rounded-xl cursor-pointer hover:opacity-90 transition">
-            <i class="fas fa-plus text-[10px]"></i> Add photos
-            <input type="file" id="imagePickerBtn" accept="image/*" multiple class="hidden"
-                   onchange="addImages(this)">
-          </label>
+          <div class="flex gap-2">
+
+            <label for="imagePickerBtn"
+                   class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold
+                          rounded-lg cursor-pointer hover:opacity-90 transition">
+              <i class="fas fa-plus text-[10px]"></i> Add photos
+              <input type="file" id="imagePickerBtn" accept="image/*" multiple class="hidden"
+                     onchange="addImages(this)">
+            </label>
+          </div>
         </div>
 
       <!-- Drop zone + grid -->
@@ -38,7 +41,7 @@
              ondrop="handleImageDrop(event)">
 
           <div id="imagePlaceholder"
-               class="flex flex-col items-center justify-center py-8 text-center text-gray-300">
+               class="flex flex-col items-center justify-center py-8 text-center text-gray-300 border rounded-xl border-dashed">
             <i class="fas fa-images text-3xl mb-2"></i>
             <p class="text-xs">Click "Add photos" or drag images here</p>
             <p class="text-[10px] mt-1">First image becomes the main photo · JPG, PNG up to 10MB each</p>
@@ -51,6 +54,81 @@
         <div id="imageInputs" class="hidden"></div>
       </div>
 
+      <!-- ── Media / Video ───────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="px-6 pt-5 pb-3 border-b border-gray-100">
+          <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Video</p>
+          <p class="text-sm font-semibold text-gray-800 mt-0.5">Add a video tour <span class="text-gray-300 font-normal normal-case tracking-normal text-xs">(optional)</span></p>
+        </div>
+
+        <div class="p-6 space-y-4">
+
+    <!-- Tab toggle -->
+          <div class="grid grid-cols-2 gap-1.5 max-w-xs">
+            <label>
+              <input type="radio" name="video_source" value="link" class="hidden peer" checked>
+              <span class="block text-center py-2 border border-gray-200 rounded-xl text-xs cursor-pointer
+                           peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                           hover:border-gray-300 transition">
+                <i class="fab fa-youtube mr-1.5"></i>YouTube link
+              </span>
+            </label>
+            <label>
+              <input type="radio" name="video_source" value="upload" class="hidden peer">
+              <span class="block text-center py-2 border border-gray-200 rounded-xl text-xs cursor-pointer
+                           peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:font-semibold
+                           hover:border-gray-300 transition">
+                <i class="fas fa-upload mr-1.5"></i>Upload file
+              </span>
+            </label>
+          </div>
+
+    <!-- YouTube URL input -->
+          <div id="videoLinkWrap">
+            <input name="video_url" type="url" id="videoUrlInput"
+                   placeholder="https://www.youtube.com/watch?v=…"
+                   value="{{ form.video_url.value|default:'' }}"
+                   class="w-full px-4 py-2.5 border border-gray-200 rounded-xl lg:text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+            <p class="text-[10px] text-gray-400 mt-1">Paste a YouTube or YouTube Shorts link</p>
+
+      <!-- Live preview -->
+            <div id="ytPreview" class="hidden mt-3 rounded-xl overflow-hidden aspect-video bg-gray-100">
+              <iframe id="ytIframe" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+            </div>
+          </div>
+
+    <!-- File upload -->
+          <div id="videoUploadWrap" class="hidden">
+            <label for="videoFileInput"
+                   class="flex items-center justify-center gap-2 w-full py-8 border-2 border-dashed border-gray-200
+                          rounded-xl text-gray-400 text-xs cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition">
+              <i class="fas fa-video text-2xl mb-1"></i>
+              <div class="text-center">
+                <p class="font-semibold text-gray-500">Click to choose a video file</p>
+                <p class="text-[10px] mt-0.5">MP4, MOV, AVI · minimum 10 MB · max 200 MB</p>
+              </div>
+              <input type="file" id="videoFileInput" name="video_file" accept="video/*" class="hidden"
+                     onchange="handleVideoFile(this)">
+            </label>
+
+      <!-- Selected file pill -->
+            <div id="videoFilePill" class="hidden mt-3 flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
+              <i class="fas fa-film text-primary"></i>
+              <div class="flex-1 min-w-0">
+                <p id="videoFileName" class="text-xs font-semibold text-gray-700 truncate"></p>
+                <p id="videoFileSize" class="text-[10px] text-gray-400"></p>
+              </div>
+              <button type="button" onclick="clearVideoFile()"
+                      class="text-gray-300 hover:text-red-400 transition text-xs">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <p id="videoFileError" class="hidden text-xs text-red-500 mt-1"></p>
+          </div>
+
+        </div>
+      </div>
+
     <!-- ── Basics ──────────────────────────────────────────────────── -->
       <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
         <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Basics</p>
@@ -60,7 +138,7 @@
           <input name="title" type="text" required maxlength="200"
                  value="{{ form.title.value|default:'' }}"
                  placeholder="e.g. Spacious 3-Bedroom Flat in Maitama"
-                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl lg:text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
           {% if form.title.errors %}<p class="text-xs text-red-500 mt-1">{{ form.title.errors|join:", " }}</p>{% endif %}
         </div>
 
@@ -120,7 +198,7 @@
           <input name="address" type="text" required
                  value="{{ form.address.value|default:'' }}"
                  placeholder="Plot 5, Aminu Kano Crescent"
-                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                 class="w-full px-4 py-2.5 border border-gray-200 rounded-xl lg:text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -301,13 +379,13 @@
             <input name="price" type="text"
                    value="{{ form.price.value|default:'' }}"
                    placeholder="0"
-                   class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition price-fmt">
+                   class="w-full px-4 py-2.5 border border-gray-200 rounded-xl lg:text-sm bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition price-fmt">
           </div>
           <div id="rentDurationWrap">
             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Duration</label>
             <div class="relative">
               <select name="rent_duration_months" id="rent_duration_select"
-                      class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                      class="w-full px-3 py-2.5 border border-gray-200 rounded-xl lg:text-sm appearance-none bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
                 <option value="1"  {% if form.rent_duration_months.value == '1'  %}selected{% endif %}>Per month</option>
                 <option value="6"  {% if form.rent_duration_months.value == '6'  %}selected{% endif %}>6 months</option>
                 <option value="12" {% if form.rent_duration_months.value == '12' or not form.rent_duration_months.value %}selected{% endif %}>Per year</option>
@@ -397,11 +475,7 @@
       </div>
 
     <!-- ── Submit ──────────────────────────────────────────────────── -->
-      <div class="flex items-center justify-between gap-4 pt-2">
-        <p class="text-xs text-gray-400">
-          <i class="fas fa-info-circle mr-1"></i>
-          Your listing will be reviewed before going live.
-        </p>
+      <div class="flex items-center justify-end gap-4 pt-2">
         <button type="submit" id="submitBtn"
                 class="flex items-center gap-2 px-8 py-3 bg-primary hover:opacity-90
                        text-white text-sm font-bold rounded-xl transition shrink-0">
@@ -536,7 +610,6 @@
       }
     }
 
-  // ── Submit ──────────────────────────────────────────────────────────────
     document.getElementById('propertyForm').addEventListener('submit', function() {
       const priceInput = this.querySelector('input[name="price"]');
       if (priceInput) {
@@ -547,6 +620,69 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Submitting…';
       btn.disabled = true;
     });
+
+
+
+    const MIN_VIDEO_MB = 10;
+    const MAX_VIDEO_MB = 200;
+
+    document.querySelectorAll('input[name="video_source"]').forEach(r => {
+      r.addEventListener('change', function () {
+        const isLink = this.value === 'link';
+        document.getElementById('videoLinkWrap').classList.toggle('hidden', !isLink);
+        document.getElementById('videoUploadWrap').classList.toggle('hidden', isLink);
+        if (isLink) { clearVideoFile(); }
+        else { document.getElementById('videoUrlInput').value = ''; document.getElementById('ytPreview').classList.add('hidden'); }
+      });
+    });
+
+    document.getElementById('videoUrlInput')?.addEventListener('input', function () {
+      const ytMatch = this.value.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
+      const preview = document.getElementById('ytPreview');
+      const iframe  = document.getElementById('ytIframe');
+      if (ytMatch) {
+        iframe.src = `https://www.youtube.com/embed/${ytMatch[1]}`;
+        preview.classList.remove('hidden');
+      } else {
+        iframe.src = '';
+        preview.classList.add('hidden');
+      }
+    });
+
+    function handleVideoFile(input) {
+      const file  = input.files[0];
+      const pill  = document.getElementById('videoFilePill');
+      const err   = document.getElementById('videoFileError');
+      const sizeMB = file.size / (1024 * 1024);
+
+      err.classList.add('hidden');
+      pill.classList.add('hidden');
+
+      if (sizeMB < MIN_VIDEO_MB) {
+        err.textContent = `File is too small — minimum is ${MIN_VIDEO_MB} MB.`;
+        err.classList.remove('hidden');
+        input.value = '';
+        return;
+      }
+
+      if (sizeMB > MAX_VIDEO_MB) {
+        err.textContent = `File exceeds the ${MAX_VIDEO_MB} MB limit.`;
+        err.classList.remove('hidden');
+        input.value = '';
+        return;
+      }
+
+      document.getElementById('videoFileName').textContent = file.name;
+      document.getElementById('videoFileSize').textContent = `${sizeMB.toFixed(1)} MB`;
+      pill.classList.remove('hidden');
+    }
+
+    function clearVideoFile() {
+      const input = document.getElementById('videoFileInput');
+      if (input) input.value = '';
+      document.getElementById('videoFilePill')?.classList.add('hidden');
+      document.getElementById('videoFileError')?.classList.add('hidden');
+    }
   </script>
 
 {% endblock %}

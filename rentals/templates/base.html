@@ -35,8 +35,6 @@
 
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
-      @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
-      @import url('https://fonts.googleapis.com/css2?family=Carter+One&display=swap');
       @import url('https://fonts.googleapis.com/css2?family=Carter+One&family=Playwrite+DK+Uloopet+Guides&display=swap');
 
       html {
@@ -102,46 +100,14 @@
         box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
       }
 
-      .dropdown-menu {
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .hide-scrollbar::-webkit-scrollbar {
         display: none;
-        position: absolute;
-        right: 0;
-        margin-top: 0.5rem;
-        width: 12rem;
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e5e7eb;
-        z-index: 50;
       }
-
-      .dropdown-menu.show {
-        display: block;
-        animation: fadeIn 0.2s ease-in-out;
-      }
-
-      .dropdown-item {
-        display: block;
-        padding: 0.75rem 1rem;
-        color: #374151;
-        transition: all 0.2s;
-        border-bottom: 1px solid #f3f4f6;
-      }
-
-      .dropdown-item:hover {
-        background-color: #f9fafb;
-        color: #3b82f6;
-      }
-
-      .dropdown-item:last-child {
-        border-bottom: none;
-      }
-
-      .dropdown-toggle {
-        cursor: pointer;
-      }
-
-
 
       @keyframes fadeIn {
         from {
@@ -214,12 +180,28 @@
 
     {% load static %}
 
-    <main class="relative duration-300">{% block content %} {% endblock %}</main>
+    <main class="relative duration-300">
+      {% block content %} {% endblock %}
+      <button id="compareFloatingBtn"
+              onclick="openCompare()"
+              class="hidden fixed right-0 top-1/2 z-50 -translate-y-1/2
+                     bg-[#0F6E56] text-white text-xs font-bold
+                     px-3 py-2.5 rounded-l-xl shadow-lg
+                     hover:bg-[#085041] hover:px-4 transition-all duration-200
+                     flex flex-col items-center gap-2"
+              style="writing-mode: vertical-rl; text-orientation: mixed;">
+        {% comment %} <i class="fas fa-balance-scale text-xs" style="writing-mode: horizontal-tb;"></i> {% endcomment %}
+        Compare
+        <span id="compareFloatingCount"
+              class="bg-white text-[#0F6E56] font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center leading-none"
+              style="writing-mode: horizontal-tb;">0</span>
+      </button>
+      {% include 'blocks/compare.html' %}
+    </main>
 
     {% block footer %}
       {% include 'blocks/footer.html' %}
     {% endblock %}
-  <!-- JavaScript -->
     <script src="{% static 'pwa/pwa.js' %}"></script>
     <script>
 
@@ -230,7 +212,6 @@
         setTimeout(() => toast.remove(), 200)
       }
 
-    // Auto remove after 4.5s
       document.querySelectorAll('.toast').forEach(t => {
         setTimeout(() => {
           t.classList.add('opacity-0', 'translate-x-10')
@@ -461,6 +442,22 @@
       Array.from(document.getElementsByClassName("price-txt")).forEach((p) => {
         p.innerHTML = formatCurrency(p.innerHTML)
       })
+
+      function syncFloatingBtn() {
+        const btn   = document.getElementById('compareFloatingBtn');
+        const count = document.getElementById('compareFloatingCount');
+        if (!btn) return;
+        count.textContent = compareIds.length;
+        if (compareIds.length > 0) {
+          btn.classList.remove('hidden');
+          btn.classList.add('flex');
+        } else {
+          btn.classList.add('hidden');
+          btn.classList.remove('flex');
+        }
+      }
+      syncFloatingBtn();
+
     </script>
 
 

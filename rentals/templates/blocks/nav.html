@@ -270,117 +270,117 @@
   <div id="mobile-drawer" class="fixed top-0 right-0 h-full w-[85vw] max-w-xs bg-white z-60 shadow-xl transform translate-x-full transition-transform duration-300 flex flex-col lg:hidden">
 
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-    <div class="flex items-center gap-2">
-      <div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-        <i class="fas fa-house text-white text-[10px]"></i>
+    <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+          <i class="fas fa-house text-white text-[10px]"></i>
+        </div>
+        <span class="text-sm font-black text-gray-900 tracking-tight">Abuja Rentals</span>
       </div>
-      <span class="text-sm font-black text-gray-900 tracking-tight">Abuja Rentals</span>
+      <button id="close-mobile-menu" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
+        <i class="fas fa-times text-sm"></i>
+      </button>
     </div>
-    <button id="close-mobile-menu" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
-      <i class="fas fa-times text-sm"></i>
-    </button>
-  </div>
 
   <!-- Body -->
-  <div class="flex-1 overflow-y-auto px-5 py-6 space-y-7">
+    <div class="flex-1 overflow-y-auto px-5 py-6 space-y-7">
 
     <!-- Primary nav -->
-    <nav class="space-y-0.5">
-      <a href="{% url 'home' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
-        <span>Home</span>
-      </a>
-      <a href="{% url 'properties' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
-        <span>Properties</span>
-        <i class="fas fa-chevron-right text-[9px] text-gray-300 group-hover:text-gray-500 transition"></i>
-      </a>
-      <a href="{% url 'about' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition">
-        <span>About</span>
-      </a>
-      {% if user.is_authenticated %}
-        <a href="{% url 'dashboard' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition">
-          <span>Dashboard</span>
+      <nav class="space-y-0.5">
+        <a href="{% url 'home' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
+          <span>Home</span>
         </a>
-      {% endif %}
-    </nav>
-
-    <!-- Browse section -->
-    <div>
-      <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Browse</p>
-      <div class="space-y-0.5">
-        <a href="{% url 'properties' %}?purpose=rent" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
-          <span>For Rent</span>
-          <span class="text-[10px] text-gray-400">Monthly & yearly</span>
+        <a href="{% url 'properties' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
+          <span>Properties</span>
+          <i class="fas fa-chevron-right text-[9px] text-gray-300 group-hover:text-gray-500 transition"></i>
         </a>
-        <a href="{% url 'properties' %}?purpose=sale" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
-          <span>For Sale</span>
-          <span class="text-[10px] text-gray-400">Own your property</span>
+        <a href="{% url 'about' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition">
+          <span>About</span>
         </a>
-        <a href="{% url 'schools' %}" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
-          <span>Student Housing</span>
-          <span class="text-[10px] text-gray-400">Near universities</span>
-        </a>
-        <a href="{% url 'properties' %}?furnished=true" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
-          <span>Furnished</span>
-          <span class="text-[10px] text-gray-400">Move-in ready</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Notifications -->
-    {% if admin_messages %}
-      <div>
-        <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Alerts</p>
-        <button id="notificationBellBtnMobile" class="flex items-center justify-between w-full px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
-          <span>Notifications</span>
-          <span class="text-[10px] font-semibold text-white bg-red-500 rounded-full px-2 py-0.5">{{ admin_messages|length }}</span>
-        </button>
-      </div>
-    {% endif %}
-
-    <!-- Account -->
-    <div>
-      <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Account</p>
-      <div class="space-y-0.5">
         {% if user.is_authenticated %}
-          <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
-            <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary uppercase">
-              {{ user.first_name|first|default:user.username|first }}
-            </div>
-            <span>{{ user.first_name|default:user.username }}</span>
-          </a>
-          <a href="{% url 'logout' %}" class="flex items-center px-3 py-2.5 text-sm text-red-500 rounded-lg hover:bg-red-50 transition">
-            Sign out
-          </a>
-        {% else %}
-          <a href="{% url 'login' %}" class="flex items-center px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
-            Sign in
-          </a>
-          <a href="{% url 'signup' %}" class="flex items-center px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
-            Create account
+          <a href="{% url 'dashboard' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            <span>Dashboard</span>
           </a>
         {% endif %}
+      </nav>
+
+    <!-- Browse section -->
+      <div>
+        <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Browse</p>
+        <div class="space-y-0.5">
+          <a href="{% url 'properties' %}?purpose=rent" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+            <span>For Rent</span>
+            <span class="text-[10px] text-gray-400">Monthly & yearly</span>
+          </a>
+          <a href="{% url 'properties' %}?purpose=sale" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+            <span>For Sale</span>
+            <span class="text-[10px] text-gray-400">Own your property</span>
+          </a>
+          <a href="{% url 'schools' %}" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+            <span>Student Housing</span>
+            <span class="text-[10px] text-gray-400">Near universities</span>
+          </a>
+          <a href="{% url 'properties' %}?furnished=true" class="flex items-center justify-between px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+            <span>Furnished</span>
+            <span class="text-[10px] text-gray-400">Move-in ready</span>
+          </a>
+        </div>
       </div>
+
+    <!-- Notifications -->
+      {% if admin_messages %}
+        <div>
+          <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Alerts</p>
+          <button id="notificationBellBtnMobile" class="flex items-center justify-between w-full px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            <span>Notifications</span>
+            <span class="text-[10px] font-semibold text-white bg-red-500 rounded-full px-2 py-0.5">{{ admin_messages|length }}</span>
+          </button>
+        </div>
+      {% endif %}
+
+    <!-- Account -->
+      <div>
+        <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Account</p>
+        <div class="space-y-0.5">
+          {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+              <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary uppercase">
+                {{ user.first_name|first|default:user.username|first }}
+              </div>
+              <span>{{ user.first_name|default:user.username }}</span>
+            </a>
+            <a href="{% url 'logout' %}" class="flex items-center px-3 py-2.5 text-sm text-red-500 rounded-lg hover:bg-red-50 transition">
+              Sign out
+            </a>
+          {% else %}
+            <a href="{% url 'login' %}" class="flex items-center px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+              Sign in
+            </a>
+            <a href="{% url 'signup' %}" class="flex items-center px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+              Create account
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+  <!-- CTA Footer -->
+    <div class="px-5 py-5 border-t border-gray-100">
+      {% if user.userprofile.user_type == "agent" %}
+        <a href="{% url 'add_property' %}"
+           class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition">
+          <i class="fas fa-plus text-xs"></i> Add listing
+        </a>
+      {% else %}
+        <button onclick="closeMobileMenu(); openRequestModal()"
+                class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition">
+          <i class="fas fa-paper-plane text-xs"></i> Make a Request
+        </button>
+      {% endif %}
     </div>
 
   </div>
-
-  <!-- CTA Footer -->
-  <div class="px-5 py-5 border-t border-gray-100">
-    {% if user.userprofile.user_type == "agent" %}
-      <a href="{% url 'add_property' %}"
-         class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition">
-        <i class="fas fa-plus text-xs"></i> Add listing
-      </a>
-    {% else %}
-      <button onclick="closeMobileMenu(); openRequestModal()"
-              class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition">
-        <i class="fas fa-paper-plane text-xs"></i> Make a Request
-      </button>
-    {% endif %}
-  </div>
-
-</div>
 
 </nav>
 
@@ -446,10 +446,10 @@
     void mobileBackdrop.offsetWidth;
     mobileBackdrop.classList.add('opacity-100');
     mobileDrawer.classList.remove('translate-x-full');
-    document.body.style.overflow = 'hidden'; 
+    document.body.style.overflow = 'hidden';
     document.body.querySelector("main").classList.add("-translate-x-10")
   }
-  
+
   function closeMobileMenu() {
     mobileDrawer.classList.add('translate-x-full');
     mobileBackdrop.classList.remove('opacity-100');

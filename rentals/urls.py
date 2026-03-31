@@ -89,6 +89,7 @@ urlpatterns = [
     path('api/inquiries/<int:inquiry_id>/respond/', views.agent_respond_inquiry, name='agent_respond_inquiry'),
     path('api/inquiries/<int:response_id>/', views.mark_response_opened, name='mark_response_opened'),
     path('api/areas/', views.areas_by_city_api, name='areas_by_city'),
+    path('api/properties/compare/', views.compare_properties_api, name='compare_properties_api'),
     
     path('about/',   views.AboutView.as_view(),   name='about'),
     path('careers/', views.CareersView.as_view(), name='careers'),

@@ -5,7 +5,7 @@ fi
 
 python -m venv .venv
 
-./build.sh
+./build-test.sh
 
 ./node_build.sh
 

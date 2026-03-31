@@ -1,0 +1,60 @@
+<div>
+  <div class="flex items-center gap-1.5 justify-between mb-4">
+    {% if title %}
+      <a href="{{ href }}" class="font-bold text-lg grow shrink-0 hover:text-primary transition flex gap-3 items-end">
+        {{ title }}
+        {% if href %}
+        <span class="size-7 flex items-center justify-center bg-gray-200 border-white rounded-full border-2 hover:border-gray-200 active:scale-75 duration-100">
+          <i class="fas fa-arrow-right text-xs text-black/80"></i>
+        </span>
+        {% endif %}
+      </a>
+    {% endif %}
+    {% if props|length > 4 %}
+      <span direction="left" class="mv-btn opacity-40 hidden sm:block" disabled="true">
+        <span class="size-7 flex justify-center items-center rounded-full bg-gray-200 cursor-pointer border border-white hover:border-gray-200 active:scale-75 duration-100">
+          <i class="fa fa-chevron-left text-black text-xs"></i>
+        </span>
+      </span>
+      <span direction="right" class="mv-btn hidden sm:block">
+        <span class="size-7 flex justify-center items-center rounded-full bg-gray-200 cursor-pointer border border-white hover:border-gray-200 active:scale-75 duration-100">
+          <i class="fa fa-chevron-right text-black text-xs"></i>
+        </span>
+      </span>
+    {% endif %}
+  </div>
+
+  <div class="flex gap-3 mb-4 overflow-x-scroll hide-scrollbar pb-3 ls-container">
+    {% for prop in props %}
+      {% include 'blocks/property.html' with show_featured=0 %}
+    {% endfor %}
+
+    {% if href %}
+      <a href="{{ href }}"
+         class="group relative bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 min-w-64 flex flex-col items-center justify-center gap-4 px-6">
+        <div class="relative h-20 w-20">
+          {% with props|slice:"0:3" as preview_props %}
+            {% if preview_props|length > 1 %}
+              <div class="h-20 w-20 absolute right-6.5 bottom-1.5 rotate-3 border-4 border-white rounded-2xl z-10 group-hover:rotate-12 duration-200 overflow-hidden shadow bg-accent-dark">
+                {% if preview_props.1.main_image %}<img src="{{ preview_props.1.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
+              </div>
+            {% else %}
+              <div class="bg-accent-dark h-20 w-20 absolute right-6.5 bottom-1.5 rotate-3 border-4 border-white rounded-2xl z-10 group-hover:rotate-12 duration-200"></div>
+            {% endif %}
+            {% if preview_props|length > 2 %}
+              <div class="h-20 w-20 absolute left-6 top-1 -rotate-3 border-4 border-white rounded-2xl z-10 group-hover:-rotate-12 duration-200 overflow-hidden shadow bg-primary">
+                {% if preview_props.2.main_image %}<img src="{{ preview_props.2.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
+              </div>
+            {% else %}
+              <div class="bg-primary h-20 w-20 absolute left-6 top-1 -rotate-3 border-4 border-white rounded-2xl z-10 group-hover:-rotate-12 duration-200"></div>
+            {% endif %}
+            <div class="h-20 w-20 absolute bottom-10 border-4 border-white rounded-2xl z-20 group-hover:translate-y-2.5 duration-200 overflow-hidden shadow bg-red-500">
+              {% if preview_props.0.main_image %}<img src="{{ preview_props.0.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
+            </div>
+          {% endwith %}
+        </div>
+        <p class="font-semibold text-xs text-gray-600 group-hover:text-primary transition">See all</p>
+      </a>
+    {% endif %}
+  </div>
+</div>

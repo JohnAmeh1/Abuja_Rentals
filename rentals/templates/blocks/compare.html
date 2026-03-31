@@ -1,0 +1,221 @@
+<!-- ── Compare Modal ─────────────────────────────────────────── -->
+<div id="compareModal"
+     class="hidden fixed inset-0 z-50 items-end justify-center bg-black/55 backdrop-blur-sm">
+  <div class="bg-white rounded-t-2xl w-full max-w-7xl mx-auto shadow-2xl flex flex-col"
+       style="max-height: 90vh;">
+
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+      <p class="text-base font-bold text-gray-900">Compare properties</p>
+      <div class="flex items-center gap-3">
+        <button onclick="clearCompare()"
+                class="text-xs text-gray-400 hover:text-gray-600 transition">Clear all</button>
+        <button onclick="closeCompare()"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div id="compareLoading" class="hidden flex-1 flex items-center justify-center py-16 gap-3 text-gray-400 text-sm">
+      <i class="fas fa-spinner fa-spin"></i> Loading properties…
+    </div>
+
+    <div id="compareContent" class="overflow-auto flex-1">
+      <table class="w-full text-sm border-collapse" id="compareTable" style="min-width: 560px; table-layout: fixed;">
+        <colgroup>
+          <col style="width: 150px;">
+          <col id="col0"><col id="col1"><col id="col2">
+        </colgroup>
+        <thead>
+          <tr id="compareHeadRow">
+            <th class="bg-gray-50 border-b border-gray-100 p-0"></th>
+          </tr>
+        </thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+
+    <div class="px-6 py-3 border-t border-gray-100 shrink-0 flex justify-end">
+      <button id="viewTopPickBtn" onclick="viewTopPick()"
+              class="px-5 py-2 bg-[#0F6E56] text-white text-xs font-semibold rounded-xl hover:bg-[#085041] transition hidden">
+        View best value
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let compareIds  = JSON.parse(localStorage.getItem('compareIds') || '[]');
+  let compareList = []; 
+  const MAX_COMPARE = 3;
+
+  const ROWS = [
+    { section: 'Basics' },
+    { label: 'Purpose',     key: 'purpose',   render: v => v ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v==='rent'?'bg-blue-50 text-blue-700':'bg-purple-50 text-purple-700'}">${v==='rent'?'Rent':'Sale'}</span>` : '—' },
+    { label: 'Type',        key: 'property_type',      render: v => v || '—' },
+    { label: 'Status',      key: 'status',    render: v => v ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v==='available'?'bg-green-50 text-green-700':'bg-amber-50 text-amber-700'}">${v}</span>` : '—' },
+    { section: 'Details' },
+    { label: 'Bedrooms',    key: 'bedrooms',  best: 'max', render: v => v || '—' },
+    { label: 'Bathrooms',   key: 'bathrooms', best: 'max', render: v => v || '—' },
+    { label: 'Sq ft',       key: 'sqft',      best: 'max', render: v => v ? Number(v).toLocaleString() : '—' },
+    { section: 'Pricing' },
+    { label: 'Price (₦)',   key: 'price',     best: 'min', render: v => v ? '₦' + Number(v).toLocaleString() : '—' },
+    { label: 'Duration',    key: 'duration',  render: v => v || '—' },
+    { section: 'Location' },
+    { label: 'Area',        key: 'area',      render: v => v || '—' },
+    { label: 'Near campus', key: 'school',    render: v => v ? `<i class="fas fa-graduation-cap text-amber-500 text-xs mr-1"></i>${v}` : '—' },
+    { section: 'Features' },
+    { label: 'Furnished',   key: 'furnished', render: v => v==='true'||v===true ? '<i class="fas fa-check text-green-600 text-xs"></i>' : '<span class="text-gray-300 text-xs">—</span>' },
+    { label: 'Serviced',    key: 'serviced',  render: v => v==='true'||v===true ? '<i class="fas fa-check text-green-600 text-xs"></i>' : '<span class="text-gray-300 text-xs">—</span>' },
+    { label: 'Shared',      key: 'shared',    render: v => v==='true'||v===true ? '<i class="fas fa-check text-green-600 text-xs"></i>' : '<span class="text-gray-300 text-xs">—</span>' },
+  ];
+
+  function addToCompare(id) {
+    id = String(id);
+    if (compareIds.includes(id))          { showNotification('Already in compare', 'error'); return; }
+    if (compareIds.length >= MAX_COMPARE) { showNotification('Max 3 properties', 'error'); return; }
+    compareIds.push(id);
+    localStorage.setItem('compareIds', JSON.stringify(compareIds));
+    syncFloatingBtn();
+    showNotification('Added to compare');
+  }
+
+  function removeFromCompare(id) {
+    id = String(id);
+    compareIds  = compareIds.filter(i => i !== id);
+    compareList = compareList.filter(p => String(p.id) !== id);
+    localStorage.setItem('compareIds', JSON.stringify(compareIds));
+    syncFloatingBtn();
+    renderCompareModal();
+    if (compareIds.length === 0) closeCompare();
+  }
+
+  function clearCompare() {
+    compareIds  = [];
+    compareList = [];
+    localStorage.removeItem('compareIds');
+    syncFloatingBtn();
+    closeCompare();
+  }
+
+  function openCompare() {
+    const m = document.getElementById('compareModal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    fetchAndRender();
+  }
+  function closeCompare() {
+    const m = document.getElementById('compareModal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  async function fetchAndRender() {
+    if (compareIds.length === 0) return;
+
+    const loading = document.getElementById('compareLoading');
+    const content = document.getElementById('compareContent');
+    loading.classList.remove('hidden');
+    loading.classList.add('flex');
+    content.classList.add('hidden');
+
+    try {
+      const res  = await fetch(`/api/properties/compare/?ids=${compareIds.join(',')}`);
+      const data = await res.json();
+      compareList = data.properties;
+      renderCompareModal();
+    } catch (e) {
+      showNotification('Failed to load properties', 'error');
+    } finally {
+      loading.classList.add('hidden');
+      loading.classList.remove('flex');
+      content.classList.remove('hidden');
+    }
+  }
+
+// ── Render ──────────────────────────────────────────────────────────────
+  function getBestIdx(rowDef) {
+    if (!rowDef.best || compareList.length < 2) return -1;
+    const vals = compareList.map(p => parseFloat(p[rowDef.key]) || 0);
+    if (vals.every(v => v === 0)) return -1;
+    return rowDef.best === 'max'
+      ? vals.indexOf(Math.max(...vals))
+      : vals.indexOf(Math.min(...vals.filter(v => v > 0)));
+  }
+
+  function viewTopPick() {
+    const sorted = [...compareList].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    if (sorted[0]?.url) window.location.href = sorted[0].url;
+  }
+
+  function renderCompareModal() {
+    const headRow = document.getElementById('compareHeadRow');
+    const body    = document.getElementById('compareBody');
+    const btn     = document.getElementById('viewTopPickBtn');
+
+  // find the best value property (lowest price among loaded ones)
+    const bestId = compareList.length > 1
+      ? [...compareList].sort((a, b) => parseFloat(a.price) - parseFloat(b.price))[0]?.id
+      : null;
+
+    headRow.innerHTML = '<th class="bg-gray-50 border-b border-gray-100 p-0"></th>';
+
+    compareList.forEach(prop => {
+      const isBest = String(prop.id) === String(bestId);
+      headRow.innerHTML += `
+      <th class="border-b border-l border-gray-100 align-top p-0 ${isBest ? 'border-l-2 !border-l-[#0F6E56]' : ''}">
+        <div class="relative">
+          ${prop.main_image
+            ? `<img src="${prop.main_image}" class="w-full aspect-video object-cover" alt="">`
+            : `<div class="w-full aspect-video bg-gray-100 flex items-center justify-center"><i class="fas fa-home text-gray-300 text-xl"></i></div>`}
+          ${isBest ? '<div style="position:absolute;top:8px;left:8px;background:#0F6E56;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;">Best value</div>' : ''}
+          <button onclick="removeFromCompare('${prop.id}')"
+                  style="position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.4);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-3 border-t border-gray-100">
+          <a href="${prop.url}" class="block font-bold text-gray-900 text-xs leading-snug line-clamp-1 hover:text-primary transition mb-1">${prop.title}</a>
+          <p class="text-sm font-black text-gray-900 mb-0.5">₦${Number(prop.price).toLocaleString()}</p>
+          <p class="text-[10px] text-gray-400">${prop.duration || ''}</p>
+        </div>
+      </th>`;
+    });
+
+  // empty slots
+    for (let i = compareList.length; i < MAX_COMPARE; i++) {
+      headRow.innerHTML += `
+      <th class="border-b border-l border-gray-100 p-3 text-center">
+        <div class="flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed border-gray-200 rounded-xl text-gray-300 text-xs">
+          <i class="fas fa-plus text-base"></i>
+          <span>Add property</span>
+        </div>
+      </th>`;
+    }
+
+    body.innerHTML = '';
+    ROWS.forEach(row => {
+      if (row.section) {
+        body.innerHTML += `<tr><td class="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-300 px-4 py-2 border-b border-gray-100" colspan="${MAX_COMPARE + 1}">${row.section}</td></tr>`;
+        return;
+      }
+      const bestIdx = getBestIdx(row);
+      let tr = `<tr><td class="bg-gray-50 text-xs text-gray-500 px-4 py-2.5 border-b border-gray-100 whitespace-nowrap">${row.label}</td>`;
+      compareList.forEach((prop, i) => {
+        const isBest = i === bestIdx;
+        tr += `<td class="text-xs px-4 py-2.5 border-b border-l border-gray-100 ${isBest ? 'bg-green-50 text-green-800 font-semibold' : ''}">${row.render(prop[row.key])}</td>`;
+      });
+      for (let i = compareList.length; i < MAX_COMPARE; i++) {
+        tr += `<td class="text-xs px-4 py-2.5 border-b border-l border-gray-100 text-gray-200">—</td>`;
+      }
+      body.innerHTML += tr + '</tr>';
+    });
+
+    btn.classList.toggle('hidden', compareList.length < 2);
+  }
+
+  document.getElementById('compareModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeCompare();
+  });
+</script>

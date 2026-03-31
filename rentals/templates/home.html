@@ -157,7 +157,7 @@
         {% include 'blocks/listing_row.html' with props=featured_properties title=" " %}
         {% for section in curated_sections %}
           {% if section.props %}
-                {% include 'blocks/listing_row.html' with props=section.props title=section.title href=section.href %}
+            {% include 'blocks/listing_row.html' with props=section.props title=section.title href=section.href %}
           {% endif %}
 
         {% endfor %}

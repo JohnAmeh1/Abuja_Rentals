@@ -4,21 +4,21 @@
       <a href="{{ href }}" class="font-bold text-lg grow shrink-0 hover:text-primary transition flex gap-3 items-end">
         {{ title }}
         {% if href %}
-        <span class="size-7 flex items-center justify-center bg-gray-200 border-white rounded-full border-2 hover:border-gray-200 active:scale-75 duration-100">
-          <i class="fas fa-arrow-right text-xs text-black/80"></i>
-        </span>
+          <span class="size-7 flex items-center justify-center bg-gray-200 border-white rounded-full border-2 hover:border-gray-200 active:scale-75 duration-100">
+            <i class="fas fa-arrow-right text-xs text-[#222222]/80"></i>
+          </span>
         {% endif %}
       </a>
     {% endif %}
     {% if props|length > 4 %}
       <span direction="left" class="mv-btn opacity-40 hidden sm:block" disabled="true">
         <span class="size-7 flex justify-center items-center rounded-full bg-gray-200 cursor-pointer border border-white hover:border-gray-200 active:scale-75 duration-100">
-          <i class="fa fa-chevron-left text-black text-xs"></i>
+          <i class="fa fa-chevron-left text-[#222222] text-xs"></i>
         </span>
       </span>
       <span direction="right" class="mv-btn hidden sm:block">
         <span class="size-7 flex justify-center items-center rounded-full bg-gray-200 cursor-pointer border border-white hover:border-gray-200 active:scale-75 duration-100">
-          <i class="fa fa-chevron-right text-black text-xs"></i>
+          <i class="fa fa-chevron-right text-[#222222] text-xs"></i>
         </span>
       </span>
     {% endif %}

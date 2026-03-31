@@ -2,7 +2,7 @@
                 hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col
                 min-w-72 lg:min-w-80">
 
-   {% if prop.is_featured and show_featured != 0 %}
+  {% if prop.is_featured and show_featured != 0 %}
     <div class="absolute top-3 left-3 z-20 px-2.5 py-1 bg-white/90 backdrop-blur-sm
                 rounded-lg text-[10px] font-bold text-amber-600 border border-amber-200">
       ✦ Featured
@@ -21,18 +21,18 @@
       </div>
     {% endif %}
 
-     <a href="{% url 'save_property' prop.id %}"
+    <a href="{% url 'save_property' prop.id %}"
        class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center
               rounded-full transition
               {% if prop.is_saved %}text-red-500{% else %}text-white hover:text-red-400{% endif %}"
        style="text-shadow: 0 1px 4px rgba(0,0,0,.4);">
       <i class="{% if prop.is_saved %}fas{% else %}far{% endif %} fa-heart text-lg z-10"></i>
-      <i class="fas fa-heart text-lg absolute text-black z-0 opacity-60"></i>
+      <i class="fas fa-heart text-lg absolute text-[#222222] z-0 opacity-60"></i>
     </a>
 
     <span class="absolute bottom-3 left-3 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full
-        {% if prop.purpose == 'rent' %}bg-white/90 text-gray-700{% else %}bg-gray-900/80 text-white{% endif %}
-        backdrop-blur-sm pointer-events-none">
+                 {% if prop.purpose == 'rent' %}bg-white/90 text-gray-700{% else %}bg-gray-900/80 text-white{% endif %}
+                 backdrop-blur-sm pointer-events-none">
       For {{ prop.purpose|capfirst }}
     </span>
 
@@ -94,7 +94,7 @@
           <i class="fas fa-arrow-right text-[9px] group-hover/link:translate-x-0.5 transition-transform"></i>
         </a>
       {% endif %}
-  
+
       <button onclick="addToCompare('{{ prop.id }}')"
               class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold
                      border border-gray-200 text-gray-400
@@ -104,7 +104,7 @@
         <i class="fas fa-balance-scale text-[9px]"></i>
         Compare
       </button>
-  
+
     </div>
   </div>
 </article>

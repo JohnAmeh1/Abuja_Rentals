@@ -1,0 +1,715 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ property.title }} | Abuja Rentals{% endblock %}
+
+{% block content %}
+  <div class="container mx-auto px-2 lg:px-8 pt-24 pb-28 lg:pb-16 max-w-7xl">
+
+    <nav class="mb-5">
+      <ol class="flex items-center gap-2 text-xs text-gray-500">
+        <li><a href="{% url 'home' %}" class="hover:text-primary transition">Home</a></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><a href="{% url 'properties' %}" class="hover:text-primary transition">Properties</a></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><a href="{% url 'properties' %}?city={{ property.location.area.city.id }}" class="hover:text-primary transition line-clamp-1">{{ property.location.area.city.name|capfirst }}</a></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><a href="{% url 'properties' %}?area={{ property.location.area.id }}" class="hover:text-primary transition line-clamp-1">{{ property.location.area.name|capfirst }}</a></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li class="text-gray-900 font-medium truncate max-w-50">{{ property.title|truncatewords:6 }}</li>
+      </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <div class="lg:col-span-2 space-y-5">
+
+        <div class="rounded-t-2xl overflow-hidden border border-gray-200 bg-gray-100">
+          <div class="relative overflow-hidden">
+            <div id="sliderTrack" class="flex transition-transform duration-500 ease-out">
+              {% for image in all_images %}
+                <div class="min-w-full cursor-pointer"
+                     onclick="openLightBox('{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}')">
+                  <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}"
+                       class="w-full aspect-video object-cover"
+                       alt="Property image {{ forloop.counter }}">
+                </div>
+              {% endfor %}
+            </div>
+            {% if all_images.count > 1 %}
+              <button onclick="prevImage()"
+                      class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow flex items-center justify-center transition">
+                <i class="fas fa-chevron-left text-gray-700 text-xs"></i>
+              </button>
+              <button onclick="nextImage()"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow flex items-center justify-center transition">
+                <i class="fas fa-chevron-right text-gray-700 text-xs"></i>
+              </button>
+
+              <div class="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
+                <span id="slideCounter">1</span> / {{ all_images|length }}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if all_images.count > 1 %}
+            <div class="flex gap-1 p-3 overflow-x-auto bg-gray-50 thumbnails-container">
+              {% for image in all_images %}
+                <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"
+                     class="thumb h-14 w-20 object-cover rounded-lg cursor-pointer border-2 border-white hover:opacity-80 transition shrink-0"
+                     data-index="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full
+                             {% if property.status == 'available' %}bg-green-50 text-green-700 border border-green-200
+                             {% elif property.status == 'pending' %}bg-amber-50 text-amber-700 border border-amber-200
+                             {% else %}bg-gray-100 text-gray-600{% endif %}">
+                  {{ property.get_status_display }}
+                </span>
+                <span class="text-[11px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                  {{ property.property_type.display_name }}
+                </span>
+                <span class="text-[11px] font-bold px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
+                  {{ property.get_purpose_display }}
+                </span>
+                {% if property.school %}
+                  <span class="text-[11px] font-bold px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                    <i class="fas fa-graduation-cap mr-1"></i>Student Housing
+                  </span>
+                {% endif %}
+              </div>
+              <h1 class="text-2xl lg:text-3xl font-bold lg:font-black text-gray-900 leading-tight mb-2">{{ property.title }} </h1>
+              <a href="#map" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition">
+                <i class="fas fa-map-marker-alt text-primary/70 text-xs"></i>
+                {{ property.location.address }}, {{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|upper }}, {{ property.location.area.city.state.name|upper }}
+              </a>
+            </div>
+
+            {% if is_owner %}
+              <div class="flex gap-2 shrink-0">
+                <a href="{% url 'edit_property' property.id %}"
+                   class="w-8 h-8 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-100 transition"
+                   title="Edit">
+                  <i class="fas fa-edit text-xs"></i>
+                </a>
+                <button onclick="openDeleteModal()"
+                        class="w-8 h-8 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-100 transition"
+                        title="Delete">
+                  <i class="fas fa-trash text-xs"></i>
+                </button>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="grid grid-cols-4 sm:grid-cols-4 gap-0 pt-4 border-t border-gray-100">
+            {% if property.bedrooms %}
+              <div class="text-center bg-gray-50 p-2 border-x border-gray-200">
+                <i class="fas fa-bed text-primary/60 mb-1 block"></i>
+                <p class="font-bold text-sm text-gray-900">{{ property.bedrooms }}</p>
+                <p class="text-xs text-gray-400">Bedrooms</p>
+              </div>
+            {% endif %}
+            {% if property.bathrooms %}
+              <div class="text-center bg-gray-50 p-2 border-x border-gray-200">
+                <i class="fas fa-bath text-primary/60 mb-1 block"></i>
+                <p class="font-bold text-sm text-gray-900">{{ property.bathrooms }}</p>
+                <p class="text-xs text-gray-400">Bathrooms</p>
+              </div>
+            {% endif %}
+            {% if property.area_sqft %}
+              <div class="text-center bg-gray-50 p-2 border-x border-gray-200">
+                <i class="fas fa-ruler-combined text-primary/60 mb-1 block"></i>
+                <p class="font-bold text-sm text-gray-900">{{ property.area_sqft|floatformat:0 }}</p>
+                <p class="text-xs text-gray-400">Sq Ft</p>
+              </div>
+            {% endif %}
+            <div class="text-center bg-gray-50 p-2 border-x border-gray-200">
+              <i class="fas fa-calendar-alt text-primary/60 mb-1 block"></i>
+              <p class="font-bold text-sm text-gray-900">{{ property.created_at|date:"Y" }}</p>
+              <p class="text-xs text-gray-400">Listed</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+          <h2 class="text-base font-bold text-gray-900 mb-4">Description</h2>
+          <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ property.description }}</p>
+          {% if property.school %}
+            <div class="lg:p-2 pt-2">
+              <div class="bg-linear-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-6">
+                <div class="items-start gap-4">
+                  <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="fas fa-graduation-cap text-amber-600"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center">
+                      <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Near Campus</p>
+                      {% if property.rent_duration_months == 3 %}
+                        <span class="text-[10px] font-bold px-2 py-1 bg-amber-200 text-amber-800 rounded-lg shrink-0">
+                          Per Semester
+                        </span>
+                      {% endif %}
+                    </div>
+                    <p class="font-bold text-gray-900 text-sm">{{ property.school.name }}</p>
+                    {% if property.school.location %}
+                      <p class="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                        <i class="fas fa-map-marker-alt text-[9px]"></i>
+                        {{ property.school.location.area.name|capfirst }}, {{ property.school.location.area.city.name }}
+                      </p>
+                    {% endif %}
+                  </div>
+
+                </div>
+
+                {% if property.school.next_resumption_start %}
+                  <div class="mt-4 pt-4 border-t border-amber-200 grid grid-cols-2 gap-3">
+                    <div class="bg-white/60 rounded-xl p-3 px-2 text-center">
+                      <p class="text-xs text-gray-400 mb-0.5">Semester Starts</p>
+                      <p class="text-sm font-bold text-gray-900">{{ property.school.next_resumption_start|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3 px-2 text-center">
+                      <p class="text-xs text-gray-400 mb-0.5">Semester Ends</p>
+                      <p class="text-sm font-bold text-gray-900">{{ property.school.semester_end|date:"M d, Y" }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if amenities %}
+          <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Amenities & Features</h2>
+            <div class="flex flex-wrap lg:grid grid-cols-2 sm:grid-cols-3 gap-2 duration-200" id="amenities">
+            </div>
+            <button onclick="showAllAmenities()" id="amenities_btn"
+                    class="mt-4 w-full py-2.5 text-xs font-semibold text-primary border border-primary/20
+                           bg-primary/5 hover:bg-primary hover:text-white rounded-xl transition duration-200">
+              Show all amenities
+            </button>
+          </div>
+        {% endif %}
+
+        {% if property.furnished or property.serviced or property.shared %}
+          <div class="flex flex-wrap gap-2">
+            {% if property.furnished %}
+              <span class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700">
+                <i class="fas fa-couch text-primary/60 mr-1.5"></i>Furnished
+              </span>
+            {% endif %}
+            {% if property.serviced %}
+              <span class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700">
+                <i class="fas fa-concierge-bell text-primary/60 mr-1.5"></i>Serviced
+              </span>
+            {% endif %}
+            {% if property.shared %}
+              <span class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-700">
+                <i class="fas fa-users text-primary/60 mr-1.5"></i>Shared
+              </span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <div class="bg-white rounded-2xl border border-gray-200 p-6" id="map">
+          <h2 class="text-base font-bold text-gray-900 mb-4">Location</h2>
+          <div class="rounded-xl overflow-hidden border border-gray-100">
+            <iframe class="w-full h-72 lg:h-96 border-0" loading="lazy" allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q={{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|capfirst }}">
+            </iframe>
+          </div>
+        </div>
+
+        {% if recommendations %}
+          <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Similar Properties</h2>
+            <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+              {% for prop in recommendations %}
+                {% include "blocks/property.html" %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+
+      <div class="lg:col-span-1">
+        <div class="sticky top-24 space-y-5">
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+
+            <div>
+              <p class="text-3xl font-black text-gray-900">₦{{ property.price|floatformat:0|intcomma }}</p>
+              <p class="text-xs text-gray-400 mt-1">
+                {% if property.purpose == 'rent' %}
+                  {% if property.school %}
+                    {% if property.rent_duration_months == 3 %}Per semester
+                    {% else %}{{ property.rent_duration_months }} months
+                    {% endif %}
+                  {% elif property.rent_duration_months == 1 %}Per month
+                  {% elif property.rent_duration_months == 12 %}Per year
+                  {% elif property.rent_duration_months %}{{ property.rent_duration_months }} months
+                  {% endif %}
+                {% else %}Total price{% endif %}
+              </p>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="flex items-center gap-3">
+
+              {% if agent.logo.url %}
+                <img src="{{ agent.logo.url }}"
+                     class="w-12 h-12 rounded-xl object-cover border border-gray-100">
+              {% else %}
+                <div class="w-12 h-12 rounded-xl bg-linear-to-br from-primary/80 to-accent
+                            flex items-center justify-center text-white font-bold uppercase">
+                  {% if agent.name %}{{agent.name|slice:":1"}}{% else %}{{ agent.user.get_full_name|slice:":1" }}{% endif %}
+                </div>
+              {% endif %}
+
+
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-gray-900 truncate">
+                  {% if agent.name %}{{agent.name}}{% else %}{{ agent.user.get_full_name }}{% endif %}
+                </p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-xs text-gray-400">Agent</span>
+                  {% if agent.verified %}
+                    <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-700
+                                 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full leading-none">
+                      <i class="fas fa-shield-check text-emerald-500 text-[8px]"></i> Verified
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <a href="{% url 'agent_public_profile' agent.id %}"
+                 class="shrink-0 text-[11px] font-semibold text-primary hover:underline flex items-center gap-1">
+                View profile <i class="fas fa-arrow-right text-[9px]"></i>
+              </a>
+
+            </div>
+
+            <div class="space-y-2.5">
+              <button onclick="openWhatsApp()"
+                      class="w-full flex items-center justify-center gap-2 py-2.5 bg-green-600 hover:bg-green-700
+                             text-white text-sm font-semibold rounded-xl transition
+                             {% if not property.agent.whatsapp_number and not property.agent.phone %}opacity-40 cursor-not-allowed{% endif %}">
+                <i class="fab fa-whatsapp"></i> Contact on WhatsApp
+              </button>
+
+              <button onclick="callOwner()"
+                      class="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-200
+                             hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-xl transition
+                             {% if not property.agent.phone %}opacity-40 cursor-not-allowed{% endif %}">
+                <i class="fas fa-phone text-xs"></i>
+                {% if property.agent.phone %}
+                  {{ property.agent.phone }}
+                {% else %}No phone listed{% endif %}
+              </button>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="flex items-center gap-2">
+              <a href="{% url 'save_property' property.id %}"
+                 class="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-200
+                        hover:bg-gray-50 rounded-xl text-xs font-medium text-gray-600 transition">
+                <i class="{% if is_saved %}fas{% else %}far{% endif %} fa-heart {% if is_saved %}text-red-500{% endif %}"></i>
+                {% if is_saved %}Saved{% else %}Save{% endif %}
+              </a>
+              <button onclick="copyPropertyLink()"
+                      class="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-200
+                             hover:bg-gray-50 rounded-xl text-xs font-medium text-gray-600 transition">
+                <i class="fas fa-link"></i> Copy Link
+              </button>
+              <button onclick="shareProperty()"
+                      class="w-9 h-9 flex items-center justify-center border border-gray-200
+                             hover:bg-gray-50 rounded-xl text-xs text-gray-600 transition">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
+
+            <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
+                    class="w-full text-xs text-red-400 hover:text-red-600 hover:underline transition">
+              Report this listing
+            </button>
+
+          </div>
+
+
+          {% if property.verified %}
+            <div class="border overflow-hidden rounded-2xl border-gray-200">
+              <div class="bg-[#0F6E56] p-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                    <i class="fas fa-shield-alt text-white text-base"></i>
+                  </div>
+                  <div>
+                    <p class="text-[#E1F5EE] font-medium text-sm m-0">Verified listing</p>
+                    <p class="text-[#9FE1CB] text-xs mt-0.5 m-0">Abuja Rentals confirmed</p>
+                  </div>
+                  <span class="ml-auto text-[11px] font-medium text-[#E1F5EE] bg-white/15 rounded-full px-2.5 py-0.5 tracking-wide">VERIFIED</span>
+                </div>
+              </div>
+              <div class="p-5 space-y-2.5 border-t border-gray-100 bg-white">
+                <div class="flex items-start gap-2.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-[#1D9E75] mt-1.5 shrink-0"></div>
+                  <p class="text-xs text-gray-500 leading-relaxed m-0">Our team has physically inspected this property and confirmed the listing details are accurate.</p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-[#1D9E75] mt-1.5 shrink-0"></div>
+                  <p class="text-xs text-gray-500 leading-relaxed m-0">If reported as fraudulent, we will reinvestigate and act promptly.</p>
+                </div>
+              </div>
+              <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center gap-1.5">
+                <i class="fas fa-info-circle text-[#1D9E75] text-xs"></i>
+                <p class="text-xs text-gray-400 m-0">Verification badge issued by Abuja Rentals</p>
+              </div>
+            </div>
+
+          {% else %}
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+              <h1 class="font-black text-xl mb-1">Safety tips</h1>
+              <p class="text-xs text-gray-400 mb-4">Protect yourself when renting or buying property</p>
+              <ul class="space-y-3">
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-ban text-red-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Never pay before inspecting</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Avoid any upfront payments or transfers before physically seeing the property.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-file-contract text-blue-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Verify all documents</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Request title documents, C of O, or tenancy agreement and confirm they're legitimate.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-user-shield text-amber-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Meet in a safe place</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Always meet agents or landlords in public first. Bring someone you trust for physical visits.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-search text-green-400 text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Inspect thoroughly</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Check water, electricity, walls, and surroundings. Only pay when you're fully satisfied.</p>
+                  </div>
+                </li>
+
+                <li class="flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-headset text-primary text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Report suspicious listings</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">If something feels off, report the listing. We review and remove fraudulent properties quickly.</p>
+                  </div>
+                </li>
+
+              </ul>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+    <div id="reportModalDetail"
+         class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-base font-bold text-gray-900">Report Listing</h3>
+          <button onclick="closeReportModalDetail()"
+                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-5">Describe the issue and our team will review it promptly.</p>
+        <form id="reportFormDetail" method="POST" class="space-y-4">
+          {% csrf_token %}
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Reason</label>
+            <select name="reason" required
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <option value="fake_listing">Fake / Misleading Listing</option>
+              <option value="harassment">Harassment / Abusive Behaviour</option>
+              <option value="scam">Suspected Scam</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Details <span class="font-normal text-gray-400 normal-case tracking-normal">(optional)</span></label>
+            <textarea name="message" rows="3" placeholder="Describe what happened…"
+                      class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none"></textarea>
+          </div>
+          <div class="flex gap-3 pt-1">
+            <button type="button" onclick="closeReportModalDetail()"
+                    class="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">Cancel</button>
+            <button type="submit"
+                    class="flex-1 py-2.5 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition">Submit Report</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if is_owner %}
+    <div id="deleteModal"
+         class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+        <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-trash text-red-500"></i>
+        </div>
+        <h3 class="font-bold text-gray-900 mb-2">Delete this property?</h3>
+        <p class="text-sm text-gray-500 mb-6">This action cannot be undone. All data for this listing will be permanently removed.</p>
+        <div class="flex gap-3">
+          <button onclick="closeDeleteModal()"
+                  class="flex-1 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">Cancel</button>
+          <form method="POST" action="{% url 'delete_property' property.id %}" class="flex-1">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full py-2.5 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="fixed inset-0 z-50 opacity-0 pointer-events-none duration-300" id="lightbox">
+    <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeLightbox()"></div>
+    <button onclick="closeLightbox()"
+            class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center
+                   rounded-full bg-white/10 hover:bg-white/20 text-white transition">
+      <i class="fas fa-times text-sm"></i>
+    </button>
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <img src="" class="max-w-full max-h-full object-cover p-2 md:p-0" alt="">
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    const track      = document.getElementById('sliderTrack');
+    const thumbs     = document.querySelectorAll('.thumb');
+    const thumbWrap  = document.querySelector('.thumbnails-container');
+    const counter    = document.getElementById('slideCounter');
+    const total      = track ? track.children.length : 0;
+    let current      = 0;
+    let autoPlay;
+    const amenities_list = [{% for amenity in amenities %}{display_name: '{{ amenity.display_name }}', icon: '{{amenity.icon}}'},{% endfor %}]
+    const amenities_div = document.getElementById("amenities")
+    const amenities_btn = document.getElementById("amenities_btn")
+
+    showLess()
+
+    function openLightBox(src) {
+      const lightbox = document.getElementById("lightbox")
+      lightbox.querySelector("img").src = src
+      lightbox.classList.remove("opacity-0", "pointer-events-none")
+      document.body.style.overflow = "hidden"
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById("lightbox")
+      lightbox.classList.add("opacity-0", "pointer-events-none")
+      document.body.style.overflow = ""
+      setTimeout(() => lightbox.querySelector("img").src = "", 300)
+    }
+
+    function showAllAmenities() {
+      amenities_div.innerHTML = ''
+      showAmenities(amenities_list)
+      amenities_btn.textContent = "Show Less"
+      amenities_btn.onclick = showLess
+    }
+
+    function showLess() {
+      amenities_div.innerHTML = ''
+      showAmenities(amenities_list.slice(0, 6))
+      amenities_btn.textContent = "Show all amenities"
+      amenities_btn.onclick = showAllAmenities
+
+      if (amenities_list.length <= 6) amenities_btn.classList.add('hidden')
+    }
+
+    function showAmenities(arr) {
+      for (val of arr) {
+        let d = document.createElement("div")
+        d.innerHTML = `
+      <div class="flex items-center gap-2 px-2 py-2.5 bg-gray-50 border border-gray-100 
+                  rounded-xl text-sm text-gray-700 hover:bg-primary/5 hover:border-primary/20 transition grow">
+        <i class="${val.icon} text-primary text-xs shrink-0"></i>
+        ${val.display_name}
+      </div>`
+        amenities_div.appendChild(d)
+      }
+    }
+
+    function updateSlider() {
+      if (!track) return;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      if (counter) counter.textContent = current + 1;
+      thumbs.forEach((t, i) => t.classList.toggle('!border-gray-900', i === current));
+      if (thumbWrap && thumbs[current]) {
+        const tw = thumbWrap.getBoundingClientRect();
+        const th = thumbs[current].getBoundingClientRect();
+        if (th.left < tw.left) thumbWrap.scrollBy({ left: th.left - tw.left - 8, behavior: 'smooth' });
+        else if (th.right > tw.right) thumbWrap.scrollBy({ left: th.right - tw.right + 8, behavior: 'smooth' });
+      }
+      startAuto()
+    }
+    function nextImage()        { current = (current + 1) % total; updateSlider(); }
+    function prevImage()        { current = (current - 1 + total) % total; updateSlider(); }
+    function goToSlide(i)       { current = i; updateSlider(); }
+    function startAuto()        { stopAuto(); autoPlay = setInterval(nextImage, 5000); }
+    function stopAuto()         { clearInterval(autoPlay); }
+
+    if (track) {
+      track.addEventListener('mouseenter', stopAuto);
+      track.addEventListener('mouseleave', startAuto);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight') nextImage();
+        if (e.key === 'ArrowLeft')  prevImage();
+      });
+      updateSlider();
+      startAuto();
+    }
+
+    function openModal(id)  {
+      const m = document.getElementById(id);
+      if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+    }
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) { m.classList.add('hidden'); m.classList.remove('flex'); document.body.style.overflow = ''; }
+    }
+    function openDeleteModal()         { openModal('deleteModal'); }
+    function closeDeleteModal()        { closeModal('deleteModal'); }
+    function openReportModal(id)       {
+      const f = document.getElementById('reportFormDetail');
+      if (f) f.action = `/property/${id}/report/`;
+      openModal('reportModalDetail');
+    }
+    function closeReportModalDetail()  { closeModal('reportModalDetail'); }
+
+    ['deleteModal', 'reportModalDetail'].forEach(id => {
+      const m = document.getElementById(id);
+      if (m) m.addEventListener('click', e => { if (e.target === m) closeModal(id); });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModal('deleteModal'); closeModal('reportModalDetail'); }
+    });
+
+    function showNotification(msg, type = 'success') {
+      document.querySelectorAll('.site-notif').forEach(n => n.remove());
+      const el = document.createElement('div');
+      el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
+                    transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
+      el.textContent = msg;
+      el.style.cssText = 'opacity:0;transform:translateY(-12px)';
+      document.body.appendChild(el);
+      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+      setTimeout(() => {
+        el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
+        setTimeout(() => el.remove(), 300);
+      }, 3000);
+    }
+
+    function copyPropertyLink() {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => showNotification('Link copied!'))
+        .catch(() => showNotification('Could not copy link', 'error'));
+    }
+
+    function shareProperty() {
+      if (navigator.share) {
+        navigator.share({ title: '{{ property.title|escapejs }}', url: window.location.href })
+          .catch(() => {});
+      } else {
+        copyPropertyLink();
+      }
+    }
+
+    function openWhatsApp() {
+      let number  = '{{ property.agent.whatsapp_number|default:""| escapejs }}'.trim();
+      if (number.startsWith("0")) {
+        number.slice(1)
+        number = "234"+ number
+      }
+      if (!number.startsWith("234")) {
+        number = "234"+ number
+      }
+      if (!number){ showNotification('WhatsApp not available', 'error'); return; }
+      const text = encodeURIComponent('Hello, I saw your property on Abuja Rentals: ' + window.location.href);
+      window.open(`https://wa.me/${number}?text=${text}`, '_blank');
+    }
+
+    function callOwner() {
+      const phone = '{{ agent.phone|default:""| escapejs }}'.trim();
+      if (phone) window.location.href = `tel:${phone}`;
+      else showNotification('No phone number available', 'error');
+    }
+
+  </script>
+
+  <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 px-4 py-3 flex items-center gap-3"
+       style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom));">
+
+    <div class="flex-1 min-w-0">
+      <p class="text-lg font-black text-gray-900 leading-none">₦{{ property.price|floatformat:0|intcomma }}</p>
+      <p class="text-xs text-gray-400 mt-0.5">
+        {% if property.purpose == 'rent' %}
+          {% if property.rent_duration_months == 1 %}per month
+          {% elif property.rent_duration_months == 12 %}per year
+          {% elif property.rent_duration_months %}{{ property.rent_duration_months }} months
+          {% endif %}
+        {% else %}total price{% endif %}
+      </p>
+    </div>
+
+    <button onclick="callOwner()"
+            class="w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition shrink-0
+                   {% if not property.agent.phone %}opacity-40 pointer-events-none{% endif %}">
+      <i class="fas fa-phone text-sm"></i>
+    </button>
+
+    <button onclick="openWhatsApp()"
+            class="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition shrink-0
+                   {% if not property.agent.whatsapp_number and not property.agent.phone %}opacity-40 pointer-events-none{% endif %}">
+      <i class="fab fa-whatsapp"></i> WhatsApp
+    </button>
+
+  </div>
+
+{% endblock %}

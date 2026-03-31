@@ -1,4 +1,3 @@
-<!-- ── Compare Modal ─────────────────────────────────────────── -->
 <div id="compareModal"
      class="hidden fixed inset-0 z-50 items-end justify-center bg-black/55 backdrop-blur-sm">
   <div class="bg-white rounded-t-2xl w-full max-w-7xl mx-auto shadow-2xl flex flex-col"
@@ -47,7 +46,7 @@
 
 <script>
   let compareIds  = JSON.parse(localStorage.getItem('compareIds') || '[]');
-  let compareList = []; 
+  let compareList = [];
   const MAX_COMPARE = 3;
 
   const ROWS = [
@@ -58,11 +57,12 @@
     { section: 'Details' },
     { label: 'Bedrooms',    key: 'bedrooms',  best: 'max', render: v => v || '—' },
     { label: 'Bathrooms',   key: 'bathrooms', best: 'max', render: v => v || '—' },
-    { label: 'Sq ft',       key: 'sqft',      best: 'max', render: v => v ? Number(v).toLocaleString() : '—' },
+    { label: 'Sq ft',       key: 'area_sqft',      best: 'max', render: v => v ? Number(v).toLocaleString() : '—' },
     { section: 'Pricing' },
     { label: 'Price (₦)',   key: 'price',     best: 'min', render: v => v ? '₦' + Number(v).toLocaleString() : '—' },
-    { label: 'Duration',    key: 'duration',  render: v => v || '—' },
+    { label: 'Duration',    key: 'rent_duration_months',  render: v => v || '—' },
     { section: 'Location' },
+    { label: 'City',        key: 'city',      render: v => v || '—' },
     { label: 'Area',        key: 'area',      render: v => v || '—' },
     { label: 'Near campus', key: 'school',    render: v => v ? `<i class="fas fa-graduation-cap text-amber-500 text-xs mr-1"></i>${v}` : '—' },
     { section: 'Features' },
@@ -134,7 +134,6 @@
     }
   }
 
-// ── Render ──────────────────────────────────────────────────────────────
   function getBestIdx(rowDef) {
     if (!rowDef.best || compareList.length < 2) return -1;
     const vals = compareList.map(p => parseFloat(p[rowDef.key]) || 0);

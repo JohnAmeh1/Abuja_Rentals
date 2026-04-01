@@ -1,6 +1,8 @@
 <article class="group relative bg-white rounded-2xl border border-gray-200
                 hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col
-                min-w-72 lg:min-w-80 overflow-hidden">
+                {% if show_created_at %}saved-card animate-fade-in{% else %}min-w-72 lg:min-w-80{% endif %} overflow-hidden"
+                data-purpose="{{ item.property.purpose }}"
+                >
 
   {% if prop.is_featured and show_featured != 0 %}
     <div class="absolute top-3 left-3 z-20 px-2.5 py-1 bg-white/90 backdrop-blur-sm
@@ -19,13 +21,11 @@
         <i class="fas fa-home text-gray-200 text-4xl"></i>
       </div>
     {% endif %}
+
     <a href="{% url 'save_property' prop.id %}"
-       class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center
-              rounded-full transition
-              {% if prop.is_saved %}text-red-500{% else %}text-white hover:text-red-400{% endif %}"
-       style="text-shadow: 0 1px 4px rgba(0,0,0,.4);">
-      <i class="{% if prop.is_saved %}fas{% else %}far{% endif %} fa-heart text-lg z-10"></i>
-      <i class="fas fa-heart text-lg absolute text-[#222222] z-0 opacity-60"></i>
+       class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full group">
+     <i class="far fa-heart text-lg z-10 text-white hover:text-red-300 duration-150"></i>
+      <i class="fas fa-heart text-lg absolute  {% if prop.is_saved %}text-red-500{% else %}text-[#222222] opacity-60{% endif %} z-0"></i>
     </a>
 
     <span class="absolute bottom-3 left-3 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full
@@ -78,7 +78,11 @@
 
 
     <div class="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between">
-      {% if prop.furnished or prop.serviced or prop.shared %}
+      {% if show_created_at %}
+        <span class="text-[10px] text-gray-300">
+                Saved {{ item.created_at|timesince }} ago
+        </span>
+      {% elif prop.furnished or prop.serviced or prop.shared %}
         <div class="flex gap-1">
           {% if prop.furnished %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Furnished</span>{% endif %}
           {% if prop.serviced  %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Serviced</span>{% endif %}
@@ -92,7 +96,7 @@
         </a>
       {% endif %}
 
-      <button onclick="addToCompare('{{ prop.id }}')"
+      <button onclick="addToCompare(this, '{{ prop.id }}')"
               class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold
                      border border-gray-200 text-gray-400
                      hover:border-[#0F6E56] hover:text-[#0F6E56] hover:bg-[#E1F5EE]

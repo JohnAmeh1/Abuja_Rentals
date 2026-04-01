@@ -5,9 +5,9 @@
 
 {% block content %}
   <div class="bg-white">
-    <div class="container mx-auto px-2 lg:px-8 pt-24 pb-28 lg:pb-16 max-w-7xl">
+    <div class="container mx-auto px-2 lg:px-8 pt-16 lg:pt-24 pb-28 lg:pb-16 max-w-7xl">
 
-      <nav class="mb-5">
+      <nav class="mb-5 hidden lg:block">
         <ol class="flex items-center gap-2 text-xs text-gray-500">
           <li><a href="{% url 'home' %}" class="hover:text-primary transition">Home</a></li>
           <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
@@ -21,29 +21,29 @@
         </ol>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 -mx-2">
 
         <div class="lg:col-span-2 space-y-5">
         
-          <div class="rounded-t-2xl overflow-hidden border border-gray-200 bg-gray-100">
+          <div class="lg:rounded-t-2xl overflow-hidden lg:border border-gray-200 bg-gray-100">
           <div class="relative overflow-hidden">
             <div id="sliderTrack" class="flex transition-transform duration-500 ease-out">
               {% for image in all_images %}
                 <div class="min-w-full cursor-pointer"
                      onclick="openLightBox('{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}')">
                   <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}"
-                       class="w-full aspect-video object-cover"
+                       class="w-full min-h-80 lg:aspect-video object-cover"
                        alt="Property image {{ forloop.counter }}">
                 </div>
               {% endfor %}
             </div>
             {% if all_images.count > 1 %}
               <button onclick="prevImage()"
-                      class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow flex items-center justify-center transition">
+                      class="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow items-center justify-center transition">
                 <i class="fas fa-chevron-left text-gray-700 text-xs"></i>
               </button>
               <button onclick="nextImage()"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow flex items-center justify-center transition">
+                      class="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl shadow items-center justify-center transition">
                 <i class="fas fa-chevron-right text-gray-700 text-xs"></i>
               </button>
 
@@ -54,7 +54,7 @@
           </div>
 
           {% if all_images.count > 1 %}
-            <div class="flex gap-1 p-3 overflow-x-auto bg-gray-50 thumbnails-container">
+            <div class="hidden lg:flex gap-1 p-3 overflow-x-auto bg-gray-50 thumbnails-container">
               {% for image in all_images %}
                 <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"
                      class="thumb h-14 w-20 object-cover rounded-lg cursor-pointer border-2 border-white hover:opacity-80 transition shrink-0"
@@ -87,9 +87,8 @@
                     </span>
                   {% endif %}
                 </div>
-              <h1 class="text-2xl lg:text-3xl font-bold lg:font-black text-gray-900 leading-tight mb-2">{{ property.title }} </h1>
+              <h1 class="text-2xl font-bold lg:font-black text-gray-900 leading-tight mb-2">{{ property.title }} </h1>
                 <a href="#map" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition">
-                  <i class="fas fa-map-marker-alt text-primary/70 text-xs"></i>
                   {{ property.location.address }}, {{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|upper }}, {{ property.location.area.city.state.name|upper }}
                 </a>
               </div>
@@ -228,8 +227,8 @@
         </div>
 
         <div class="lg:col-span-1">
-          <div class="sticky top-24 space-y-5">
-            <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5 shadow-2xl">
+          <div class="sticky top-24 space-y-5 px-4 lg:px-0">
+            <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5 shadow-lg">
 
               <div>
                 <p class="text-3xl font-black text-gray-900">₦{{ property.price|floatformat:0|intcomma }}</p>
@@ -323,13 +322,13 @@
                   <i class="fas fa-share-alt"></i>
                 </button>
               </div>
-
-              <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
-                      class="w-full text-xs text-red-400 hover:text-red-600 hover:underline transition">
-                Report this listing
-              </button>
-
+              
             </div>
+            
+                          <button onclick="openReportModal('{{ property.id }}', '{{ property.title|escapejs }}')"
+                                  class="w-full text-sm text-dark hover:text-red-600 hover:underline transition space-x-2">
+                            <i class="far fa-flag"></i><span>Report this listing</span>
+                          </button>
 
 
             {% if property.verified %}
@@ -363,7 +362,7 @@
               </div>
 
             {% else %}
-              <div class="bg-white rounded-2xl border border-gray-200 p-6">
+              <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow">
                 <h1 class="font-black text-xl mb-1">Safety tips</h1>
                 <p class="text-xs text-gray-400 mb-4">Protect yourself when renting or buying property</p>
                 <ul class="space-y-3">
@@ -541,6 +540,39 @@
 
     showLess()
 
+let touchStartX = 0;
+let touchStartY = 0;
+let isSwiping   = false;
+
+track?.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  isSwiping   = false;
+  stopAuto();
+}, { passive: true });
+
+track?.addEventListener('touchmove', e => {
+  if (!isSwiping) {
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (dx > dy && dx > 8) {
+      isSwiping = true;
+    }
+  }
+  if (isSwiping) e.preventDefault();
+}, { passive: false });
+
+track?.addEventListener('touchend', e => {
+  if (!isSwiping) { startAuto(); return; }
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 40) {
+    diff > 0 ? nextImage() : prevImage();
+  } else {
+    updateSlider();
+  }
+  startAuto();
+}, { passive: true });
+
     function openLightBox(src) {
       const lightbox = document.getElementById("lightbox")
       lightbox.querySelector("img").src = src
@@ -572,8 +604,8 @@
     }
 
     function showAmenities(arr) {
-  amenities_div.innerHTML = "";
-  arr.slice(0, 6).forEach(val => {
+    amenities_div.innerHTML = "";
+    arr.forEach(val => {
     let d = document.createElement("div");
 
     d.innerHTML = `
@@ -650,21 +682,6 @@
       if (e.key === 'Escape') { closeModal('deleteModal'); closeModal('reportModalDetail'); }
     });
 
-    function showNotification(msg, type = 'success') {
-      document.querySelectorAll('.site-notif').forEach(n => n.remove());
-      const el = document.createElement('div');
-      el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
-                    transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
-      el.textContent = msg;
-      el.style.cssText = 'opacity:0;transform:translateY(-12px)';
-      document.body.appendChild(el);
-      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
-      setTimeout(() => {
-        el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
-        setTimeout(() => el.remove(), 300);
-      }, 3000);
-    }
-
     function copyPropertyLink() {
       navigator.clipboard.writeText(window.location.href)
         .then(() => showNotification('Link copied!'))
@@ -699,6 +716,9 @@
       if (phone) window.location.href = `tel:${phone}`;
       else showNotification('No phone number available', 'error');
     }
+
+    
+   
 
 
   </script>

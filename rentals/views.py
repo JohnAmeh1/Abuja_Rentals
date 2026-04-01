@@ -275,209 +275,548 @@ def resend_forgot_password_otp(request, user_id):
 
     return redirect('verify_forgot_password_otp')
 
+
 def get_curated_sections(available, count, saved_ids):
     from django.core.cache import cache
+    import random
 
     def get_section(cache_key, title, href, queryset, count=count):
         cached = cache.get(cache_key)
         if cached is not None:
-            result = dict(cached)
-            result['props'] = [
-                {**p, 'is_saved': p['id'] in saved_ids}
-                for p in cached['props']
-            ]
-            return result
-        
+            return {
+                **cached,
+                'props': [{**p, 'is_saved': p['id'] in saved_ids} for p in cached['props']]
+            }
+
         qs = queryset.select_related(
             "location__area__city", "school", "agent"
         ).prefetch_related("images")[:count]
+
         props = [serialize_property(p) for p in qs]
         if not props:
             return None
+
         result = {"title": title, "href": href, "props": props}
         cache.set(cache_key, result, 1800)
-        
+
         return {
             **result,
             'props': [{**p, 'is_saved': p['id'] in saved_ids} for p in props]
         }
 
-
-    def area_id(name):
-        return Area.objects.filter(
-            name__iexact=name
-        ).values_list("id", flat=True).first()
-
-    def school_id(name):
-        return School.objects.filter(
-            name__icontains=name
-        ).values_list("id", flat=True).first()
-
-    def type_id(name, icontains=False):
-        qs = PropertyType.objects.values_list("id", flat=True)
-        return (
-            qs.filter(name__icontains=name) if icontains
-            else qs.filter(name__iexact=name)
-        ).first()
-
     ids = cache.get("curated_ids")
     if not ids:
+        def area_id(name):
+            return Area.objects.filter(name__iexact=name).values_list("id", flat=True).first()
+
+        def school_id(name):
+            return School.objects.filter(name__icontains=name).values_list("id", flat=True).first()
+
+        def type_id(name, icontains=False):
+            qs = PropertyType.objects.values_list("id", flat=True)
+            return (qs.filter(name__icontains=name) if icontains else qs.filter(name__iexact=name)).first()
+
         ids = {
-            "maitama":    area_id("maitama"),
-            "asokoro":    area_id("asokoro"),
-            "wuse2":      area_id("wuse ii"),
-            "gwarinpa":   area_id("gwarinpa"),
-            "jabi":       area_id("jabi"),
-            "garki":      area_id("garki"),
-            "kubwa":      area_id("kubwa"),
-            "uniabuja":   school_id("University of Abuja"),
-            "unn":        school_id("University of Nigeria"),
-            "abuad":      school_id("ABUAD"),
-            "flat":       type_id("flat"),
-            "duplex":     type_id("duplex"),
-            "hostel":     type_id("hostel", icontains=True),
+            # Areas
+            "maitama":      area_id("maitama"),
+            "asokoro":      area_id("asokoro"),
+            "wuse2":        area_id("wuse ii"),
+            "gwarinpa":     area_id("gwarinpa"),
+            "jabi":         area_id("jabi"),
+            "garki":        area_id("garki"),
+            "kubwa":        area_id("kubwa"),
+            "wuse1":        area_id("wuse i"),
+            "utako":        area_id("utako"),
+            "life_camp":    area_id("life camp"),
+            "kado":         area_id("kado"),
+            "gudu":         area_id("gudu"),
+            "apo":          area_id("apo"),
+            "lugbe":        area_id("lugbe"),
+            "lokogoma":     area_id("lokogoma"),
+            "galadimawa":   area_id("galadimawa"),
+            "nbora":        area_id("nbora"),
+            "karmo":        area_id("karmo"),
+            "dawaki":       area_id("dawaki"),
+            "mpape":        area_id("mpape"),
+            "kuje":         area_id("kuje"),
+            "bwari":        area_id("bwari"),
+            "gwagwalada":   area_id("gwagwalada"),
+            # Schools
+            "uniabuja":     school_id("University of Abuja"),
+            "unn":          school_id("University of Nigeria"),
+            "abuad":        school_id("ABUAD"),
+            "bingham":      school_id("Bingham"),
+            "noun":         school_id("National Open University"),
+            "nda":          school_id("Nigerian Defence Academy"),
+            # Types
+            "flat":         type_id("flat"),
+            "duplex":       type_id("duplex"),
+            "hostel":       type_id("hostel", icontains=True),
             "self_contain": type_id("self contain", icontains=True),
-            "bungalow":   type_id("bungalow"),
+            "bungalow":     type_id("bungalow"),
+            "mansion":      type_id("mansion"),
+            "studio":       type_id("studio"),
+            "room":         type_id("room", icontains=True),
+            "office":       type_id("office", icontains=True),
+            "shop":         type_id("shop", icontains=True),
+            "warehouse":    type_id("warehouse", icontains=True),
         }
         cache.set("curated_ids", ids, 3600)
 
-    m  = ids
-    sections = []
+    m = ids
+    ALL_SECTIONS = [
 
-    if m["maitama"]:
-        sections.append(get_section(
-            "sec_maitama",
-            "Luxury Homes in Maitama",
-            f"/properties/?area={m['maitama']}",
-            available.filter(location__area_id=m["maitama"]).order_by("-views"),
-        ))
+    # ── Life moments ────────────────────────────────────────────────────
+    (
+        "sec_just_married",
+        "Perfect for Newlyweds 💍",
+        "/properties/?purpose=rent&min_bedrooms=2&max_bedrooms=3&furnished=true",
+        dict(purpose="rent", bedrooms__in=[2, 3], furnished=True),
+        "-views", True,
+    ),
+    (
+        "sec_family_home",
+        "Family Homes with Space",
+        "/properties/?min_bedrooms=3&purpose=rent",
+        dict(bedrooms__gte=3, purpose="rent"),
+        "-views", True,
+    ),
+    (
+        "sec_just_relocated",
+        "Move-In Ready Furnished Homes",
+        "/properties/?furnished=true&serviced=true&purpose=rent",
+        dict(furnished=True, serviced=True, purpose="rent"),
+        "-views", True,
+    ),
+    (
+        "sec_young_professional",
+        "For Young Professionals",
+        "/properties/?purpose=rent&max_bedrooms=2&serviced=true",
+        dict(purpose="rent", bedrooms__lte=2, serviced=True),
+        "-views", True,
+    ),
+    (
+        "sec_remote_worker",
+        "Quiet Homes for Remote Work",
+        "/properties/?furnished=true&purpose=rent&min_bedrooms=2",
+        dict(furnished=True, purpose="rent", bedrooms__gte=2),
+        "-views", True,
+    ),
+    (
+        "sec_first_apartment",
+        "Great First Apartments",
+        "/properties/?purpose=rent&max_price=800000&min_bedrooms=1",
+        dict(purpose="rent", price__lte=800_000, bedrooms__gte=1),
+        "price", True,
+    ),
+    (
+        "sec_growing_family",
+        "Room to Grow — 4+ Bedrooms",
+        "/properties/?min_bedrooms=4",
+        dict(bedrooms__gte=4),
+        "-views", True,
+    ),
+    (
+        "sec_empty_nesters",
+        "Cosy 2-Bedroom Homes",
+        "/properties/?min_bedrooms=2&max_bedrooms=2",
+        dict(bedrooms=2),
+        "-views", True,
+    ),
+    (
+        "sec_investment",
+        "Good Investment Properties",
+        "/properties/?purpose=sale&min_bedrooms=2",
+        dict(purpose="sale", bedrooms__gte=2),
+        "-price", True,
+    ),
 
-    if m["wuse2"] and m["flat"]:
-        sections.append(get_section(
-            "sec_wuse2_flats",
-            "Flats for Rent in Wuse II",
-            f"/properties/?area={m['wuse2']}&property_type={m['flat']}&purpose=rent",
-            available.filter(
-                location__area_id=m["wuse2"],
-                property_type_id=m["flat"],
-                purpose="rent",
-            ).order_by("-views"),
-        ))
+    # ── Specific searches ────────────────────────────────────────────────
+    (
+        "sec_3br_abuja",
+        "3-Bedroom Flats in Abuja",
+        "/properties/?min_bedrooms=3&max_bedrooms=3&purpose=rent",
+        dict(bedrooms=3, purpose="rent"),
+        "-views", True,
+    ),
+    (
+        "sec_2br_rent",
+        "2-Bedroom Apartments for Rent",
+        "/properties/?min_bedrooms=2&max_bedrooms=2&purpose=rent",
+        dict(bedrooms=2, purpose="rent"),
+        "-views", True,
+    ),
+    (
+        "sec_1br_rent",
+        "1-Bedroom Apartments for Rent",
+        "/properties/?min_bedrooms=1&max_bedrooms=1&purpose=rent",
+        dict(bedrooms=1, purpose="rent"),
+        "-views", True,
+    ),
+    (
+        "sec_studio_apartments",
+        "Studio Apartments in Abuja",
+        f"/properties/?property_type={m['studio']}",
+        dict(property_type_id=m["studio"]),
+        "-views", bool(m["studio"]),
+    ),
+    (
+        "sec_self_contain",
+        "Self-Contain Apartments",
+        f"/properties/?property_type={m['self_contain']}",
+        dict(property_type_id=m["self_contain"]),
+        "-views", bool(m["self_contain"]),
+    ),
+    (
+        "sec_rooms",
+        "Single Rooms for Rent",
+        f"/properties/?property_type={m['room']}&purpose=rent",
+        dict(property_type_id=m["room"], purpose="rent"),
+        "price", bool(m["room"]),
+    ),
+    (
+        "sec_shared_flat",
+        "Shared Flats — Split the Bills",
+        "/properties/?shared=true&purpose=rent",
+        dict(shared=True, purpose="rent"),
+        "-views", True,
+    ),
+    (
+        "sec_short_let",
+        "Short-Let & Serviced Apartments",
+        "/properties/?serviced=true&purpose=rent",
+        dict(serviced=True, purpose="rent"),
+        "-views", True,
+    ),
 
-    if m["gwarinpa"]:
-        sections.append(get_section(
-            "sec_gwarinpa_3bed",
-            "3-Bedroom Homes in Gwarinpa",
-            f"/properties/?area={m['gwarinpa']}&bedrooms=3",
-            available.filter(
-                location__area_id=m["gwarinpa"],
-                bedrooms=3,
-            ).order_by("-views"),
-        ))
-
-    if m["asokoro"]:
-        sections.append(get_section(
-            "sec_asokoro_serviced",
-            "Serviced Apartments in Asokoro",
-            f"/properties/?area={m['asokoro']}&serviced=true",
-            available.filter(
-                location__area_id=m["asokoro"],
-                serviced=True,
-            ).order_by("-views"),
-        ))
-
-    if m["uniabuja"]:
-        sections.append(get_section(
-            f"sec_school_{m['uniabuja']}",
-            "Housing near University of Abuja",
-            f"/properties/?school={m['uniabuja']}",
-            available.filter(school_id=m["uniabuja"]).order_by("-views"),
-        ))
-
-    if m["hostel"]:
-        sections.append(get_section(
-            "sec_hostels",
-            "Student Hostels across Abuja",
-            f"/properties/?property_type={m['hostel']}",
-            available.filter(property_type_id=m["hostel"]).order_by("-views"),
-        ))
-
-    if m["self_contain"]:
-        sections.append(get_section(
-            "sec_self_contain",
-            "Self-Contain Apartments",
-            f"/properties/?property_type={m['self_contain']}",
-            available.filter(property_type_id=m["self_contain"]).order_by("-views"),
-        ))
-
-    if m["duplex"]:
-        sections.append(get_section(
-            "sec_duplexes_sale",
-            "Duplexes for Sale in Abuja",
-            f"/properties/?property_type={m['duplex']}&purpose=sale",
-            available.filter(
-                property_type_id=m["duplex"],
-                purpose="sale",
-            ).order_by("-views"),
-        ))
-
-    if m["jabi"]:
-        sections.append(get_section(
-            "sec_jabi_furnished",
-            "Furnished Apartments in Jabi",
-            f"/properties/?area={m['jabi']}&furnished=true",
-            available.filter(
-                location__area_id=m["jabi"],
-                furnished=True,
-            ).order_by("-views"),
-        ))
-
-    if m["kubwa"]:
-        sections.append(get_section(
-            "sec_kubwa",
-            "Affordable Rentals in Kubwa",
-            f"/properties/?area={m['kubwa']}&purpose=rent",
-            available.filter(
-                location__area_id=m["kubwa"],
-                purpose="rent",
-            ).order_by("price"),
-        ))
-
-    if m["bungalow"]:
-        sections.append(get_section(
-            "sec_bungalows",
-            "Bungalows for Rent & Sale",
-            f"/properties/?property_type={m['bungalow']}",
-            available.filter(property_type_id=m["bungalow"]).order_by("-views"),
-        ))
-
-    sections.append(get_section(
-        "sec_budget",
+    # ── Budget ───────────────────────────────────────────────────────────
+    (
+        "sec_budget_under_300",
+        "Under ₦300,000/yr — Tight Budget",
+        "/properties/?purpose=rent&max_price=300000",
+        dict(purpose="rent", price__lte=300_000, rent_duration_months=12),
+        "price", True,
+    ),
+    (
+        "sec_budget_under_500",
         "Budget Rentals under ₦500,000/yr",
         "/properties/?purpose=rent&max_price=500000",
-        available.filter(
-            purpose="rent",
-            price__lte=500000,
-            rent_duration_months=12,
-        ).order_by("price"),
-    ))
+        dict(purpose="rent", price__lte=500_000, rent_duration_months=12),
+        "price", True,
+    ),
+    (
+        "sec_budget_monthly_50k",
+        "Under ₦50,000 per Month",
+        "/properties/?purpose=rent&max_price=50000",
+        dict(purpose="rent", price__lte=50_000, rent_duration_months=1),
+        "price", True,
+    ),
+    (
+        "sec_mid_range",
+        "Mid-Range — ₦500k to ₦2M/yr",
+        "/properties/?purpose=rent&min_price=500000&max_price=2000000",
+        dict(purpose="rent", price__gte=500_000, price__lte=2_000_000, rent_duration_months=12),
+        "-views", True,
+    ),
+    (
+        "sec_luxury_rent",
+        "Luxury Rentals above ₦3M/yr",
+        "/properties/?purpose=rent&min_price=3000000",
+        dict(purpose="rent", price__gte=3_000_000),
+        "-price", True,
+    ),
+    (
+        "sec_premium_sale",
+        "Premium Properties for Sale",
+        "/properties/?purpose=sale&min_price=50000000",
+        dict(purpose="sale", price__gte=50_000_000),
+        "-price", True,
+    ),
+    (
+        "sec_affordable_sale",
+        "Affordable Homes to Buy",
+        "/properties/?purpose=sale&max_price=20000000",
+        dict(purpose="sale", price__lte=20_000_000),
+        "price", True,
+    ),
 
-    if m["unn"]:
-        sections.append(get_section(
-            f"sec_school_{m['unn']}",
-            "Housing near University of Nigeria",
-            f"/properties/?school={m['unn']}",
-            available.filter(school_id=m["unn"]).order_by("-views"),
-        ))
+    # ── Property types ───────────────────────────────────────────────────
+    (
+        "sec_bungalows",
+        "Bungalows for Rent & Sale",
+        f"/properties/?property_type={m['bungalow']}",
+        dict(property_type_id=m["bungalow"]),
+        "-views", bool(m["bungalow"]),
+    ),
+    (
+        "sec_duplexes_rent",
+        "Duplexes for Rent",
+        f"/properties/?property_type={m['duplex']}&purpose=rent",
+        dict(property_type_id=m["duplex"], purpose="rent"),
+        "-views", bool(m["duplex"]),
+    ),
+    (
+        "sec_duplexes_sale",
+        "Duplexes for Sale",
+        f"/properties/?property_type={m['duplex']}&purpose=sale",
+        dict(property_type_id=m["duplex"], purpose="sale"),
+        "-views", bool(m["duplex"]),
+    ),
+    (
+        "sec_mansion",
+        "Luxury Mansions in Abuja",
+        f"/properties/?property_type={m['mansion']}",
+        dict(property_type_id=m["mansion"]),
+        "-price", bool(m["mansion"]),
+    ),
+    (
+        "sec_hostels",
+        "Student Hostels across Abuja",
+        f"/properties/?property_type={m['hostel']}",
+        dict(property_type_id=m["hostel"]),
+        "-views", bool(m["hostel"]),
+    ),
+    (
+        "sec_offices",
+        "Office Spaces for Rent",
+        f"/properties/?property_type={m['office']}&purpose=rent",
+        dict(property_type_id=m["office"], purpose="rent"),
+        "-views", bool(m["office"]),
+    ),
+    (
+        "sec_shops",
+        "Shops & Commercial Spaces",
+        f"/properties/?property_type={m['shop']}",
+        dict(property_type_id=m["shop"]),
+        "-views", bool(m["shop"]),
+    ),
+    (
+        "sec_warehouse",
+        "Warehouses & Storage",
+        f"/properties/?property_type={m['warehouse']}",
+        dict(property_type_id=m["warehouse"]),
+        "-views", bool(m["warehouse"]),
+    ),
 
-    sections.append(get_section(
-        "sec_shared",
-        "Shared Apartments in Abuja",
-        "/properties/?shared=true&purpose=rent",
-        available.filter(shared=True, purpose="rent").order_by("-views"),
-    ))
+    # ── Specific area + bedroom combos ───────────────────────────────────
+    (
+        "sec_3br_maitama",
+        "3-Bedroom Homes in Maitama",
+        f"/properties/?area={m['maitama']}&min_bedrooms=3&max_bedrooms=3",
+        dict(location__area_id=m["maitama"], bedrooms=3),
+        "-views", bool(m["maitama"]),
+    ),
+    (
+        "sec_3br_gwarinpa",
+        "3-Bedroom Homes in Gwarinpa",
+        f"/properties/?area={m['gwarinpa']}&min_bedrooms=3&max_bedrooms=3",
+        dict(location__area_id=m["gwarinpa"], bedrooms=3),
+        "-views", bool(m["gwarinpa"]),
+    ),
+    (
+        "sec_3br_utako",
+        "3-Bedroom Apartments in Utako",
+        f"/properties/?area={m['utako']}&min_bedrooms=3&max_bedrooms=3",
+        dict(location__area_id=m["utako"], bedrooms=3),
+        "-views", bool(m["utako"]),
+    ),
+    (
+        "sec_2br_jabi",
+        "2-Bedroom Flats in Jabi",
+        f"/properties/?area={m['jabi']}&min_bedrooms=2&max_bedrooms=2",
+        dict(location__area_id=m["jabi"], bedrooms=2),
+        "-views", bool(m["jabi"]),
+    ),
+    (
+        "sec_1br_wuse2",
+        "1-Bedroom Flats in Wuse II",
+        f"/properties/?area={m['wuse2']}&min_bedrooms=1&max_bedrooms=1",
+        dict(location__area_id=m["wuse2"], bedrooms=1),
+        "-views", bool(m["wuse2"]),
+    ),
+    (
+        "sec_studio_garki",
+        "Studios & Self-Contain in Garki",
+        f"/properties/?area={m['garki']}&max_bedrooms=1",
+        dict(location__area_id=m["garki"], bedrooms__lte=1),
+        "-views", bool(m["garki"]),
+    ),
+    (
+        "sec_family_kubwa",
+        "Family Homes in Kubwa",
+        f"/properties/?area={m['kubwa']}&min_bedrooms=3",
+        dict(location__area_id=m["kubwa"], bedrooms__gte=3),
+        "price", bool(m["kubwa"]),
+    ),
+    (
+        "sec_budget_lugbe",
+        "Cheap Rentals in Lugbe",
+        f"/properties/?area={m['lugbe']}&purpose=rent&max_price=500000",
+        dict(location__area_id=m["lugbe"], purpose="rent", price__lte=500_000),
+        "price", bool(m["lugbe"]),
+    ),
+    (
+        "sec_furnished_life_camp",
+        "Furnished Apartments in Life Camp",
+        f"/properties/?area={m['life_camp']}&furnished=true",
+        dict(location__area_id=m["life_camp"], furnished=True),
+        "-views", bool(m["life_camp"]),
+    ),
+    (
+        "sec_serviced_asokoro",
+        "Serviced Apartments in Asokoro",
+        f"/properties/?area={m['asokoro']}&serviced=true",
+        dict(location__area_id=m["asokoro"], serviced=True),
+        "-views", bool(m["asokoro"]),
+    ),
+    (
+        "sec_luxury_maitama",
+        "Luxury Homes in Maitama",
+        f"/properties/?area={m['maitama']}",
+        dict(location__area_id=m["maitama"]),
+        "-views", bool(m["maitama"]),
+    ),
+    (
+        "sec_apo_cheap",
+        "Affordable Homes in Apo",
+        f"/properties/?area={m['apo']}&purpose=rent",
+        dict(location__area_id=m["apo"], purpose="rent"),
+        "price", bool(m["apo"]),
+    ),
+    (
+        "sec_kado",
+        "Properties in Kado",
+        f"/properties/?area={m['kado']}",
+        dict(location__area_id=m["kado"]),
+        "-views", bool(m["kado"]),
+    ),
+    (
+        "sec_gudu",
+        "Homes in Gudu",
+        f"/properties/?area={m['gudu']}",
+        dict(location__area_id=m["gudu"]),
+        "-views", bool(m["gudu"]),
+    ),
+    (
+        "sec_lokogoma",
+        "Homes in Lokogoma",
+        f"/properties/?area={m['lokogoma']}",
+        dict(location__area_id=m["lokogoma"]),
+        "-views", bool(m["lokogoma"]),
+    ),
+    (
+        "sec_dawaki",
+        "Rentals in Dawaki",
+        f"/properties/?area={m['dawaki']}&purpose=rent",
+        dict(location__area_id=m["dawaki"], purpose="rent"),
+        "-views", bool(m["dawaki"]),
+    ),
+    (
+        "sec_mpape_budget",
+        "Budget Options in Mpape",
+        f"/properties/?area={m['mpape']}&purpose=rent",
+        dict(location__area_id=m["mpape"], purpose="rent"),
+        "price", bool(m["mpape"]),
+    ),
 
-    return [s for s in sections if s]
+    # ── Near schools ─────────────────────────────────────────────────────
+    (
+        "sec_uniabuja",
+        "Housing near University of Abuja",
+        f"/properties/?school={m['uniabuja']}",
+        dict(school_id=m["uniabuja"]),
+        "-views", bool(m["uniabuja"]),
+    ),
+    (
+        "sec_unn",
+        "Housing near University of Nigeria",
+        f"/properties/?school={m['unn']}",
+        dict(school_id=m["unn"]),
+        "-views", bool(m["unn"]),
+    ),
+    (
+        "sec_bingham",
+        "Housing near Bingham University",
+        f"/properties/?school={m['bingham']}",
+        dict(school_id=m["bingham"]),
+        "-views", bool(m["bingham"]),
+    ),
+    (
+        "sec_noun",
+        "Housing near NOUN",
+        f"/properties/?school={m['noun']}",
+        dict(school_id=m["noun"]),
+        "-views", bool(m["noun"]),
+    ),
+    (
+        "sec_student_furnished",
+        "Furnished Student Housing",
+        "/properties/?furnished=true&purpose=rent&max_price=600000",
+        dict(furnished=True, purpose="rent", price__lte=600_000),
+        "price", True,
+    ),
+
+    (
+        "sec_most_viewed",
+        "Most Popular Right Now",
+        "/properties/",
+        dict(),
+        "-views", True,
+    ),
+    (
+        "sec_newest",
+        "Newly Listed Properties",
+        "/properties/?sort=newest",
+        dict(),
+        "-created_at", True,
+    ),
+    (
+        "sec_sale",
+        "Properties for Sale in Abuja",
+        "/properties/?purpose=sale",
+        dict(purpose="sale"),
+        "-views", True,
+    ),
+    (
+        "sec_verified",
+        "Verified Listings — Trusted & Confirmed",
+        "/properties/",
+        dict(verified=True),
+        "-views", True,
+    ),
+]
+
+
+    HOW_MANY_SECTIONS = 8
+    selection_key = "curated_selection"
+    selected_keys = cache.get(selection_key)
+
+    if not selected_keys:
+        eligible = [s for s in ALL_SECTIONS if s[5]]  # condition is index 5
+        random.shuffle(eligible)
+        selected_keys = [s[0] for s in eligible[:HOW_MANY_SECTIONS * 2]]
+        cache.set(selection_key, selected_keys, 1800)
+
+    section_map = {s[0]: s for s in ALL_SECTIONS}
+
+    sections = []
+    for key in selected_keys:
+        if key not in section_map:
+            continue
+        cache_key, title, href, filters, order, _ = section_map[key]
+        section = get_section(
+            cache_key,
+            title,
+            href,
+            available.filter(**filters).order_by(order),
+        )
+        if section:
+            sections.append(section)
+        if len(sections) >= HOW_MANY_SECTIONS:
+            break
+
+    return sections
+
 
 def home(request):
     available = Property.objects.filter(status='available')
@@ -1251,7 +1590,7 @@ def submit_report(request, property_id):
     else:
         form = ReportForm()
 
-    return render(request, 'report_modal.html', {'form': form, 'property': property_obj})
+    return redirect('property_detail', property_id=property_id)
 
 
 @login_required

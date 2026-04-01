@@ -84,7 +84,7 @@ def nav_context(request):
     total_properties = Property.objects.filter(status='available').count()
 
     result =  {
-        'nav_property_types': [{"icon": pt.icon, "display_name": pt.display_name, "property_count": pt.property_count} for pt in property_types],
+        'nav_property_types': [{"id": pt.id, "icon": pt.icon, "display_name": pt.display_name, "property_count": pt.property_count} for pt in property_types],
         'nav_cities':         [{'id': c.id, 'name': c.name} for c in nav_cities],
         'total_properties':   total_properties,
         'nav_fallback_areas': ['Maitama', 'Wuse II', 'Asokoro', 'Gwarinpa', 'Jabi', 'Garki', 'Lugbe', 'Kado'],

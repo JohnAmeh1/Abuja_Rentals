@@ -48,13 +48,6 @@
           <i class="{% if request.resolver_match.url_name == 'wishlist' %}fas{% else %}far{% endif %} fa-heart text-xs"></i>
           Saved
         </a>
-
-        {% if user.is_authenticated %}
-          <a href="{% url 'dashboard' %}"
-             class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
-            Dashboard
-          </a>
-        {% endif %}
       </div>
 
       <div class="hidden lg:flex items-center gap-2">
@@ -82,7 +75,7 @@
           </a>
         {% else %}
         <!-- User avatar -->
-          <a href="{% url 'profile' %}"
+          <a href="{% url 'dashboard' %}"
              class="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20
                     flex items-center justify-center text-sm font-bold text-primary uppercase
                     hover:bg-primary/20 transition">
@@ -350,7 +343,7 @@
         <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Account</p>
         <div class="space-y-0.5">
           {% if user.is_authenticated %}
-            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition">
               <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary uppercase">
                 {{ user.first_name|first|default:user.username|first }}
               </div>
@@ -402,19 +395,6 @@
     nav.classList.toggle('scrolled', window.scrollY > 10);
   }, { passive: true });
 
-  const mobileMenu = document.getElementById("mobile-menu");
-
-  document.getElementById("mobile-menu-button").addEventListener("click", () => {
-    mobileMenu.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  });
-
-  function closeMobileMenu() {
-    mobileMenu.classList.add("hidden");
-    document.body.style.overflow = "auto";
-  }
-
-  // Mega menu
   let megaOpen = false;
 
   function toggleMegaMenu() {

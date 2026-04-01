@@ -71,14 +71,52 @@
     { label: 'Shared',      key: 'shared',    render: v => v==='true'||v===true ? '<i class="fas fa-check text-green-600 text-xs"></i>' : '<span class="text-gray-300 text-xs">—</span>' },
   ];
 
-  function addToCompare(id) {
+  function addToCompare(self, id) {
     id = String(id);
     if (compareIds.includes(id))          { showNotification('Already in compare', 'error'); return; }
     if (compareIds.length >= MAX_COMPARE) { showNotification('Max 3 properties', 'error'); return; }
     compareIds.push(id);
+    let img  = self.closest('article').querySelector("img")
+    let dest = document.getElementById('compareFloatingCount');
+    
+    const imgRect = img.getBoundingClientRect();
+    const destRect = dest.getBoundingClientRect()
+
+    const clone = img.cloneNode()
+
+    Object.assign(clone.style, {
+      position: "fixed",
+      top: `${imgRect.top}px`,
+      left: `${imgRect.left}px`,
+      width: `${imgRect.width}px`,
+      height: `${imgRect.height}px`,
+      zIndex: '2',
+      PointerEvent: "none",
+      borderRadius: '999px'
+    });
+    document.body.appendChild(clone)
+
+    const destX = destRect.left + destRect.width / 2 - imgRect.width / 2
+    const destY = destRect.top + destRect.height / 2 - imgRect.height / 2
+
+    const flyAnim = clone.animate(
+      [
+        {transform: "translate(0, 0) scale(1)", opacity : 1},
+        {transform: `translate(${destX - imgRect.left}px, ${destY - imgRect.top}px) scale(0.1)`, opacity : 0},
+      ],
+        {
+          duration: 400,
+          easing: "ease-in-out",
+          fill: "forwards"
+        }
+
+    )
+
     localStorage.setItem('compareIds', JSON.stringify(compareIds));
-    syncFloatingBtn();
+    setTimeout(() => {
+      syncFloatingBtn();
     showNotification('Added to compare');
+    }, 400)
   }
 
   function removeFromCompare(id) {

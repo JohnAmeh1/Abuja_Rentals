@@ -186,13 +186,12 @@
       {% block content %} {% endblock %}
       <button id="compareFloatingBtn"
               onclick="openCompare()"
-              class="hidden fixed right-0 top-1/2 z-50 -translate-y-1/2
+              class="fixed right-0 top-1/2 z-50 -translate-y-1/2
                      bg-[#0F6E56] text-white text-xs font-bold
                      px-3 py-2.5 rounded-l-xl shadow-lg
                      hover:bg-[#085041] hover:px-4 transition-all duration-200
                      flex flex-col items-center gap-2"
               style="writing-mode: vertical-rl; text-orientation: mixed;">
-        {% comment %} <i class="fas fa-balance-scale text-xs" style="writing-mode: horizontal-tb;"></i> {% endcomment %}
         Compare
         <span id="compareFloatingCount"
               class="bg-white text-[#0F6E56] font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center leading-none"
@@ -221,6 +220,20 @@
         }, 4500)
       })
 
+          function showNotification(msg, type = 'success') {
+            document.querySelectorAll('.site-notif').forEach(n => n.remove());
+            const el = document.createElement('div');
+            el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
+                          transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
+            el.textContent = msg;
+            el.style.cssText = 'opacity:0;transform:translateY(-12px)';
+            document.body.appendChild(el);
+            requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+            setTimeout(() => {
+              el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
+              setTimeout(() => el.remove(), 300);
+            }, 3000);
+          }
 
 
     // Replace the admin messages script in base.html with this updated version
@@ -451,14 +464,13 @@
         if (!btn) return;
         count.textContent = compareIds.length;
         if (compareIds.length > 0) {
-          btn.classList.remove('hidden');
-          btn.classList.add('flex');
+          btn.classList.remove('pointer-event-none', 'opacity-0');
         } else {
-          btn.classList.add('hidden');
-          btn.classList.remove('flex');
+          btn.classList.add('pointer-event-none', 'opacity-0');
         }
       }
       syncFloatingBtn();
+
 
     </script>
 

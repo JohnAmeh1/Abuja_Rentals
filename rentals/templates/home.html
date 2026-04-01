@@ -288,6 +288,67 @@
         }
       })
     })
+
+    // ── See-all card bounce animation ────────────────────────────────────
+// Uses scroll listener on the horizontal container, not IntersectionObserver,
+// because IO doesn't fire for overflow-x scroll containers
+function initSeeAllCards() {
+  document.querySelectorAll('.ls-container').forEach(container => {
+    const trigger = container.querySelector('.see-all-trigger');
+    if (!trigger) return;
+
+    let animated = false;
+
+    function checkVisible() {
+      if (animated) return;
+      const containerRect = container.getBoundingClientRect();
+      const triggerRect   = trigger.getBoundingClientRect();
+
+      // card is visible when its left edge is within the container's right edge
+      const isVisible = triggerRect.left < containerRect.right - 40;
+
+      if (isVisible) {
+        animated = true;
+        animateSeeAll(trigger);
+        container.removeEventListener('scroll', checkVisible);
+      }
+    }
+
+    container.addEventListener('scroll', checkVisible, { passive: true });
+
+    // also check on page scroll in case the whole section comes into view
+    window.addEventListener('scroll', checkVisible, { passive: true });
+
+    // check immediately in case it's already visible on load
+    checkVisible();
+  });
+}
+
+function animateSeeAll(trigger) {
+  const front     = trigger.querySelector('.see-all-front');
+  const backLeft  = trigger.querySelector('.see-all-back-left');
+  const backRight = trigger.querySelector('.see-all-back-right');
+
+  if (front) {
+    front.style.transform = 'rotate(0deg) translateY(0px)';
+    front.style.opacity   = '1';
+  }
+  if (backLeft) {
+    backLeft.style.transform = 'rotate(-3deg) translateY(0px) translateX(0px)';
+    backLeft.style.opacity   = '1';
+  }
+  if (backRight) {
+    backRight.style.transform = 'rotate(3deg) translateY(0px) translateX(0px)';
+    backRight.style.opacity   = '1';
+  }
+}
+
+// run after DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSeeAllCards);
+} else {
+  initSeeAllCards();
+}
   </script>
 
 

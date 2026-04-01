@@ -1,6 +1,6 @@
 <article class="group relative bg-white rounded-2xl border border-gray-200
                 hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col
-                min-w-72 lg:min-w-80">
+                min-w-72 lg:min-w-80 overflow-hidden">
 
   {% if prop.is_featured and show_featured != 0 %}
     <div class="absolute top-3 left-3 z-20 px-2.5 py-1 bg-white/90 backdrop-blur-sm
@@ -8,8 +8,7 @@
       ✦ Featured
     </div>
   {% endif %}
-
-  <div class="relative h-44 overflow-hidden bg-gray-100 shrink-0 rounded-t-[15px]">
+  <div class="relative h-44 overflow-hidden bg-gray-100 shrink-0">
 
     <a href="{% url 'property_detail' prop.id %}" class="absolute inset-0 z-0" tabindex="-1" aria-hidden="true"></a>
     {% if prop.main_image %}
@@ -20,7 +19,6 @@
         <i class="fas fa-home text-gray-200 text-4xl"></i>
       </div>
     {% endif %}
-
     <a href="{% url 'save_property' prop.id %}"
        class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center
               rounded-full transition
@@ -35,7 +33,6 @@
                  backdrop-blur-sm pointer-events-none">
       For {{ prop.purpose|capfirst }}
     </span>
-
   </div>
 
   <div class="p-3.5 flex flex-col gap-1.5 flex-1">

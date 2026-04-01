@@ -27,7 +27,7 @@ from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, Proper
                     OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm,
                     AgentProfileUpdateForm)
 from .services.recommendations import get_property_recommendations
-from .services.property_service import serialize_property, get_image_url
+from .services.property_service import serialize_property
 from .services.helper import PURPOSE_CHOICES, PROPERTY_STATUS_CHOICES, AGENT_PROPERTY_STATUS_CHOICES
 from .onboarding import get_agent_onboarding
 
@@ -41,6 +41,11 @@ import threading
 import cloudinary
 
 
+def refresh_saved(p, user_id):
+    if user_id:
+        p['is_saved'] = SavedProperty.objects.filter(property_id=p["id"], user_id=user_id).exists()
+
+    return p
 
 
 def is_admin(user):
@@ -263,13 +268,13 @@ def resend_forgot_password_otp(request, user_id):
 
     return redirect('verify_forgot_password_otp')
 
-def get_curated_sections(available, count):
+def get_curated_sections(available, count, request):
     from django.core.cache import cache
 
     def get_section(cache_key, title, href, queryset, count=count):
         cached = cache.get(cache_key)
         if cached is not None:
-            return cached
+            return refresh_saved(cached, request.user.id)
         qs = queryset.select_related(
             "location__area__city", "school", "agent"
         ).prefetch_related("images")[:count]
@@ -278,7 +283,7 @@ def get_curated_sections(available, count):
             return None
         result = {"title": title, "href": href, "props": props}
         cache.set(cache_key, result, 1800)
-        return result
+        return [refresh_saved(r, request.user.id) for r in result]
 
     def area_id(name):
         return Area.objects.filter(
@@ -518,7 +523,7 @@ def home(request):
         cache.set("home_amenities", amenities, 3600)
 
     context = {
-        'featured_properties': featured_properties,
+        'featured_properties': [refresh_saved(r, request.user.id) for r in featured_properties],
         'total_properties': round(available.count(), -2),
         'categories': categories_raw[:9],
         'property_types': type_choices,
@@ -526,7 +531,7 @@ def home(request):
         'amenity_choices': amenities,
         'schools': schools,
         'cities': cities,
-        'curated_sections': get_curated_sections(available, NOOFHOMELISTINGS), 
+        'curated_sections': get_curated_sections(available, NOOFHOMELISTINGS, request), 
     }
 
     return render(request, "home.html", context)
@@ -895,7 +900,7 @@ def get_properties(request):
     data = [serialize_property(p) for p in result]
 
     return JsonResponse({
-        "properties": data,
+        "properties": [refresh_saved(r, request.user.id) for r in data],
         "next_cursor": next_cursor,
         "has_next": next_cursor is not None,
         "total": total,

@@ -198,6 +198,9 @@ class Property(PropertyService, models.Model):
             models.Index(fields=['status']),
             models.Index(fields=['school']),
         ]
+        
+    def is_saved(self, user_id):
+        return SavedProperty.objects.filter(property=self, user_id=user_id).exists()
 
 class PropertyVisit(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='visits')

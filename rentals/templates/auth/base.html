@@ -95,6 +95,10 @@
           <a href="{% url 'agent_profile_edit' %}" class="db-link {% if request.resolver_match.url_name == 'agent_profile_edit' %}db-active{% endif %}">
             <i class="fas fa-user-circle db-icon"></i>Agent Profile
           </a>
+          <p class="db-section">Renting</p>
+          <a href="{% url 'saved_properties' %}" class="db-link {% if request.resolver_match.url_name == 'saved_properties' %}db-active{% endif %}">
+            <i class="fas fa-heart db-icon"></i>Saved Properties
+          </a>
           <p class="db-section">Listings</p>
           <a href="{% url 'agent_properties' %}" class="db-link {% if request.resolver_match.url_name == 'student_properties' %}db-active{% endif %}">
             <i class="fas fa-home db-icon"></i>My Properties

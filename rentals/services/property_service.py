@@ -78,7 +78,7 @@ def serialize_property(p, detail=False):
         "school_short_name": p.school.short_name if p.school else None,
         "created_at": p.created_at,
     }
-
+    
     if detail:
         amenities = [
             pa.amenity.display_name

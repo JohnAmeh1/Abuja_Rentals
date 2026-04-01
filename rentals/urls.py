@@ -97,6 +97,7 @@ urlpatterns = [
     path('terms/',   views.TermsView.as_view(),   name='terms'),
     
     path('universities/', views.SchoolsView.as_view(), name='schools'),
+    path('saved/', views.wishlist, name='wishlist'),
 ]
 
 if settings.DEBUG:

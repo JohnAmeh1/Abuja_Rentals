@@ -27,7 +27,7 @@ from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, Proper
                     OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm,
                     AgentProfileUpdateForm)
 from .services.recommendations import get_property_recommendations
-from .services.property_service import serialize_property
+from .services.property_service import serialize_property, get_image_url
 from .services.helper import PURPOSE_CHOICES, PROPERTY_STATUS_CHOICES, AGENT_PROPERTY_STATUS_CHOICES
 from .onboarding import get_agent_onboarding
 
@@ -41,12 +41,19 @@ import threading
 import cloudinary
 
 
-def refresh_saved(p, user_id):
-    if user_id:
-        p['is_saved'] = SavedProperty.objects.filter(property_id=p["id"], user_id=user_id).exists()
+def get_saved_ids(user):
+    if not user or not user.is_authenticated:
+        return set()
+    return set(
+        SavedProperty.objects
+        .filter(user=user)
+        .values_list('property_id', flat=True)
+    )
 
+
+def refresh_saved(p, saved_ids):
+    p['is_saved'] = p['id'] in saved_ids
     return p
-
 
 def is_admin(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
@@ -268,13 +275,19 @@ def resend_forgot_password_otp(request, user_id):
 
     return redirect('verify_forgot_password_otp')
 
-def get_curated_sections(available, count, request):
+def get_curated_sections(available, count, saved_ids):
     from django.core.cache import cache
 
     def get_section(cache_key, title, href, queryset, count=count):
         cached = cache.get(cache_key)
         if cached is not None:
-            return refresh_saved(cached, request.user.id)
+            result = dict(cached)
+            result['props'] = [
+                {**p, 'is_saved': p['id'] in saved_ids}
+                for p in cached['props']
+            ]
+            return result
+        
         qs = queryset.select_related(
             "location__area__city", "school", "agent"
         ).prefetch_related("images")[:count]
@@ -283,7 +296,12 @@ def get_curated_sections(available, count, request):
             return None
         result = {"title": title, "href": href, "props": props}
         cache.set(cache_key, result, 1800)
-        return [refresh_saved(r, request.user.id) for r in result]
+        
+        return {
+            **result,
+            'props': [{**p, 'is_saved': p['id'] in saved_ids} for p in props]
+        }
+
 
     def area_id(name):
         return Area.objects.filter(
@@ -469,6 +487,8 @@ def home(request):
         .order_by("?")[:NOOFHOMELISTINGS]
     )
     
+    saved_ids = get_saved_ids(request.user)
+    
     if not featured_qs.exists():
         featured_qs = available.order_by("-views")[:NOOFHOMELISTINGS]
 
@@ -523,7 +543,7 @@ def home(request):
         cache.set("home_amenities", amenities, 3600)
 
     context = {
-        'featured_properties': [refresh_saved(r, request.user.id) for r in featured_properties],
+        'featured_properties': [refresh_saved(r, saved_ids) for r in featured_properties],
         'total_properties': round(available.count(), -2),
         'categories': categories_raw[:9],
         'property_types': type_choices,
@@ -531,7 +551,7 @@ def home(request):
         'amenity_choices': amenities,
         'schools': schools,
         'cities': cities,
-        'curated_sections': get_curated_sections(available, NOOFHOMELISTINGS, request), 
+        'curated_sections': get_curated_sections(available, NOOFHOMELISTINGS, saved_ids), 
     }
 
     return render(request, "home.html", context)
@@ -898,9 +918,10 @@ def get_properties(request):
         next_cursor = encode_cursor(last.created_at, last.id)
 
     data = [serialize_property(p) for p in result]
+    saved_ids = get_saved_ids(request.user)
 
     return JsonResponse({
-        "properties": [refresh_saved(r, request.user.id) for r in data],
+        "properties": [refresh_saved(r, saved_ids) for r in data],
         "next_cursor": next_cursor,
         "has_next": next_cursor is not None,
         "total": total,
@@ -1054,38 +1075,35 @@ def save_property(request, property_id):
 
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
-
 @login_required
 def saved_properties_view(request):
     saved = (
         SavedProperty.objects
         .filter(user=request.user)
         .select_related(
-            'property',
-            'property__location',
-            'property__location__area',
-            'property__location__area__city',
-            'property__location__area__city__state',
             'property__property_type',
+            'property__location__area__city__state',
             'property__school',
         )
-        .prefetch_related(
-            'property__images',
-            'property__property_amenities__amenity',
-        )
+        .prefetch_related('property__images', 'property__property_amenities__amenity')
+        .order_by('-created_at')
     )
 
-    context = {
-        'saved_properties': [
-            {'property': {**serialize_property(s.property)}, "saved_id": s.id, "created_at": s.created_at}
-            for s in saved
-        ],
+    serialized = []
+    for s in saved:
+        p = serialize_property(s.property)
+        p['is_saved'] = True   
+        serialized.append({
+            'property': p,
+            'saved_id': s.id,
+            'created_at': s.created_at,
+        })
+
+    return render(request, 'tenant/saved_properties.html', {
+        'saved_properties': serialized,
         'page_title': 'Saved Properties',
-    }
-
-    return render(request, 'tenant/saved_properties.html', context)
-
-
+    })
+    
 @login_required
 def book_property_visit(request, property_id):
     """Handle property visit booking"""
@@ -2625,3 +2643,34 @@ def compare_properties_api(request):
         
     
     return JsonResponse({'properties': data})
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def wishlist(request):
+    saved = (
+        SavedProperty.objects
+        .filter(user=request.user)
+        .select_related(
+            'property__property_type',
+            'property__location__area__city',
+            'property__school',
+        )
+        .prefetch_related('property__images')
+        .order_by('-created_at')
+    )
+    
+    serialized = []
+    for s in saved:
+        p = serialize_property(s.property)
+        p['is_saved'] = True   
+        serialized.append({
+            'property': p,
+            'saved_id': s.id,
+            'created_at': s.created_at,
+        })
+
+    return render(request, 'wishlist.html', {
+        'saved_properties': serialized,
+    })
+    

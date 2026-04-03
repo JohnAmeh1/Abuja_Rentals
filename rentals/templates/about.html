@@ -20,7 +20,7 @@
     .step-img-wrap {
       position: relative;
       overflow: hidden;
-      border-radius: 16px;
+      border-radius: 1rem;
       aspect-ratio: 4/3;
     }
 
@@ -37,15 +37,15 @@
 
     .step-number {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      width: 40px;
-      height: 40px;
+      top: 1rem;
+      left: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
       background: #0f172a;
       color: #fff;
-      font-size: 15px;
+      font-size: 1rem;
       font-weight: 800;
-      border-radius: 10px;
+      border-radius: .7rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -66,10 +66,10 @@
     .connector::after {
       content: '';
       position: absolute;
-      right: -4px;
-      top: -4px;
-      width: 8px;
-      height: 8px;
+      right: -0.25rem;
+      top: -0.25rem;
+      width: 0.5rem;
+      height: 0.5rem;
       border-radius: 50%;
       background: #3b82f6;
     }
@@ -81,7 +81,7 @@
 
       <div class="container mx-auto px-4 lg:px-20 relative">
         <div class="max-w-3xl mx-auto text-center">
-          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-primary mb-4">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.125rem] uppercase text-primary mb-4">
             <span class="w-5 h-px bg-primary inline-block"></span>
             Our Story
             <span class="w-5 h-px bg-primary inline-block"></span>
@@ -90,7 +90,7 @@
             Finding home shouldn't<br>
             <span class="text-primary italic font-serif font-black curse text-6xl">feel like work</span>
           </h1>
-          <p class="text-gray-300 tracking-wide leading-relaxed max-w-xl mx-auto max-sm:text-[13px]">
+          <p class="text-gray-300 tracking-wide leading-relaxed max-w-xl mx-auto max-sm:text-xs">
             We started Abuja Rentals because we've been there — spending weekends
             on wild goose chases, calling numbers that go nowhere, and renting places
             that looked nothing like the photos. There's a better way.
@@ -107,7 +107,7 @@
         <div class="grid lg:grid-cols-2 gap-16 items-center max-w-5xl mx-auto">
 
           <div>
-            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-4">
+            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.125rem] uppercase text-blue-500 mb-4">
               <span class="w-5 h-px bg-blue-500 inline-block"></span>
               Where We Started
             </span>
@@ -147,9 +147,9 @@
     </section>
 
     <section class="py-24 bg-[#f7f7f5]">
-      <div class="container mx-auto px-4 lg:px-20">
+      <div class="container px-4 max-w-7xl mx-auto">
         <div class="text-center mb-16">
-          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-4">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.125rem] uppercase text-blue-500 mb-4">
             <span class="w-5 h-px bg-blue-500 inline-block"></span>
             What We Stand For
           </span>
@@ -204,11 +204,11 @@
     </section>
 
     <section class="py-24 bg-white overflow-hidden">
-      <div class="container mx-auto px-4 lg:px-20">
+      <div class="container max-w-7xl mx-auto px-4">
 
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
           <div>
-            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.125rem] uppercase text-blue-500 mb-3">
               <span class="w-6 h-px bg-blue-500 inline-block"></span>
               How It Works
             </span>
@@ -322,7 +322,7 @@
       <div class="bg-gray-950 z-0 w-[120%] h-20 absolute bottom-[83%] -rotate-6 lg:-rotate-3"></div>
       <div class="bg-gray-950 z-0 w-[120%] -right-2 h-20 absolute top-[83%] -rotate-6 lg:-rotate-3"></div>
 
-      <div class="container mx-auto px-4 lg:px-20 relative z-20">
+      <div class="container max-w-7xl mx-auto px-4 lg:px-0 relative z-20">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
           <div class="text-center">
             <p class="text-4xl font-black text-white mb-1">{{ total_properties|default:"500" }}+</p>
@@ -348,7 +348,7 @@
     <section class="py-24 bg-white relative z-0 overflow-hidden">
       <div class="bg-gray-950 -right-2 z-10 w-[120%] h-20 absolute top-[91.5%] -rotate-6 lg:-rotate-3"></div>
 
-      <div class="container mx-auto px-4 lg:px-20 text-center">
+      <div class="container max-w-7xl mx-auto px-4 lg:px-0 text-center">
         <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Ready to find your next home?</h2>
         <p class="text-gray-500 mb-8 max-w-md mx-auto">Browse hundreds of verified listings across Abuja — no stress, no middlemen.</p>
         <div class="flex items-center justify-center gap-4 flex-wrap">

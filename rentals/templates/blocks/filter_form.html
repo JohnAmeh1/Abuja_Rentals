@@ -1,227 +1,241 @@
-<form method="GET" id="{{ form_id }}" class="space-y-3 z-50">
 
-  <div class="relative">
-    <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[10px] pointer-events-none"></i>
-    <input name="search" type="text" value="{{ active.search }}" placeholder="Search…" id="basic_search"
-           class="w-full pl-7 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs
-                  focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-    <ul id="autocomplete-list"
-        class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl
-               shadow-lg z-50 overflow-hidden max-h-52 overflow-y-auto">
-    </ul>
-  </div>
+  <div id="moreFiltersModal"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-[2px] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
 
-  <div>
-    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Purpose</p>
-    <div class="grid grid-cols-3 gap-1">
-      <label>
-        <input type="radio" name="purpose" value="" class="hidden peer"
-               {% if not active.purpose %}checked{% endif %}>
-        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
-                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
-                     peer-checked:font-semibold hover:border-gray-300 transition">Any</span>
-      </label>
-      <label>
-        <input type="radio" name="purpose" value="rent" class="hidden peer"
-               {% if active.purpose == 'rent' %}checked{% endif %}>
-        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
-                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
-                     peer-checked:font-semibold hover:border-gray-300 transition">For Rent</span>
-      </label>
-      <label>
-        <input type="radio" name="purpose" value="sale" class="hidden peer"
-               {% if active.purpose == 'sale' %}checked{% endif %}>
-        <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
-                     peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
-                     peer-checked:font-semibold hover:border-gray-300 transition">For Sale</span>
-      </label>
-    </div>
-  </div>
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+        <p class="font-bold text-gray-900 text-sm">More Filters</p>
+        <button onclick="closeMoreFilters()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
 
-  <div class="relative">
-    <select name="property_type" id="basic_property_type"
-            class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
-                   focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-      <option {% if not active.property_type %}selected{% endif %} value="">All Types</option>
-      {% for p in property_types %}
-        <option value="{{ p.id }}" {% if active.property_type == p.id|stringformat:"s" %}selected{% endif %}>
-          {{ p.display_name }}
-        </option>
-      {% endfor %}
-    </select>
-    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-  </div>
+      <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
 
-  <div class="relative">
-    <select name="city" id="city_select"
-            class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
-                   focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-      <option {% if not active.city %}selected{% endif %} value="">All Locations</option>
-      {% for city in cities %}
-        <option value="{{ city.id }}" {% if active.city == city.id|stringformat:"s" %}selected{% endif %}>
-          {{ city.name|capfirst }}
-        </option>
-      {% endfor %}
-    </select>
-    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-  </div>
+        <div>
+          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Location</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="relative">
+              <select id="modalCity"
+                      class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
+                             focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                <option value="">All Locations</option>
+                {% for city in cities %}
+                  <option value="{{ city.id }}" {% if active.city == city.id|stringformat:"s" %}selected{% endif %}>
+                    {{ city.name|capfirst }}
+                  </option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+            </div>
+            <div class="relative" id="modalAreaWrap" style="{% if not active.city %}display:none{% endif %}">
+              <select id="modalArea"
+                      class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
+                             focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                <option value="">All Areas</option>
+                {% for area in active_areas %}
+                  <option value="{{ area.id }}" {% if active.area == area.id|stringformat:"s" %}selected{% endif %}>
+                    {{ area.name|capfirst }}
+                  </option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
 
-  <div class="relative" id="area_wrap"
-       style="{% if not active.city %}display:none{% endif %}">
-    <select name="area" id="area_select"
-            class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
-                   focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-      <option value="">All areas</option>
-      {% for area in active_areas %}
-        <option value="{{ area.id }}"
-                {% if active.area == area.id|stringformat:"s" %}selected{% endif %}>
-          {{ area.name|capfirst }}
-        </option>
-      {% endfor %}
-    </select>
-    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-  </div>
+      {# Features #}
+        <div>
+          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Features</p>
+          <div class="flex flex-wrap gap-2">
+            {% for label, field, active_val in features_list %}
+            {% endfor %}
+            <label id="modalFurnishedLabel"
+                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                          {% if active.furnished %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+              <input type="checkbox" id="modalFurnished" class="hidden" {% if active.furnished %}checked{% endif %}>
+              Furnished
+            </label>
+            <label id="modalServicedLabel"
+                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                          {% if active.serviced %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+              <input type="checkbox" id="modalServiced" class="hidden" {% if active.serviced %}checked{% endif %}>
+              Serviced
+            </label>
+            <label id="modalSharedLabel"
+                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                          {% if active.shared %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+              <input type="checkbox" id="modalShared" class="hidden" {% if active.shared %}checked{% endif %}>
+              Shared
+            </label>
+            <label id="modalSchoolLabel"
+                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                          {% if active.school %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+              <input type="checkbox" id="modalSchool" class="hidden" {% if active.school %}checked{% endif %}>
+              Student Housing
+            </label>
+          </div>
+        </div>
 
-  {% if user_is_admin %}
-    <div class="relative">
-      <select name="status"
-              class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs appearance-none bg-white
-                     focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-        <option value="">All Statuses</option>
-        {% for code, label in status_choices %}
-          <option value="{{ code }}" {% if active.status == code %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-      <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-    </div>
-  {% endif %}
+      {# Amenities #}
+        {% if amenity_choices %}
+          <div>
+            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Amenities</p>
+            <div class="flex flex-wrap gap-1.5">
+              {% for amenity in amenity_choices %}
+                <label data-amenity-id="{{ amenity.id }}"
+                       class="amenity-pill px-2.5 py-1 border rounded-lg text-[11px] cursor-pointer transition
+                              {% if amenity.id|stringformat:'s' in active.amenities|join:',' %}
+                                border-primary bg-primary/5 text-primary font-semibold
+                              {% else %}
+                                border-gray-200 text-gray-600 hover:border-gray-300
+                              {% endif %}">
+                  {% if amenity.icon %}<i class="{{ amenity.icon }}"></i> {% endif %}
+                  {{ amenity.display_name }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
 
-  <div>
-    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Price (₦)</p>
-    <div class="grid grid-cols-2 gap-1.5">
-      <input name="min_price" type="text" value="{{ active.min_price }}" placeholder="Min"
-             class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs price-fmt
-                    focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-      <input name="max_price" type="text" value="{{ active.max_price }}" placeholder="Max"
-             class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs price-fmt
-                    focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-    </div>
-  </div>
+        {% if user_is_admin %}
+          <div>
+            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Status</p>
+            <div class="relative">
+              <select id="modalStatus"
+                      class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
+                             focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                <option value="">All Statuses</option>
+                {% for code, label in status_choices %}
+                  <option value="{{ code }}" {% if active.status == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+        {% endif %}
 
-  <div>
-    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Bedrooms (min)</p>
-    <div class="grid grid-cols-5 gap-1">
-      {% for n in "12345" %}
-        <label>
-          <input type="radio" name="min_bedrooms" value="{{ n }}" class="hidden peer"
-                 {% if active.min_bedrooms == n %}checked{% endif %}>
-          <span class="block text-center py-1 border border-gray-200 rounded-lg text-[11px] cursor-pointer
-                       peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
-                       peer-checked:font-semibold hover:border-gray-300 transition">{{ n }}+</span>
-        </label>
-      {% endfor %}
-    </div>
-  </div>
+      </div>
 
-  <div>
-    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Features</p>
-    <div class="space-y-1.5">
-      <label class="flex items-center gap-2 cursor-pointer group">
-        <input type="checkbox" name="furnished" value="true" class="hidden peer"
-               {% if active.furnished %}checked{% endif %}>
-        <span class="w-3.5 h-3.5 rounded border border-gray-300 shrink-0 flex items-center justify-center
-                     peer-checked:bg-primary peer-checked:border-primary transition">
-          <i class="fas fa-check text-white text-[7px]"></i>
-        </span>
-        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition">Furnished</span>
-      </label>
-
-      <label class="flex items-center gap-2 cursor-pointer group">
-        <input type="checkbox" name="serviced" value="true" class="hidden peer"
-               {% if active.serviced %}checked{% endif %}>
-        <span class="w-3.5 h-3.5 rounded border border-gray-300 shrink-0 flex items-center justify-center
-                     peer-checked:bg-primary peer-checked:border-primary transition">
-          <i class="fas fa-check text-white text-[7px]"></i>
-        </span>
-        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition">Serviced</span>
-      </label>
-
-      <label class="flex items-center gap-2 cursor-pointer group">
-        <input type="checkbox" name="shared" value="true" class="hidden peer"
-               {% if active.shared %}checked{% endif %}>
-        <span class="w-3.5 h-3.5 rounded border border-gray-300 shrink-0 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition">
-          <i class="fas fa-check text-white text-[7px]"></i>
-        </span>
-        <span class="text-xs text-gray-600 group-hover:text-gray-900 transition">Shared</span>
-      </label>
-
-    </div>
-  </div>
-
-  {% if amenity_choices %}
-    <div>
-      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Amenities</p>
-      <div class="flex flex-wrap gap-1">
-        {% for amenity in amenity_choices %}
-          <label>
-            <input type="checkbox" name="amenities" value="{{ amenity.id }}" class="hidden peer"
-                   {% if amenity.id in active.amenities %}checked{% endif %}>
-            <span class="block px-2 py-0.5 border border-gray-200 rounded-md text-[11px] cursor-pointer
-                         peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary
-                         hover:border-gray-300 transition">
-              {% if amenity.icon %}<i class="{{ amenity.icon }}"></i> {% endif %}{{ amenity.display_name }}
-            </span>
-          </label>
-        {% endfor %}
+      <div class="px-5 py-4 border-t border-gray-100 flex gap-2 shrink-0">
+        <button onclick="clearMoreFilters()"
+                class="flex-1 py-2 border border-gray-200 text-gray-500 text-xs font-semibold rounded-xl hover:bg-gray-50 transition">
+          Clear
+        </button>
+        <button onclick="applyMoreFilters()"
+                class="flex-1 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">
+          Apply Filters
+        </button>
       </div>
     </div>
-  {% endif %}
+  </div>
 
-  <button type="button" onclick="openAdvancedModal('filter')"
-          class="flex items-center gap-1 text-[11px] font-medium text-primary hover:underline">
-    <i class="fas fa-sliders-h text-[9px]"></i> More filters
-  </button>
 
-</form>
-
+{% block extra_js %}
 <script>
-  let {{form_id}}_AREAS_MAP = {{ areas_map_json|safe }};
+    const AREAS_MAP = {{ areas_map_json|safe }};
 
-  const {{form_id}}_citySelect = document.getElementById('city_select');
-  const {{form_id}}_areaWrap   = document.getElementById('area_wrap');
-  const {{form_id}}_areaSelect = document.getElementById('area_select');
-
-  const {{form_id}}_PRE_SELECTED_AREA = "{{ active.area }}";
-
-  function renderAreas(areas, preSelect) {
-    {{form_id}}_areaSelect.innerHTML = '<option value="">All areas</option>';
-    areas.forEach(function(a) {
-      const opt = document.createElement('option');
-      opt.value       = a.id;
-      opt.textContent = a.name.charAt(0).toUpperCase() + a.name.slice(1);
-      if (String(a.id) === String(preSelect)) opt.selected = true;
-      {{form_id}}_areaSelect.appendChild(opt);
+    function openMoreFilters() {
+      const m = document.getElementById("moreFiltersModal");
+      m.classList.remove("hidden");
+      m.classList.add("flex");
+    }
+    function closeMoreFilters() {
+      const m = document.getElementById("moreFiltersModal");
+      m.classList.add("hidden");
+      m.classList.remove("flex");
+    }
+    document.getElementById("moreFiltersModal").addEventListener("click", function(e) {
+      if (e.target === this) closeMoreFilters();
     });
-  }
 
-  {{form_id}}_citySelect.addEventListener('change', function() {
-    const cityId = parseInt(this.value);
+    document.getElementById("modalCity").addEventListener("change", function() {
+      const cityId = parseInt(this.value);
+      const wrap   = document.getElementById("modalAreaWrap");
+      const sel    = document.getElementById("modalArea");
+      sel.innerHTML = '<option value="">All Areas</option>';
+      if (!cityId || !(AREAS_MAP[cityId]?.length)) { wrap.style.display = "none"; return; }
+      AREAS_MAP[cityId].forEach(a => {
+        const opt = document.createElement("option");
+        opt.value = a.id;
+        opt.textContent = a.name.charAt(0).toUpperCase() + a.name.slice(1);
+        sel.appendChild(opt);
+      });
+      wrap.style.display = "";
+    });
 
-    if (!cityId) {
-      {{form_id}}_areaWrap.style.display   = 'none';
-      {{form_id}}_areaSelect.innerHTML     = '<option value="">All areas</option>';
-      return;
+    ["modalFurnished","modalServiced","modalShared","modalSchool"].forEach(id => {
+      const cb    = document.getElementById(id);
+      const label = document.getElementById(id + "Label");
+      cb.addEventListener("change", () => {
+        label.classList.toggle("border-primary",   cb.checked);
+        label.classList.toggle("bg-primary/5",     cb.checked);
+        label.classList.toggle("text-primary",     cb.checked);
+        label.classList.toggle("font-semibold",    cb.checked);
+        label.classList.toggle("border-gray-200",  !cb.checked);
+        label.classList.toggle("text-gray-600",    !cb.checked);
+      });
+    });
+
+    document.querySelectorAll(".amenity-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        pill.classList.toggle("border-primary");
+        pill.classList.toggle("bg-primary/5");
+        pill.classList.toggle("text-primary");
+        pill.classList.toggle("font-semibold");
+        pill.classList.toggle("border-gray-200");
+        pill.classList.toggle("text-gray-600");
+      });
+    });
+
+    function applyMoreFilters() {
+      document.getElementById("hCity").value      = document.getElementById("modalCity").value;
+      document.getElementById("hArea").value      = document.getElementById("modalArea").value;
+      document.getElementById("hFurnished").value = document.getElementById("modalFurnished").checked ? "true" : "";
+      document.getElementById("hServiced").value  = document.getElementById("modalServiced").checked  ? "true" : "";
+      document.getElementById("hShared").value    = document.getElementById("modalShared").checked    ? "true" : "";
+      document.getElementById("hSchool").value    = document.getElementById("modalSchool").checked    ? "true" : "";
+
+      document.querySelectorAll(".hAmenity").forEach(el => el.remove());
+      document.querySelectorAll(".amenity-pill.border-primary").forEach(pill => {
+        const input = document.createElement("input");
+        input.type  = "hidden";
+        input.name  = "amenities";
+        input.value = pill.dataset.amenityId;
+        input.classList.add("hAmenity");
+        document.getElementById("filterFormTop").appendChild(input);
+      });
+
+      closeMoreFilters();
+      document.getElementById("filterFormTop").submit();
     }
 
-    const areas = {{form_id}}_AREAS_MAP[cityId] || [];
-
-    if (areas.length === 0) {
-      {{form_id}}_areaWrap.style.display = 'none';
-      {{form_id}}_areaSelect.innerHTML   = '<option value="">All areas</option>';
-      return;
+    function clearMoreFilters() {
+      document.getElementById("modalCity").value = "";
+      document.getElementById("modalArea").value = "";
+      document.getElementById("modalAreaWrap").style.display = "none";
+      ["modalFurnished","modalServiced","modalShared","modalSchool"].forEach(id => {
+        document.getElementById(id).checked = false;
+        document.getElementById(id).dispatchEvent(new Event("change"));
+      });
+      document.querySelectorAll(".amenity-pill").forEach(pill => {
+        pill.classList.remove("border-primary","bg-primary/5","text-primary","font-semibold");
+        pill.classList.add("border-gray-200","text-gray-600");
+      });
     }
 
-    renderAreas(areas, '');
-    {{form_id}}_areaWrap.style.display = '';
-  });
-</script>
+    function openReportModal(propertyId) {
+      const form = document.getElementById("reportForm");
+      if (form) form.action = `/property/${propertyId}/report/`;
+      const modal = document.getElementById("reportModal");
+      if (modal) { modal.classList.remove("hidden"); modal.classList.add("flex"); }
+    }
+    function closeReportModal() {
+      const modal = document.getElementById("reportModal");
+      if (modal) { modal.classList.add("hidden"); modal.classList.remove("flex"); }
+    }
+    document.getElementById("reportModal")?.addEventListener("click", function(e) {
+      if (e.target === this) closeReportModal();
+    });
+  </script>
+{% endblock %}

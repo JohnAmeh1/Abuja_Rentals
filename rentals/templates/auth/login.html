@@ -118,6 +118,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function loadUserSavedProps() {
+            const localSaved = JSON.parse(localStorage.getItem("SAVED_PROPERTIES")) || [];
+
+            await fetch("/sync-saved/", {
+                method: "POST",
+                body: JSON.stringify({ ids: localSaved }),
+            });
+
+            localStorage.removeItem("SAVED_PROPERTIES");
+        }
+    </script>
+
 {% endblock %}
 
 {% block footer %}

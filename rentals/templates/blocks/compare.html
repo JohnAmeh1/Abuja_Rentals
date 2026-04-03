@@ -78,7 +78,7 @@
     compareIds.push(id);
     let img  = self.closest('article').querySelector("img")
     let dest = document.getElementById('compareFloatingCount');
-    
+
     const imgRect = img.getBoundingClientRect();
     const destRect = dest.getBoundingClientRect()
 
@@ -104,18 +104,19 @@
         {transform: "translate(0, 0) scale(1)", opacity : 1},
         {transform: `translate(${destX - imgRect.left}px, ${destY - imgRect.top}px) scale(0.1)`, opacity : 0},
       ],
-        {
-          duration: 400,
-          easing: "ease-in-out",
-          fill: "forwards"
-        }
-
+      {
+        duration: 400,
+        easing: "ease-in-out",
+        fill: "forwards"
+      }
     )
+
+    
 
     localStorage.setItem('compareIds', JSON.stringify(compareIds));
     setTimeout(() => {
       syncFloatingBtn();
-    showNotification('Added to compare');
+      showNotification('Added to compare');
     }, 400)
   }
 
@@ -223,7 +224,8 @@
   // empty slots
     for (let i = compareList.length; i < MAX_COMPARE; i++) {
       headRow.innerHTML += `
-      <th class="border-b border-l border-gray-100 p-3 text-center">
+      <th class="border-b border-l border-gray-100 p-3 text-center relative">
+      <a href="properties" class="absolute inset-0"></a>
         <div class="flex flex-col items-center justify-center gap-2 py-8 border-2 border-dashed border-gray-200 rounded-xl text-gray-300 text-xs">
           <i class="fas fa-plus text-base"></i>
           <span>Add property</span>

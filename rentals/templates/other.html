@@ -9,13 +9,13 @@
     <nav class="mb-5">
       <ol class="flex items-center gap-2 text-xs text-gray-500">
         <li><a href="{% url 'home' %}" class="hover:text-primary transition">Home</a></li>
-        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[0.6rem]"></i></li>
         <li><a href="{% url 'properties' %}" class="hover:text-primary transition">Properties</a></li>
-        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[0.6rem]"></i></li>
         <li><a href="{% url 'properties' %}?city={{ property.location.area.city.id }}" class="hover:text-primary transition line-clamp-1">{{ property.location.area.city.name|capfirst }}</a></li>
-        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[0.6rem]"></i></li>
         <li><a href="{% url 'properties' %}?area={{ property.location.area.id }}" class="hover:text-primary transition line-clamp-1">{{ property.location.area.name|capfirst }}</a></li>
-        <li><i class="fas fa-chevron-right text-gray-300 text-[9px]"></i></li>
+        <li><i class="fas fa-chevron-right text-gray-300 text-[0.6rem]"></i></li>
         <li class="text-gray-900 font-medium truncate max-w-50">{{ property.title|truncatewords:6 }}</li>
       </ol>
     </nav>
@@ -67,20 +67,20 @@
           <div class="flex items-start justify-between gap-4 mb-4">
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2 mb-3">
-                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full
+                <span class="text-[0.65rem] font-bold px-2.5 py-1 rounded-full
                              {% if property.status == 'available' %}bg-green-50 text-green-700 border border-green-200
                              {% elif property.status == 'pending' %}bg-amber-50 text-amber-700 border border-amber-200
                              {% else %}bg-gray-100 text-gray-600{% endif %}">
                   {{ property.get_status_display }}
                 </span>
-                <span class="text-[11px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                <span class="text-[0.65rem] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
                   {{ property.property_type.display_name }}
                 </span>
-                <span class="text-[11px] font-bold px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
+                <span class="text-[0.65rem] font-bold px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
                   {{ property.get_purpose_display }}
                 </span>
                 {% if property.school %}
-                  <span class="text-[11px] font-bold px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                  <span class="text-[0.65rem] font-bold px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
                     <i class="fas fa-graduation-cap mr-1"></i>Student Housing
                   </span>
                 {% endif %}
@@ -152,7 +152,7 @@
                     <div class="flex justify-between items-center">
                       <p class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Near Campus</p>
                       {% if property.rent_duration_months == 3 %}
-                        <span class="text-[10px] font-bold px-2 py-1 bg-amber-200 text-amber-800 rounded-lg shrink-0">
+                        <span class="text-[0.6rem] font-bold px-2 py-1 bg-amber-200 text-amber-800 rounded-lg shrink-0">
                           Per Semester
                         </span>
                       {% endif %}
@@ -160,7 +160,7 @@
                     <p class="font-bold text-gray-900 text-sm">{{ property.school.name }}</p>
                     {% if property.school.location %}
                       <p class="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                        <i class="fas fa-map-marker-alt text-[9px]"></i>
+                        <i class="fas fa-map-marker-alt text-[0.57rem]"></i>
                         {{ property.school.location.area.name|capfirst }}, {{ property.school.location.area.city.name }}
                       </p>
                     {% endif %}
@@ -283,17 +283,17 @@
                 <div class="flex items-center gap-2 mt-0.5">
                   <span class="text-xs text-gray-400">Agent</span>
                   {% if agent.verified %}
-                    <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-700
+                    <span class="flex items-center gap-1 text-[0.6rem] font-bold text-emerald-700
                                  bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full leading-none">
-                      <i class="fas fa-shield-check text-emerald-500 text-[8px]"></i> Verified
+                      <i class="fas fa-shield-check text-emerald-500 text-[0.5rem]"></i> Verified
                     </span>
                   {% endif %}
                 </div>
               </div>
 
               <a href="{% url 'agent_public_profile' agent.id %}"
-                 class="shrink-0 text-[11px] font-semibold text-primary hover:underline flex items-center gap-1">
-                View profile <i class="fas fa-arrow-right text-[9px]"></i>
+                 class="shrink-0 text-[0.65rem] font-semibold text-primary hover:underline flex items-center gap-1">
+                View profile <i class="fas fa-arrow-right text-[0.56rem]"></i>
               </a>
 
             </div>
@@ -357,7 +357,7 @@
                     <p class="text-[#E1F5EE] font-medium text-sm m-0">Verified listing</p>
                     <p class="text-[#9FE1CB] text-xs mt-0.5 m-0">Abuja Rentals confirmed</p>
                   </div>
-                  <span class="ml-auto text-[11px] font-medium text-[#E1F5EE] bg-white/15 rounded-full px-2.5 py-0.5 tracking-wide">VERIFIED</span>
+                  <span class="ml-auto text-[0.65rem] font-medium text-[#E1F5EE] bg-white/15 rounded-full px-2.5 py-0.5 tracking-wide">VERIFIED</span>
                 </div>
               </div>
               <div class="p-5 space-y-2.5 border-t border-gray-100 bg-white">

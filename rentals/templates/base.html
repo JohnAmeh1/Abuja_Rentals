@@ -43,14 +43,14 @@
         scroll-behavior: smooth;
       }
       ::-webkit-scrollbar {
-        width: 8px;
+        width: 0.5rem;
       }
       ::-webkit-scrollbar-track {
         background: #f1f5f9;
       }
       ::-webkit-scrollbar-thumb {
         background: #94a3b8;
-        border-radius: 4px;
+        border-radius: 0.25rem;
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #64748b;
@@ -136,6 +136,52 @@
           width: 0%
         }
       }
+
+      button.heart-filled {
+        animation: heart-filled 0.7s ease-in-out;
+      }
+      button.heart-fill:hover {
+        animation: shake 0.7s ease-in-out infinite;
+      }
+      button.empty:hover, .pulse{
+        animation: pulse 0.8s ease-in-out infinite;
+      }
+
+      @keyframes heart-filled {
+        0%{
+          transform: scale(1) translateY(0px) rotate(0deg);
+          filter: drop-shadow(0 0 0px #101828);
+        }
+        25%{
+          transform: scale(0.9) translateY(2px) rotate(5deg);
+          filter: drop-shadow(0 0 5px #101828);
+        }
+        50%{
+          transform: scale(1.2) translateY(-4px) rotate(-5deg);
+          filter: drop-shadow(0 0 10px #101828);
+        }
+        100%{
+          transform: scale(1) translateY(0px) rotate(0deg);
+          filter: drop-shadow(0 0 20px transparent);
+        }
+      }
+      @keyframes shake {
+        25%, 75%{
+          transform: scale(1.1) rotate(5deg);
+        }
+        50%{
+          transform: scale(1) rotate(-5deg);
+        }
+      }
+      @keyframes pulse {
+        25%, 75%{
+          transform: scale(1.2);
+        }
+        50%{
+          transform: rotate(0.8);
+        }
+      }
+
     </style>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -154,8 +200,8 @@
     {% endblock %}
 
 
-    {% if messages %}
-      <div class="fixed bottom-5 right-5 z-999 space-y-3 max-w-sm w-full">
+    <div id="container_" class="fixed bottom-5 right-2 lg:right-5 z-999 space-y-3 max-w-sm">
+      {% if messages %}
 
         {% for message in messages %}
           <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden {% if message.tags == 'error' %}border-red-200 text-red-700 {% elif message.tags == 'success' %} border-green-200 text-green-700 {% elif message.tags == 'warning' %} border-yellow-200 text-yellow-700 {% else %} border-blue-200 text-blue-700 {% endif %}">
@@ -177,8 +223,8 @@
           </div>
         {% endfor %}
 
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
     {% load static %}
 
@@ -190,11 +236,11 @@
                      bg-[#0F6E56] text-white text-xs font-bold
                      px-3 py-2.5 rounded-l-xl shadow-lg
                      hover:bg-[#085041] hover:px-4 transition-all duration-200
-                     flex flex-col items-center gap-2"
+                     flex flex-col items-center gap-2 opacity-0 pointer-events-none"
               style="writing-mode: vertical-rl; text-orientation: mixed;">
         Compare
         <span id="compareFloatingCount"
-              class="bg-white text-[#0F6E56] font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center leading-none"
+              class="bg-white text-[#0F6E56] font-black text-[0.6rem] w-4 h-4 rounded-full flex items-center justify-center leading-none relative"
               style="writing-mode: horizontal-tb;">0</span>
       </button>
       {% include 'blocks/compare.html' %}
@@ -220,30 +266,27 @@
         }, 4500)
       })
 
-          function showNotification(msg, type = 'success') {
-            document.querySelectorAll('.site-notif').forEach(n => n.remove());
-            const el = document.createElement('div');
-            el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
+      function showNotification(msg, type = 'success') {
+        document.querySelectorAll('.site-notif').forEach(n => n.remove());
+        const el = document.createElement('div');
+        el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
                           transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
-            el.textContent = msg;
-            el.style.cssText = 'opacity:0;transform:translateY(-12px)';
-            document.body.appendChild(el);
-            requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
-            setTimeout(() => {
-              el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
-              setTimeout(() => el.remove(), 300);
-            }, 3000);
-          }
+        el.textContent = msg;
+        el.style.cssText = 'opacity:0;transform:translateY(-12px)';
+        document.body.appendChild(el);
+        requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+        setTimeout(() => {
+          el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
+          setTimeout(() => el.remove(), 300);
+        }, 3000);
+      }
 
-
-    // Replace the admin messages script in base.html with this updated version
 
       document.addEventListener('DOMContentLoaded', function () {
         const messagesContainer = document.getElementById('messagesContainer');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const dismissAllBtn = document.getElementById('dismissAllBtn');
 
-      // Check if there are messages to show
         const messageItems = document.querySelectorAll('.message-item');
 
         if (closeModalBtn) {
@@ -253,7 +296,6 @@
           });
         }
 
-      // Dismiss individual message
         document.querySelectorAll('.dismiss-btn').forEach(button => {
           button.addEventListener('click', function () {
             const messageId = this.getAttribute('data-message-id');
@@ -261,7 +303,6 @@
           });
         });
 
-      // Dismiss all messages
         if (dismissAllBtn) {
           dismissAllBtn.addEventListener('click', function () {
           // Disable button to prevent multiple clicks
@@ -318,10 +359,8 @@
           });
         }
 
-      // Close modal when clicking on background
 
 
-      // Dismiss message function
         function dismissMessage(messageId, messageElement, isAll) {
         // Show loading state on the dismiss button
           const dismissBtn = messageElement.querySelector('.dismiss-btn');
@@ -385,7 +424,6 @@
             });
         }
 
-      // Helper function to get CSRF token
         function getCookie(name) {
           let cookieValue = null;
           if (document.cookie && document.cookie !== '') {
@@ -402,7 +440,6 @@
         }
       });
 
-    // Install button synchronization
       const installBtn = document.getElementById('installButton');
       const installBtnMobile = document.getElementById('installButtonMobile');
 
@@ -414,7 +451,7 @@
       }
 
     // Register service worker at root scope
-    {% comment %} if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/serviceworker.js')
           .then(registration => {
@@ -424,10 +461,10 @@
             console.error('ServiceWorker registration failed:', error);
           });
       });
-    } {% endcomment %}
-    </script>
+    }
 
-    <script>
+    
+
       function formatCurrency(amount) {
         const number = parseFloat(amount);
         if (isNaN(number)) {
@@ -458,18 +495,168 @@
         p.innerHTML = formatCurrency(p.innerHTML)
       })
 
-      function syncFloatingBtn() {
+      function syncFloatingBtn(x) {
         const btn   = document.getElementById('compareFloatingBtn');
         const count = document.getElementById('compareFloatingCount');
         if (!btn) return;
+        if (!x && count.textContent != compareIds.length){
+          count.animate(
+            [
+              {transform: "scale(1)"},
+              {transform: "scale(1.2)"},
+              {transform: "scale(0.8)"},
+              {transform: "scale(1)"},
+            ],
+            {
+              duration: 400,
+              easing: "ease-in-out",
+              fill: "forwards"
+            }
+          )
+        }
         count.textContent = compareIds.length;
         if (compareIds.length > 0) {
-          btn.classList.remove('pointer-event-none', 'opacity-0');
+          btn.classList.remove('pointer-events-none', 'opacity-0');
         } else {
-          btn.classList.add('pointer-event-none', 'opacity-0');
+          btn.classList.add('pointer-events-none', 'opacity-0');
         }
       }
-      syncFloatingBtn();
+
+      syncFloatingBtn(true);
+
+      function updateUI(propertyId, action) {
+        const elements = document.querySelectorAll(
+          `[data-property-id="${propertyId}"]`
+        );
+
+        elements.forEach((el) => {
+          const icon = el.querySelector(".icon");
+          let sib = icon.previousElementSibling
+          if (!icon) return;
+
+          if (action === "added") {
+            icon.classList.replace("text-[#222222]/60","text-red-500");
+            el.classList.replace("empty", "heart-filled")
+            el.addEventListener("animationend", () => {
+              el.classList.replace("heart-filled", "heart-fill")
+            })
+
+          } else {
+            icon.classList.replace("text-red-500", "text-[#222222]/60");
+            el.classList.replace("heart-fill", "empty")
+          }
+      })
+
+        render_message(action)
+      }
+
+      const params = new URLSearchParams(window.location.search);
+
+      async function handlePostLogin() {
+        if (!isAuthenticated) return;
+        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
+        const localSaved = JSON.parse(localStorage.getItem("SAVED_PROPERTIES")) || [];
+
+        if (localSaved.length === 0) return;
+
+        const res = await fetch("/sync-saved/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+          body: JSON.stringify({ ids: localSaved }),
+        })
+        data = res.json()
+        savedSet = new Set(data.saved_ids);
+        
+        localStorage.removeItem("SAVED_PROPERTIES");
+      }
+
+      window.SAVED_IDS = {{ saved_ids|safe }};
+      window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
+
+      const local = JSON.parse(localStorage.getItem("SAVED_PROPERTIES")) || [];
+      const savedSet = new Set([...window.SAVED_IDS, ...local]);
+      const isAuthenticated = window.IS_AUTHENTICATED;
+
+      function updateUiSaved() {
+        const selector = Array.from(savedSet).map(id => `[data-property-id="${id}"]`).join(', ');
+        let elements = document.querySelectorAll(selector)
+        elements.forEach((el) => {
+          const icon = el.querySelector(".icon");
+          if (!icon) return;
+          icon.classList.replace("text-[#222222]/60","text-red-500");
+          el.classList.replace("empty", "heart-fill")
+        });
+      }
+
+      if (savedSet.size > 0) {
+        updateUiSaved()
+      }
+
+      if (params.get("just_signed_in")) {
+        handlePostLogin();
+      }
+
+      if (isAuthenticated && localStorage.getItem("SAVED_PROPERTIES")) {
+        handlePostLogin();
+      }
+
+      function toggleSave(propertyId) {
+        if (savedSet.has(propertyId)) {
+          savedSet.delete(propertyId);
+          updateUI(propertyId, "removed");
+        } else {
+          savedSet.add(propertyId);
+          updateUI(propertyId, "added");
+        }
+
+        persist(propertyId);
+      }
+
+      async function persist(propertyId) {
+        if (isAuthenticated){
+          const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
+          try {
+            await fetch(`/property/${propertyId}/save/`, { method: "POST", headers: {"X-CSRFToken": csrfToken} });
+          } catch (e) {
+            rollback(propertyId);
+          }
+        }
+        else {
+          localStorage.setItem("SAVED_PROPERTIES", JSON.stringify([...savedSet]));
+        }
+      }
+
+      function rollback(propertyId) {
+        if (savedSet.has(propertyId)) {
+          savedSet.delete(propertyId);
+        } else {
+          savedSet.add(propertyId);
+        }
+        updateUI(propertyId);
+      }
+
+
+
+      function render_message(action) {
+        container_ = document.getElementById('container_')
+        const divv = document.createElement('div')
+        divv.innerHTML = `
+        <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden border-green-200 text-green-700">
+        <div class="mt-0.5">
+        <i class="fas fa-circle-check" id="icon"></i>
+        </div>
+
+        <div class="flex-1 text-sm" id="message_">
+        The propertty was ${action == "removed" ? "removed from" : "added to"} your saved properties
+        </div>
+
+        <div class="absolute bottom-0 left-0 h-0.5 w-full progress bg-green-400">
+        </div>
+
+        </div>`
+        container_.appendChild(divv)
+        setTimeout(()=> {container_.removeChild(divv)}, 5000)
+      }
 
 
     </script>

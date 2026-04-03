@@ -207,8 +207,8 @@
               <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="amenities"></div>
 
               <button onclick="showAllAmenities()" id="amenities_btn"
-                class="mt-6 px-5 py-2.5 text-sm font-medium border border-gray-300
-                      hover:border-black hover:text-black rounded-xl transition">
+                      class="mt-6 px-5 py-2.5 text-sm font-medium border border-gray-300
+                             hover:border-black hover:text-black rounded-xl transition">
                 Show all amenities
               </button>
             </div>
@@ -435,30 +435,30 @@
           </div>
         </div>
 
-        
+
 
       </div>
-          <div class="border-b border-[#dddddd]/50 py-10" id="map">
-            <h2 class="text-xl text-[#222222] mb-1 font-semibold">Where it's located</h2>
-            <p class="text-sm text-gray-500 mb-6">{{property.location.address}}, {{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|capfirst }}</p>
-            <div class="rounded-xl overflow-hidden border border-gray-100">
-              <iframe class="w-full h-72 lg:h-96 border-0" loading="lazy" allowfullscreen
-                      referrerpolicy="no-referrer-when-downgrade"
-                      src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q={{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|capfirst }}">
-              </iframe>
-            </div>
-          </div>
+      <div class="border-b border-[#dddddd]/50 py-10" id="map">
+        <h2 class="text-xl text-[#222222] mb-1 font-semibold">Where it's located</h2>
+        <p class="text-sm text-gray-500 mb-6">{{property.location.address}}, {{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|capfirst }}</p>
+        <div class="rounded-xl overflow-hidden border border-gray-100">
+          <iframe class="w-full h-72 lg:h-96 border-0" loading="lazy" allowfullscreen
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDZLmLgfuROqxKiQz9wcRHllkLKYM-QUGU&q={{ property.location.area.name|capfirst }}, {{ property.location.area.city.name|capfirst }}">
+          </iframe>
+        </div>
+      </div>
 
-          {% if recommendations %}
-            <div class="border-b border-[#dddddd]/50 py-10">
-              <h2 class="text-xl text-[#222222 font-semibold mb-6">Similar properties nearby</h2>
-              <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
-                {% for prop in recommendations %}
-                  {% include "blocks/property.html" %}
-                {% endfor %}
-              </div>
-            </div>
-          {% endif %}
+      {% if recommendations %}
+        <div class="border-b border-[#dddddd]/50 py-10">
+          <h2 class="text-xl text-[#222222 font-semibold mb-6">Similar properties nearby</h2>
+          <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+            {% for prop in recommendations %}
+              {% include "blocks/property.html" %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
   {% if user.is_authenticated %}
@@ -582,11 +582,11 @@
     }
 
     function showAmenities(arr) {
-  amenities_div.innerHTML = "";
-  arr.slice(0, 6).forEach(val => {
-    let d = document.createElement("div");
+      amenities_div.innerHTML = "";
+      arr.slice(0, 6).forEach(val => {
+        let d = document.createElement("div");
 
-    d.innerHTML = `
+        d.innerHTML = `
       <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:shadow-sm transition">
         
         <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100">
@@ -600,9 +600,9 @@
       </div>
     `;
 
-    amenities_div.appendChild(d);
-  });
-}
+        amenities_div.appendChild(d);
+      });
+    }
 
     function updateSlider() {
       if (!track) return;

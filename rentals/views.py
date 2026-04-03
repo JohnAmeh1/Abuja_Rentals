@@ -41,20 +41,6 @@ import threading
 import cloudinary
 
 
-def get_saved_ids(user):
-    if not user or not user.is_authenticated:
-        return set()
-    return set(
-        SavedProperty.objects
-        .filter(user=user)
-        .values_list('property_id', flat=True)
-    )
-
-
-def refresh_saved(p, saved_ids):
-    p['is_saved'] = p['id'] in saved_ids
-    return p
-
 def is_admin(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
 
@@ -276,7 +262,7 @@ def resend_forgot_password_otp(request, user_id):
     return redirect('verify_forgot_password_otp')
 
 
-def get_curated_sections(available, count, saved_ids):
+def get_curated_sections(available, count):
     from django.core.cache import cache
     import random
 
@@ -285,7 +271,7 @@ def get_curated_sections(available, count, saved_ids):
         if cached is not None:
             return {
                 **cached,
-                'props': [{**p, 'is_saved': p['id'] in saved_ids} for p in cached['props']]
+                'props': cached['props']
             }
 
         qs = queryset.select_related(
@@ -301,7 +287,7 @@ def get_curated_sections(available, count, saved_ids):
 
         return {
             **result,
-            'props': [{**p, 'is_saved': p['id'] in saved_ids} for p in props]
+            'props': props
         }
 
     ids = cache.get("curated_ids")
@@ -366,7 +352,6 @@ def get_curated_sections(available, count, saved_ids):
     m = ids
     ALL_SECTIONS = [
 
-    # ── Life moments ────────────────────────────────────────────────────
     (
         "sec_just_married",
         "Perfect for Newlyweds 💍",
@@ -826,7 +811,6 @@ def home(request):
         .order_by("?")[:NOOFHOMELISTINGS]
     )
     
-    saved_ids = get_saved_ids(request.user)
     
     if not featured_qs.exists():
         featured_qs = available.order_by("-views")[:NOOFHOMELISTINGS]
@@ -880,9 +864,11 @@ def home(request):
     if not amenities:
         amenities = list(Amenity.objects.values("id", "display_name", "icon"))
         cache.set("home_amenities", amenities, 3600)
-
+        
+    curated_sections = get_curated_sections(available, NOOFHOMELISTINGS)
+    
     context = {
-        'featured_properties': [refresh_saved(r, saved_ids) for r in featured_properties],
+        'featured_properties': featured_properties,
         'total_properties': round(available.count(), -2),
         'categories': categories_raw[:9],
         'property_types': type_choices,
@@ -890,7 +876,7 @@ def home(request):
         'amenity_choices': amenities,
         'schools': schools,
         'cities': cities,
-        'curated_sections': get_curated_sections(available, NOOFHOMELISTINGS, saved_ids), 
+        'curated_sections': curated_sections, 
     }
 
     return render(request, "home.html", context)
@@ -924,8 +910,10 @@ def login_view(request):
                     request.session.set_expiry(1209600)
 
                 messages.success(request, f'Welcome back, {user.username}!')
-                next_url = request.GET.get('next', 'home')
-                return redirect(next_url)
+                next_url = request.GET.get('next', '')
+                url = f"{'/' if next_url else ''}{next_url}/?just_signed_in=1"
+                print(url)
+                return redirect(url)
             else:
                 messages.error(request, 'Invalid username/email or password')
     else:
@@ -1077,272 +1065,6 @@ def dashboard_view(request):
         }
 
     return render(request, 'auth/dashboard.html', context)
-
-
-def encode_cursor(created_at, id):
-    return signing.dumps({"created_at": created_at.isoformat(), "id": id})
-
-
-def decode_cursor(cursor):
-    data = signing.loads(cursor)
-    return data["created_at"], data["id"]
-
-
-def get_user_is_admin(request):
-    if request.user.is_authenticated:
-        try:
-            return request.user.userprofile.user_type == "admin"
-        except Exception:
-            pass
-    return False
-
-
-def _apply_filters(qs, params, user_is_admin=False):
-
-    search = params.get("search", "").strip()
-    if search:
-        qs = qs.filter(
-            Q(title__icontains=search)
-            | Q(description__icontains=search)
-            | Q(location__address__icontains=search)
-            | Q(location__area__city__name__icontains=search)
-            | Q(location__area__name__icontains=search)
-            | Q(school__name__icontains=search)
-            | Q(property_type__display_name__icontains=search)
-        )
-
-    property_type = params.get("property_type", "").strip()
-    if property_type:
-        qs = qs.filter(property_type_id=property_type)
-
-    purpose = params.get("purpose", "").strip()
-    if purpose:
-        qs = qs.filter(purpose=purpose)
-
-        
-    area = params.get("area", "").strip()
-    if area:
-        qs = qs.filter(location__area_id=area)
-        
-    if not area:
-        city = params.get("city", "").strip()
-        if city:
-            qs = qs.filter(location__area__city_id=city)
-
-    school = params.get("school", "").strip()
-    if school:
-        qs = qs.filter(school_id=school)
-
-    status = params.get("status", "").strip()
-    if status and user_is_admin:
-        qs = qs.filter(status=status)
-
-    min_price = params.get("min_price", "").strip()
-    if min_price:
-        try:
-            qs = qs.filter(price__gte=float(min_price))
-        except (ValueError, TypeError):
-            pass
-
-    max_price = params.get("max_price", "").strip()
-    if max_price:
-        try:
-            qs = qs.filter(price__lte=float(max_price))
-        except (ValueError, TypeError):
-            pass
-
-    min_bedrooms = params.get("min_bedrooms", "").strip()
-    if min_bedrooms:
-        try:
-            qs = qs.filter(bedrooms__gte=int(min_bedrooms))
-        except (ValueError, TypeError):
-            pass
-
-    max_bedrooms = params.get("max_bedrooms", "").strip()
-    if max_bedrooms:
-        try:
-            qs = qs.filter(bedrooms__lte=int(max_bedrooms))
-        except (ValueError, TypeError):
-            pass
-
-    min_bathrooms = params.get("min_bathrooms", "").strip()
-    if min_bathrooms:
-        try:
-            qs = qs.filter(bathrooms__gte=int(min_bathrooms))
-        except (ValueError, TypeError):
-            pass
-
-    max_bathrooms = params.get("max_bathrooms", "").strip()
-    if max_bathrooms:
-        try:
-            qs = qs.filter(bathrooms__lte=int(max_bathrooms))
-        except (ValueError, TypeError):
-            pass
-
-    if params.get("furnished") == "true":
-        qs = qs.filter(furnished=True)
-
-    if params.get("serviced") == "true":
-        qs = qs.filter(serviced=True)
-
-    if params.get("shared") == "true":
-        qs = qs.filter(shared=True)
-
-    if hasattr(params, "getlist"):
-        amenities = params.getlist("amenities")
-    else:
-        amenities = params.get("amenities") or []
-        if isinstance(amenities, str):
-            amenities = [amenities]
-
-    if amenities:
-        qs = qs.filter(property_amenities__amenity_id__in=amenities)
-
-    qs = qs.distinct()
-    return qs
-
-
-SORT_MAP = {
-    "price_asc": "price",
-    "price_desc": "-price",
-    "newest": "-created_at",
-}
-
-
-def get_properties(request):
-    user_is_admin = get_user_is_admin(request)
-    qs = (
-        Property.objects.all()
-        if user_is_admin
-        else Property.objects.filter(status="available")
-    )
-
-    qs = qs.select_related(
-        "location",
-        "location__area",
-        "property_type",
-    ).prefetch_related(
-        Prefetch(
-            "images",
-            queryset=PropertyImage.objects.order_by("order"),
-        )
-    )
-
-    qs = _apply_filters(qs, request.GET, user_is_admin=user_is_admin)
-
-    sort_key = SORT_MAP.get(request.GET.get("sort", ""), None)
-    if sort_key:
-        qs = qs.order_by(sort_key, "-id")
-    else:
-        qs = qs.order_by("-created_at", "-id")
-
-    total = qs.count()
-    cursor = request.GET.get("cursor")
-    if cursor:
-        try:
-            created_at, pid = decode_cursor(cursor)
-            qs = qs.filter(
-                Q(created_at__lt=created_at)
-                | Q(created_at=created_at, id__lt=pid)
-            )
-        except Exception:
-            pass
-
-    page_size = int(request.GET.get('page_size', 21))
-    result = list(qs[:page_size])
-
-    next_cursor = None
-    if len(result) == page_size:
-        last = result[-1]
-        next_cursor = encode_cursor(last.created_at, last.id)
-
-    data = [serialize_property(p) for p in result]
-    saved_ids = get_saved_ids(request.user)
-
-    return JsonResponse({
-        "properties": [refresh_saved(r, saved_ids) for r in data],
-        "next_cursor": next_cursor,
-        "has_next": next_cursor is not None,
-        "total": total,
-    })
-
-
-def properties_view(request):
-    user_is_admin = get_user_is_admin(request)
-
-    status_choices = (
-        list(PROPERTY_STATUS_CHOICES)
-        if user_is_admin
-        else []
-    )
-
-    active = {
-        "search": request.GET.get("search", ""),
-        "property_type": request.GET.get("property_type", ""),
-        "purpose": request.GET.get("purpose", ""),
-        "city": request.GET.get("city", ""),
-        "area": request.GET.get("area", ""),
-        "status": request.GET.get("status", ""),
-        "min_price": request.GET.get("min_price", ""),
-        "max_price": request.GET.get("max_price", ""),
-        "min_bedrooms": request.GET.get("min_bedrooms", ""),
-        "max_bedrooms": request.GET.get("max_bedrooms", ""),
-        "min_bathrooms": request.GET.get("min_bathrooms", ""),
-        "max_bathrooms": request.GET.get("max_bathrooms", ""),
-        "furnished": request.GET.get("furnished", ""),
-        "serviced": request.GET.get("serviced", ""),
-        "shared": request.GET.get("shared", ""),
-        "school": request.GET.get("school", ""),
-        "sort": request.GET.get("sort", ""),
-        "amenities": request.GET.getlist("amenities"),
-    }
-
-    areas_map = {}  
-    for area in Area.objects.select_related("city").order_by("name"):
-        areas_map.setdefault(area.city_id, []).append({"id": area.id, "name": area.name})
-
-    active_city_id = int(active["city"]) if active["city"].isdigit() else None
-    active_areas   = areas_map.get(active_city_id, []) if active_city_id else []
-    
-    from django.core.cache import cache
-    schools = cache.get("home_schools")
-    if not schools:
-        schools = list(
-            School.objects.order_by("name").values("id", "name", "short_name")[:100]
-        )
-    cache.set("home_schools", schools, 3600)
-    
-    cities = cache.get("home_cities")
-    if not cities:
-        cities = list(City.objects.values("id", "name"))
-        cache.set("home_cities", cities, 3600)
-        
-    amenities = cache.get("home_amenities")
-    if not amenities:
-        amenities = list(Amenity.objects.values("id", "display_name", "icon"))
-        cache.set("home_amenities", amenities, 3600)
-        
-    ptypes = cache.get("home_types")
-    if not ptypes:
-        ptypes = list(Amenity.objects.values("id", "display_name", "icon"))
-        cache.set("home_types", ptypes, 3600)
-
-
-    context = {
-        "page_title":     "Available Properties",
-        "user_is_admin":  user_is_admin,
-        "property_types": ptypes,
-        "status_choices": status_choices,
-        "amenity_choices":amenities,
-        "schools":        schools,
-        "cities":         cities,
-        "active_areas":   active_areas,  
-        "areas_map_json": areas_map,     
-        "active":         active,
-    }
-
-    return render(request, "properties.html", context)
-
 
 @require_http_methods(["GET"])
 def areas_by_city_api(request):
@@ -2985,19 +2707,21 @@ def compare_properties_api(request):
 
 from django.contrib.auth.decorators import login_required
 
-@login_required
 def wishlist(request):
-    saved = (
-        SavedProperty.objects
-        .filter(user=request.user)
-        .select_related(
-            'property__property_type',
-            'property__location__area__city',
-            'property__school',
+    if not request.user or not request.user.is_authenticated:
+        saved = []
+    else:
+        saved = (
+            SavedProperty.objects
+            .filter(user=request.user)
+            .select_related(
+                'property__property_type',
+                'property__location__area__city',
+                'property__school',
+            )
+            .prefetch_related('property__images')
+            .order_by('-created_at')
         )
-        .prefetch_related('property__images')
-        .order_by('-created_at')
-    )
     
     serialized = []
     for s in saved:
@@ -3013,3 +2737,415 @@ def wishlist(request):
         'saved_properties': serialized,
     })
     
+    
+
+
+# def get_properties(request):
+#     user_is_admin = get_user_is_admin(request)
+#     qs = (
+#         Property.objects.all()
+#         if user_is_admin
+#         else Property.objects.filter(status="available")
+#     )
+
+#     qs = qs.select_related(
+#         "location",
+#         "location__area",
+#         "property_type",
+#     ).prefetch_related(
+#         Prefetch(
+#             "images",
+#             queryset=PropertyImage.objects.order_by("order"),
+#         )
+#     )
+
+#     qs = _apply_filters(qs, request.GET, user_is_admin=user_is_admin)
+
+#     sort_key = SORT_MAP.get(request.GET.get("sort", ""), None)
+#     if sort_key:
+#         qs = qs.order_by(sort_key, "-id")
+#     else:
+#         qs = qs.order_by("-created_at", "-id")
+
+#     total = qs.count()
+#     cursor = request.GET.get("cursor")
+#     if cursor:
+#         try:
+#             created_at, pid = decode_cursor(cursor)
+#             qs = qs.filter(
+#                 Q(created_at__lt=created_at)
+#                 | Q(created_at=created_at, id__lt=pid)
+#             )
+#         except Exception:
+#             pass
+
+#     page_size = int(request.GET.get('page_size', 21))
+#     result = list(qs[:page_size])
+
+#     next_cursor = None
+#     if len(result) == page_size:
+#         last = result[-1]
+#         next_cursor = encode_cursor(last.created_at, last.id)
+
+#     data = [serialize_property(p) for p in result]
+#     saved_ids = get_saved_ids(request.user)
+
+#     return JsonResponse({
+#         "properties": data,
+#         "next_cursor": next_cursor,
+#         "has_next": next_cursor is not None,
+#         "total": total,
+#     })
+
+
+# def properties_view(request):
+#     user_is_admin = get_user_is_admin(request)
+
+#     status_choices = (
+#         list(PROPERTY_STATUS_CHOICES)
+#         if user_is_admin
+#         else []
+#     )
+
+#     active = {
+#         "search": request.GET.get("search", ""),
+#         "property_type": request.GET.get("property_type", ""),
+#         "purpose": request.GET.get("purpose", ""),
+#         "city": request.GET.get("city", ""),
+#         "area": request.GET.get("area", ""),
+#         "status": request.GET.get("status", ""),
+#         "min_price": request.GET.get("min_price", ""),
+#         "max_price": request.GET.get("max_price", ""),
+#         "min_bedrooms": request.GET.get("min_bedrooms", ""),
+#         "max_bedrooms": request.GET.get("max_bedrooms", ""),
+#         "min_bathrooms": request.GET.get("min_bathrooms", ""),
+#         "max_bathrooms": request.GET.get("max_bathrooms", ""),
+#         "furnished": request.GET.get("furnished", ""),
+#         "serviced": request.GET.get("serviced", ""),
+#         "shared": request.GET.get("shared", ""),
+#         "school": request.GET.get("school", ""),
+#         "sort": request.GET.get("sort", ""),
+#         "amenities": request.GET.getlist("amenities"),
+#     }
+
+#     areas_map = {}  
+#     for area in Area.objects.select_related("city").order_by("name"):
+#         areas_map.setdefault(area.city_id, []).append({"id": area.id, "name": area.name})
+
+#     active_city_id = int(active["city"]) if active["city"].isdigit() else None
+#     active_areas   = areas_map.get(active_city_id, []) if active_city_id else []
+    
+#     from django.core.cache import cache
+#     schools = cache.get("home_schools")
+#     if not schools:
+#         schools = list(
+#             School.objects.order_by("name").values("id", "name", "short_name")[:100]
+#         )
+#     cache.set("home_schools", schools, 3600)
+    
+#     cities = cache.get("home_cities")
+#     if not cities:
+#         cities = list(City.objects.values("id", "name"))
+#         cache.set("home_cities", cities, 3600)
+        
+#     amenities = cache.get("home_amenities")
+#     if not amenities:
+#         amenities = list(Amenity.objects.values("id", "display_name", "icon"))
+#         cache.set("home_amenities", amenities, 3600)
+        
+#     ptypes = cache.get("home_types")
+#     if not ptypes:
+#         ptypes = list(Amenity.objects.values("id", "display_name", "icon"))
+#         cache.set("home_types", ptypes, 3600)
+
+
+#     context = {
+#         "page_title":     "Available Properties",
+#         "user_is_admin":  user_is_admin,
+#         "property_types": ptypes,
+#         "status_choices": status_choices,
+#         "amenity_choices":amenities,
+#         "schools":        schools,
+#         "cities":         cities,
+#         "active_areas":   active_areas,  
+#         "areas_map_json": areas_map,     
+#         "active":         active,
+#     }
+
+#     return render(request, "properties.html", context)
+
+
+def encode_cursor(created_at, id):
+    return signing.dumps({"created_at": created_at.isoformat(), "id": id})
+
+
+def decode_cursor(cursor):
+    data = signing.loads(cursor)
+    return data["created_at"], data["id"]
+
+
+def get_user_is_admin(request):
+    if request.user.is_authenticated:
+        try:
+            return request.user.userprofile.user_type == "admin"
+        except Exception:
+            pass
+    return False
+
+
+def _apply_filters(qs, params, user_is_admin=False):
+
+    search = params.get("search", "").strip()
+    if search:
+        qs = qs.filter(
+            Q(title__icontains=search)
+            | Q(description__icontains=search)
+            | Q(location__address__icontains=search)
+            | Q(location__area__city__name__icontains=search)
+            | Q(location__area__name__icontains=search)
+            | Q(school__name__icontains=search)
+            | Q(property_type__display_name__icontains=search)
+        )
+
+    property_type = params.get("property_type", "").strip()
+    if property_type:
+        qs = qs.filter(property_type_id=property_type)
+
+    purpose = params.get("purpose", "").strip()
+    if purpose:
+        qs = qs.filter(purpose=purpose)
+
+        
+    area = params.get("area", "").strip()
+    if area:
+        qs = qs.filter(location__area_id=area)
+        
+    if not area:
+        city = params.get("city", "").strip()
+        if city:
+            qs = qs.filter(location__area__city_id=city)
+
+    school = params.get("school", "").strip()
+    if school:
+        qs = qs.filter(school_id=school)
+
+    status = params.get("status", "").strip()
+    if status and user_is_admin:
+        qs = qs.filter(status=status)
+
+    min_price = params.get("min_price", "").strip()
+    if min_price:
+        try:
+            qs = qs.filter(price__gte=float(min_price))
+        except (ValueError, TypeError):
+            pass
+
+    max_price = params.get("max_price", "").strip()
+    if max_price:
+        try:
+            qs = qs.filter(price__lte=float(max_price))
+        except (ValueError, TypeError):
+            pass
+
+    min_bedrooms = params.get("min_bedrooms", "").strip()
+    if min_bedrooms:
+        try:
+            qs = qs.filter(bedrooms__gte=int(min_bedrooms))
+        except (ValueError, TypeError):
+            pass
+
+    max_bedrooms = params.get("max_bedrooms", "").strip()
+    if max_bedrooms:
+        try:
+            qs = qs.filter(bedrooms__lte=int(max_bedrooms))
+        except (ValueError, TypeError):
+            pass
+
+    min_bathrooms = params.get("min_bathrooms", "").strip()
+    if min_bathrooms:
+        try:
+            qs = qs.filter(bathrooms__gte=int(min_bathrooms))
+        except (ValueError, TypeError):
+            pass
+
+    max_bathrooms = params.get("max_bathrooms", "").strip()
+    if max_bathrooms:
+        try:
+            qs = qs.filter(bathrooms__lte=int(max_bathrooms))
+        except (ValueError, TypeError):
+            pass
+
+    if params.get("furnished") == "true":
+        qs = qs.filter(furnished=True)
+
+    if params.get("serviced") == "true":
+        qs = qs.filter(serviced=True)
+
+    if params.get("shared") == "true":
+        qs = qs.filter(shared=True)
+
+    if hasattr(params, "getlist"):
+        amenities = params.getlist("amenities")
+    else:
+        amenities = params.get("amenities") or []
+        if isinstance(amenities, str):
+            amenities = [amenities]
+
+    if amenities:
+        qs = qs.filter(property_amenities__amenity_id__in=amenities)
+
+    qs = qs.distinct()
+    return qs
+
+
+SORT_MAP = {
+    "price_asc": "price",
+    "price_desc": "-price",
+    "newest": "-created_at",
+}
+
+
+from django.core.paginator import Paginator
+
+def properties_view(request):
+    user_is_admin = get_user_is_admin(request)
+
+    qs = (
+        Property.objects.all()
+        if user_is_admin
+        else Property.objects.filter(status="available")
+    )
+
+    qs = qs.select_related(
+        "location",
+        "location__area",
+        "property_type",
+    ).prefetch_related(
+        Prefetch(
+            "images",
+            queryset=PropertyImage.objects.order_by("order"),
+        )
+    )
+
+    qs = _apply_filters(qs, request.GET, user_is_admin=user_is_admin)
+
+    sort_key = SORT_MAP.get(request.GET.get("sort", ""), None)
+    qs = qs.order_by(sort_key, "-id") if sort_key else qs.order_by("-created_at", "-id")
+    data = [serialize_property(p) for p in qs]
+    paginator = Paginator(data, 21)
+    page_obj  = paginator.get_page(request.GET.get("page", 1))
+    
+    status_choices = (
+        list(PROPERTY_STATUS_CHOICES)
+        if user_is_admin
+        else []
+    )
+
+    active = {
+        "search": request.GET.get("search", ""),
+        "property_type": request.GET.get("property_type", ""),
+        "purpose": request.GET.get("purpose", ""),
+        "city": request.GET.get("city", ""),
+        "area": request.GET.get("area", ""),
+        "status": request.GET.get("status", ""),
+        "min_price": request.GET.get("min_price", ""),
+        "max_price": request.GET.get("max_price", ""),
+        "min_bedrooms": request.GET.get("min_bedrooms", ""),
+        "max_bedrooms": request.GET.get("max_bedrooms", ""),
+        "min_bathrooms": request.GET.get("min_bathrooms", ""),
+        "max_bathrooms": request.GET.get("max_bathrooms", ""),
+        "furnished": request.GET.get("furnished", ""),
+        "serviced": request.GET.get("serviced", ""),
+        "shared": request.GET.get("shared", ""),
+        "school": request.GET.get("school", ""),
+        "sort": request.GET.get("sort", ""),
+        "amenities": request.GET.getlist("amenities"),
+    }
+    
+    areas_map = {}  
+    for area in Area.objects.select_related("city").order_by("name"):
+        areas_map.setdefault(area.city_id, []).append({"id": area.id, "name": area.name})
+
+    active_city_id = int(active["city"]) if active["city"].isdigit() else None
+    active_areas   = areas_map.get(active_city_id, []) if active_city_id else []
+    
+
+    from django.core.cache import cache
+    schools = cache.get("home_schools")
+    if not schools:
+        schools = list(
+            School.objects.order_by("name").values("id", "name", "short_name")[:100]
+        )
+    cache.set("home_schools", schools, 3600)
+    
+    cities = cache.get("home_cities")
+    if not cities:
+        cities = list(City.objects.values("id", "name"))
+        cache.set("home_cities", cities, 3600)
+        
+    amenities = cache.get("home_amenities")
+    if not amenities:
+        amenities = list(Amenity.objects.values("id", "display_name", "icon"))
+        cache.set("home_amenities", amenities, 3600)
+        
+    cache.delete('home_type')
+    ptypes = cache.get("home_types")
+    if not ptypes:
+        ptypes = list(PropertyType.objects.values("id", "display_name", "icon"))
+        cache.set("home_types", ptypes, 3600)
+
+    context = {
+        "page_title":     "Available Properties",
+        "page_obj":       page_obj,       
+        "user_is_admin":  user_is_admin,
+        "property_types": ptypes,
+        "status_choices": status_choices,
+        "amenity_choices": amenities,
+        "schools":        schools,
+        "cities":         cities,
+        "active_areas":   active_areas,
+        "areas_map_json": areas_map,
+        "active":         active,
+    }
+
+    return render(request, "properties.html", context)
+import json
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def sync_saved(request):
+    try:
+        data = json.loads(request.body)
+        ids = data.get("ids", [])
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    try:
+        ids = [int(i) for i in ids]
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "Invalid IDs"}, status=400)
+
+    ids = list(set(ids))
+
+    saved_properties = [
+        SavedProperty(user=request.user, property_id=pid)
+        for pid in ids
+    ]
+
+    SavedProperty.objects.bulk_create(
+        saved_properties,
+        ignore_conflicts=True 
+    )
+    
+    saved_ids = list(
+        SavedProperty.objects.filter(user=request.user)
+        .values_list("property_id", flat=True)
+    )
+
+    return JsonResponse({
+        "ok": True,
+        "saved_ids": saved_ids
+    })

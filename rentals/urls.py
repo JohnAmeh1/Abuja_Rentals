@@ -28,7 +28,7 @@ urlpatterns = [
     path('agents/<int:agent_id>/', views.agent_public_profile, name='agent_public_profile'),
     
     path('properties/', views.properties_view, name='properties'),
-    path('api/properties/', views.get_properties, name='properties_api'),
+    # path('api/properties/', views.get_properties, name='properties_api'),
     path('properties/add/', views.add_property_view, name='add_property'),
     path('properties/edit/<int:property_id>/', views.edit_property_view, name='edit_property'),
     path('properties/status/<int:property_id>/', views.update_property_status, name='update_property_status'),
@@ -98,6 +98,7 @@ urlpatterns = [
     
     path('universities/', views.SchoolsView.as_view(), name='schools'),
     path('saved/', views.wishlist, name='wishlist'),
+    path('sync-saved/', views.sync_saved, name='sync_saved'),
 ]
 
 if settings.DEBUG:

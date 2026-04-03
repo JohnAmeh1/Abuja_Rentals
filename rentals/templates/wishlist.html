@@ -4,94 +4,94 @@
 {% block title %}Your Saved Properties | Abuja Rentals{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 lg:px-8 pt-24 pb-28 lg:pb-16">
+  <div class="max-w-6xl mx-auto px-4 lg:px-8 pt-24 pb-28 lg:pb-16">
 
-  <div class="mb-8">
-    <h1 class="text-2xl font-black text-gray-900">Saved properties</h1>
-    <p class="text-sm text-gray-400 mt-1">
-      {% if saved_properties %}
-        {{ saved_properties|length }} home{{ saved_properties|length|pluralize }} saved
-      {% else %}
-        Nothing saved yet
-      {% endif %}
-    </p>
-  </div>
-
-  {% if saved_properties %}
-
-    <div class="flex items-center gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
-      <button onclick="filterSaved('all')" data-filter="all"
-              class="filter-tab shrink-0 px-4 py-2 rounded-full text-xs font-semibold border border-gray-900 bg-gray-900 text-white transition">
-        All
-      </button>
-      <button onclick="filterSaved('rent')" data-filter="rent"
-              class="filter-tab shrink-0 px-4 py-2 rounded-full text-xs font-semibold border border-gray-200 text-gray-500 hover:border-gray-400 transition">
-        For Rent
-      </button>
-      <button onclick="filterSaved('sale')" data-filter="sale"
-              class="filter-tab shrink-0 px-4 py-2 rounded-full text-xs font-semibold border border-gray-200 text-gray-500 hover:border-gray-400 transition">
-        For Sale
-      </button>
+    <div class="mb-8">
+      <h1 class="text-2xl font-black text-gray-900">Saved properties</h1>
+      <p class="text-sm text-gray-400 mt-1">
+        {% if saved_properties %}
+          {{ saved_properties|length }} home{{ saved_properties|length|pluralize }} saved
+        {% else %}
+          Nothing saved yet
+        {% endif %}
+      </p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="savedGrid">
-      {% for item in saved_properties %}
-        {% include 'blocks/property.html' with show_created_at=True prop=item.property %}
-      {% endfor %}
-    </div>
+    {% if saved_properties %}
+
+      <div class="flex items-center gap-2 mb-6 overflow-x-auto hide-scrollbar pb-1">
+        <button onclick="filterSaved('all')" data-filter="all"
+                class="filter-tab shrink-0 px-4 py-2 rounded-full text-xs font-semibold border border-gray-900 bg-gray-900 text-white transition">
+          All
+        </button>
+        <button onclick="filterSaved('rent')" data-filter="rent"
+                class="filter-tab shrink-0 px-4 py-2 rounded-full text-xs font-semibold border border-gray-200 text-gray-500 hover:border-gray-400 transition">
+          For Rent
+        </button>
+        <button onclick="filterSaved('sale')" data-filter="sale"
+                class="filter-tab shrink-0 px-4 py-2 rounded-full text-xs font-semibold border border-gray-200 text-gray-500 hover:border-gray-400 transition">
+          For Sale
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="savedGrid">
+        {% for item in saved_properties %}
+          {% include 'blocks/property.html' with show_created_at=True prop=item.property %}
+        {% endfor %}
+      </div>
 
     <!-- Empty filter state -->
-    <div id="filterEmpty" class="hidden text-center py-20">
-      <i class="fas fa-filter text-gray-200 text-4xl mb-4 block"></i>
-      <p class="text-gray-400 text-sm">No saved properties match this filter.</p>
-      <button onclick="filterSaved('all')" class="mt-3 text-xs font-semibold text-primary underline">Show all</button>
-    </div>
+      <div id="filterEmpty" class="hidden text-center py-20">
+        <i class="fas fa-filter text-gray-200 text-4xl mb-4 block"></i>
+        <p class="text-gray-400 text-sm">No saved properties match this filter.</p>
+        <button onclick="filterSaved('all')" class="mt-3 text-xs font-semibold text-primary underline">Show all</button>
+      </div>
 
-  {% else %}
+    {% else %}
 
     <!-- Empty state -->
-    <div class="text-center py-28">
-      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5">
-        <i class="far fa-heart text-gray-300 text-2xl"></i>
+      <div class="text-center py-28">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5">
+          <i class="far fa-heart text-gray-300 text-2xl"></i>
+        </div>
+        <h2 class="text-lg font-bold text-gray-900 mb-2">No saved properties yet</h2>
+        <p class="text-sm text-gray-400 max-w-xs mx-auto mb-6">
+          Tap the heart on any property to save it here for later.
+        </p>
+        <a href="{% url 'properties' %}"
+           class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-700 transition">
+          Browse properties
+          <i class="fas fa-arrow-right text-xs"></i>
+        </a>
       </div>
-      <h2 class="text-lg font-bold text-gray-900 mb-2">No saved properties yet</h2>
-      <p class="text-sm text-gray-400 max-w-xs mx-auto mb-6">
-        Tap the heart on any property to save it here for later.
-      </p>
-      <a href="{% url 'properties' %}"
-         class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-700 transition">
-        Browse properties
-        <i class="fas fa-arrow-right text-xs"></i>
-      </a>
-    </div>
 
-  {% endif %}
+    {% endif %}
 
-</div>
+  </div>
 
-<script>
-  function filterSaved(purpose) {
-    const cards = document.querySelectorAll('.saved-card');
-    const tabs  = document.querySelectorAll('.filter-tab');
-    let visible = 0;
+  <script>
+    function filterSaved(purpose) {
+      const cards = document.querySelectorAll('.saved-card');
+      const tabs  = document.querySelectorAll('.filter-tab');
+      let visible = 0;
 
-    cards.forEach(card => {
-      const match = purpose === 'all' || card.dataset.purpose === purpose;
-      card.style.display = match ? '' : 'none';
-      if (match) visible++;
-    });
+      cards.forEach(card => {
+        const match = purpose === 'all' || card.dataset.purpose === purpose;
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
 
-    tabs.forEach(tab => {
-      const active = tab.dataset.filter === purpose;
-      tab.classList.toggle('bg-gray-900', active);
-      tab.classList.toggle('text-white', active);
-      tab.classList.toggle('border-gray-900', active);
-      tab.classList.toggle('text-gray-500', !active);
-      tab.classList.toggle('border-gray-200', !active);
-    });
+      tabs.forEach(tab => {
+        const active = tab.dataset.filter === purpose;
+        tab.classList.toggle('bg-gray-900', active);
+        tab.classList.toggle('text-white', active);
+        tab.classList.toggle('border-gray-900', active);
+        tab.classList.toggle('text-gray-500', !active);
+        tab.classList.toggle('border-gray-200', !active);
+      });
 
-    document.getElementById('filterEmpty').classList.toggle('hidden', visible > 0);
-    document.getElementById('savedGrid').classList.toggle('hidden', visible === 0);
-  }
-</script>
+      document.getElementById('filterEmpty').classList.toggle('hidden', visible > 0);
+      document.getElementById('savedGrid').classList.toggle('hidden', visible === 0);
+    }
+  </script>
 {% endblock %}

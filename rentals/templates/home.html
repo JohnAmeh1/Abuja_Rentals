@@ -134,13 +134,13 @@
   </section>
 
 
-  <section id="featured" class="py-24 overflow-hidden">
+  <section id="featured" class="py-24 overflow-hidden max-w-7xl mx-auto">
 
-    <div class="container mx-auto px-4 lg:px-20">
+    <div class="container mx-auto px-4 lg:px-0">
 
       <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 lg:mb-16">
         <div>
-          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.125rem] uppercase text-blue-500 mb-3">
             <span class="w-6 h-px bg-blue-500 inline-block"></span>
             Featured
           </span>
@@ -154,7 +154,7 @@
       </div>
       <div>
 
-        {% include 'blocks/listing_row.html' with props=featured_properties title=" " %}
+        {% include 'blocks/listing_row.html' with props=featured_properties title="Featured Properties" %}
         {% for section in curated_sections %}
           {% if section.props %}
             {% include 'blocks/listing_row.html' with props=section.props title=section.title href=section.href %}
@@ -169,12 +169,12 @@
 
 
 
-  <section id="categories" class="pb-24 overflow-hidden">
-    <div class="container mx-auto px-4 lg:px-20">
+  <section id="categories" class="pb-24 overflow-hidden max-w-7xl mx-auto">
+    <div class="container mx-auto px-4 lg:px-0">
 
       <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
         <div>
-          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[2px] uppercase text-blue-500 mb-3">
+          <span class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.125rem] uppercase text-blue-500 mb-3">
             <span class="w-6 h-px bg-blue-500 inline-block"></span>
             Properties
           </span>
@@ -223,8 +223,8 @@
     </div>
   </section>
 
-  <div class="container mx-auto px-4 lg:px-20 pb-24">
-    <div class="relative overflow-hidden mt-20 rounded-2xl z-0 ">
+  <div class="container mx-auto px-4 lg:px-0 pb-24 max-w-7xl">
+    <div class="relative overflow-hidden mt-20 rounded-2xl z-0">
       <img src="https://res.cloudinary.com/ddhjg0j3u/image/upload/v1774621760/careers-bg_bdjeuz.webp" class="absolute object-cover inset-0 size-full -z-10 pointer-events-none select-none" alt="">
       <div class="bg-gray-950/50 backdrop-blur-lg px-10 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6 ">
         <div class="w-full">
@@ -251,7 +251,7 @@
     Array.from(btns).forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.disabled) return
-        let parent = btn.parentElement.parentElement
+        let parent = btn.closest("section")
         let container = parent.querySelector(".ls-container")
         let direction = btn.getAttribute("direction")
         console.log(container)
@@ -267,7 +267,7 @@
     const containers = document.getElementsByClassName("ls-container")
     Array.from(containers).forEach((c) => {
       c.addEventListener("scroll", (e) => {
-        let parent = c.parentElement
+        let parent = c.closest("section")
         let leftbtn = parent.querySelector("[direction='left']")
         let rightbtn = parent.querySelector("[direction='right']")
 
@@ -289,66 +289,57 @@
       })
     })
 
-    // ── See-all card bounce animation ────────────────────────────────────
-// Uses scroll listener on the horizontal container, not IntersectionObserver,
-// because IO doesn't fire for overflow-x scroll containers
-function initSeeAllCards() {
-  document.querySelectorAll('.ls-container').forEach(container => {
-    const trigger = container.querySelector('.see-all-trigger');
-    if (!trigger) return;
+    function initSeeAllCards() {
+      document.querySelectorAll('.ls-container').forEach(container => {
+        const trigger = container.querySelector('.see-all-trigger');
+        if (!trigger) return;
 
-    let animated = false;
+        let animated = false;
 
-    function checkVisible() {
-      if (animated) return;
-      const containerRect = container.getBoundingClientRect();
-      const triggerRect   = trigger.getBoundingClientRect();
+        function checkVisible() {
+          if (animated) return;
+          const containerRect = container.getBoundingClientRect();
+          const triggerRect   = trigger.getBoundingClientRect();
 
-      // card is visible when its left edge is within the container's right edge
-      const isVisible = triggerRect.left < containerRect.right - 40;
+          const isVisible = triggerRect.left < containerRect.right - 40;
 
-      if (isVisible) {
-        animated = true;
-        animateSeeAll(trigger);
-        container.removeEventListener('scroll', checkVisible);
+          if (isVisible) {
+            animated = true;
+            animateSeeAll(trigger);
+            container.removeEventListener('scroll', checkVisible);
+          }
+        }
+
+        container.addEventListener('scroll', checkVisible, { passive: true });
+        window.addEventListener('scroll', checkVisible, { passive: true });
+        checkVisible();
+      });
+    }
+
+    function animateSeeAll(trigger) {
+      const front     = trigger.querySelector('.see-all-front');
+      const backLeft  = trigger.querySelector('.see-all-back-left');
+      const backRight = trigger.querySelector('.see-all-back-right');
+
+      if (front) {
+        front.style.transform = 'rotate(0deg) translateY(0px)';
+        front.style.opacity   = '1';
+      }
+      if (backLeft) {
+        backLeft.style.transform = 'rotate(-3deg) translateY(0px) translateX(0px)';
+        backLeft.style.opacity   = '1';
+      }
+      if (backRight) {
+        backRight.style.transform = 'rotate(3deg) translateY(0px) translateX(0px)';
+        backRight.style.opacity   = '1';
       }
     }
 
-    container.addEventListener('scroll', checkVisible, { passive: true });
-
-    // also check on page scroll in case the whole section comes into view
-    window.addEventListener('scroll', checkVisible, { passive: true });
-
-    // check immediately in case it's already visible on load
-    checkVisible();
-  });
-}
-
-function animateSeeAll(trigger) {
-  const front     = trigger.querySelector('.see-all-front');
-  const backLeft  = trigger.querySelector('.see-all-back-left');
-  const backRight = trigger.querySelector('.see-all-back-right');
-
-  if (front) {
-    front.style.transform = 'rotate(0deg) translateY(0px)';
-    front.style.opacity   = '1';
-  }
-  if (backLeft) {
-    backLeft.style.transform = 'rotate(-3deg) translateY(0px) translateX(0px)';
-    backLeft.style.opacity   = '1';
-  }
-  if (backRight) {
-    backRight.style.transform = 'rotate(3deg) translateY(0px) translateX(0px)';
-    backRight.style.opacity   = '1';
-  }
-}
-
-// run after DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSeeAllCards);
-} else {
-  initSeeAllCards();
-}
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSeeAllCards);
+    } else {
+      initSeeAllCards();
+    }
   </script>
 
 

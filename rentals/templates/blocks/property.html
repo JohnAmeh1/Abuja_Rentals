@@ -1,12 +1,11 @@
-<article class="group relative bg-white rounded-2xl border border-gray-200
-                hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col
+<article class="group relative bg-white rounded-2xl border border-gray-200 col-span-1 hover:shadow-lg hover:border-gray-300 transition-all duration-200 flex flex-col
                 {% if show_created_at %}saved-card animate-fade-in{% else %}min-w-72 lg:min-w-80{% endif %} overflow-hidden"
-                data-purpose="{{ item.property.purpose }}"
-                >
+         data-purpose="{{ item.property.purpose }}"
+>
 
   {% if prop.is_featured and show_featured != 0 %}
     <div class="absolute top-3 left-3 z-20 px-2.5 py-1 bg-white/90 backdrop-blur-sm
-                rounded-lg text-[10px] font-bold text-amber-600 border border-amber-200">
+                rounded-lg text-[0.63rem] font-bold text-amber-600 border border-amber-200">
       ✦ Featured
     </div>
   {% endif %}
@@ -22,13 +21,15 @@
       </div>
     {% endif %}
 
-    <a href="{% url 'save_property' prop.id %}"
-       class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full group">
-     <i class="far fa-heart text-lg z-10 text-white hover:text-red-300 duration-150"></i>
-      <i class="fas fa-heart text-lg absolute  {% if prop.is_saved %}text-red-500{% else %}text-[#222222] opacity-60{% endif %} z-0"></i>
-    </a>
+    <button
+      data-property-id="{{ prop.id }}"
+      onclick="toggleSave('{{prop.id}}')"
+      class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full group empty">
+      <i class="far fa-heart text-lg z-10 text-white duration-150"></i>
+      <i class="fas fa-heart text-lg absolute text-[#222222]/60 z-0 icon duration-200"></i>
+    </button>
 
-    <span class="absolute bottom-3 left-3 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full
+    <span class="absolute bottom-3 left-3 z-10 text-[0.63rem] font-semibold px-2 py-0.5 rounded-full
                  {% if prop.purpose == 'rent' %}bg-white/90 text-gray-700{% else %}bg-gray-900/80 text-white{% endif %}
                  backdrop-blur-sm pointer-events-none">
       For {{ prop.purpose|capfirst }}
@@ -44,7 +45,7 @@
         {% if prop.purpose == 'rent' %}
           {% if prop.rent_duration_months == 12 %}<span class="font-normal text-xs opacity-75">/yr</span>
           {% elif prop.rent_duration_months == 1 %}<span class="font-normal text-xs opacity-75">/mo</span>
-          {% elif prop.rent_duration_months == 3 %}<span class="font-normal text-xs opacity-75">/semester</span>
+          {% elif prop.rent_duration_months == 3 and prop.school %}<span class="font-normal text-xs opacity-75">/semester</span>
           {% endif %}
         {% endif %}
       </a>
@@ -54,55 +55,55 @@
     </div>
 
     <p class="text-xs text-gray-400 flex items-center gap-1 truncate">
-      <i class="fas fa-map-marker-alt text-[9px] shrink-0"></i>
+      <i class="fas fa-map-marker-alt text-[0.57rem] shrink-0"></i>
       {{ prop.city|capfirst }}, {{ prop.state|capfirst }}
       {% if prop.school_short_name %}
         <span class="text-gray-200 mx-0.5">·</span>
-        <i class="fas fa-graduation-cap text-[9px] shrink-0"></i>
+        <i class="fas fa-graduation-cap text-[0.57rem] shrink-0"></i>
         {{ prop.school_short_name }}
       {% endif %}
     </p>
 
     <div class="flex items-center gap-2.5 text-xs text-gray-500">
       {% if prop.bedrooms %}
-        <span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[10px]"></i>{{ prop.bedrooms }} bed</span>
+        <span class="flex items-center gap-1"><i class="fas fa-bed text-gray-300 text-[0.63rem]"></i>{{ prop.bedrooms }} bed</span>
       {% endif %}
       {% if prop.bathrooms %}
-        <span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[10px]"></i>{{ prop.bathrooms }} bath</span>
+        <span class="flex items-center gap-1"><i class="fas fa-bath text-gray-300 text-[0.63rem]"></i>{{ prop.bathrooms }} bath</span>
       {% endif %}
 
       {% if prop.area_sqft %}
-        <span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[10px]"></i>{{ prop.area_sqft|floatformat:0 }} sqft</span>
+        <span class="flex items-center gap-1 ml-auto"><i class="fas fa-ruler-combined text-gray-300 text-[0.63rem]"></i>{{ prop.area_sqft|floatformat:0 }} sqft</span>
       {% endif %}
     </div>
 
 
     <div class="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between">
       {% if show_created_at %}
-        <span class="text-[10px] text-gray-300">
-                Saved {{ item.created_at|timesince }} ago
+        <span class="text-[0.63rem] text-gray-300">
+          Saved {{ item.created_at|timesince }} ago
         </span>
       {% elif prop.furnished or prop.serviced or prop.shared %}
         <div class="flex gap-1">
-          {% if prop.furnished %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Furnished</span>{% endif %}
-          {% if prop.serviced  %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Serviced</span>{% endif %}
-          {% if prop.shared    %}<span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Shared</span>{% endif %}
+          {% if prop.furnished %}<span class="text-[0.63rem] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Furnished</span>{% endif %}
+          {% if prop.serviced  %}<span class="text-[0.63rem] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Serviced</span>{% endif %}
+          {% if prop.shared    %}<span class="text-[0.63rem] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Shared</span>{% endif %}
         </div>
       {% else %}
         <a href="{% url 'property_detail' prop.id %}"
            class="text-xs text-gray-400 hover:text-primary transition flex items-center gap-1 group/link">
           View
-          <i class="fas fa-arrow-right text-[9px] group-hover/link:translate-x-0.5 transition-transform"></i>
+          <i class="fas fa-arrow-right text-[0.57rem] group-hover/link:translate-x-0.5 transition-transform"></i>
         </a>
       {% endif %}
 
       <button onclick="addToCompare(this, '{{ prop.id }}')"
-              class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold
+              class="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[0.63rem] font-semibold
                      border border-gray-200 text-gray-400
                      hover:border-[#0F6E56] hover:text-[#0F6E56] hover:bg-[#E1F5EE]
                      active:scale-95 transition-all duration-150"
               title="Add to compare">
-        <i class="fas fa-balance-scale text-[9px]"></i>
+        <i class="fas fa-balance-scale text-[0.57rem]"></i>
         Compare
       </button>
 

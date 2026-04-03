@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.db.models import Count, Q
 from django.core.cache import cache
 
-from .models import PropertyType, City, Property, AdminMessage
+from .models import PropertyType, City, Property, AdminMessage, SavedProperty
 
 
 def admin_messages_context(request):
@@ -91,3 +91,13 @@ def nav_context(request):
     }
     cache.set('nav_context_data', result, timeout=1000)
     return result
+
+def saved_ids(request):
+    if request.user.is_authenticated:
+        ids = list(
+            SavedProperty.objects.filter(user=request.user)
+            .values_list("property_id", flat=True)
+        )
+    else:
+        ids = []
+    return {"saved_ids": ids}

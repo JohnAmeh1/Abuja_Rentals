@@ -81,6 +81,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'rentals.context_processors.admin_messages_context',
                 'rentals.context_processors.nav_context',
+                'rentals.context_processors.saved_ids',
             ],
         },
     },

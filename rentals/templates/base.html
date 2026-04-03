@@ -202,7 +202,7 @@
     {% endblock %}
 
 
-    <div id="container_" class="fixed bottom-5 right-2 lg:right-5 z-999 space-y-3 max-w-sm">
+    <div id="container_" class="fixed bottom-5 right-2 lg:right-5 z-999 space-y-3 max-w-xs lg:max-w-sm">
       {% if messages %}
 
         {% for message in messages %}
@@ -362,14 +362,12 @@
 
 
         function dismissMessage(messageId, messageElement, isAll) {
-        // Show loading state on the dismiss button
           const dismissBtn = messageElement.querySelector('.dismiss-btn');
           if (dismissBtn) {
             dismissBtn.disabled = true;
             dismissBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
           }
 
-        // Send AJAX request to mark message as dismissed
           fetch('/admin/messages/dismiss/', {
             method: 'POST',
             headers: {
@@ -382,7 +380,6 @@
             .then(response => response.json())
             .then(data => {
               if (data.success) {
-              // Fade out and remove message
                 messageElement.style.transition = 'opacity 0.3s, transform 0.3s';
                 messageElement.style.opacity = '0';
                 messageElement.style.transform = 'translateX(20px)';
@@ -390,20 +387,16 @@
                 setTimeout(() => {
                   messageElement.remove();
 
-                // Check if no messages left
                   const remainingMessages = document.querySelectorAll('.message-item');
 
                   if (remainingMessages.length === 0) {
-                  // Close modal
                     modal.classList.add('hidden');
                     document.body.style.overflow = 'auto';
 
-                  // Silent refresh after a short delay
                     setTimeout(() => {
                       window.location.reload();
                     }, 300);
                   } else if (!isAll) {
-                  // For single dismiss, refresh immediately after animation
                     setTimeout(() => {
                       window.location.reload();
                     }, 300);
@@ -414,10 +407,8 @@
             .catch(error => {
               console.error('Error dismissing message:', error);
 
-            // Still remove the element from UI
               messageElement.remove();
 
-            // Refresh the page to sync state
               setTimeout(() => {
                 window.location.reload();
               }, 300);
@@ -439,30 +430,6 @@
           return cookieValue;
         }
       });
-
-      const installBtn = document.getElementById('installButton');
-      const installBtnMobile = document.getElementById('installButtonMobile');
-
-      if (installBtn && installBtnMobile) {
-      // Sync both buttons - when mobile button is clicked, trigger desktop button
-        installBtnMobile.addEventListener('click', function () {
-          installBtn.click();
-        });
-      }
-
-    // Register service worker at root scope
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/serviceworker.js')
-            .then(registration => {
-              console.log('ServiceWorker registered with scope:', registration.scope);
-            })
-            .catch(error => {
-              console.error('ServiceWorker registration failed:', error);
-            });
-        });
-      }
-
 
 
       function formatCurrency(amount) {
@@ -635,8 +602,6 @@
         updateUI(propertyId);
       }
 
-
-
       function render_message(action) {
         container_ = document.getElementById('container_')
         const divv = document.createElement('div')
@@ -657,12 +622,7 @@
         container_.appendChild(divv)
         setTimeout(()=> {container_.removeChild(divv)}, 5000)
       }
-
-
     </script>
-
-
-
     {% block extra_js %}{% endblock %}
 
   </body>

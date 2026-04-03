@@ -228,7 +228,7 @@
         </div>
 
         <div class="lg:col-span-1">
-          <div class="sticky top-24 space-y-5 px-4 lg:px-0">
+          <div class="sticky top-24 space-y-5 px-4 lg:px-0 pb-24 lg:pb-0">
             <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5 shadow-lg">
 
               <div>
@@ -449,7 +449,7 @@
     </div>
   </div>
   {% if user.is_authenticated %}
-    <div id="reportModalDetail"
+   <div id="reportModalDetail" data-action="{% url 'submit_report' property.id %}"
       class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-5">
@@ -560,6 +560,7 @@
     const counter    = document.getElementById('slideCounter');
     const total      = track ? track.children.length : 0;
     let current      = 0;
+    let scrollTimeout;
     let autoPlay;
     const amenities_list = [{% for amenity in amenities %}{display_name: '{{ amenity.display_name }}', icon: '{{amenity.icon}}'},{% endfor %}]
     const amenities_div = document.getElementById("amenities")
@@ -575,13 +576,14 @@
       return uaMatch || (smallScreen && coarsePointer)
     }
 
-
-    track?.addEventListener('scrollend', e => {
-      let width = (track.querySelector("div").offsetWidth + .3999938964844).toFixed(0)
-      current = Number((track.scrollLeft.toFixed(0) / width).toFixed(0)) + 1 
-      if (counter) counter.textContent = current;
-    }, { passive: true });
-
+    if (isMobile()) {
+      track.addEventListener('scroll', () => {
+        let width = (track.querySelector("div").offsetWidth + .3999938964844).toFixed(0)
+        current = Number((track.scrollLeft.toFixed(0) / width).toFixed(0)) + 1
+        counter.textContent = current;
+      }, {passive: true});
+    }
+    
     function openLightBox(src) {
       const lightbox = document.getElementById("lightbox")
       lightbox.querySelector("img").src = src
@@ -666,21 +668,29 @@
       startAuto();
     }
 
-    function openModal(id)  {
-      const m = document.getElementById(id);
-      if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.style.overflow = 'hidden'; }
-    }
-    function closeModal(id) {
-      const m = document.getElementById(id);
-      if (m) { m.classList.add('hidden'); m.classList.remove('flex'); document.body.style.overflow = ''; }
-    }
+    function openModal(id) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  m.style.display = 'flex';   // inline style beats !important
+  document.body.style.overflow = 'hidden';
+}
+
+   function closeModal(id) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
     function openDeleteModal()         { openModal('deleteModal'); }
     function closeDeleteModal()        { closeModal('deleteModal'); }
-    function openReportModal(id)       {
-      const f = document.getElementById('reportFormDetail');
-      if (f) f.action = `/property/${id}/report/`;
-      openModal('reportModalDetail');
-    }
+
+    function openReportModal(id) {
+  const m = document.getElementById('reportModalDetail');
+  const f = document.getElementById('reportFormDetail');
+  if (f && m) f.action = m.dataset.action;
+  openModal('reportModalDetail');
+}
     function closeReportModalDetail()  { closeModal('reportModalDetail'); }
 
     ['deleteModal', 'reportModalDetail'].forEach(id => {
@@ -693,10 +703,42 @@
     });
 
     function copyPropertyLink() {
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => showNotification('Link copied!'))
-        .catch(() => showNotification('Could not copy link', 'error'));
-    }
+  const url = window.location.href;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url)
+      .then(() => showNotification('Link copied!'))
+      .catch(() => fallbackCopy(url));
+  } else {
+    fallbackCopy(url);
+  }
+}
+
+function fallbackCopy(url) {
+  const el = document.createElement('textarea');
+  el.value = url;
+  el.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(el);
+  el.focus(); el.select();
+  try {
+    document.execCommand('copy');
+    showNotification('Link copied!');
+  } catch {
+    showNotification('Could not copy link', 'error');
+  }
+  document.body.removeChild(el);
+}
+function shareProperty() {
+  if (navigator.share) {
+    navigator.share({
+      title: '{{ property.title|escapejs }}',
+      url: window.location.href
+    }).catch(err => {
+      if (err.name !== 'AbortError') copyPropertyLink();
+    });
+  } else {
+    copyPropertyLink();
+  }
+}
 
     function shareProperty() {
       if (navigator.share) {
@@ -709,13 +751,10 @@
 
     function openWhatsApp() {
       let number  = '{{ property.agent.whatsapp_number|default:""| escapejs }}'.trim();
-      if (number.startsWith("0")) {
-        number.slice(1)
-        number = "234"+ number
-      }
-      if (!number.startsWith("234")) {
-        number = "234"+ number
-      }
+
+      if (number.startsWith("0")) number = "234" + number.slice(1)
+      else if (!number.startsWith("234")) number = "234" + number
+    
       if (!number){ showNotification('WhatsApp not available', 'error'); return; }
       const text = encodeURIComponent('Hello, I saw your property on Abuja Rentals: ' + window.location.href);
       window.open(`https://wa.me/${number}?text=${text}`, '_blank');

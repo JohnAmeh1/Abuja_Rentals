@@ -195,8 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (installBtn && installBtnMobile) {
     // Ensure both buttons show/hide together
     const updateMobileButton = () => {
-      const isDesktopVisible = window.getComputedStyle(installBtn).display !== 'none';
-      installBtnMobile.style.display = isDesktopVisible ? 'flex' : 'none';
+      const isDesktopVisible = window.getComputedStyle(installBtn)?.display !== 'none';
+      if (installBtnMobile) installBtnMobile.style.display = isDesktopVisible ? 'flex' : 'none';
     };
     
     // Initial update

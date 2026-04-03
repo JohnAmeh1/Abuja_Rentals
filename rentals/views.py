@@ -912,7 +912,6 @@ def login_view(request):
                 messages.success(request, f'Welcome back, {user.username}!')
                 next_url = request.GET.get('next', '')
                 url = f"{'/' if next_url else ''}{next_url}/?just_signed_in=1"
-                print(url)
                 return redirect(url)
             else:
                 messages.error(request, 'Invalid username/email or password')

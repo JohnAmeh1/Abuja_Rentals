@@ -11,7 +11,7 @@
 
   <div id="sidebarBackdrop"
        onclick="closeSidebar()"
-       class="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
+       class="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] hidden opacity-0 transition-opacity duration-200 lg:hidden"></div>
 
   <div class="flex h-screen bg-[#f7f7f5] overflow-hidden">
 
@@ -20,21 +20,16 @@
                   w-64 xl:w-72 flex flex-col shrink-0
                   bg-white border-r border-gray-100
                   -translate-x-full lg:translate-x-0
-                  transition-transform duration-300 ease-out will-change-transform">
+                  transition-transform duration-200 ease-out will-change-transform">
 
       <div class="flex items-center gap-2.5 px-5 h-14 border-b border-gray-100 shrink-0">
 
-        <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-
-          <div class="leading-[1.1]">
-            <span class="text-xl font-bold text-gray-900">Abuja</span>
-            <span class="text-xl font-bold text-accent">Rentals</span>
-            <div class="text-[11px] text-gray-400 tracking-wide">
-              PREMIUM PROPERTIES
-            </div>
+        <a href="{% url 'home' %}" class="flex items-center gap-2.5 shrink-0">
+          <div class="text-base font-semibold text-primary">
+            abuja<span class="text-accent">_  </span>rentals<span class="text-accent">.</span>ng
           </div>
-
         </a>
+
         <button onclick="closeSidebar()"
                 class="ml-auto lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition">
           <i class="fas fa-times text-xs"></i>

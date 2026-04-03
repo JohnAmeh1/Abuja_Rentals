@@ -1,36 +1,28 @@
 {% include 'blocks/requestForm.html' %}
 
 
-<nav class="fixed top-0 z-50 right-0 left-0 transition-all duration-300" id="mainNav">
+<nav class="fixed top-0 z-50 right-0 left-0 transition-all duration-200" id="mainNav">
   <div class="container mx-auto px-4 lg:px-8" id="nav">
 
-    <div class="flex justify-between items-center h-16">
+    <div class="flex justify-between items-center py-3 max-w-7xl mx-auto">
 
       <a href="{% url 'home' %}" class="flex items-center gap-2.5 shrink-0">
-        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
-          <i class="fas fa-house text-white text-sm"></i>
-        </div>
-        <div class="leading-tight">
-          <div class="text-base font-black text-primary tracking-tight">
-            Abuja Rentals
-          </div>
-          <div class="text-[0.57rem] font-semibold text-gray-400 uppercase tracking-[0.15em] -mt-0.5">
-            Premium Properties
-          </div>
+        <div class="text-base font-semibold text-primary">
+          abuja<span class="text-accent">_  </span>rentals<span class="text-accent">.</span>ng
         </div>
       </a>
 
       <div class="hidden lg:flex items-center gap-1">
 
         <a href="{% url 'home' %}"
-           class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+           class="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
           Home
         </a>
 
         <div class="relative" id="propertiesNavItem">
           <button id="propertiesTrigger"
                   onclick="toggleMegaMenu()"
-                  class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600
+                  class="flex items-center gap-1.5 px-4 py-2 text-xs text-gray-600
                          hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
             Properties
             <i class="fas fa-chevron-down text-[0.63rem] transition-transform duration-200" id="propertiesChevron"></i>
@@ -38,12 +30,12 @@
         </div>
 
         <a href="{% url 'about' %}"
-           class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+           class="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
           About
         </a>
 
         <a href="{% url 'wishlist' %}"
-           class="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition
+           class="flex items-center gap-1.5 text-xs px-4 text-gray-600 hover:text-gray-900 transition
                   {% if request.resolver_match.url_name == 'wishlist' %}font-semibold text-gray-900{% endif %}">
           <i class="{% if request.resolver_match.url_name == 'wishlist' %}fas{% else %}far{% endif %} fa-heart text-xs"></i>
           Saved
@@ -65,19 +57,18 @@
 
         {% if not user.is_authenticated %}
           <a href="{% url 'login' %}"
-             class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg transition">
+             class="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 rounded-lg transition">
             Sign in
           </a>
           <a href="{% url 'signup' %}"
-             class="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-200
+             class="px-4 py-2 text-xs font-medium text-gray-700 border border-gray-200
                     rounded-lg hover:bg-gray-50 transition">
             Sign up
           </a>
         {% else %}
-        <!-- User avatar -->
           <a href="{% url 'dashboard' %}"
-             class="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20
-                    flex items-center justify-center text-sm font-bold text-primary uppercase
+             class="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20
+                    flex items-center justify-center text-xs font-bold text-primary uppercase
                     hover:bg-primary/20 transition">
             {{ user.first_name|first|default:user.username|first }}
           </a>
@@ -86,7 +77,7 @@
         {% if user.userprofile.user_type == "agent" %}
           <a href="{% url 'add_property' %}"
              class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90
-                    text-white text-sm font-semibold rounded-xl transition">
+                    text-white text-xs font-semibold rounded-xl transition">
             <i class="fas fa-plus text-xs"></i> Add listing
           </a>
         {% else %}
@@ -265,27 +256,23 @@
       </div>
     </div>
   </div>
-  <div id="mobile-menu-backdrop" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
+  <div id="mobile-menu-backdrop" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-200 lg:hidden"></div>
 
-  <div id="mobile-drawer" class="fixed top-0 right-0 h-full w-[85vw] max-w-xs bg-white z-60 shadow-xl transform translate-x-full transition-transform duration-300 flex flex-col lg:hidden">
+  <div id="mobile-drawer" class="fixed top-0 right-0 h-full w-[90vw] max-w-xs bg-white z-60 shadow-xl transform translate-x-full transition-transform duration-200 flex flex-col lg:hidden">
 
-  <!-- Header -->
-    <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-          <i class="fas fa-house text-white text-[0.63rem]"></i>
+    <div class="flex items-center justify-between px-6 py-3 border-b border-gray-100">
+      <a href="{% url 'home' %}" class="flex items-center gap-2.5 shrink-0">
+        <div class="text-base font-semibold text-primary">
+          abuja<span class="text-accent">_  </span>rentals<span class="text-accent">.</span>ng
         </div>
-        <span class="text-sm font-black text-gray-900 tracking-tight">Abuja Rentals</span>
-      </div>
+      </a>
       <button id="close-mobile-menu" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
         <i class="fas fa-times text-sm"></i>
       </button>
     </div>
 
-  <!-- Body -->
     <div class="flex-1 overflow-y-auto px-5 py-6 space-y-7">
 
-    <!-- Primary nav -->
       <nav class="space-y-0.5">
         <a href="{% url 'home' %}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition group">
           <span>Home</span>
@@ -304,7 +291,6 @@
         {% endif %}
       </nav>
 
-    <!-- Browse section -->
       <div>
         <p class="px-3 text-[0.63rem] font-semibold text-gray-400 uppercase tracking-widest mb-2">Browse</p>
         <div class="space-y-0.5">
@@ -327,7 +313,6 @@
         </div>
       </div>
 
-    <!-- Notifications -->
       {% if admin_messages %}
         <div>
           <p class="px-3 text-[0.63rem] font-semibold text-gray-400 uppercase tracking-widest mb-2">Alerts</p>
@@ -338,7 +323,6 @@
         </div>
       {% endif %}
 
-    <!-- Account -->
       <div>
         <p class="px-3 text-[0.63rem] font-semibold text-gray-400 uppercase tracking-widest mb-2">Account</p>
         <div class="space-y-0.5">
@@ -365,7 +349,6 @@
 
     </div>
 
-  <!-- CTA Footer -->
     <div class="px-5 py-5 border-t border-gray-100">
       {% if user.userprofile.user_type == "agent" %}
         <a href="{% url 'add_property' %}"
@@ -427,9 +410,8 @@
   const mobileBackdrop = document.getElementById('mobile-menu-backdrop');
 
   function openMobileMenu() {
-    closeMegaMenu(); // Close desktop mega menu if open
+    closeMegaMenu();
     mobileBackdrop.classList.remove('hidden');
-    // Force reflow to enable animation
     void mobileBackdrop.offsetWidth;
     mobileBackdrop.classList.add('opacity-100');
     mobileDrawer.classList.remove('translate-x-full');
@@ -444,7 +426,7 @@
     setTimeout(() => {
       mobileBackdrop.classList.add('hidden');
       document.body.style.overflow = '';
-    }, 300); // Matches duration-300
+    }, 200);
   }
 
   mobileBtn.addEventListener('click', openMobileMenu);

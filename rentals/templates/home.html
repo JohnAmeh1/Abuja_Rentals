@@ -210,7 +210,7 @@
 
 
               <span
-                class="text-sm font-medium opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                class="text-sm font-medium opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
                 ›
               </span>
 
@@ -254,8 +254,6 @@
         let parent = btn.closest("section")
         let container = parent.querySelector(".ls-container")
         let direction = btn.getAttribute("direction")
-        console.log(container)
-        console.log(direction)
 
         container.scrollTo({
           left: direction == "left" ? 0 : container.scrollWidth,

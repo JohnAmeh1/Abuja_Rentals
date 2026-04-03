@@ -206,7 +206,7 @@
                             {% with first_img=response.property.images.first %}
                               {% if first_img %}
                                 <img src="{{ first_img.image.url }}" alt="{{ response.property.title }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
                               {% else %}
                                 <div class="w-full h-full flex items-center justify-center">
                                   <i class="fas fa-home text-gray-300"></i>

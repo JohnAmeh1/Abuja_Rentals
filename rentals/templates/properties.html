@@ -6,12 +6,12 @@
 
 
 {% block content %}
-  <div class="container mx-auto px-4 lg:px-20 py-8 pt-20">
+  <div class="container mx-auto px-4 lg:px-20 pt-20">
 
     {% include "blocks/search.html" %}
     {% include "blocks/filter_form.html" %}
 
-    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-sm mb-6 px-4 py-3 lg:sticky top-20 z-20">
+    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-sm mb-6 px-4 py-3 lg:sticky top-16 z-20">
       <form method="GET" id="filterFormTop" class="flex flex-wrap items-center gap-2">
 
         <div class="flex items-center gap-1 border border-gray-200 rounded-xl p-1 shrink-0">
@@ -148,7 +148,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for prop in page_obj %}
               {% include "blocks/property.html" %}
-  
+
               {% if forloop.counter == 6 %}
                 {% include 'blocks/ads/v1.html' %}
               {% endif %}
@@ -164,53 +164,53 @@
             <a href="{% url 'properties' %}" class="mt-4 inline-block text-primary text-sm hover:underline">Clear all filters</a>
           </div>
         {% endif %}
-  
+
         <div class="py-10">
-        {% if page_obj.paginator.num_pages > 1 %}
-          <nav class="flex items-center justify-center gap-1" aria-label="Pagination">
-  
-            {% if page_obj.has_previous %}
-              <a href="?{% query_transform page=page_obj.previous_page_number %}"
-                 class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200
-                        text-gray-500 hover:border-primary hover:text-primary transition text-xs">
-                <i class="fas fa-chevron-left text-[0.6rem]"></i>
-              </a>
-            {% else %}
-              <span class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 text-xs cursor-not-allowed">
-                <i class="fas fa-chevron-left text-[0.6rem]"></i>
-              </span>
-            {% endif %}
-  
-            {% for num in page_obj.paginator.page_range %}
-              {% if page_obj.number == num %}
-                <span class="w-9 h-9 flex items-center justify-center rounded-xl bg-primary text-white text-xs font-bold shadow-sm">
-                  {{ num }}
-                </span>
-              {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
-                <a href="?{% query_transform page=num %}"
+          {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="flex items-center justify-center gap-1" aria-label="Pagination">
+
+              {% if page_obj.has_previous %}
+                <a href="?{% query_transform page=page_obj.previous_page_number %}"
                    class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200
-                          text-gray-600 hover:border-primary hover:text-primary transition text-xs">{{ num }}</a>
-              {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
-                <span class="w-9 h-9 flex items-center justify-center text-gray-400 text-xs">…</span>
+                          text-gray-500 hover:border-primary hover:text-primary transition text-xs">
+                  <i class="fas fa-chevron-left text-[0.6rem]"></i>
+                </a>
+              {% else %}
+                <span class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 text-xs cursor-not-allowed">
+                  <i class="fas fa-chevron-left text-[0.6rem]"></i>
+                </span>
               {% endif %}
-            {% endfor %}
-  
-            {% if page_obj.has_next %}
-              <a href="?{% query_transform page=page_obj.next_page_number %}"
-                 class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200
-                        text-gray-500 hover:border-primary hover:text-primary transition text-xs">
-                <i class="fas fa-chevron-right text-[0.6rem]"></i>
-              </a>
-            {% else %}
-              <span class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 text-xs cursor-not-allowed">
-                <i class="fas fa-chevron-right text-[0.6rem]"></i>
-              </span>
-            {% endif %}
-  
-          </nav>
-        {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <span class="w-9 h-9 flex items-center justify-center rounded-xl bg-primary text-white text-xs font-bold shadow-sm">
+                    {{ num }}
+                  </span>
+                {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                  <a href="?{% query_transform page=num %}"
+                     class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200
+                            text-gray-600 hover:border-primary hover:text-primary transition text-xs">{{ num }}</a>
+                {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+                  <span class="w-9 h-9 flex items-center justify-center text-gray-400 text-xs">…</span>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <a href="?{% query_transform page=page_obj.next_page_number %}"
+                   class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200
+                          text-gray-500 hover:border-primary hover:text-primary transition text-xs">
+                  <i class="fas fa-chevron-right text-[0.6rem]"></i>
+                </a>
+              {% else %}
+                <span class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 text-xs cursor-not-allowed">
+                  <i class="fas fa-chevron-right text-[0.6rem]"></i>
+                </span>
+              {% endif %}
+
+            </nav>
+          {% endif %}
         </div>
-  
+
         {% include 'blocks/ads/cta.html' %}
       </div>
 
@@ -218,7 +218,7 @@
 
   </div>
 
-  
+
 
 
 {% endblock %}

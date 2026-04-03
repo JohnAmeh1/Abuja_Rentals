@@ -1,138 +1,138 @@
 
-  <div id="moreFiltersModal"
-       class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-[2px] p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
+<div id="moreFiltersModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-[2px] p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
 
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-        <p class="font-bold text-gray-900 text-sm">More Filters</p>
-        <button onclick="closeMoreFilters()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
-          <i class="fas fa-times text-xs"></i>
-        </button>
-      </div>
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+      <p class="font-bold text-gray-900 text-sm">More Filters</p>
+      <button onclick="closeMoreFilters()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition">
+        <i class="fas fa-times text-xs"></i>
+      </button>
+    </div>
 
-      <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
 
-        <div>
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Location</p>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="relative">
-              <select id="modalCity"
-                      class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
-                             focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                <option value="">All Locations</option>
-                {% for city in cities %}
-                  <option value="{{ city.id }}" {% if active.city == city.id|stringformat:"s" %}selected{% endif %}>
-                    {{ city.name|capfirst }}
-                  </option>
-                {% endfor %}
-              </select>
-              <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-            </div>
-            <div class="relative" id="modalAreaWrap" style="{% if not active.city %}display:none{% endif %}">
-              <select id="modalArea"
-                      class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
-                             focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                <option value="">All Areas</option>
-                {% for area in active_areas %}
-                  <option value="{{ area.id }}" {% if active.area == area.id|stringformat:"s" %}selected{% endif %}>
-                    {{ area.name|capfirst }}
-                  </option>
-                {% endfor %}
-              </select>
-              <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-            </div>
+      <div>
+        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Location</p>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="relative">
+            <select id="modalCity"
+                    class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
+                           focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <option value="">All Locations</option>
+              {% for city in cities %}
+                <option value="{{ city.id }}" {% if active.city == city.id|stringformat:"s" %}selected{% endif %}>
+                  {{ city.name|capfirst }}
+                </option>
+              {% endfor %}
+            </select>
+            <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
+          </div>
+          <div class="relative" id="modalAreaWrap" style="{% if not active.city %}display:none{% endif %}">
+            <select id="modalArea"
+                    class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
+                           focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <option value="">All Areas</option>
+              {% for area in active_areas %}
+                <option value="{{ area.id }}" {% if active.area == area.id|stringformat:"s" %}selected{% endif %}>
+                  {{ area.name|capfirst }}
+                </option>
+              {% endfor %}
+            </select>
+            <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
           </div>
         </div>
+      </div>
 
       {# Features #}
-        <div>
-          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Features</p>
-          <div class="flex flex-wrap gap-2">
-            {% for label, field, active_val in features_list %}
-            {% endfor %}
-            <label id="modalFurnishedLabel"
-                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
-                          {% if active.furnished %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
-              <input type="checkbox" id="modalFurnished" class="hidden" {% if active.furnished %}checked{% endif %}>
-              Furnished
-            </label>
-            <label id="modalServicedLabel"
-                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
-                          {% if active.serviced %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
-              <input type="checkbox" id="modalServiced" class="hidden" {% if active.serviced %}checked{% endif %}>
-              Serviced
-            </label>
-            <label id="modalSharedLabel"
-                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
-                          {% if active.shared %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
-              <input type="checkbox" id="modalShared" class="hidden" {% if active.shared %}checked{% endif %}>
-              Shared
-            </label>
-            <label id="modalSchoolLabel"
-                   class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
-                          {% if active.school %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
-              <input type="checkbox" id="modalSchool" class="hidden" {% if active.school %}checked{% endif %}>
-              Student Housing
-            </label>
-          </div>
+      <div>
+        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Features</p>
+        <div class="flex flex-wrap gap-2">
+          {% for label, field, active_val in features_list %}
+          {% endfor %}
+          <label id="modalFurnishedLabel"
+                 class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                        {% if active.furnished %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+            <input type="checkbox" id="modalFurnished" class="hidden" {% if active.furnished %}checked{% endif %}>
+            Furnished
+          </label>
+          <label id="modalServicedLabel"
+                 class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                        {% if active.serviced %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+            <input type="checkbox" id="modalServiced" class="hidden" {% if active.serviced %}checked{% endif %}>
+            Serviced
+          </label>
+          <label id="modalSharedLabel"
+                 class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                        {% if active.shared %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+            <input type="checkbox" id="modalShared" class="hidden" {% if active.shared %}checked{% endif %}>
+            Shared
+          </label>
+          <label id="modalSchoolLabel"
+                 class="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs cursor-pointer transition
+                        {% if active.school %}border-primary bg-primary/5 text-primary font-semibold{% else %}border-gray-200 text-gray-600 hover:border-gray-300{% endif %}">
+            <input type="checkbox" id="modalSchool" class="hidden" {% if active.school %}checked{% endif %}>
+            Student Housing
+          </label>
         </div>
+      </div>
 
       {# Amenities #}
-        {% if amenity_choices %}
-          <div>
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Amenities</p>
-            <div class="flex flex-wrap gap-1.5">
-              {% for amenity in amenity_choices %}
-                <label data-amenity-id="{{ amenity.id }}"
-                       class="amenity-pill px-2.5 py-1 border rounded-lg text-[11px] cursor-pointer transition
-                              {% if amenity.id|stringformat:'s' in active.amenities|join:',' %}
-                                border-primary bg-primary/5 text-primary font-semibold
-                              {% else %}
-                                border-gray-200 text-gray-600 hover:border-gray-300
-                              {% endif %}">
-                  {% if amenity.icon %}<i class="{{ amenity.icon }}"></i> {% endif %}
-                  {{ amenity.display_name }}
-                </label>
+      {% if amenity_choices %}
+        <div>
+          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Amenities</p>
+          <div class="flex flex-wrap gap-1.5">
+            {% for amenity in amenity_choices %}
+              <label data-amenity-id="{{ amenity.id }}"
+                     class="amenity-pill px-2.5 py-1 border rounded-lg text-[11px] cursor-pointer transition
+                            {% if amenity.id|stringformat:'s' in active.amenities|join:',' %}
+                              border-primary bg-primary/5 text-primary font-semibold
+                            {% else %}
+                              border-gray-200 text-gray-600 hover:border-gray-300
+                            {% endif %}">
+                {% if amenity.icon %}<i class="{{ amenity.icon }}"></i> {% endif %}
+                {{ amenity.display_name }}
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if user_is_admin %}
+        <div>
+          <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Status</p>
+          <div class="relative">
+            <select id="modalStatus"
+                    class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
+                           focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <option value="">All Statuses</option>
+              {% for code, label in status_choices %}
+                <option value="{{ code }}" {% if active.status == code %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
-            </div>
+            </select>
+            <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
           </div>
-        {% endif %}
+        </div>
+      {% endif %}
 
-        {% if user_is_admin %}
-          <div>
-            <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Status</p>
-            <div class="relative">
-              <select id="modalStatus"
-                      class="w-full px-2.5 py-2 border border-gray-200 rounded-xl text-xs appearance-none bg-white
-                             focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-                <option value="">All Statuses</option>
-                {% for code, label in status_choices %}
-                  <option value="{{ code }}" {% if active.status == code %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-              </select>
-              <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
-            </div>
-          </div>
-        {% endif %}
+    </div>
 
-      </div>
-
-      <div class="px-5 py-4 border-t border-gray-100 flex gap-2 shrink-0">
-        <button onclick="clearMoreFilters()"
-                class="flex-1 py-2 border border-gray-200 text-gray-500 text-xs font-semibold rounded-xl hover:bg-gray-50 transition">
-          Clear
-        </button>
-        <button onclick="applyMoreFilters()"
-                class="flex-1 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">
-          Apply Filters
-        </button>
-      </div>
+    <div class="px-5 py-4 border-t border-gray-100 flex gap-2 shrink-0">
+      <button onclick="clearMoreFilters()"
+              class="flex-1 py-2 border border-gray-200 text-gray-500 text-xs font-semibold rounded-xl hover:bg-gray-50 transition">
+        Clear
+      </button>
+      <button onclick="applyMoreFilters()"
+              class="flex-1 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition">
+        Apply Filters
+      </button>
     </div>
   </div>
+</div>
 
 
 {% block extra_js %}
-<script>
+  <script>
     const AREAS_MAP = {{ areas_map_json|safe }};
 
     function openMoreFilters() {

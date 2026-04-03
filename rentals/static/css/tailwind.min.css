@@ -792,6 +792,9 @@
   .aspect-4\/5 {
     aspect-ratio: 4/5;
   }
+  .aspect-16\/10 {
+    aspect-ratio: 16/10;
+  }
   .aspect-\[16\/8\] {
     aspect-ratio: 16/8;
   }
@@ -889,6 +892,9 @@
   }
   .h-96 {
     height: calc(var(--spacing) * 96);
+  }
+  .h-\[60px\] {
+    height: 60px;
   }
   .h-\[60vh\] {
     height: 60vh;
@@ -1010,11 +1016,17 @@
   .w-\[85vw\] {
     width: 85vw;
   }
+  .w-\[90vw\] {
+    width: 90vw;
+  }
   .w-\[120\%\] {
     width: 120%;
   }
   .w-full {
     width: 100%;
+  }
+  .w-px {
+    width: 1px;
   }
   .max-w-2xl {
     max-width: var(--container-2xl);
@@ -2429,6 +2441,9 @@
   .text-\[13px\] {
     font-size: 13px;
   }
+  .text-\[17px\] {
+    font-size: 17px;
+  }
   .leading-\[1\.1\] {
     --tw-leading: 1.1;
     line-height: 1.1;
@@ -2938,7 +2953,7 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
-  .duration-300 {
+  .duration-200 {
     --tw-duration: 300ms;
     transition-duration: 300ms;
   }
@@ -3625,6 +3640,13 @@
       }
     }
   }
+  .hover\:text-\[\#222222\] {
+    &:hover {
+      @media (hover: hover) {
+        color: #222222;
+      }
+    }
+  }
   .hover\:text-accent {
     &:hover {
       @media (hover: hover) {
@@ -3978,6 +4000,21 @@
       overflow: hidden;
     }
   }
+  .max-sm\:mx-auto {
+    @media (width < 40rem) {
+      margin-inline: auto;
+    }
+  }
+  .max-sm\:justify-center {
+    @media (width < 40rem) {
+      justify-content: center;
+    }
+  }
+  .max-sm\:text-center {
+    @media (width < 40rem) {
+      text-align: center;
+    }
+  }
   .max-sm\:text-xs {
     @media (width < 40rem) {
       font-size: var(--text-xs);
@@ -4073,6 +4110,11 @@
   .md\:col-span-2 {
     @media (width >= 48rem) {
       grid-column: span 2 / span 2;
+    }
+  }
+  .md\:flex {
+    @media (width >= 48rem) {
+      display: flex;
     }
   }
   .md\:grid-cols-2 {
@@ -4547,6 +4589,24 @@
     @media (width >= 64rem) {
       --tw-font-weight: var(--font-weight-black);
       font-weight: var(--font-weight-black);
+    }
+  }
+  .lg\:font-bold {
+    @media (width >= 64rem) {
+      --tw-font-weight: var(--font-weight-bold);
+      font-weight: var(--font-weight-bold);
+    }
+  }
+  .lg\:font-medium {
+    @media (width >= 64rem) {
+      --tw-font-weight: var(--font-weight-medium);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+  .lg\:font-semibold {
+    @media (width >= 64rem) {
+      --tw-font-weight: var(--font-weight-semibold);
+      font-weight: var(--font-weight-semibold);
     }
   }
   .lg\:opacity-0 {

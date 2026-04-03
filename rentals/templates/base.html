@@ -140,8 +140,10 @@
       button.heart-filled {
         animation: heart-filled 0.7s ease-in-out;
       }
-      button.heart-fill:hover {
-        animation: shake 0.7s ease-in-out infinite;
+      @media (width >= 96rem) {
+        button.heart-fill:hover {
+          animation: shake 0.7s ease-in-out infinite;
+        }
       }
       button.empty:hover, .pulse{
         animation: pulse 0.8s ease-in-out infinite;
@@ -192,7 +194,7 @@
 
 
 
-  <body class="font-sans bg-gray-50 text-gray-800 duration-300">
+  <body class="font-sans bg-gray-50 text-gray-800 duration-200 ease-in-out">
     {% include 'blocks/preloader.html' %}
 
     {% block navbar %}
@@ -226,9 +228,7 @@
       {% endif %}
     </div>
 
-    {% load static %}
-
-    <main class="relative duration-300">
+    <main class="relative duration-200">
       {% block content %} {% endblock %}
       <button id="compareFloatingBtn"
               onclick="openCompare()"
@@ -270,14 +270,14 @@
         document.querySelectorAll('.site-notif').forEach(n => n.remove());
         const el = document.createElement('div');
         el.className = `site-notif fixed top-5 right-5 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-medium
-                          transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
+                          transition-all duration-200 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
         el.textContent = msg;
         el.style.cssText = 'opacity:0;transform:translateY(-12px)';
         document.body.appendChild(el);
         requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
         setTimeout(() => {
           el.style.opacity = '0'; el.style.transform = 'translateY(-12px)';
-          setTimeout(() => el.remove(), 300);
+          setTimeout(() => el.remove(), 200);
         }, 3000);
       }
 
@@ -451,19 +451,19 @@
       }
 
     // Register service worker at root scope
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/serviceworker.js')
-          .then(registration => {
-            console.log('ServiceWorker registered with scope:', registration.scope);
-          })
-          .catch(error => {
-            console.error('ServiceWorker registration failed:', error);
-          });
-      });
-    }
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/serviceworker.js')
+            .then(registration => {
+              console.log('ServiceWorker registered with scope:', registration.scope);
+            })
+            .catch(error => {
+              console.error('ServiceWorker registration failed:', error);
+            });
+        });
+      }
 
-    
+
 
       function formatCurrency(amount) {
         const number = parseFloat(amount);
@@ -545,7 +545,7 @@
             icon.classList.replace("text-red-500", "text-[#222222]/60");
             el.classList.replace("heart-fill", "empty")
           }
-      })
+        })
 
         render_message(action)
       }
@@ -566,7 +566,7 @@
         })
         data = res.json()
         savedSet = new Set(data.saved_ids);
-        
+
         localStorage.removeItem("SAVED_PROPERTIES");
       }
 

@@ -28,11 +28,11 @@
   .pl-wordmark-main {
     font-size: 20px;
     font-weight: 700;
-    color: #111827;
+    color: var(--color-primary, #0f172a);
     font-family: inter, system-ui, -apple-system, sans-serif;
   }
   .pl-wordmark-main span {
-    color: var(--color-primary, #0F6E56);
+    color: var(--color-accent, #3b82f6);
   }
   .pl-track {
     width: 160px;
@@ -89,7 +89,12 @@
       }, { once: true });
     }
 
-    window.addEventListener('load', hide);
-    setTimeout(hide, 1200);
+    let load = window.addEventListener('load', hide);
+
+    let timeout = setTimeout(() => {
+      hide()
+      removeEventListener("load", load)
+    }, 1200);
+
   })();
 </script>

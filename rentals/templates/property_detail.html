@@ -567,12 +567,19 @@
 
     showLess()
 
+    function isMobile () {
+      const uaMatch = /Mobi|Android|iPhone/i.test(navigator.userAgent)
+      const smallScreen = window.innerWidth <= 768
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches
+
+      return uaMatch || (smallScreen && coarsePointer)
+    }
+
 
     track?.addEventListener('scrollend', e => {
       let width = (track.querySelector("div").offsetWidth + .3999938964844).toFixed(0)
       current = Number((track.scrollLeft.toFixed(0) / width).toFixed(0)) + 1 
       if (counter) counter.textContent = current;
-      stopAuto();
     }, { passive: true });
 
     function openLightBox(src) {
@@ -641,13 +648,14 @@
       }
       startAuto()
     }
+
     function nextImage()        { current = (current + 1) % total; updateSlider(); }
     function prevImage()        { current = (current - 1 + total) % total; updateSlider(); }
     function goToSlide(i)       { current = i; updateSlider(); }
     function startAuto()        { stopAuto(); autoPlay = setInterval(nextImage, 5000); }
     function stopAuto()         { clearInterval(autoPlay); }
 
-    if (track) {
+    if (track && !isMobile()) {
       track.addEventListener('mouseenter', stopAuto);
       track.addEventListener('mouseleave', startAuto);
       document.addEventListener('keydown', e => {

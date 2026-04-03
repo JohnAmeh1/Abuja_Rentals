@@ -30,7 +30,7 @@
                   <div class="min-w-full cursor-pointer snap-center"
                     onclick="openLightBox('{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}')">
                     <img src="{% if image.test_url %}{{ image.test_url }}{% elif image.image.url %}{{ image.image.url }}{% endif %}"
-                      class="w-full min-h-80 aspect-16/10 object-cover"
+                    class="w-full min-h-80 aspect-16/10 object-cover"
                       alt="Property image {{ forloop.counter }}">
                   </div>
                 {% endfor %}

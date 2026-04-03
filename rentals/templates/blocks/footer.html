@@ -1,19 +1,18 @@
 
-<footer class="bg-gray-950 text-gray-400">
+<footer class="bg-gray-100 text-[#222222]">
 
   <div class="border-b border-white/5">
     <div class="container mx-auto px-4 lg:px-20 py-16">
       <div class="grid grid-cols-1 lg:grid-cols-6 gap-12">
 
-        <div class="lg:col-span-2">
-          <div class="flex items-center gap-2.5 mb-5">
-            <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-              <i class="fas fa-building text-white text-sm"></i>
+        <div class="lg:col-span-2 space-y-6">
+           <a href="{% url 'home' %}" class="flex items-center gap-2.5 shrink-0">
+            <div class="text-xl font-semibold text-primary">
+              abuja<span class="text-accent">_  </span>rentals<span class="text-accent">.</span>ng
             </div>
-            <span class="font-bold text-white text-lg tracking-tight">Abuja Rentals</span>
-          </div>
+          </a>
 
-          <p class="text-sm leading-relaxed text-gray-500 mb-6 max-w-xs">
+          <p class="text-sm leading-relaxed text-[#222222]/80 max-w-xs">
             Helping people find homes they love across Abuja's finest neighbourhoods —
             from Maitama to Gwarinpa, Asokoro to Wuse.
           </p>
@@ -21,25 +20,25 @@
           <div class="flex gap-3">
             {% for icon, url, label in social_links|default:'' %}
               <a href="{{ url }}" aria-label="{{ label }}"
-                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary
+                 class="w-9 h-9 rounded-xl bg-primary/20 hover:bg-primary/30 hover:text-primary
                         flex items-center justify-center transition text-gray-500">
                 <i class="fab {{ icon }} text-sm"></i>
               </a>
             {% empty %}
               <a href="#" aria-label="Facebook"
-                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                 class="w-9 h-9 rounded-xl bg-primary/20 hover:bg-primary/30 hover:text-primary flex items-center justify-center transition">
                 <i class="fab fa-facebook-f text-sm"></i>
               </a>
               <a href="#" aria-label="Instagram"
-                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                 class="w-9 h-9 rounded-xl bg-primary/20 hover:bg-primary/30 hover:text-primary flex items-center justify-center transition">
                 <i class="fab fa-instagram text-sm"></i>
               </a>
               <a href="#" aria-label="X / Twitter"
-                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                 class="w-9 h-9 rounded-xl bg-primary/20 hover:bg-primary/30 hover:text-primary flex items-center justify-center transition">
                 <i class="fab fa-twitter text-sm"></i>
               </a>
               <a href="#" aria-label="WhatsApp"
-                 class="w-9 h-9 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition">
+                 class="w-9 h-9 rounded-xl bg-primary/20 hover:bg-primary/30 hover:text-primary flex items-center justify-center transition">
                 <i class="fab fa-whatsapp text-sm"></i>
               </a>
             {% endfor %}
@@ -47,7 +46,7 @@
         </div>
 
         <div>
-          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Company</p>
+          <p class="text-sm font-semibold uppercase tracking-[2px] text-[#222222]/90 mb-5">Company</p>
           <ul class="space-y-3">
             <li><a href="{% url 'about' %}" class="footer-link">About Us</a></li>
             <li><a href="{% url 'careers' %}" class="footer-link">Careers</a></li>
@@ -57,7 +56,7 @@
         </div>
 
         <div>
-          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Support</p>
+          <p class="text-sm font-semibold uppercase tracking-[2px] text-[#222222]/90 mb-5">Support</p>
           <ul class="space-y-3">
             <li><a href="{% url 'faq' %}" class="footer-link">FAQ</a></li>
             <li><a href="#" class="footer-link">Help Center</a></li>
@@ -67,7 +66,7 @@
         </div>
 
         <div>
-          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Find a Home</p>
+          <p class="text-sm font-semibold uppercase tracking-[2px] text-[#222222]/90 mb-5">Find a Home</p>
           <ul class="space-y-3">
             {% for ptype in nav_property_types %}
               {% if not forloop.counter > 6 %}
@@ -84,7 +83,7 @@
           </ul>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-[2px] text-white/40 mb-5">Popular Location</p>
+          <p class="text-sm font-semibold uppercase tracking-[2px] text-[#222222]/90 mb-5">Popular Location</p>
           <ul class="space-y-3">
             {% for city in nav_cities %}
               {% if not forloop.counter > 6 %}
@@ -114,10 +113,30 @@
 <style>
   .footer-link {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: rgb(34, 34, 34, 0.7);
     text-decoration: none;
     transition: color 150ms;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    &:hover::before {
+      background: rgb(34, 34, 34);
+      width: 1rem;
+    }
   }
-  .footer-link:hover { color: #fff; }
+  .footer-link::before {
+    content: '';
+    display: inline-block;
+    height: 1.5px;
+    border-radius: 100px;
+    background: rgb(34, 34, 34, 0.7);
+    width: 0.5rem;
+    transition: 200ms ease-in-out;
+  }
+  
+
+  
+  
+  .footer-link:hover { color: rgb(34, 34, 34) }
 </style>

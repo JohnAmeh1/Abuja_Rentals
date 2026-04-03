@@ -1294,7 +1294,6 @@ def my_bookings_view(request):
     return render(request, 'tenant/my_bookings.html', context)
 
 
-@login_required
 def submit_report(request, property_id):
     property_obj = get_object_or_404(Property, id=property_id)
 
@@ -1302,7 +1301,7 @@ def submit_report(request, property_id):
         form = ReportForm(request.POST)
         if form.is_valid():
             report = form.save(commit=False)
-            report.reporter = request.user
+            report.reporter = request.user if request.user.is_authenticated else None
             report.reported_user = property_obj.agent.user
             report.property = property_obj
             report.save()

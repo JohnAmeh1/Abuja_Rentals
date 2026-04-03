@@ -309,7 +309,7 @@ class AdminMessage(AdminMessageService, models.Model):
         verbose_name_plural = 'Admin Messages'
 
 class Report(models.Model):
-    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_made')
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_made', null=True, blank=True)
     reported_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_received')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='reports', null=True, blank=True)
     reason = models.CharField(max_length=50, choices=REASON_CHOICES)
@@ -324,7 +324,7 @@ class Report(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Report #{self.id} by {self.reporter.username} - {self.get_reason_display()}"
+        return f"Report #{self.id} by {self.reporter.username if self.reporter else "Anonymous"} - {self.get_reason_display()}"
 
     def clean(self):
         from django.core.exceptions import ValidationError

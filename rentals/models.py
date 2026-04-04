@@ -85,7 +85,6 @@ class School(models.Model):
     next_resumption_start = models.DateField(blank=True, null=True)
     next_resumption_end = models.DateField(blank=True, null=True)
     semester_end = models.DateField(blank=True, null=True)
-
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, related_name="schools", null=True)
 
     class Meta:
@@ -188,6 +187,7 @@ class Property(PropertyService, models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['purpose', 'status']),
+            models.Index(fields=['purpose']),
             models.Index(fields=['property_type']),
             models.Index(fields=['price']),
             models.Index(fields=['bedrooms']),

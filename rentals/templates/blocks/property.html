@@ -13,7 +13,7 @@
 
     <a href="{% url 'property_detail' prop.id %}" class="absolute inset-0 z-0" tabindex="-1" aria-hidden="true"></a>
     {% if prop.main_image %}
-      <img src="{{ prop.main_image }}" alt="{{ prop.title }}"
+      <img src="{{ prop.main_image }}" alt="{{ prop.title }}" loading="lazy"
            class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-500 ease-out pointer-events-none">
     {% else %}
       <div class="w-full h-full flex items-center justify-center">

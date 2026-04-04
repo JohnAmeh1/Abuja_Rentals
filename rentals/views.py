@@ -1566,6 +1566,7 @@ def property_detail_view(request, property_id):
         ),
         id=property_id,
     )
+    nearby_areas = Area.objects.filter(city=property_obj.location.area.city)
 
     user = request.user
     session_key = f"viewed_property_{property_id}"
@@ -1594,6 +1595,7 @@ def property_detail_view(request, property_id):
         "is_saved": is_saved,
         "today": today,
         "recommendations": recommendations,
+        "nearby_areas": nearby_areas
     }
 
     return render(request, "property_detail.html", context)
@@ -2703,8 +2705,6 @@ def compare_properties_api(request):
     
     return JsonResponse({'properties': data})
 
-from django.contrib.auth.decorators import login_required
-
 def wishlist(request):
     if not request.user or not request.user.is_authenticated:
         saved = []
@@ -3000,10 +3000,12 @@ SORT_MAP = {
     "price_asc": "price",
     "price_desc": "-price",
     "newest": "-created_at",
+    "bedrooms": "-bedrooms",
+    "sqft": "-area_sqft",
+    "verified": "-verified"
 }
 
 
-from django.core.paginator import Paginator
 
 def properties_view(request):
     user_is_admin = get_user_is_admin(request)
@@ -3029,9 +3031,10 @@ def properties_view(request):
 
     sort_key = SORT_MAP.get(request.GET.get("sort", ""), None)
     qs = qs.order_by(sort_key, "-id") if sort_key else qs.order_by("-created_at", "-id")
-    data = [serialize_property(p) for p in qs]
-    paginator = Paginator(data, 21)
+    
+    paginator = Paginator(qs, 21)
     page_obj  = paginator.get_page(request.GET.get("page", 1))
+    page_obj.object_list = [serialize_property(p) for p in page_obj.object_list]
     
     status_choices = (
         list(PROPERTY_STATUS_CHOICES)
@@ -3086,7 +3089,6 @@ def properties_view(request):
         amenities = list(Amenity.objects.values("id", "display_name", "icon"))
         cache.set("home_amenities", amenities, 3600)
         
-    cache.delete('home_type')
     ptypes = cache.get("home_types")
     if not ptypes:
         ptypes = list(PropertyType.objects.values("id", "display_name", "icon"))
@@ -3107,13 +3109,9 @@ def properties_view(request):
     }
 
     return render(request, "properties.html", context)
-import json
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
 
 @login_required
-@require_POST
+@require_http_methods(["POST"])
 def sync_saved(request):
     try:
         data = json.loads(request.body)

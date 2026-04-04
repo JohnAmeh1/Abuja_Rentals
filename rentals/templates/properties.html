@@ -98,10 +98,12 @@
           <select name="sort"
                   class="pl-3 pr-7 py-2 border border-gray-200 rounded-xl text-xs bg-white appearance-none
                          focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-gray-500">
-            <option value=""           {% if active.sort == "" %}selected{% endif %}>Recommended</option>
+            <option value=""           {% if active.sort == "" %}selected{% endif %}>Newest</option>
             <option value="price_asc"  {% if active.sort == "price_asc" %}selected{% endif %}>Price: Low → High</option>
             <option value="price_desc" {% if active.sort == "price_desc" %}selected{% endif %}>Price: High → Low</option>
-            <option value="newest"     {% if active.sort == "newest" %}selected{% endif %}>Newest</option>
+            <option value="bedrooms"     {% if active.sort == "bedrooms" %}selected{% endif %}>Bedrooms</option>
+            <option value="sqft"     {% if active.sort == "sqft" %}selected{% endif %}>Sqft</option>
+            <option value="verified"     {% if active.sort == "verified" %}selected{% endif %}>Verified</option>
           </select>
           <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[9px] pointer-events-none"></i>
         </div>
@@ -129,9 +131,9 @@
       </form>
     </div>
 
-    <div class="grid lg:grid-cols-4 gap-8 px-2">
+    <div class="grid lg:grid-cols-4 gap-8">
       <div class="hidden lg:block order-2">
-        <img src="/media/abstract/11527105.jpg" class="object-cover max-h-[70vh] w-full sticky top-40 scale-75 rounded-2xl" alt="">
+        <img src="/media/abstract/11527105.jpg" class="object-cover max-h-[70vh] w-full sticky top-40 scale-90 rounded-2xl" alt="">
       </div>
       <div class="lg:col-span-3">
         <div class="flex items-center justify-between mb-4">
@@ -210,7 +212,9 @@
           {% endif %}
         </div>
 
-        {% include 'blocks/ads/cta.html' %}
+       <div class="mb-5">
+         {% include 'blocks/ads/cta.html' %}
+       </div>
       </div>
 
     </div>

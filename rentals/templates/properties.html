@@ -67,15 +67,15 @@
             <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[10px]">₦</span>
             <input name="min_price" type="text" value="{{ active.min_price }}" placeholder="Min price"
                    class="pl-6 pr-2 py-2 w-28 border border-gray-200 rounded-xl text-xs
-                          focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none
-                          {% if active.min_price %}border-primary{% endif %}">
+                          focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt_2
+                          {% if active.min_price %}border-primary{% endif %}"> 
           </div>
           <span class="text-gray-300 text-xs">–</span>
           <div class="relative">
             <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-[10px]">₦</span>
             <input name="max_price" type="text" value="{{ active.max_price }}" placeholder="Max price"
                    class="pl-6 pr-2 py-2 w-28 border border-gray-200 rounded-xl text-xs
-                          focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none
+                          focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none price-fmt_2
                           {% if active.max_price %}border-primary{% endif %}">
           </div>
         </div>
@@ -118,10 +118,10 @@
           <input type="hidden" name="amenities" class="hAmenity" value="{{ a }}">
         {% endfor %}
 
-        <button type="submit"
-                class="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition shrink-0">
+        <span onclick="submitForm()"
+                class="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:opacity-90 transition shrink-0 cursor-pointer">
           Search
-        </button>
+        </span>
 
         {% if request.GET %}
           <a href="{% url 'properties' %}"
@@ -226,6 +226,17 @@
 
 {% endblock %}
 {% block extra_js %}
+  <script>
+    function submitForm() {
+      let v1 = document.querySelector('input[name="min_price"]') 
+      let v2 = document.querySelector('input[name="max_price"]') 
+
+      v1.value = v1.value.replace(/[,\s]/g, '');
+      v2.value = v2.value.replace(/[,\s]/g, '');
+
+      document.getElementById("filterFormTop").submit();
+    }
+  </script>
   {% block extra__js %}
   {% endblock %}
 {% endblock %}

@@ -16,7 +16,7 @@
           <h1 class="text-4xl lg:text-6xl font-black text-white mb-6 leading-tight tracking-tight text-center">
             Find a Place You’ll
             <br>
-            <span class="text-primary italic curse max-sm:block max-sm:text-center">Call Home </span>
+            <span class="text-primary italic curse">Call Home </span>
             in Abuja
           </h1>
           <p class="text-gray-200 text-xs md:text-base lg:max-w-2xl max-w-sm text-center mx-auto">
@@ -188,18 +188,18 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-1 lg:gap-3">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
         {% for cat in categories %}
           <a href="{% url 'properties' %}?property_type={{ cat.id }}"
-             class='group relative overflow-hidden transition-all duration-200 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
+             class='group relative overflow-hidden transition-all rounded-lg duration-200 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
 
-            <img src="{{cat.image}}&w=800&q=70"
+            <img src="{{cat.image}}&w=400&q=50"
                  class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-400 brightness-[.70] group-hover:brightness-[.35]"
                  alt="{{cat.display_name}}" />
 
             <div class="relative p-2.5 lg:p-5 h-48 flex items-end lg:justify-between text-white gap-2">
 
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
                 <h3 class="font-semibold text-lg">
                   {{ cat.display_name }}
                   <p class="text-xs lg:text-sm text-white/80 font-light">
@@ -231,7 +231,7 @@
           <p class="text-white font-bold text-lg">Ready to find your next home?</p>
           <p class="text-gray-400 text-sm mt-0.5">Over 200 verified listings across Abuja.</p>
         </div>
-        <div class="flex gap-6 lg:gap-3 shrink-0 flex-col lg:flex-row max-lg:w-full">
+        <div class="flex gap-6 lg:gap-4 shrink-0 flex-col lg:flex-row max-lg:w-full">
           <a href="{% url 'properties' %}"
              class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl transition max-lg:w-fit">
             Browse Properties

@@ -21,7 +21,7 @@ from .models import (UserProfile, Property, SavedProperty, PropertyVisit, AdminM
                      PropertyVisit, Inquiry, School, OTP, InquiryResponse, AgentProfile, Notification,
                      AgentApplication, PropertyType, Amenity, City, InquiryCity, PropertyImage,
                      Location, PropertyAmenity, InquiryAmenity, AgentPreferredTypes, Area,
-                     AgentAssignedSchools, AgentAssignedCities)
+                     AgentAssignedSchools, AgentAssignedCities, ContactEvent, AgentStats)
 
 from .forms import (CustomUserCreationForm, LoginForm, ProfileUpdateForm, PropertyForm, AdminMessageForm, ReportForm,
                     OTPVerificationForm, ForgotPasswordForm, ForgotPasswordOTPForm, ResetPasswordForm,
@@ -1585,6 +1585,12 @@ def property_detail_view(request, property_id):
     images = property_obj.images.all()
     recommendations = get_property_recommendations(property_obj)
     today = timezone.now().date()
+    
+    from django.core.cache import cache
+    cities = cache.get("home_cities")
+    if not cities:
+        cities = list(City.objects.values("id", "name"))
+        cache.set("home_cities", cities, 3600)
 
     context = {
         "property": property_obj,
@@ -1595,7 +1601,8 @@ def property_detail_view(request, property_id):
         "is_saved": is_saved,
         "today": today,
         "recommendations": recommendations,
-        "nearby_areas": nearby_areas
+        "nearby_areas": nearby_areas,
+        "cities": cities
     }
 
     return render(request, "property_detail.html", context)
@@ -2973,13 +2980,13 @@ def _apply_filters(qs, params, user_is_admin=False):
         except (ValueError, TypeError):
             pass
 
-    if params.get("furnished") == "true":
+    if str(params.get("furnished")).lower() == "true":
         qs = qs.filter(furnished=True)
 
-    if params.get("serviced") == "true":
+    if str(params.get("serviced")).lower() == "true":
         qs = qs.filter(serviced=True)
 
-    if params.get("shared") == "true":
+    if str(params.get("shared")).lower() == "true":
         qs = qs.filter(shared=True)
 
     if hasattr(params, "getlist"):
@@ -3063,15 +3070,23 @@ def properties_view(request):
         "amenities": request.GET.getlist("amenities"),
     }
     
-    areas_map = {}  
-    for area in Area.objects.select_related("city").order_by("name"):
-        areas_map.setdefault(area.city_id, []).append({"id": area.id, "name": area.name})
+    
+    from django.core.cache import cache
+    
+    areas_map = cache.get("areas_map")
+    if not areas_map : 
+        areas_map = {}
+        for area in Area.objects.select_related("city").order_by("name"):
+            areas_map.setdefault(area.city_id, []).append({"id": area.id, "name": area.name})
+    cache.set("areas_map", areas_map, 3600)
 
+    if active['area']:
+        active['city'] = str(Area.objects.get(id=active['area']).city.id)
+        
     active_city_id = int(active["city"]) if active["city"].isdigit() else None
     active_areas   = areas_map.get(active_city_id, []) if active_city_id else []
     
 
-    from django.core.cache import cache
     schools = cache.get("home_schools")
     if not schools:
         schools = list(
@@ -3145,3 +3160,73 @@ def sync_saved(request):
         "ok": True,
         "saved_ids": saved_ids
     })
+
+
+@login_required
+def contact_agent(request):    
+    property_id = request.POST.get("property", "")
+    method      = request.POST.get("method", "") 
+    agent_id    = request.POST.get("agent_id", "")
+    
+    agent = get_object_or_404(AgentProfile, id=agent_id)
+    property_obj = get_object_or_404(Property, id=property_id) if property_id else None
+
+    ContactEvent.objects.create(
+        user=request.user,
+        agent=agent,
+        method=method,
+        property=property_obj,
+    )
+    
+    return JsonResponse({
+        "ok": True,
+    })
+
+@login_required
+def resolve_contact(request, c_event_id):
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "Method not allowed"}, status=405)
+    
+    event = get_object_or_404(ContactEvent, id=c_event_id, user=request.user)
+    
+    if event.replied is not None:
+        return JsonResponse({"ok": False, "error": "Already resolved"}, status=400)
+    
+    replied      = request.POST.get("replied")       
+    availability = request.POST.get("availability")  
+    
+    if replied is None:
+        return JsonResponse({"ok": False, "error": "Missing replied field"}, status=400)
+    
+    event.replied      = replied == "true"
+    event.availability = (availability == "true") if availability is not None else None
+    event.replied_at   = timezone.now()
+    event.save()
+    
+    event.update_agent_stats()
+    
+    return JsonResponse({"ok": True})
+
+
+@login_required
+def pending_resolutions(request):
+    threshold = timezone.now() - timezone.timedelta(minutes=30)
+    
+    pending = ContactEvent.objects.filter(
+        user=request.user,
+        replied=None,
+        created_at__lte=threshold,
+    ).select_related("agent", "property").order_by("-created_at")[:5]
+    
+    data = [
+        {
+            "id":           e.id,
+            "agent_name":   e.agent.name or e.agent.user.get_full_name(),
+            "property":     e.property.title if e.property else None,
+            "method":       e.method,
+            "contacted_at": e.created_at.isoformat(),
+        }
+        for e in pending
+    ]
+    
+    return JsonResponse({"pending": data})

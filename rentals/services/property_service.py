@@ -13,6 +13,24 @@ class PropertyService:
     def __str__(self):
         ptype = self.property_type.display_name if self.property_type else "Unknown"
         return f"{self.title} - {ptype} ({self.get_purpose_display()})"
+    
+    def get_detail(self):
+        ptype = self.property_type.display_name if self.property_type else "Unknown"
+        school = self.school.name if self.school else None
+        return f"{"Furnished" if self.furnished else ""} {str(self.bedrooms) + "BR" if self.bedrooms else ""} {ptype} for {self.purpose} {"for "+school+" students" if school else ""} in {self.location.area}"
+    
+    def get_search_link(self):
+        ptype = self.property_type.id if self.property_type else None
+        school = self.school.id if self.school else None
+        area = self.location.area.id if self.location.area else None
+        default = [("property_type",ptype), ("school",school), ("min_bedrooms", self.bedrooms), ("area", area), ("furnished", self.furnished), ("shared", self.shared), ("purpose", self.purpose)]
+        filters = []
+        
+        for value in default:
+            if value[1]:
+                filters.append(f"{value[0]}={value[1]}")
+        
+        return f"/properties/?{"&".join([v for v in filters])}"
 
 
 def get_image_url(img):

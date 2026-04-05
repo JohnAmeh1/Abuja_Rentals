@@ -9,7 +9,7 @@
 
 {% block body %}
   Hi {{ user.first_name|default:user.username }},<br><br>
-  Great news — an agent has responded to your property request with a listing.
+  Great news — an agent has responded to your property request.
   View it now before it goes off the market.
 {% endblock %}
 
@@ -19,7 +19,7 @@
       <td style="background:#0F6E56;border-radius:10px;">
         <a href="{{ site_url }}/dashboard/requests/"
            style="display:inline-block;padding:12px 22px;color:white;font-size:13px;font-weight:700;text-decoration:none;">
-          See the Property →
+          See the Response →
         </a>
       </td>
     </tr>

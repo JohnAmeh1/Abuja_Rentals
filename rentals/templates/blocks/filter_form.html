@@ -44,7 +44,6 @@
         </div>
       </div>
 
-      {# Features #}
       <div>
         <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Features</p>
         <div class="flex flex-wrap gap-2">
@@ -77,7 +76,6 @@
         </div>
       </div>
 
-      {# Amenities #}
       {% if amenity_choices %}
         <div>
           <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Amenities</p>
@@ -196,6 +194,14 @@
       document.getElementById("hShared").value    = document.getElementById("modalShared").checked    ? "true" : "";
       document.getElementById("hSchool").value    = document.getElementById("modalSchool").checked    ? "true" : "";
 
+      let v1 = document.querySelector('input[name="min_price"]') 
+      let v2 = document.querySelector('input[name="max_price"]') 
+
+      v1.value = v1.value.replace(/[,\s]/g, '');
+      v2.value = v2.value.replace(/[,\s]/g, '');
+      
+
+
       document.querySelectorAll(".hAmenity").forEach(el => el.remove());
       document.querySelectorAll(".amenity-pill.border-primary").forEach(pill => {
         const input = document.createElement("input");
@@ -224,18 +230,5 @@
       });
     }
 
-    function openReportModal(propertyId) {
-      const form = document.getElementById("reportForm");
-      if (form) form.action = `/property/${propertyId}/report/`;
-      const modal = document.getElementById("reportModal");
-      if (modal) { modal.classList.remove("hidden"); modal.classList.add("flex"); }
-    }
-    function closeReportModal() {
-      const modal = document.getElementById("reportModal");
-      if (modal) { modal.classList.add("hidden"); modal.classList.remove("flex"); }
-    }
-    document.getElementById("reportModal")?.addEventListener("click", function(e) {
-      if (e.target === this) closeReportModal();
-    });
   </script>
 {% endblock %}

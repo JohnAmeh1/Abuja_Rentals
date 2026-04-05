@@ -206,7 +206,7 @@
       {% if messages %}
 
         {% for message in messages %}
-          <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden {% if message.tags == 'error' %}border-red-200 text-red-700 {% elif message.tags == 'success' %} border-green-200 text-green-700 {% elif message.tags == 'warning' %} border-yellow-200 text-yellow-700 {% else %} border-blue-200 text-blue-700 {% endif %}">
+          <div class="relative transition-all duration-200 group flex gap-2 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden {% if message.tags == 'error' %}border-red-200 text-red-700 {% elif message.tags == 'success' %} border-green-200 text-green-700 {% elif message.tags == 'warning' %} border-yellow-200 text-yellow-700 {% else %} border-blue-200 text-blue-700 {% endif %}">
             <div class="mt-0.5">
               <i class=" {% if message.tags == 'error' %} fas fa-circle-xmark {% elif message.tags == 'success' %} fas fa-circle-check {% elif message.tags == 'warning' %} fas fa-triangle-exclamation {% else %} fas fa-circle-info {% endif %}"></i>
             </div>
@@ -446,6 +446,20 @@
 
         return formatter.format(number);
       }
+      function formatCurrency_(amount) {
+        const number = parseFloat(amount);
+        if (isNaN(number)) {
+          return "";
+        }
+
+        const formatter = new Intl.NumberFormat('en-NG', {
+          style: 'currency',
+          currency: 'NGN',
+          maximumFractionDigits: 0
+        });
+
+        return formatter.format(number).slice(1);
+      }
 
       function cleanInput(value) {
         return value.replace(/[^\d.]/g, '');
@@ -458,8 +472,20 @@
           e.target.value = formatCurrency(rawValue);
         });
       });
+
+      const buttons2 = document.getElementsByClassName("price-fmt_2");
+      Array.from(buttons2).forEach((btn) => {
+        btn.addEventListener("input", (e) => {
+          let rawValue = cleanInput(e.target.value);
+          e.target.value = formatCurrency_(rawValue);
+        });
+      });
+
       Array.from(document.getElementsByClassName("price-txt")).forEach((p) => {
         p.innerHTML = formatCurrency(p.innerHTML)
+      })
+      Array.from(document.getElementsByClassName("price-fmt_2")).forEach((p) => {
+        p.value = formatCurrency_(p.value)
       })
 
       function syncFloatingBtn(x) {
@@ -606,7 +632,7 @@
         container_ = document.getElementById('container_')
         const divv = document.createElement('div')
         divv.innerHTML = `
-        <div class="relative transition-all duration-200 group flex gap-3 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden border-green-200 text-green-700">
+        <div class="relative transition-all duration-200 group flex gap-2 p-4 rounded-xl shadow-lg border toast backdrop-blur bg-white animate-slide-up overflow-hidden border-green-200 text-green-700">
         <div class="mt-0.5">
         <i class="fas fa-circle-check" id="icon"></i>
         </div>

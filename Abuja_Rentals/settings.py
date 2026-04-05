@@ -18,6 +18,8 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / '.env')
+
 ENV = os.getenv("DJANGO_ENV", "testing")
 
 load_dotenv(BASE_DIR / f".env.{ENV}")
@@ -31,7 +33,7 @@ SECRET_KEY = 'django-insecure-&#cg6&7+-j-x@#4p579n*xn!*su83wmc2g6!%xzcl0m#fg^3ow
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["abuja-rentals.onrender.com", "127.0.0.1", "172.20.10.3"]
+ALLOWED_HOSTS = ["abuja-rentals.onrender.com", "127.0.0.1", "172.20.10.3", "10.234.94.196"]
 
 
 
@@ -68,8 +70,6 @@ ROOT_URLCONF = 'Abuja_Rentals.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [],
-        # 'APP_DIRS': True,
         'DIRS': [
             BASE_DIR / 'rentals' / 'templates',  # Look here for templates
         ],
@@ -101,7 +101,7 @@ DATABASES = {
         'HOST': os.getenv("DB_HOST", ""),
         'PORT': os.getenv("DB_PORT", ""),
         'OPTIONS':{
-             'sslmode': os.getenv("DB_SSL", "require"),
+            'sslmode': os.getenv("DB_SSL", "require"),
             'connect_timeout': 10,
             },
         'CONN_MAX_AGE': 60,
@@ -143,14 +143,6 @@ INTERNAL_IPS = ['127.0.0.1']
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-# STATIC_URL = 'static/'
-
-# STATIC_URL = '/static/'
-# STATIC_ROOT = BASE_DIR / 'staticfiles'  # For production
-
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'rentals' / 'static',  # Your static files here
-# ]
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

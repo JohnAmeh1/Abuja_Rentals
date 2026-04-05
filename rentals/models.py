@@ -260,8 +260,10 @@ class Inquiry(InquiryService, models.Model):
 
 class InquiryResponse(models.Model):
     agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name="inquires_responses")
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="inquires_responses")
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="inquires_responses", null=True, blank=True)
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name="inquires_responses")
+    image = CloudinaryField('image', resource_type="image", null=True, blank=True)
+    message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     opened = models.BooleanField(default=False)
 
@@ -481,3 +483,43 @@ class Notification(NotificationService, models.Model):
     sent = models.BooleanField(default=False)
 
     
+class ContactEvent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contacts_made")
+    agent = models.ForeignKey(AgentProfile, on_delete=models.CASCADE, related_name="contacts_received")
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, null=True, blank=True)
+    method = models.CharField(max_length=20, choices=[("whatsapp", "Whatsapp"), ("phone", "Phone")])
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    replied = models.BooleanField(null=True, blank=True)
+    availability = models.BooleanField(null=True, blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user} -> {self.agent}"
+    
+    def update_agent_stats(self):
+        stats, _ = AgentStats.objects.get_or_create(agent=self.agent)
+        
+        stats.total_contacts += 1
+        
+        if self.replied:
+            stats.total_replies += 1
+            
+            response_time = self.replied_at - self.created_at
+            stats.total_response_time = (stats.total_response_time or timezone.timedelta(0)) + response_time
+            stats.avg_response_time   = stats.total_response_time / stats.total_replies
+        
+        stats.save()
+    
+class AgentStats(models.Model):
+    agent = models.OneToOneField(AgentProfile, on_delete=models.CASCADE)
+    
+    total_contacts = models.IntegerField(default=0)
+    total_replies  = models.IntegerField(default=0)
+    
+    total_response_time = models.DurationField(null=True, blank=True)
+    avg_response_time   = models.DurationField(null=True, blank=True)
+    
+    
+
+    score = models.FloatField(default=0)

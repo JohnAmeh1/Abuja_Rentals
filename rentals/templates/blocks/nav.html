@@ -4,7 +4,7 @@
 <nav class="fixed top-0 z-50 right-0 left-0 transition-all duration-200" id="mainNav">
   <div class="container mx-auto px-4 lg:px-8" id="nav">
 
-    <div class="flex justify-between items-center h-14 max-w-7xl mx-auto">
+    <div class="flex justify-between items-center h-14 max-w-7xl mx-auto lg:grid lg:grid-cols-3 ">
 
       <a href="{% url 'home' %}" class="flex items-center gap-2.5 shrink-0">
         <div class="text-base font-semibold text-primary">
@@ -12,7 +12,7 @@
         </div>
       </a>
 
-      <div class="hidden lg:flex items-center gap-1">
+      <div class="hidden lg:flex items-center justify-center gap-1 grow ">
 
         <a href="{% url 'home' %}"
            class="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
@@ -42,7 +42,7 @@
         </a>
       </div>
 
-      <div class="hidden lg:flex items-center gap-2">
+      <div class="hidden lg:flex items-center gap-2 justify-end">
 
         {% if admin_messages %}
           <div class="relative" id="notifWrapper">
@@ -368,13 +368,13 @@
 </nav>
 
 <style>
-  #nav.scrolled { background: rgba(255,255,255,0.7); box-shadow: 0 1px 24px rgba(0,0,0,0.07); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);}
+  #nav.scrolled { background: rgba(255,255,255,0.7); box-shadow: 0 1px 24px rgba(0,0,0,0.07); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);}
   #megaMenu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
 </style>
 
 <script>
   const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
+  const window_scroll = window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 10);
   }, { passive: true });
 

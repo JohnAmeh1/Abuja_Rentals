@@ -2,6 +2,49 @@
 
 {% block title %}Sign Up | Abuja Rentals{% endblock %}
 
+{% block extra_css %}
+    <style>
+        input,
+        select,
+        textarea {
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="radio"] {
+            accent-color: #3b82f6;
+            width: 1.2em;
+            height: 1.2em;
+        }
+
+        input[type="checkbox"] {
+            accent-color: #3b82f6;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-cols-1.lg\:grid-cols-2 {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .p-8.lg\:p-10 {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
@@ -209,52 +252,9 @@
         </div>
     </div>
 
-    <style>
-    /* Custom styling for better alignment */
-        input,
-        select,
-        textarea {
-            transition: all 0.3s ease;
-        }
+{% endblock %}
 
-        input:focus,
-        select:focus,
-        textarea:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-    /* Style for radio buttons */
-        input[type="radio"] {
-            accent-color: #3b82f6;
-            width: 1.2em;
-            height: 1.2em;
-        }
-
-    /* Style for checkboxes */
-        input[type="checkbox"] {
-            accent-color: #3b82f6;
-        }
-
-    /* Custom scrollbar for textarea */
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-    /* Responsive adjustments */
-        @media (max-width: 1024px) {
-            .grid-cols-1.lg\:grid-cols-2 {
-                gap: 1.5rem;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .p-8.lg\:p-10 {
-                padding: 1.5rem;
-            }
-        }
-    </style>
-
+{% block extra_js %}
     <script>
         const p1 = document.getElementById("p1")
         p1.addEventListener('input', (e) => {
@@ -282,7 +282,6 @@
             document.getElementById("num").classList.add("text-red-600")
         })
     </script>
-
 {% endblock %}
 
 {% block footer %}

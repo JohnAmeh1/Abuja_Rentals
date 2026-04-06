@@ -1591,6 +1591,8 @@ def property_detail_view(request, property_id):
     if not cities:
         cities = list(City.objects.values("id", "name"))
         cache.set("home_cities", cities, 3600)
+        
+    print(property_obj.get_search_link())
 
     context = {
         "property": property_obj,
@@ -1602,7 +1604,8 @@ def property_detail_view(request, property_id):
         "today": today,
         "recommendations": recommendations,
         "nearby_areas": nearby_areas,
-        "cities": cities
+        "cities": cities,
+        "previous_page": request.META.get("HTTP_REFERER", "/")
     }
 
     return render(request, "property_detail.html", context)

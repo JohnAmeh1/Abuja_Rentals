@@ -2,6 +2,28 @@
 
 {% block title %}Verify Email | Abuja Rentals{% endblock %}
 
+{% block extra_css %}
+    <style>
+        #id_otp_code {
+            font-size: 2rem;
+            letter-spacing: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        #id_otp_code:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        #id_otp_code::placeholder {
+            color: #d1d5db;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md mx-auto">
@@ -113,27 +135,6 @@
             </div>
         </div>
     </div>
-
-    <style>
-    /* Style for OTP input field */
-        #id_otp_code {
-            font-size: 2rem;
-            letter-spacing: 0.5rem;
-            text-align: center;
-            font-weight: bold;
-            border: 2px solid #e5e7eb;
-            transition: all 0.3s ease;
-        }
-
-        #id_otp_code:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        #id_otp_code::placeholder {
-            color: #d1d5db;
-        }
-    </style>
 {% endblock %}
 
 {% block footer %}

@@ -100,13 +100,14 @@ DATABASES = {
         'PASSWORD': os.getenv("DB_PASSWORD", ""),
         'HOST': os.getenv("DB_HOST", ""),
         'PORT': os.getenv("DB_PORT", ""),
-        'OPTIONS':{
-            'sslmode': os.getenv("DB_SSL", "require"),
-            'connect_timeout': 10,
-            },
         'CONN_MAX_AGE': 60,
     }
 }
+
+if os.getenv("DB_SSL"):
+    DATABASES['default']['OPTIONS'] = {}
+    DATABASES['default']['OPTIONS']['sslmode'] = os.getenv("DB_SSL")
+    DATABASES['default']['OPTIONS']['connect_timeout'] = 10
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

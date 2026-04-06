@@ -18,7 +18,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('redirect/', views.send_message, name='redirect'),
     
     path('agent/properties/', views.agent_properties_view, name='agent_properties'),
     path('api/welcome-seen/', views.mark_welcome_seen, name='mark_welcome_seen'),

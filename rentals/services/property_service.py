@@ -18,7 +18,7 @@ class PropertyService:
         ptype = self.property_type.display_name if self.property_type else "Unknown"
         school = self.school.name if self.school else None
         prefix = ["Shared" if self.shared else None, "Furnished" if self.furnished else None, "Serviced" if self.serviced else None, ""]
-        return f"{[p for p in prefix if type(p) is str]} {str(self.bedrooms) + "BR" if self.bedrooms else ""} {ptype} for {self.purpose} {"for "+school+" students" if school else ""} in {self.location.area}"
+        return f"{[p for p in prefix if type(p) is str][0]} {str(self.bedrooms) + "BR" if self.bedrooms else ""} {ptype} for {self.purpose} {"for "+school+" students" if school else ""} in {self.location.area}"
     
     def get_search_link(self):
         ptype = self.property_type.id if self.property_type else None

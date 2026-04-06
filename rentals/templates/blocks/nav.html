@@ -15,14 +15,14 @@
       <div class="hidden lg:flex items-center justify-center gap-1 grow ">
 
         <a href="{% url 'home' %}"
-           class="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+           class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
           Home
         </a>
 
         <div class="relative" id="propertiesNavItem">
           <button id="propertiesTrigger"
                   onclick="toggleMegaMenu()"
-                  class="flex items-center gap-1.5 px-4 py-2 text-xs text-gray-600
+                  class="flex items-center gap-1.5 px-4 py-2 text-sm text-gray-600
                          hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
             Properties
             <i class="fas fa-chevron-down text-[0.63rem] transition-transform duration-200" id="propertiesChevron"></i>
@@ -30,12 +30,12 @@
         </div>
 
         <a href="{% url 'about' %}"
-           class="px-4 py-2 text-xs text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
+           class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/80 transition">
           About
         </a>
 
         <a href="{% url 'wishlist' %}"
-           class="flex items-center gap-1.5 text-xs px-4 text-gray-600 hover:text-gray-900 transition
+           class="flex items-center gap-1.5 text-sm px-4 text-gray-600 hover:text-gray-900 transition
                   {% if request.resolver_match.url_name == 'wishlist' %}font-semibold text-gray-900{% endif %}">
           <i class="{% if request.resolver_match.url_name == 'wishlist' %}fas{% else %}far{% endif %} fa-heart text-xs"></i>
           Saved

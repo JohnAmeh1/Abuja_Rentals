@@ -6,11 +6,11 @@
           {{ title }}
 
           {% if subtitle %}
-          <p class="text-sm text-gray-500 font-normal mb-2">{{subtitle}}</p>
+            <p class="text-sm text-gray-500 font-normal mb-2">{{subtitle}}</p>
           {% endif %}
         </div>
         {% if props|length > 4 and href %}
-          <span class="size-7 flex items-center justify-center bg-gray-200 border-white rounded-full border-2 hover:border-gray-200 active:scale-75 duration-100">
+          <span class="size-7 flex items-center justify-center bg-gray-200 border-white rounded-full border-2 hover:border-gray-200 active:scale-75 duration-100 shrink-0">
             <i class="fas fa-arrow-right text-xs text-[#222222]/80"></i>
           </span>
         {% endif %}
@@ -39,24 +39,24 @@
 
     {% if props|length > 4 and href %}
       <a href="{{ href }}"
-         class="see-all-trigger group relative bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 min-w-64 flex flex-col items-center justify-center gap-4 px-6">
+         class="see-all-trigger group relative bg-white rounded-2xl border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 min-w-64 flex flex-col items-center justify-center gap-4 px-6 group">
         <div class="relative size-24">
           {% with props|slice:"0:3" as preview_props %}
-            <div class="see-all-back-right size-24 absolute right-8.5 bottom-1.5 border-4 border-white rounded-2xl z-10 overflow-hidden shadow bg-accent-dark/40"
-                 style="transform: rotate(6deg) translateY(30px) translateX(10px); opacity: 0; transition: transform 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.05s, opacity 0.3s ease 0.05s;">
-              {% if preview_props.1.main_image %}<img src="{{ preview_props.1.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
+            <div class="see-all-back-right size-24 absolute right-8.5 bottom-1.5 lg:group-hover:rotate-3 border-4 border-white rounded-2xl z-10 overflow-hidden shadow bg-accent-dark/40"
+                 style="transform: rotate(6deg) translateY(30px) translateX(10px); opacity: 0; transition: all 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.05s, opacity 0.3s ease 0.05s;">
+              {% if preview_props.1.main_image %}<img src="{{ preview_props.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
             </div>
-            <div class="see-all-back-left size-24 absolute left-8 top-1 border-4 border-white rounded-2xl z-10 overflow-hidden shadow bg-primary/40"
-                 style="transform: rotate(-6deg) translateY(30px) translateX(-10px); opacity: 0; transition: transform 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.1s, opacity 0.3s ease 0.1s;">
+            <div class="see-all-back-left size-24 absolute left-8 top-1 lg:group-hover:-rotate-6 border-4 border-white rounded-2xl z-10 overflow-hidden shadow bg-primary/40"
+                 style="transform: rotate(-6deg) translateY(30px) translateX(-10px); opacity: 0; transition: all 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.1s, opacity 0.3s ease 0.1s;">
               {% if preview_props.2.main_image %}<img src="{{ preview_props.2.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
-            </div>
-            <div class="see-all-front size-24 absolute bottom-12 border-4 border-white rounded-2xl z-20 overflow-hidden shadow bg-red-500/40"
-                 style="transform: rotate(0deg) translateY(40px); opacity: 0; transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s, opacity 0.3s ease 0s;">
+            </div> 
+            <div class="see-all-front size-24 absolute bottom-12 lg:group-hover:bottom-14 border-4 border-white rounded-2xl z-11 overflow-hidden shadow bg-red-500/40"
+                 style="transform: rotate(0deg) translateY(40px); opacity: 0; transition: all 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s, opacity 0.3s ease 0s;">
               {% if preview_props.0.main_image %}<img src="{{ preview_props.0.main_image }}" class="w-full h-full object-cover" alt="">{% endif %}
             </div>
           {% endwith %}
         </div>
-        <p class="font-semibold text-xs text-gray-600 group-hover:text-primary transition">See all</p>
+        <p class="font-semibold text-sm text-gray-600 group-hover:text-primary transition">See all</p>
       </a>
     {% endif %}
   </div>

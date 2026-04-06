@@ -194,12 +194,12 @@
       document.getElementById("hShared").value    = document.getElementById("modalShared").checked    ? "true" : "";
       document.getElementById("hSchool").value    = document.getElementById("modalSchool").checked    ? "true" : "";
 
-      let v1 = document.querySelector('input[name="min_price"]') 
-      let v2 = document.querySelector('input[name="max_price"]') 
+      let v1 = document.querySelector('input[name="min_price"]')
+      let v2 = document.querySelector('input[name="max_price"]')
 
       v1.value = v1.value.replace(/[,\s]/g, '');
       v2.value = v2.value.replace(/[,\s]/g, '');
-      
+
 
 
       document.querySelectorAll(".hAmenity").forEach(el => el.remove());

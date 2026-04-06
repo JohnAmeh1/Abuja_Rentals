@@ -883,8 +883,9 @@ def home(request):
 
 
 def login_view(request):
+    next_url = request.GET.get('next', '')
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect(f"/e{next_url}")
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -910,7 +911,7 @@ def login_view(request):
                     request.session.set_expiry(1209600)
 
                 messages.success(request, f'Welcome back, {user.username}!')
-                next_url = request.GET.get('next', '')
+                
                 url = f"{'/' if next_url else ''}{next_url}/?just_signed_in=1"
                 return redirect(url)
             else:
@@ -926,36 +927,44 @@ def signup_view(request):
         return redirect('home')
 
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        user = User.objects.filter(email=request.POST.get("email", "")).first()
-        if user:
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
+        phone = request.POST.get("phone_number", "")
+        address = request.POST.get("address", "")
+        bio = request.POST.get("bio", "")
+
+        if User.objects.filter(email=email).exists():
             messages.error(request, "An account has already been linked with this email")
             return redirect('login')
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.save()
 
-            success = UserProfile.make_profile(user, {
-                "phone_number": form.cleaned_data['phone_number'],
-                "address": form.cleaned_data['address'],
-                "bio": form.cleaned_data['bio']
-            })
-            if success != True:
-                user.delete()
-                return redirect('signup')
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            password=password
+        )
 
-            next_url = request.GET.get('next', 'home')
-            login(request, user)
+        UserProfile.make_profile(user, {
+            "phone_number": phone,
+            "address": address,
+            "bio": bio
+        })
 
-            success = trigger_otp_notification(user, "email_verification")
-            if success:
-                messages.success(request, 'Account created! Please check your email for the OTP code.\nYou can verify in the dashboard')
-                return redirect(next_url)
-            else:
-                messages.error(request, 'Failed to send OTP email. Please try again.')
-                return redirect(next_url)
+        next_url = request.POST.get('next') or request.GET.get('next') or 'home'
+
+        login(request, user)
+
+        success = trigger_otp_notification(user, "email_verification")
+
+        if success:
+            messages.success(
+                request,
+                "Account created! Please check your email for the OTP code. You can verify in the dashboard"
+            )
         else:
-            print(f"DEBUG: Form errors: {form.errors}")
+            messages.error(request, "Failed to send OTP email. Please try again.")
+
+        return redirect(next_url)
+    
     else:
         form = CustomUserCreationForm()
 
@@ -1870,24 +1879,6 @@ def get_details(request):
         "cities": cities,
         "schools": schools,
     }, safe=True)
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def send_message(request):
-    data = json.loads(request.body)
-
-    message = data.get("message")
-    m_type = data.get("type")
-    if message:
-        if m_type == "success":
-            messages.success(request, message)
-        elif m_type == "info":
-            messages.info(request, message)
-        elif m_type == "error":
-            messages.error(request, message)
-
-    return JsonResponse({})
 
 
 @login_required

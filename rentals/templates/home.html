@@ -191,9 +191,9 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
         {% for cat in categories %}
           <a href="{% url 'properties' %}?property_type={{ cat.id }}"
-             class='group relative overflow-hidden transition-all rounded-lg duration-200 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
+             class='group relative overflow-hidden transition-all rounded-lg lg:rounded-xl duration-200 {% if forloop.counter|title in "159"|make_list %} lg:col-span-2 {% endif %} {% if forloop.counter|title in "149"|make_list %} max-lg:col-span-2 {% endif %}'>
 
-            <img src="{{cat.image}}&w=400&q=50"
+            <img src="{{cat.image}}&w=400&q=70"
                  class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition duration-400 brightness-[.70] group-hover:brightness-[.35]"
                  alt="{{cat.display_name}}" />
 

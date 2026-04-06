@@ -9,7 +9,6 @@
 
     {% load static %}
 
-  <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0f172a">
     <meta name="mobile-web-app-capable" content="yes"> <!-- Fixed: removed apple-mobile-web-app-capable -->
     <meta name="apple-mobile-web-app-capable" content="yes"> <!-- Keep for iOS -->
@@ -247,6 +246,7 @@
               style="writing-mode: horizontal-tb;">0</span>
       </button>
       {% include 'blocks/compare.html' %}
+      {% include 'auth/auth_modal.html' %}
     </main>
 
     {% block footer %}
@@ -548,29 +548,10 @@
 
       const params = new URLSearchParams(window.location.search);
 
-      async function handlePostLogin() {
-        if (!isAuthenticated) return;
-        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
-        const localSaved = JSON.parse(localStorage.getItem("SAVED_PROPERTIES")) || [];
-
-        if (localSaved.length === 0) return;
-
-        const res = await fetch("/sync-saved/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
-          body: JSON.stringify({ ids: localSaved }),
-        })
-        data = res.json()
-        savedSet = new Set(data.saved_ids);
-
-        localStorage.removeItem("SAVED_PROPERTIES");
-      }
-
       window.SAVED_IDS = {{ saved_ids|safe }};
       window.IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
 
-      const local = JSON.parse(localStorage.getItem("SAVED_PROPERTIES")) || [];
-      const savedSet = new Set([...window.SAVED_IDS, ...local]);
+      const savedSet = new Set([...window.SAVED_IDS,]);
       const isAuthenticated = window.IS_AUTHENTICATED;
 
       function updateUiSaved() {
@@ -609,17 +590,13 @@
       }
 
       async function persist(propertyId) {
-        if (isAuthenticated){
-          const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
-          try {
-            await fetch(`/property/${propertyId}/save/`, { method: "POST", headers: {"X-CSRFToken": csrfToken} });
-          } catch (e) {
-            rollback(propertyId);
-          }
+        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
+        try {
+          await fetch(`/property/${propertyId}/save/`, { method: "POST", headers: {"X-CSRFToken": csrfToken} });
+        } catch (e) {
+          rollback(propertyId);
         }
-        else {
-          localStorage.setItem("SAVED_PROPERTIES", JSON.stringify([...savedSet]));
-        }
+      
       }
 
       function rollback(propertyId) {
@@ -629,6 +606,15 @@
           savedSet.add(propertyId);
         }
         updateUI(propertyId);
+      }
+
+      function authenticate(func, args){
+        {% if request.user.is_authenticated %}
+          func(...args)
+        {% else %}
+          openAuthModal()
+        {% endif %}
+
       }
 
       function render_message(action) {
@@ -651,6 +637,11 @@
         container_.appendChild(divv)
         setTimeout(()=> {container_.removeChild(divv)}, 5000)
       }
+
+      function goto(url) {
+        window.location.href = url
+      }
+
     </script>
     {% block extra_js %}{% endblock %}
 

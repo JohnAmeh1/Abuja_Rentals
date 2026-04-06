@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | Abuja Rentals{% endblock %}
+
+{% block extra_css %}
+<style>
+  #page-404 {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f7f6f2;
+    padding: 2rem 1rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #page-404::before {
+    content: '404';
+    position: absolute;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(14rem, 35vw, 28rem);
+    color: #e8e6df;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+    z-index: 0;
+  }
+
+  .err-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 520px;
+  }
+
+  .err-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #0F6E56;
+    background: #E1F5EE;
+    border: 1px solid #9FE1CB;
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .err-heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #1a1a1a;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+  }
+
+  .err-heading em {
+    font-style: italic;
+    color: #0F6E56;
+  }
+
+  .err-sub {
+    font-size: 0.95rem;
+    color: #888;
+    line-height: 1.7;
+    margin: 0 0 2rem;
+  }
+
+  .err-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 3rem;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.65rem 1.4rem;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #0F6E56; color: #fff; }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.65rem 1.4rem;
+    background: transparent;
+    color: #555;
+    border: 1px solid #d5d3cc;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+  .err-divider {
+    width: 40px;
+    height: 1px;
+    background: #d5d3cc;
+    margin: 0 auto 2rem;
+  }
+
+  .err-explore-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 1rem;
+  }
+
+  .pill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 480px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    border: 1px solid #dddbd5;
+    background: #fff;
+    font-size: 0.78rem;
+    color: #444;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    white-space: nowrap;
+  }
+  .pill:hover {
+    border-color: #0F6E56;
+    color: #0F6E56;
+    background: #f0faf6;
+  }
+  .pill i { font-size: 0.65rem; color: #aaa; }
+  .pill:hover i { color: #0F6E56; }
+
+  .err-stat {
+    margin-top: 2.5rem;
+    font-size: 0.75rem;
+    color: #bbb;
+  }
+  .err-stat strong { color: #0F6E56; font-weight: 500; }
+
+  @keyframes floatIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .err-content > * {
+    animation: floatIn 0.5s ease both;
+  }
+  .err-eyebrow   { animation-delay: 0.05s; }
+  .err-heading   { animation-delay: 0.12s; }
+  .err-sub       { animation-delay: 0.18s; }
+  .err-actions   { animation-delay: 0.24s; }
+  .err-divider   { animation-delay: 0.30s; }
+  .err-explore-label { animation-delay: 0.34s; }
+  .pill-grid     { animation-delay: 0.38s; }
+  .err-stat      { animation-delay: 0.44s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="page-404">
+  <div class="err-content">
+
+    <span class="err-eyebrow">
+      <i class="fas fa-map-marker-alt" style="font-size:0.6rem;"></i>
+      Page not found
+    </span>
+
+    <h1 class="err-heading">
+      This address <em>doesn't exist</em><br>— let's find one that does.
+    </h1>
+
+    <p class="err-sub">
+      The page you're looking for may have moved, expired, or never existed.
+      There are <strong style="color:#1a1a1a;">{{ total_properties }}</strong> active
+      listings waiting for you though.
+    </p>
+
+    <div class="err-actions">
+      <a href="{% url 'properties' %}" class="btn-primary">
+        <i class="fas fa-search" style="font-size:0.75rem;"></i>
+        Browse all listings
+      </a>
+      <a href="javascript:history.back()" class="btn-ghost">
+        <i class="fas fa-arrow-left" style="font-size:0.75rem;"></i>
+        Go back
+      </a>
+    </div>
+
+    <div class="err-divider"></div>
+
+    {% if nav_cities %}
+      <p class="err-explore-label">Explore by city</p>
+      <div class="pill-grid">
+        {% for city in nav_cities %}
+          <a href="{% url 'properties' %}?city={{ city.id }}" class="pill">
+            <i class="fas fa-city"></i>
+            {{ city.name|capfirst }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if nav_property_types %}
+      <p class="err-explore-label" style="margin-top:1.25rem;">Or by property type</p>
+      <div class="pill-grid">
+        {% for pt in nav_property_types %}
+          <a href="{% url 'properties' %}?property_type={{ pt.id }}" class="pill">
+            <i class="{{ pt.icon }}"></i>
+            {{ pt.display_name }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <p class="err-stat">
+      <strong>{{ total_properties }}</strong> properties available across Abuja right now
+    </p>
+
+  </div>
+</div>
+{% endblock %}
